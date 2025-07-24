@@ -1,5 +1,5 @@
 # Root level ignores
-node_modules/
+node_modules/*
 *.log
 .env
 .DS_Store
