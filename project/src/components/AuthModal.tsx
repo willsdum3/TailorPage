@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, User, Mail, Lock, UserPlus, LogIn, Chrome } from 'lucide-react';
+import { useSignIn, useSignUp } from '@clerk/clerk-react';
 import { LoginCredentials, SignupData, User as UserType } from '../types';
 
 interface AuthModalProps {
@@ -10,7 +11,11 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignup }) => {
+  const { signIn, setActive } = useSignIn();
+  const { signUp, setActive: setActiveSignUp } = useSignUp();
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -20,45 +25,127 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSSOSignup = async (provider: string) => {
+  const handleSSOAuth = async (provider: 'oauth_google' | 'oauth_apple' | 'oauth_facebook' | 'oauth_microsoft') => {
+    if (!signIn) return;
+    
     setIsLoading(true);
     
     try {
-      // Simulate SSO authentication
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Use authenticateWithRedirect directly for OAuth flows
+      await signIn.authenticateWithRedirect({
+        strategy: provider,
+        redirectUrl: window.location.origin,
+        redirectUrlComplete: window.location.origin
+      });
       
-      // Mock successful SSO signup
-      const mockUser: SignupData = {
-        name: `${provider} User`,
-        username: `${provider.toLowerCase()}user${Date.now()}`,
-        email: `user@${provider.toLowerCase()}.com`,
-        password: 'sso-generated'
-      };
+      // The redirect will handle the rest - no need to check status here
+      // Loading state will persist until the page redirects
+    } catch (error: any) {
+      console.error('Authentication error:', error);
       
-      await onSignup(mockUser);
-    } catch (error) {
-      setErrors({ general: `${provider} authentication failed. Please try again.` });
-    } finally {
+      // Log detailed error information
+      console.log('Error details:', {
+        code: error.code,
+        message: error.message,
+        errors: error.errors
+      });
+      
+      setErrors({ 
+        general: error.errors?.[0]?.message || `${provider.replace('oauth_', '')} authentication failed. Please try again.` 
+      });
       setIsLoading(false);
     }
+    // Don't set loading to false here - page will redirect
   };
 
-  const handleSSOLogin = async (provider: string) => {
-    setIsLoading(true);
+  const handleVerificationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
+    if (!signUp || !verificationCode.trim()) {
+      setErrors({ general: 'Please enter the verification code.' });
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      // Simulate SSO authentication
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('Attempting verification with code:', verificationCode);
       
-      // Mock successful SSO login
-      const mockCredentials: LoginCredentials = {
-        username: `${provider.toLowerCase()}user`,
-        password: 'sso-generated'
-      };
-      
-      await onLogin(mockCredentials);
-    } catch (error) {
-      setErrors({ general: `${provider} authentication failed. Please try again.` });
+      const result = await signUp.attemptEmailAddressVerification({
+        code: verificationCode,
+      });
+
+      console.log('Verification result:', result);
+      console.log('Required fields:', result.requiredFields);
+      console.log('Optional fields:', result.optionalFields);
+
+      if (result.status === 'complete') {
+        console.log('Verification complete, setting active session...');
+        await setActiveSignUp({ session: result.createdSessionId });
+        console.log('Session set, closing modal...');
+        // Reset all states
+        setShowVerification(false);
+        setVerificationCode('');
+        setFormData({ name: '', username: '', email: '', password: '' });
+        setErrors({});
+        onClose();
+      } else if (result.status === 'missing_requirements') {
+        console.log('Still missing requirements after verification');
+        console.log('Missing fields:', result.requiredFields);
+        
+        // Handle missing required fields after verification
+        try {
+          const updateData: any = {};
+          
+          // Handle username requirement
+          if (result.requiredFields?.includes('username')) {
+            // Use the username from form data - it should be provided since it's required in signup form
+            updateData.username = formData.username;
+          }
+          
+          // Always try to set name information if we have it
+          if (formData.name.trim()) {
+            const nameParts = formData.name.trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            
+            // Only add if required or if we have meaningful data
+            if (result.requiredFields?.includes('first_name') || firstName) {
+              updateData.firstName = firstName;
+            }
+            if (result.requiredFields?.includes('last_name') || lastName) {
+              updateData.lastName = lastName;
+            }
+          }
+          
+          console.log('Updating with missing fields:', updateData);
+          
+          const updateResult = await signUp.update(updateData);
+          console.log('Update result:', updateResult);
+          
+          if (updateResult.status === 'complete') {
+            await setActiveSignUp({ session: updateResult.createdSessionId });
+            setShowVerification(false);
+            setVerificationCode('');
+            setFormData({ name: '', username: '', email: '', password: '' });
+            setErrors({});
+            onClose();
+          } else {
+            setErrors({ general: `Still missing requirements: ${updateResult.requiredFields?.join(', ')}` });
+          }
+        } catch (updateError: any) {
+          console.error('Update error:', updateError);
+          setErrors({ general: 'Failed to complete signup. Please try again.' });
+        }
+      } else {
+        console.log('Verification incomplete, status:', result.status);
+        setErrors({ general: 'Verification failed. Please try again.' });
+      }
+    } catch (error: any) {
+      console.error('Verification error:', error);
+      setErrors({
+        general: error.errors?.[0]?.message || 'Verification failed. Please check your code and try again.'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -78,19 +165,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
-    }
-
-    if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    if (!isLoginMode) {
+    if (isLoginMode) {
+      // For login, require email or username
+      if (!formData.email.trim()) {
+        newErrors.email = 'Email or username is required for login';
+      }
+      // Don't validate email format in login mode since it could be a username
+    } else {
+      // For signup, require all fields
       if (!formData.name.trim()) {
         newErrors.name = 'Name is required';
+      }
+
+      if (!formData.username.trim()) {
+        newErrors.username = 'Username is required';
+      } else if (formData.username.length < 3) {
+        newErrors.username = 'Username must be at least 3 characters';
+      } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+        newErrors.username = 'Username can only contain letters, numbers, and underscores';
       }
 
       if (!formData.email.trim()) {
@@ -98,6 +190,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
         newErrors.email = 'Please enter a valid email address';
       }
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     setErrors(newErrors);
@@ -108,30 +206,71 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
     e.preventDefault();
     
     if (!validateForm()) return;
+    if (!signIn || !signUp) return;
 
     setIsLoading(true);
 
     try {
       if (isLoginMode) {
-        await onLogin({
-          username: formData.username,
-          password: formData.password
+        // Use the email field as identifier - can be email or username
+        const result = await signIn.create({
+          identifier: formData.email, // This field contains either email or username in login mode
+          password: formData.password,
         });
+
+        if (result.status === 'complete') {
+          await setActive({ session: result.createdSessionId });
+          onClose();
+        }
       } else {
-        await onSignup({
-          name: formData.name,
+        // Sign up with Clerk - include username if provided
+        const signUpData: any = {
+          emailAddress: formData.email,
+          password: formData.password,
           username: formData.username,
-          email: formData.email,
-          password: formData.password
-        });
+        };
+        
+        // Don't include firstName/lastName - your Clerk org doesn't accept them
+        // The name will be added to the user profile after signup if needed
+        
+        console.log('Clerk signup data:', signUpData);
+        console.log('Starting Clerk signup...');
+        
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Signup timeout after 30 seconds')), 30000)
+        );
+        
+        const result = await Promise.race([
+          signUp.create(signUpData),
+          timeoutPromise
+        ]) as any;
+        console.log('Clerk signup result:', result);
+        console.log('Signup status:', result.status);
+
+        if (result.status === 'complete') {
+          console.log('Signup complete, setting active session...');
+          await setActiveSignUp({ session: result.createdSessionId });
+          console.log('Session set, closing modal...');
+          onClose();
+        } else if (result.status === 'missing_requirements') {
+          console.log('Email verification required');
+          // Handle email verification if required
+          await result.prepareEmailAddressVerification({ strategy: 'email_code' });
+          setShowVerification(true);
+          setErrors({ general: 'Please check your email for verification code and enter it below.' });
+        } else {
+          console.log('Unexpected signup status:', result.status);
+          setErrors({ general: `Signup incomplete. Status: ${result.status}` });
+        }
       }
       
-      // Reset form and close modal on success
+      // Reset form on success
       setFormData({ name: '', username: '', email: '', password: '' });
       setErrors({});
-      onClose();
-    } catch (error) {
-      setErrors({ general: 'Authentication failed. Please try again.' });
+    } catch (error: any) {
+      console.error('Authentication error:', error);
+      setErrors({ general: error.errors?.[0]?.message || 'Authentication failed. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -141,6 +280,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
     setIsLoginMode(!isLoginMode);
     setFormData({ name: '', username: '', email: '', password: '' });
     setErrors({});
+    setShowVerification(false);
+    setVerificationCode('');
   };
 
   return (
@@ -158,92 +299,146 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={showVerification ? handleVerificationSubmit : handleSubmit} className="p-6 space-y-4">
           {errors.general && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
               <p className="text-red-400 text-sm">{errors.general}</p>
             </div>
           )}
 
-          {!isLoginMode && (
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-white/90 mb-2">
-                Full Name
-              </label>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
-                  placeholder="Enter your full name"
-                />
+          {/* CAPTCHA element for Clerk */}
+          <div id="clerk-captcha" className="hidden"></div>
+
+          {!showVerification && (
+            <>
+              {!isLoginMode && (
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-white/90 mb-2">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  {errors.name && <p className="text-red-400 text-sm mt-2">{errors.name}</p>}
+                </div>
+              )}
+
+              {!isLoginMode && (
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-white/90 mb-2">
+                    Username
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+                    <input
+                      type="text"
+                      id="username"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
+                      placeholder="Choose a username"
+                    />
+                  </div>
+                  {errors.username && <p className="text-red-400 text-sm mt-2">{errors.username}</p>}
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
+                  {isLoginMode ? 'Email or Username' : 'Email Address'}
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <input
+                    type={isLoginMode ? "text" : "email"}
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
+                    placeholder={isLoginMode ? "Enter your email or username" : "Enter your email address"}
+                  />
+                </div>
+                {errors.email && <p className="text-red-400 text-sm mt-2">{errors.email}</p>}
               </div>
-              {errors.name && <p className="text-red-400 text-sm mt-2">{errors.name}</p>}
-            </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-white/90 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
+                    placeholder="Enter your password"
+                  />
+                </div>
+                {errors.password && <p className="text-red-400 text-sm mt-2">{errors.password}</p>}
+              </div>
+            </>
           )}
 
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-white/90 mb-2">
-              Username
-            </label>
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
-                placeholder="Enter your username"
-              />
-            </div>
-            {errors.username && <p className="text-red-400 text-sm mt-2">{errors.username}</p>}
-          </div>
-
-          {!isLoginMode && (
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
-                  placeholder="Enter your email address"
-                />
+          {/* Verification Code Input - Only shown when email verification is required */}
+          {showVerification && (
+            <>
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mb-4">
+                <p className="text-blue-400 text-sm">
+                  We've sent a verification code to <strong>{formData.email}</strong>. 
+                  Please check your email and enter the code below.
+                </p>
               </div>
-              {errors.email && <p className="text-red-400 text-sm mt-2">{errors.email}</p>}
-            </div>
+              
+              <div>
+                <label htmlFor="verificationCode" className="block text-sm font-medium text-white/90 mb-2">
+                  Verification Code
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+                  <input
+                    type="text"
+                    id="verificationCode"
+                    name="verificationCode"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
+                    placeholder="Enter the 6-digit code from your email"
+                    maxLength={6}
+                    autoFocus
+                  />
+                </div>
+                <p className="text-white/60 text-xs mt-2">
+                  Didn't receive the code? Check your spam folder or{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowVerification(false);
+                      setVerificationCode('');
+                      setErrors({});
+                    }}
+                    className="text-amber-400 hover:text-amber-300 underline"
+                  >
+                    go back
+                  </button>{' '}
+                  to try again.
+                </p>
+              </div>
+            </>
           )}
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-white/90 mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-2.5 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all duration-200"
-                placeholder="Enter your password"
-              />
-            </div>
-            {errors.password && <p className="text-red-400 text-sm mt-2">{errors.password}</p>}
-          </div>
 
           <button
             type="submit"
@@ -254,27 +449,39 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                {isLoginMode ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-                <span>{isLoginMode ? 'Log In' : 'Create Account'}</span>
+                {showVerification ? (
+                  <>
+                    <Mail className="w-5 h-5" />
+                    <span>Verify Email</span>
+                  </>
+                ) : (
+                  <>
+                    {isLoginMode ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+                    <span>{isLoginMode ? 'Log In' : 'Create Account'}</span>
+                  </>
+                )}
               </>
             )}
           </button>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+          {!showVerification && (
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/10" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-slate-900/95 text-white/60">
+                  Or
+                </span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-slate-900/95 text-white/60">
-                Or
-              </span>
-            </div>
-          </div>
+          )}
 
-          <div className="grid grid-cols-2 gap-2">
+          {!showVerification && (
+            <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => isLoginMode ? handleSSOLogin('Google') : handleSSOSignup('Google')}
+              onClick={() => handleSSOAuth('oauth_google')}
               disabled={isLoading}
               className="flex items-center justify-center px-3 py-2.5 border border-white/20 rounded-xl text-white hover:bg-white/5 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
@@ -289,7 +496,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
 
             <button
               type="button"
-              onClick={() => isLoginMode ? handleSSOLogin('Apple') : handleSSOSignup('Apple')}
+              onClick={() => handleSSOAuth('oauth_apple')}
               disabled={isLoading}
               className="flex items-center justify-center px-3 py-2.5 border border-white/20 rounded-xl text-white hover:bg-white/5 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
@@ -301,7 +508,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
 
             <button
               type="button"
-              onClick={() => isLoginMode ? handleSSOLogin('Facebook') : handleSSOSignup('Facebook')}
+              onClick={() => handleSSOAuth('oauth_facebook')}
               disabled={isLoading}
               className="flex items-center justify-center px-3 py-2.5 border border-white/20 rounded-xl text-white hover:bg-white/5 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
@@ -313,7 +520,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
 
             <button
               type="button"
-              onClick={() => isLoginMode ? handleSSOLogin('Microsoft') : handleSSOSignup('Microsoft')}
+              onClick={() => handleSSOAuth('oauth_microsoft')}
               disabled={isLoading}
               className="flex items-center justify-center px-3 py-2.5 border border-white/20 rounded-xl text-white hover:bg-white/5 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
@@ -325,9 +532,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
               </svg>
               <span className="text-xs font-medium">Continue with Microsoft</span>
             </button>
-          </div>
+            </div>
+          )}
 
-          <div className="text-center pt-3 border-t border-white/10">
+          {!showVerification && (
+            <div className="text-center pt-3 border-t border-white/10">
             <p className="text-white/70">
               {isLoginMode ? "Don't have an account?" : "Already have an account?"}
               <button
@@ -338,7 +547,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
                 {isLoginMode ? 'Sign Up' : 'Log In'}
               </button>
             </p>
-          </div>
+            </div>
+          )}
         </form>
       </div>
     </div>

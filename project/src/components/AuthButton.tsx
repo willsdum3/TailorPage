@@ -33,7 +33,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({ user, onLogin, onLogout, positi
           <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
             <User className="w-4 h-4 text-white" />
           </div>
-          <span className="text-white font-medium">{user.name}</span>
+          <span className="text-white font-medium">{user.name || user.username}</span>
         </div>
         <button
           onClick={onLogout}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import WelcomePage from './components/WelcomePage';
 import QuizPage from './components/QuizPage';
 import ResultsPage from './components/ResultsPage';
@@ -275,15 +276,48 @@ type AppPage = 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'tren
 // No Supabase or external auth logic present
 
 function App() {
+  const { user: clerkUser, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [personalityProfile, setPersonalityProfile] = useState<PersonalityProfile | null>(null);
   const [favorites, setFavorites] = useState<FavoriteBook[]>([]);
-  const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<BookRecommendation[]>([]);
   const [allRecommendedIds, setAllRecommendedIds] = useState<string[]>([]);
+
+  // Convert Clerk user to our User type
+  const user: User | null = clerkUser ? {
+    id: clerkUser.id,
+    name: clerkUser.fullName || clerkUser.firstName || clerkUser.username || 'User',
+    username: clerkUser.username || clerkUser.emailAddresses[0]?.emailAddress?.split('@')[0] || 'user',
+    email: clerkUser.emailAddresses[0]?.emailAddress || ''
+  } : null;
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Clerk user:', clerkUser);
+    if (clerkUser) {
+      console.log('Clerk user details:', {
+        id: clerkUser.id,
+        fullName: clerkUser.fullName,
+        firstName: clerkUser.firstName,
+        lastName: clerkUser.lastName,
+        username: clerkUser.username,
+        emailAddresses: clerkUser.emailAddresses
+      });
+    }
+    console.log('Converted user:', user);
+    console.log('Is loaded:', isLoaded);
+  }, [clerkUser, user, isLoaded]);
+
+  // Close auth modal when user becomes authenticated
+  useEffect(() => {
+    if (isLoaded && clerkUser && isAuthModalOpen) {
+      setIsAuthModalOpen(false);
+    }
+  }, [isLoaded, clerkUser, isAuthModalOpen]);
 
   const handleToggleFavorite = (book: BookRecommendation) => {
     // Only allow favoriting books that are in the current recommendations
@@ -310,40 +344,26 @@ function App() {
   };
 
   const handleLogin = async (credentials: LoginCredentials) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // Mock successful login
-    const mockUser: User = {
-      id: '1',
-      name: 'John Doe',
-      username: credentials.username,
-      email: credentials.email
-    };
-    setUser(mockUser);
+    // This is now handled by Clerk in the AuthModal
     setIsAuthModalOpen(false);
   };
 
   const handleSignup = async (data: SignupData) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // Mock successful signup
-    const newUser: User = {
-      id: Date.now().toString(),
-      name: data.name,
-      username: data.username,
-      email: data.email
-    };
-    setUser(newUser);
+    // This is now handled by Clerk in the AuthModal
     setIsAuthModalOpen(false);
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    // Optionally clear favorites and other user data
-    setFavorites([]);
-    setPersonalityProfile(null);
-    setAnswers({});
-    setCurrentPage('welcome');
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Clear user data
+      setFavorites([]);
+      setPersonalityProfile(null);
+      setAnswers({});
+      setCurrentPage('welcome');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const handleStartQuiz = () => {
@@ -478,6 +498,18 @@ function App() {
         };
     }
   };
+
+  // Show loading while Clerk is initializing
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/80 text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
