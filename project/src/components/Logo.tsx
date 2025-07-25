@@ -1,5 +1,4 @@
 import React from 'react';
-import { BookOpen, Sparkles } from 'lucide-react';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -7,31 +6,27 @@ interface LogoProps {
   className?: string;
 }
 
+const sizeClasses = {
+  sm: 'w-12 h-12',
+  md: 'w-20 h-20',
+  lg: 'w-32 h-32'
+};
+
+const textSizeClasses = {
+  sm: 'text-lg',
+  md: 'text-xl',
+  lg: 'text-2xl'
+};
+
 const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '' }) => {
-  const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-12 h-12',
-    lg: 'w-16 h-16'
-  };
-
-  const textSizeClasses = {
-    sm: 'text-lg',
-    md: 'text-xl',
-    lg: 'text-2xl'
-  };
-
-  const iconSizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8'
-  };
-
   return (
     <div className={`flex items-center space-x-3 ${className}`}>
-      <div className={`${sizeClasses[size]} bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center relative overflow-hidden group`}>
-        <BookOpen className={`${iconSizeClasses[size]} text-white z-10`} />
-        <Sparkles className="w-3 h-3 text-white/60 absolute top-1 right-1 animate-pulse" />
-      </div>
+      <img
+        src={'/tailorpagelogoupdate.png'}
+        alt="Tailor Page Logo"
+        className={`${sizeClasses[size]} rounded-xl object-contain bg-white`}
+        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+      />
       {showText && (
         <div>
           <h1 className={`${textSizeClasses[size]} font-bold text-white leading-tight`}>

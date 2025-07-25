@@ -5,9 +5,10 @@ import Logo from './Logo';
 
 interface CelebrityTesterPageProps {
   onBack: () => void;
+  hasCompletedQuiz: boolean;
 }
 
-const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack }) => {
+const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCompletedQuiz }) => {
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
 
@@ -356,23 +357,64 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack }) => 
 
         {/* Bottom CTA */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center space-x-2 mb-4">
-              <Sparkles className="w-6 h-6 text-amber-400" />
-              <h2 className="text-3xl font-bold text-white">Want Your Own Personalised Recommendations?</h2>
-            </div>
-            <p className="text-white/70 mb-8 max-w-2xl mx-auto">
-              Just like these celebrities, you have a unique personality that influences your reading preferences. Take our quiz to discover books perfectly tailored to you!
-            </p>
-          </div>
-          
-          <button
-            onClick={onBack}
-            className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
-          >
-            <span>Take Your Personality Quiz</span>
-            <ArrowLeft className="w-5 h-5 rotate-180" />
-          </button>
+          {hasCompletedQuiz ? (
+            <>
+              <div className="mb-8">
+                <div className="inline-flex items-center space-x-2 mb-4">
+                  <Sparkles className="w-6 h-6 text-amber-400" />
+                  <h2 className="text-3xl font-bold text-white">Enjoying Tailor Page?</h2>
+                </div>
+                <p className="text-white/70 mb-8 max-w-2xl mx-auto">
+                  Share the app with your friends on social media!
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <a href="https://www.facebook.com/sharer/sharer.php?u=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-100">
+                    <img src="/FBlogo.png" alt="Facebook" className="w-6 h-6" />
+                    <span>Facebook</span>
+                  </a>
+                  <a href="https://twitter.com/intent/tweet?url=https://your-app-url.com&text=Check%20out%20Tailor%20Page!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-black/10">
+                    <img src="/xlogo.png" alt="X" className="w-6 h-6" />
+                    <span>X</span>
+                  </a>
+                  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-900/10">
+                    <img src="/linkedinlogo.png" alt="LinkedIn" className="w-6 h-6" />
+                    <span>LinkedIn</span>
+                  </a>
+                  <a href="https://reddit.com/submit?url=https://your-app-url.com&title=Check%20out%20Tailor%20Page!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-orange-100">
+                    <img src="/redditlogo.jfif" alt="Reddit" className="w-6 h-6" />
+                    <span>Reddit</span>
+                  </a>
+                  <a href="https://api.whatsapp.com/send?text=Check%20out%20Tailor%20Page!%20https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-green-100">
+                    <img src="/whatsapplogo.jfif" alt="WhatsApp" className="w-6 h-6" />
+                    <span>WhatsApp</span>
+                  </a>
+                  <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-pink-100">
+                    <img src="/instagramlogo.jfif" alt="Instagram" className="w-6 h-6" />
+                    <span>Instagram</span>
+                  </a>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-8">
+                <div className="inline-flex items-center space-x-2 mb-4">
+                  <Sparkles className="w-6 h-6 text-amber-400" />
+                  <h2 className="text-3xl font-bold text-white">Want Your Own Personalised Recommendations?</h2>
+                </div>
+                <p className="text-white/70 mb-8 max-w-2xl mx-auto">
+                  Just like these celebrities, you have a unique personality that influences your reading preferences. Take our quiz to discover books perfectly tailored to you!
+                </p>
+              </div>
+              <button
+                onClick={onBack}
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              >
+                <span>Take Your Personality Quiz</span>
+                <ArrowLeft className="w-5 h-5 rotate-180" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

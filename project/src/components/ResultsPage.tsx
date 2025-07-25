@@ -270,6 +270,35 @@ const ResultsPage = ({
           </div>
         </div>
       </div>
+      <div className="mt-12 text-center">
+        <h2 className="text-2xl font-bold text-white mb-4">Share your results!</h2>
+        <div className="flex flex-wrap justify-center gap-4">
+          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-100">
+            <img src="/FBlogo.png" alt="Facebook" className="w-6 h-6" />
+            <span>Facebook</span>
+          </a>
+          <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-black/10">
+            <img src="/xlogo.png" alt="X" className="w-6 h-6" />
+            <span>X</span>
+          </a>
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-900/10">
+            <img src="/linkedinlogo.png" alt="LinkedIn" className="w-6 h-6" />
+            <span>LinkedIn</span>
+          </a>
+          <a href={`https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-orange-100">
+            <img src="/redditlogo.jfif" alt="Reddit" className="w-6 h-6" />
+            <span>Reddit</span>
+          </a>
+          <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Tailor Page recommended me these books based on my personality! ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-green-100">
+            <img src="/whatsapplogo.jfif" alt="WhatsApp" className="w-6 h-6" />
+            <span>WhatsApp</span>
+          </a>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-pink-100">
+            <img src="/instagramlogo.jfif" alt="Instagram" className="w-6 h-6" />
+            <span>Instagram</span>
+          </a>
+        </div>
+      </div>
     </div>
   );
 };

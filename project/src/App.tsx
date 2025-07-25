@@ -622,7 +622,7 @@ function App() {
             onLogout={handleLogout}
             position="top-left"
           />
-          <TrendingBooksPage onBack={() => setCurrentPage('welcome')} />
+          <TrendingBooksPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
         </>
       )}
       {currentPage === 'trending-authors' && (
@@ -633,7 +633,18 @@ function App() {
             onLogout={handleLogout}
             position="top-left"
           />
-          <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} />
+          <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+        </>
+      )}
+      {currentPage === 'celebrity-books' && (
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-left"
+          />
+          <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
         </>
       )}
       {['profile', 'celebrity-books'].includes(currentPage) && (
