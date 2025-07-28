@@ -7,9 +7,11 @@ interface FavoritesPageProps {
   favorites: FavoriteBook[];
   onRemoveFavorite: (bookId: string) => void;
   onBack: () => void;
+  hasCompletedQuiz?: boolean;
+  onGenerateNewBooks?: () => void;
 }
 
-const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavorite, onBack }) => {
+const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavorite, onBack, hasCompletedQuiz = false, onGenerateNewBooks }) => {
   if (favorites.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -19,6 +21,17 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
         
         <div className="max-w-2xl mx-auto text-center relative z-10">
+          {/* Home Button */}
+          <div className="absolute top-0 right-0">
+            <button
+              onClick={onBack}
+              className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+              title="Go to Home"
+            >
+              <Home className="w-5 h-5" />
+            </button>
+          </div>
+          
           <div className="mb-8">
             <div className="mb-8">
               <Logo size="lg" showText={true} />
@@ -37,24 +50,49 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
             </p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">Start Building Your Collection</h2>
-            <p className="text-white/70 mb-6 leading-relaxed">
-              Take the personality quiz to get personalised book recommendations, then save your favourites by clicking the star icon next to any book.
-            </p>
-            <div className="flex items-center justify-center space-x-2 text-amber-400">
-              <Sparkles className="w-5 h-5" />
-              <span className="text-sm font-medium">Discover books tailored just for you</span>
-            </div>
-          </div>
+          {hasCompletedQuiz ? (
+            <>
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+                <h2 className="text-2xl font-bold text-white mb-4">Generate New Recommendations</h2>
+                <p className="text-white/70 mb-6 leading-relaxed">
+                  You've completed the quiz! Generate new book recommendations to discover more books that match your personality and start building your favorites collection.
+                </p>
+                <div className="flex items-center justify-center space-x-2 text-amber-400">
+                  <Sparkles className="w-5 h-5" />
+                  <span className="text-sm font-medium">Get fresh recommendations tailored to you</span>
+                </div>
+              </div>
 
-          <button
-            onClick={onBack}
-            className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Start Quiz</span>
-          </button>
+              <button
+                onClick={onGenerateNewBooks || onBack}
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Generate New Books</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+                <h2 className="text-2xl font-bold text-white mb-4">Start Building Your Collection</h2>
+                <p className="text-white/70 mb-6 leading-relaxed">
+                  Take the personality quiz to get personalised book recommendations, then save your favourites by clicking the star icon next to any book.
+                </p>
+                <div className="flex items-center justify-center space-x-2 text-amber-400">
+                  <Sparkles className="w-5 h-5" />
+                  <span className="text-sm font-medium">Discover books tailored just for you</span>
+                </div>
+              </div>
+
+              <button
+                onClick={onBack}
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Start Quiz</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     );

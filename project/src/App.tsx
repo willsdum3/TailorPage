@@ -600,6 +600,14 @@ function App() {
             favorites={favorites}
             onRemoveFavorite={handleRemoveFavorite}
             onBack={() => setCurrentPage('welcome')}
+            hasCompletedQuiz={!!personalityProfile}
+            onGenerateNewBooks={() => {
+              if (!personalityProfile) return;
+              const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
+              setRecommendations(newRecs);
+              setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+              setCurrentPage('generated');
+            }}
           />
         </>
       )}
@@ -656,7 +664,7 @@ function App() {
             position="top-left"
           />
           {currentPage === 'celebrity-books' ? (
-            <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} />
+            <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
           ) : (
             <PlaceholderPage
               {...getPlaceholderContent(currentPage)}

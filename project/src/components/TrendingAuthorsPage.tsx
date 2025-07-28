@@ -163,42 +163,33 @@ const TrendingAuthorsPage: React.FC<TrendingAuthorsPageProps> = ({ onBack, hasCo
         {/* Authors Grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mb-16">
           {filteredAuthors.map((author) => (
-            <div key={author.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
-              {/* Author Header */}
-              <div className="flex items-start space-x-4 mb-6">
-                <div className="relative">
-                  <img
-                    src={author.imageUrl}
-                    alt={author.name}
-                    className="w-16 h-16 rounded-xl object-cover border-2 border-white/20 group-hover:border-amber-400/50 transition-colors duration-300"
-                  />
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-2 py-1 rounded-full text-xs font-bold">
-                    #{author.rank}
-                  </div>
-                </div>
-                
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white mb-1 group-hover:text-amber-400 transition-colors duration-300">
-                    {author.name}
-                  </h3>
-                  <p className="text-amber-400 font-medium text-sm mb-2">{author.genre}</p>
-                  <div className="flex items-center space-x-4 text-white/60 text-sm">
-                    <div className="flex items-center space-x-1">
-                      <BookOpen className="w-4 h-4" />
-                      <span>{author.totalBooks} books</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Users className="w-4 h-4" />
-                      <span>{formatNumber(author.followers)}</span>
-                    </div>
-                  </div>
+            <div key={author.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group flex flex-col items-center text-center">
+              {/* Author Image */}
+              <div className="relative mb-4">
+                <img
+                  src={author.imageUrl}
+                  alt={author.name}
+                  className="w-20 h-20 rounded-xl object-cover border-2 border-white/20 group-hover:border-amber-400/50 transition-colors duration-300 mx-auto"
+                />
+                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+                  #{author.rank}
                 </div>
               </div>
-                <h2 className="text-3xl font-bold text-white">Discover Books by Your Personality</h2>
-              {/* Bio */}
-              <p className="text-white/70 text-sm mb-4 leading-relaxed">
-                While these authors are trending now, our AI can recommend books from any author that perfectly match your unique reading personality and preferences.
-              </p>
+              {/* Author Name & Genre */}
+              <h3 className="text-xl font-bold text-white mb-1 group-hover:text-amber-400 transition-colors duration-300">
+                {author.name}
+              </h3>
+              <p className="text-amber-400 font-medium text-sm mb-2">{author.genre}</p>
+              {/* Stats Row */}
+              <div className="flex flex-col items-center text-white/80 text-sm mb-4">
+                <span className="flex items-center space-x-1 mb-1">
+                  <span className="font-semibold">From:</span> <span>{author.location}</span>
+                </span>
+                <span className="flex items-center space-x-1">
+                  <BookOpen className="w-4 h-4 mr-1" />
+                  <span className="font-semibold">Books:</span> <span>{author.totalBooks}</span>
+                </span>
+              </div>
 
               {/* Popular Books */}
               <div className="mb-4">

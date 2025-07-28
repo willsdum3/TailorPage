@@ -31,7 +31,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'taylor-swift',
     name: 'Taylor Swift',
     profession: 'Singer-Songwriter',
-    imageUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/taylorswift.jpg',
     bio: 'Grammy-winning artist known for her storytelling through music and introspective songwriting.',
     personalityScores: {
       openness: 22, // Questions 1-5: 4+5+4+5+5 = 23, adjusted to 22
@@ -76,7 +76,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'greta-thunberg',
     name: 'Greta Thunberg',
     profession: 'Climate Activist',
-    imageUrl: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/gretathunberg.jpg',
     bio: 'Young climate activist who sparked a global environmental movement.',
     personalityScores: {
       openness: 18, // Questions 1-5: 3+4+4+4+3 = 18
@@ -121,7 +121,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'keanu-reeves',
     name: 'Keanu Reeves',
     profession: 'Actor',
-    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/keanureeves.jpg',
     bio: 'Beloved actor known for his humility, kindness, and philosophical approach to life.',
     personalityScores: {
       openness: 21, // Questions 1-5: 4+4+5+4+4 = 21
@@ -166,7 +166,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'rihanna',
     name: 'Rihanna',
     profession: 'Singer & Entrepreneur',
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/rihanna.jpg',
     bio: 'Global superstar and successful businesswoman with Fenty Beauty and fashion empire.',
     personalityScores: {
       openness: 22, // Questions 1-5: 5+4+4+4+5 = 22 (assuming 4 for missing question)
@@ -211,7 +211,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'elon-musk',
     name: 'Elon Musk',
     profession: 'Entrepreneur & Innovator',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/elonmusk.jpg',
     bio: 'Visionary entrepreneur behind Tesla, SpaceX, and other groundbreaking companies.',
     personalityScores: {
       openness: 23, // Questions 1-5: 5+5+5+4+4 = 23
@@ -256,7 +256,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'oprah-winfrey',
     name: 'Oprah Winfrey',
     profession: 'Media Mogul & Philanthropist',
-    imageUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/oprahwinfrey.jpg',
     bio: 'Influential media personality, talk show host, and advocate for education and empowerment.',
     personalityScores: {
       openness: 23, // Questions 1-5: 5+4+5+5+4 = 23
@@ -301,7 +301,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'lebron-james',
     name: 'LeBron James',
     profession: 'Professional Basketball Player',
-    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/kingjames.jpg',
     bio: 'NBA superstar known for his athletic excellence and social activism.',
     personalityScores: {
       openness: 19, // Questions 1-5: 4+3+4+4+4 = 19
@@ -346,7 +346,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'emma-watson',
     name: 'Emma Watson',
     profession: 'Actress & Activist',
-    imageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/emmawatson.jpg',
     bio: 'Actress and UN Women Goodwill Ambassador advocating for gender equality.',
     personalityScores: {
       openness: 22, // Questions 1-5: 4+4+5+5+4 = 22
@@ -391,7 +391,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'barack-obama',
     name: 'Barack Obama',
     profession: 'Former U.S. President',
-    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/obama44.jpg',
     bio: '44th President of the United States, known for his eloquence and thoughtful leadership.',
     personalityScores: {
       openness: 22, // Questions 1-5: 4+4+5+5+4 = 22
@@ -436,7 +436,7 @@ export const celebrities: CelebrityProfile[] = [
     id: 'lionel-messi',
     name: 'Lionel Messi',
     profession: 'Professional Soccer Player',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+    imageUrl: '/lionelmessi.jpg',
     bio: 'Legendary soccer player known for his incredible skill and humble demeanor.',
     personalityScores: {
       openness: 18, // Questions 1-5: 3+4+3+4+4 = 18
