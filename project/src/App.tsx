@@ -17,6 +17,7 @@ import { User } from './types';
 import { getBookRecommendations } from './utils/bookRecommendations';
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
 import { useEffect } from 'react';
+import { useScrollToTopInstant } from './hooks/useScrollToTop';
 
 const questions: Question[] = [
   {
@@ -286,6 +287,9 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<BookRecommendation[]>([]);
   const [allRecommendedIds, setAllRecommendedIds] = useState<string[]>([]);
+
+  // Scroll to top when page changes
+  useScrollToTopInstant([currentPage]);
 
   // Convert Clerk user to our User type
   const user: User | null = clerkUser ? {
@@ -642,17 +646,6 @@ function App() {
             position="top-left"
           />
           <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
-        </>
-      )}
-      {currentPage === 'celebrity-books' && (
-        <>
-          <AuthButton 
-            user={user}
-            onLogin={() => setIsAuthModalOpen(true)}
-            onLogout={handleLogout}
-            position="top-left"
-          />
-          <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
         </>
       )}
       {['profile', 'celebrity-books'].includes(currentPage) && (

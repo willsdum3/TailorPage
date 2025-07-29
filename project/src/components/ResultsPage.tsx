@@ -1,6 +1,18 @@
 import React from 'react';
-import { Book, ShoppingCart, RotateCcw, ExternalLink, Share2, MessageCircle, Star, Sparkles, Home } from 'lucide-react';
+import { 
+  RotateCcw, 
+  Star, 
+  Book, 
+  ShoppingCart, 
+  ExternalLink,
+  Home,
+  Heart,
+  Sparkles
+} from 'lucide-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
+import Logo from './Logo';
+import BookCover from './BookCover';
+import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
 interface ResultsPageProps {
   profile: PersonalityProfile;
@@ -24,6 +36,9 @@ const ResultsPage = ({
   onLoginRequired
 }: ResultsPageProps) => {
 
+  // Scroll to top when component mounts
+  useScrollToTopInstant([]);
+
   const isBookFavorited = (bookId: string) => {
     return favorites.some(fav => fav.id === bookId);
   };
@@ -34,40 +49,6 @@ const ResultsPage = ({
       return;
     }
     onToggleFavorite(book);
-  };
-
-  const shareText = "Tailor Page recommended me these books based on my personality!";
-  const shareUrl = window.location.href;
-  
-  const handleShare = (platform: string) => {
-    const bookTitles = recommendations.slice(0, 3).map(book => `"${book.title}"`).join(', ');
-    const fullShareText = `${shareText} ${bookTitles} and more! Check it out: ${shareUrl}`;
-    
-    let url = '';
-    
-    switch (platform) {
-      case 'twitter':
-        url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(fullShareText)}`;
-        break;
-      case 'facebook':
-        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
-        break;
-      case 'reddit':
-        url = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`;
-        break;
-      case 'whatsapp':
-        url = `https://wa.me/?text=${encodeURIComponent(fullShareText)}`;
-        break;
-      case 'instagram':
-        navigator.clipboard.writeText(fullShareText).then(() => {
-          alert('Text copied to clipboard! You can now paste it in your Instagram story or post.');
-        });
-        return;
-    }
-    
-    if (url) {
-      window.open(url, '_blank', 'width=600,height=400');
-    }
   };
 
   const getPersonalityDescription = (profile: PersonalityProfile) => {
@@ -116,7 +97,7 @@ const ResultsPage = ({
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 pt-12">
           <div className="absolute top-0 left-0">
             <button
               onClick={onHome}
@@ -127,19 +108,21 @@ const ResultsPage = ({
             </button>
           </div>
 
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
+          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-10">
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-medium text-white/80">Personalised Results</span>
+            <span className="text-sm font-medium text-white/90">Personalised Results</span>
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Your Perfect
-            <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+          <div className="mb-10">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+              Your Perfect
+            </h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-amber-400 mb-4 leading-tight drop-shadow-lg">
               Reading List
-            </span>
-          </h1>
+            </h1>
+          </div>
           
-          <p className="text-xl text-white/70 mb-8 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed font-medium">
             {getPersonalityDescription(profile)}
           </p>
           
@@ -188,7 +171,16 @@ const ResultsPage = ({
                   </h3>
                   <p className="text-white/70 font-medium mb-3">by {book.author}</p>
                 </div>
-                <Book className="w-6 h-6 text-amber-400 flex-shrink-0 ml-4" />
+                <BookCover
+                  bookId={book.id}
+                  title={book.title}
+                  author={book.author}
+                  size="md"
+                  className="flex-shrink-0 ml-4"
+                  genre={book.genre}
+                  description={book.description}
+                  amazonLink={book.amazonLink}
+                />
               </div>
               
               <p className="text-white/70 mb-4 leading-relaxed">
@@ -224,34 +216,30 @@ const ResultsPage = ({
             </p>
             
             <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <button
-                onClick={() => handleShare('twitter')}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-              >
-                <Share2 className="w-4 h-4" />
-                <span>X (Twitter)</span>
-              </button>
-              <button
-                onClick={() => handleShare('facebook')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-              >
-                <Share2 className="w-4 h-4" />
+              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-blue-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-400/30">
+                <img src="/facebooklogo5.jpg" alt="Facebook" className="w-8 h-8 rounded-md object-cover" />
                 <span>Facebook</span>
-              </button>
-              <button
-                onClick={() => handleShare('instagram')}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-              >
-                <Share2 className="w-4 h-4" />
-                <span>Instagram</span>
-              </button>
-              <button
-                onClick={() => handleShare('whatsapp')}
-                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-              >
-                <MessageCircle className="w-4 h-4" />
+              </a>
+              <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-black/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-gray-400/30">
+                <img src="/xlogo2.jpg" alt="X" className="w-8 h-8 rounded-md object-cover" />
+                <span>X</span>
+              </a>
+              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-blue-600/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-500/30">
+                <img src="/linkedinlogo3.jpg" alt="LinkedIn" className="w-8 h-8 rounded-md object-cover" />
+                <span>LinkedIn</span>
+              </a>
+              <a href={`https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-orange-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-orange-400/30">
+                <img src="/Redditlogo5.png" alt="Reddit" className="w-8 h-8 rounded-md object-cover" />
+                <span>Reddit</span>
+              </a>
+              <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Tailor Page recommended me these books based on my personality! ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-green-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-green-400/30">
+                <img src="/whatsapplogo3.jpg" alt="WhatsApp" className="w-8 h-8 rounded-md object-cover" />
                 <span>WhatsApp</span>
-              </button>
+              </a>
+              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-pink-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-pink-400/30">
+                <img src="/instagramlogo3.jpg" alt="Instagram" className="w-8 h-8 rounded-md object-cover" />
+                <span>Instagram</span>
+              </a>
             </div>
           </div>
           
@@ -268,35 +256,6 @@ const ResultsPage = ({
               <span>Take Quiz Again</span>
             </button>
           </div>
-        </div>
-      </div>
-      <div className="mt-12 text-center">
-        <h2 className="text-2xl font-bold text-white mb-4">Share your results!</h2>
-        <div className="flex flex-wrap justify-center gap-4">
-          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-100">
-            <img src="/FBlogo.png" alt="Facebook" className="w-6 h-6" />
-            <span>Facebook</span>
-          </a>
-          <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-black/10">
-            <img src="/xlogo.png" alt="X" className="w-6 h-6" />
-            <span>X</span>
-          </a>
-          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-900/10">
-            <img src="/linkedinlogo.png" alt="LinkedIn" className="w-6 h-6" />
-            <span>LinkedIn</span>
-          </a>
-          <a href={`https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-orange-100">
-            <img src="/redditlogo.jfif" alt="Reddit" className="w-6 h-6" />
-            <span>Reddit</span>
-          </a>
-          <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Tailor Page recommended me these books based on my personality! ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-green-100">
-            <img src="/whatsapplogo.jfif" alt="WhatsApp" className="w-6 h-6" />
-            <span>WhatsApp</span>
-          </a>
-          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-pink-100">
-            <img src="/instagramlogo.jfif" alt="Instagram" className="w-6 h-6" />
-            <span>Instagram</span>
-          </a>
         </div>
       </div>
     </div>

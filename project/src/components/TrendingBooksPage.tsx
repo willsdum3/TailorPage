@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ArrowLeft, Book, ShoppingCart, ExternalLink, Star, Search, Filter, TrendingUp, Sparkles } from 'lucide-react';
 import { trendingBooks, TrendingBook } from '../data/trendingBooks';
 import Logo from './Logo';
+import BookCover from './BookCover';
+import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
 interface TrendingBooksPageProps {
   onBack: () => void;
@@ -12,6 +14,9 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('All');
   const [sortBy, setSortBy] = useState('rank');
+
+  // Scroll to top when component mounts
+  useScrollToTopInstant([]);
 
   // Get unique genres
   const genres = ['All', ...Array.from(new Set(trendingBooks.map(book => book.genre)))].sort();
@@ -173,7 +178,16 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
                   <span className="inline-block bg-white/10 text-white/80 px-2 py-1 rounded-lg text-xs font-medium">
                     {book.genre}
                   </span>
-                  <Book className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                  <BookCover 
+                    bookId={book.id}
+                    title={book.title}
+                    author={book.author}
+                    size="sm"
+                    className="flex-shrink-0"
+                    genre={book.genre}
+                    description={book.description}
+                    amazonLink={book.amazonLink}
+                  />
                 </div>
                 
                 <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300 line-clamp-2">
@@ -246,28 +260,28 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
                   Share the app with your friends on social media!
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
-                  <a href="https://www.facebook.com/sharer/sharer.php?u=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-100">
-                    <img src="/FBlogo.png" alt="Facebook" className="w-6 h-6" />
+                  <a href="https://www.facebook.com/sharer/sharer.php?u=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-blue-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-400/30">
+                    <img src="/facebooklogo5.jpg" alt="Facebook" className="w-8 h-8 rounded-md object-cover" />
                     <span>Facebook</span>
                   </a>
-                  <a href="https://twitter.com/intent/tweet?url=https://your-app-url.com&text=Check%20out%20Tailor%20Page!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-black/10">
-                    <img src="/xlogo.png" alt="X" className="w-6 h-6" />
+                  <a href="https://twitter.com/intent/tweet?url=https://your-app-url.com&text=Check%20out%20Tailor%20Page%20for%20personalized%20book%20recommendations!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-black/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-gray-400/30">
+                    <img src="/xlogo2.jpg" alt="X" className="w-8 h-8 rounded-md object-cover" />
                     <span>X</span>
                   </a>
-                  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-900/10">
-                    <img src="/linkedinlogo.png" alt="LinkedIn" className="w-6 h-6" />
+                  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-blue-600/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-500/30">
+                    <img src="/linkedinlogo3.jpg" alt="LinkedIn" className="w-8 h-8 rounded-md object-cover" />
                     <span>LinkedIn</span>
                   </a>
-                  <a href="https://reddit.com/submit?url=https://your-app-url.com&title=Check%20out%20Tailor%20Page!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-orange-100">
-                    <img src="/redditlogo.jfif" alt="Reddit" className="w-6 h-6" />
+                  <a href="https://reddit.com/submit?url=https://your-app-url.com&title=Check%20out%20Tailor%20Page%20for%20personalized%20book%20recommendations!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-orange-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-orange-400/30">
+                    <img src="/Redditlogo5.png" alt="Reddit" className="w-8 h-8 rounded-md object-cover" />
                     <span>Reddit</span>
                   </a>
-                  <a href="https://api.whatsapp.com/send?text=Check%20out%20Tailor%20Page!%20https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-green-100">
-                    <img src="/whatsapplogo.jfif" alt="WhatsApp" className="w-6 h-6" />
+                  <a href="https://api.whatsapp.com/send?text=Check%20out%20Tailor%20Page%20for%20personalized%20book%20recommendations!%20https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-green-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-green-400/30">
+                    <img src="/whatsapplogo3.jpg" alt="WhatsApp" className="w-8 h-8 rounded-md object-cover" />
                     <span>WhatsApp</span>
                   </a>
-                  <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-pink-100">
-                    <img src="/instagramlogo.jfif" alt="Instagram" className="w-6 h-6" />
+                  <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-pink-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-pink-400/30">
+                    <img src="/instagramlogo3.jpg" alt="Instagram" className="w-8 h-8 rounded-md object-cover" />
                     <span>Instagram</span>
                   </a>
                 </div>

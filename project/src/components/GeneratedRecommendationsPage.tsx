@@ -1,6 +1,8 @@
 import React from 'react';
 import { Book, ShoppingCart, ExternalLink, Star, Home, ArrowLeft } from 'lucide-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
+import BookCover from './BookCover';
+import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
 interface GeneratedRecommendationsPageProps {
   profile: PersonalityProfile;
@@ -24,6 +26,9 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
   onLoginRequired
 }) => {
   const isBookFavorited = (bookId: string) => favorites.some(fav => fav.id === bookId);
+
+  // Scroll to top when component mounts
+  useScrollToTopInstant([]);
 
   const handleToggleFavorite = (book: BookRecommendation) => {
     if (!user) {
@@ -107,7 +112,16 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
                   </h3>
                   <p className="text-white/70 font-medium mb-3">by {book.author}</p>
                 </div>
-                <Book className="w-6 h-6 text-amber-400 flex-shrink-0 ml-4" />
+                <BookCover 
+                  bookId={book.id}
+                  title={book.title}
+                  author={book.author}
+                  size="md"
+                  className="flex-shrink-0 ml-4"
+                  genre={book.genre}
+                  description={book.description}
+                  amazonLink={book.amazonLink}
+                />
               </div>
               <p className="text-white/70 mb-4 leading-relaxed">
                 {book.description}

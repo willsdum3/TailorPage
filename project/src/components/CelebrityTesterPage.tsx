@@ -1,7 +1,31 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Star, Book, User, Brain, Heart, Target, Zap, Users, Eye, Shield, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import { celebrities, CelebrityProfile } from '../data/celebrities';
+import { 
+  ArrowLeft, 
+  Brain, 
+  Book, 
+  ShoppingCart, 
+  ExternalLink, 
+  Star,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  TrendingUp,
+  Heart,
+  Users,
+  Lightbulb,
+  Target,
+  Zap,
+  Shield,
+  Globe,
+  Palette,
+  Music,
+  Camera
+} from 'lucide-react';
+import { celebrities } from '../data/celebrities';
+import { CelebrityProfile } from '../data/celebrities';
 import Logo from './Logo';
+import BookCover from './BookCover';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 interface CelebrityTesterPageProps {
   onBack: () => void;
@@ -11,6 +35,9 @@ interface CelebrityTesterPageProps {
 const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCompletedQuiz }) => {
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
+
+  // Scroll to top when selected celebrity changes
+  useScrollToTop([selectedCelebrity?.id]);
 
   const getPersonalityTraitInfo = (trait: string, score: number) => {
     const traitInfo = {
@@ -30,7 +57,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
       },
       extraversion: {
         name: 'Extraversion',
-        icon: User,
+        icon: Users,
         description: 'Enjoys social interaction and being around people',
         lowDesc: 'More introverted, prefers solitude and reflection',
         highDesc: 'Very extroverted, energized by social interaction'
@@ -79,7 +106,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
       },
       selfExpression: {
         name: 'Self-Expression',
-        icon: Eye,
+        icon: Lightbulb,
         description: 'Comfortable expressing opinions and being vulnerable',
         lowDesc: 'More reserved and private in self-expression',
         highDesc: 'Very open and authentic in self-expression'
@@ -123,11 +150,13 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
             </button>
             
             <div className="flex items-center justify-center space-x-6 mb-8">
-              <img
-                src={selectedCelebrity.imageUrl}
-                alt={selectedCelebrity.name}
-                className="w-24 h-24 rounded-2xl object-cover border-4 border-amber-400/50"
-              />
+              <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-amber-400/50 shadow-xl bg-white/5">
+                <img
+                  src={selectedCelebrity.imageUrl}
+                  alt={selectedCelebrity.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="text-left">
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
                   {selectedCelebrity.name}
@@ -225,7 +254,16 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                       </h3>
                       <p className="text-white/70 font-medium mb-3">by {book.author}</p>
                     </div>
-                    <Book className="w-6 h-6 text-amber-400 flex-shrink-0 ml-4" />
+                    <BookCover
+                      bookId={`${selectedCelebrity.id}-${index}`}
+                      title={book.title}
+                      author={book.author}
+                      size="md"
+                      className="flex-shrink-0 ml-4"
+                      genre={book.genre}
+                      description={book.description}
+                      amazonLink={book.amazonLink}
+                    />
                   </div>
                   
                   <p className="text-white/70 mb-4 leading-relaxed text-sm">
@@ -315,11 +353,13 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
               className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 cursor-pointer group"
             >
               <div className="text-center">
-                <img
-                  src={celebrity.imageUrl}
-                  alt={celebrity.name}
-                  className="w-20 h-20 rounded-xl object-cover mx-auto mb-4 border-2 border-white/20 group-hover:border-amber-400/50 transition-colors duration-300"
-                />
+                <div className="w-24 h-24 rounded-xl overflow-hidden mx-auto mb-4 border-2 border-white/20 group-hover:border-amber-400/50 transition-colors duration-300 shadow-lg bg-white/5">
+                  <img
+                    src={celebrity.imageUrl}
+                    alt={celebrity.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
                 
                 <h3 className="text-xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300">
                   {celebrity.name}
@@ -368,28 +408,28 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                   Share the app with your friends on social media!
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
-                  <a href="https://www.facebook.com/sharer/sharer.php?u=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-100">
-                    <img src="/FBlogo.png" alt="Facebook" className="w-6 h-6" />
+                  <a href="https://www.facebook.com/sharer/sharer.php?u=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-blue-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-400/30">
+                    <img src="/facebooklogo5.jpg" alt="Facebook" className="w-8 h-8 rounded-md object-cover" />
                     <span>Facebook</span>
                   </a>
-                  <a href="https://twitter.com/intent/tweet?url=https://your-app-url.com&text=Check%20out%20Tailor%20Page!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-black/10">
-                    <img src="/xlogo.png" alt="X" className="w-6 h-6" />
+                  <a href="https://twitter.com/intent/tweet?url=https://your-app-url.com&text=Check%20out%20Tailor%20Page%20for%20personalized%20book%20recommendations!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-black/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-gray-400/30">
+                    <img src="/xlogo2.jpg" alt="X" className="w-8 h-8 rounded-md object-cover" />
                     <span>X</span>
                   </a>
-                  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-blue-900/10">
-                    <img src="/linkedinlogo.png" alt="LinkedIn" className="w-6 h-6" />
+                  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-blue-600/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-500/30">
+                    <img src="/linkedinlogo3.jpg" alt="LinkedIn" className="w-8 h-8 rounded-md object-cover" />
                     <span>LinkedIn</span>
                   </a>
-                  <a href="https://reddit.com/submit?url=https://your-app-url.com&title=Check%20out%20Tailor%20Page!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-orange-100">
-                    <img src="/redditlogo.jfif" alt="Reddit" className="w-6 h-6" />
+                  <a href="https://reddit.com/submit?url=https://your-app-url.com&title=Check%20out%20Tailor%20Page%20for%20personalized%20book%20recommendations!" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-orange-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-orange-400/30">
+                    <img src="/Redditlogo5.png" alt="Reddit" className="w-8 h-8 rounded-md object-cover" />
                     <span>Reddit</span>
                   </a>
-                  <a href="https://api.whatsapp.com/send?text=Check%20out%20Tailor%20Page!%20https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-green-100">
-                    <img src="/whatsapplogo.jfif" alt="WhatsApp" className="w-6 h-6" />
+                  <a href="https://api.whatsapp.com/send?text=Check%20out%20Tailor%20Page%20for%20personalized%20book%20recommendations!%20https://your-app-url.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-green-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-green-400/30">
+                    <img src="/whatsapplogo3.jpg" alt="WhatsApp" className="w-8 h-8 rounded-md object-cover" />
                     <span>WhatsApp</span>
                   </a>
-                  <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold bg-white/10 hover:bg-pink-100">
-                    <img src="/instagramlogo.jfif" alt="Instagram" className="w-6 h-6" />
+                  <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-pink-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-pink-400/30">
+                    <img src="/instagramlogo3.jpg" alt="Instagram" className="w-8 h-8 rounded-md object-cover" />
                     <span>Instagram</span>
                   </a>
                 </div>

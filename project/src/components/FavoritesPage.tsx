@@ -2,6 +2,8 @@ import React from 'react';
 import { Book, ShoppingCart, ExternalLink, Trash2, ArrowLeft, Heart, Sparkles, Home } from 'lucide-react';
 import { FavoriteBook, User } from '../types';
 import Logo from './Logo';
+import BookCover from './BookCover';
+import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
 interface FavoritesPageProps {
   favorites: FavoriteBook[];
@@ -12,6 +14,10 @@ interface FavoritesPageProps {
 }
 
 const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavorite, onBack, hasCompletedQuiz = false, onGenerateNewBooks }) => {
+  
+  // Scroll to top when component mounts
+  useScrollToTopInstant([]);
+
   if (favorites.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -167,7 +173,16 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
                   </h3>
                   <p className="text-white/70 font-medium mb-3">by {book.author}</p>
                 </div>
-                <Book className="w-6 h-6 text-amber-400 flex-shrink-0 ml-4" />
+                <BookCover 
+                  bookId={book.id}
+                  title={book.title}
+                  author={book.author}
+                  size="md"
+                  className="flex-shrink-0 ml-4"
+                  genre={book.genre}
+                  description={book.description}
+                  amazonLink={book.amazonLink}
+                />
               </div>
               
               <p className="text-white/70 mb-4 leading-relaxed">
@@ -200,17 +215,35 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
 
         {/* Bottom CTA */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Keep Discovering</h2>
-          <p className="text-white/70 mb-8 max-w-2xl mx-auto">
-            Take the quiz again to discover more books that match your personality and expand your reading horizons!
-          </p>
-          <button
-            onClick={onBack}
-            className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Take Quiz Again</span>
-          </button>
+          {hasCompletedQuiz ? (
+            <>
+              <h2 className="text-3xl font-bold text-white mb-4">Keep Discovering</h2>
+              <p className="text-white/70 mb-8 max-w-2xl mx-auto">
+                Generate new book recommendations to discover more books that match your personality and expand your reading horizons!
+              </p>
+              <button
+                onClick={onGenerateNewBooks || onBack}
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Generate New Books</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <h2 className="text-3xl font-bold text-white mb-4">Keep Discovering</h2>
+              <p className="text-white/70 mb-8 max-w-2xl mx-auto">
+                Take the quiz again to discover more books that match your personality and expand your reading horizons!
+              </p>
+              <button
+                onClick={onBack}
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Take Quiz Again</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
