@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ArrowLeft, TrendingUp, Brain, Target, Zap, Heart, Shield, Moon, Activity, Users, BookOpen, Coffee, CheckCircle } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Brain, Target, Zap, Heart, Shield, Moon, Activity, Users, BookOpen, Coffee, CheckCircle, Apple } from 'lucide-react';
 import { PersonalityProfile } from '../types';
 import Logo from './Logo';
 import { analyzePersonality } from '../utils/personalityAnalysis';
@@ -49,6 +49,20 @@ const GrowthAreasDetailPage: React.FC<GrowthAreasDetailPageProps> = ({ profile, 
         'Make it social when possible'
       ],
       benefits: ['Increased energy levels', 'Better sleep quality', 'Reduced stress and anxiety', 'Improved confidence']
+    },
+    {
+      name: 'Healthy Nutrition',
+      icon: Apple,
+      color: 'from-emerald-500 to-green-600',
+      description: 'Eating nutritious food fuels your body and mind for optimal performance',
+      tips: [
+        'Plan meals ahead of time',
+        'Include protein, healthy fats, and complex carbs',
+        'Eat plenty of fruits and vegetables',
+        'Stay hydrated throughout the day',
+        'Limit processed foods and added sugars'
+      ],
+      benefits: ['Sustained energy levels', 'Better mental clarity', 'Stronger immune system', 'Improved mood and focus']
     },
     {
       name: 'Social Connections',
