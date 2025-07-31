@@ -206,7 +206,7 @@ const GrowthAreasDetailPage: React.FC<GrowthAreasDetailPageProps> = ({ profile, 
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
       
-      <div className="max-w-6xl mx-auto relative z-10 pt-32 pb-8 px-4">
+      <div className="max-w-6xl mx-auto relative z-10 pt-40 pb-8 px-4">
         {/* Header */}
         <div className="text-center mb-12">
           <button
