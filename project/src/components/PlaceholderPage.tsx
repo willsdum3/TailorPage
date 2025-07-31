@@ -12,10 +12,11 @@ interface PlaceholderPageProps {
   description: string;
   onBack: () => void;
   profile?: PersonalityProfile | null;
+  onStartQuiz?: () => void;
   onNewRecommendations?: (recommendations: BookRecommendation[]) => void;
 }
 
-const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onNewRecommendations }) => {
+const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations }) => {
   const [expandedPersonality, setExpandedPersonality] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState<'profile' | 'strengths' | 'growth'>('profile');
@@ -370,7 +371,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               </div>
               
               <button
-                onClick={onBack}
+                onClick={onStartQuiz || onBack}
                 className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
               >
                 <Brain className="w-5 h-5" />
@@ -544,7 +545,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
             </div>
             
             <button
-              onClick={onBack}
+              onClick={onStartQuiz || onBack}
               className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
             >
               <Brain className="w-5 h-5" />

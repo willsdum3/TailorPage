@@ -7,9 +7,10 @@ import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 interface TrendingAuthorsPageProps {
   onBack: () => void;
   hasCompletedQuiz: boolean;
+  onStartQuiz?: () => void;
 }
 
-const TrendingAuthorsPage: React.FC<TrendingAuthorsPageProps> = ({ onBack, hasCompletedQuiz }) => {
+const TrendingAuthorsPage: React.FC<TrendingAuthorsPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('All');
   const [sortBy, setSortBy] = useState('rank');
@@ -319,7 +320,7 @@ const TrendingAuthorsPage: React.FC<TrendingAuthorsPageProps> = ({ onBack, hasCo
                 </p>
               </div>
               <button
-                onClick={onBack}
+                onClick={onStartQuiz || onBack}
                 className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
               >
                 <span>Take Personality Quiz</span>

@@ -464,6 +464,7 @@ function App() {
             onRemoveFavorite={handleRemoveFavorite}
             onBack={() => setCurrentPage('welcome')}
             hasCompletedQuiz={!!personalityProfile}
+            onStartQuiz={handleStartQuiz}
             onGenerateNewBooks={() => {
               if (!personalityProfile) return;
               const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
@@ -493,7 +494,7 @@ function App() {
             onLogout={handleLogout}
             position="top-left"
           />
-          <TrendingBooksPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+          <TrendingBooksPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
         </>
       )}
       {currentPage === 'trending-authors' && (
@@ -504,7 +505,7 @@ function App() {
             onLogout={handleLogout}
             position="top-left"
           />
-          <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+          <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
         </>
       )}
       {['profile', 'celebrity-books'].includes(currentPage) && (
@@ -516,12 +517,13 @@ function App() {
             position="top-left"
           />
           {currentPage === 'celebrity-books' ? (
-            <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+            <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
           ) : (
             <PlaceholderPage
               {...getPlaceholderContent(currentPage)}
               onBack={() => setCurrentPage('welcome')}
               profile={personalityProfile}
+              onStartQuiz={handleStartQuiz}
               onNewRecommendations={handleNewRecommendations}
             />
           )}

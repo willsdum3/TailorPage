@@ -31,9 +31,10 @@ import { analyzePersonality, TraitAnalysis } from '../utils/personalityAnalysis'
 interface CelebrityTesterPageProps {
   onBack: () => void;
   hasCompletedQuiz: boolean;
+  onStartQuiz?: () => void;
 }
 
-const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCompletedQuiz }) => {
+const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz }) => {
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
 
@@ -478,7 +479,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                 </p>
               </div>
               <button
-                onClick={onBack}
+                onClick={onStartQuiz || onBack}
                 className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
               >
                 <span>Take Your Personality Quiz</span>

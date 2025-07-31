@@ -10,10 +10,11 @@ interface FavoritesPageProps {
   onRemoveFavorite: (bookId: string) => void;
   onBack: () => void;
   hasCompletedQuiz?: boolean;
+  onStartQuiz?: () => void;
   onGenerateNewBooks?: () => void;
 }
 
-const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavorite, onBack, hasCompletedQuiz = false, onGenerateNewBooks }) => {
+const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavorite, onBack, hasCompletedQuiz = false, onStartQuiz, onGenerateNewBooks }) => {
   
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
@@ -91,7 +92,7 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
               </div>
 
               <button
-                onClick={onBack}
+                onClick={onStartQuiz || onBack}
                 className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
               >
                 <ArrowLeft className="w-5 h-5" />
