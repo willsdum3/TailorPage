@@ -78,13 +78,11 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     }
     
     return (
-      <div className="min-h-screen py-8 px-4 relative overflow-hidden">
+      <div className="min-h-screen relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
-        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
         
-        <div className="max-w-6xl mx-auto relative z-10">
+        <div className="max-w-6xl mx-auto relative z-10 pt-32 pb-8 px-4">
           {/* Header */}
           <div className="text-center mb-12">
             <button
@@ -413,7 +411,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
             <span className="text-sm font-medium text-white/80">Your Profile</span>
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-6xl md:text-7xl font-bold text-white mb-8 leading-tight">
             Create Your
             <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
               Reading Profile
