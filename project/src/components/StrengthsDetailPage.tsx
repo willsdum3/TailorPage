@@ -170,13 +170,13 @@ const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBa
             <p className="text-white/70">These are the traits that set you apart and drive your success</p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={`grid gap-6 ${strengths.length === 1 ? 'md:grid-cols-1 md:justify-items-center' : strengths.length === 2 ? 'md:grid-cols-2 md:col-span-2 md:mx-auto md:max-w-4xl' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
             {strengths.map((trait) => {
               const IconComponent = getStrengthIcon(trait.name);
               const advice = getStrengthAdvice(trait.name);
               
               return (
-                <div key={trait.name} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300">
+                <div key={trait.name} className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 ${strengths.length === 1 ? 'md:max-w-md' : ''}`}>
                   <div className="flex items-center space-x-3 mb-4">
                     <div className={`w-12 h-12 bg-gradient-to-r ${trait.color} rounded-lg flex items-center justify-center`}>
                       <IconComponent className="w-6 h-6 text-white" />
