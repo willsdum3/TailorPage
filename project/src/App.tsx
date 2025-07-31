@@ -483,7 +483,7 @@ function App() {
             onLogout={handleLogout}
             position="top-left"
           />
-          <LearnMorePage onBack={() => setCurrentPage('welcome')} />
+          <LearnMorePage onBack={() => setCurrentPage('welcome')} onStartQuiz={handleStartQuiz} />
         </>
       )}
       {currentPage === 'trending-books' && (

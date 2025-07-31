@@ -4,9 +4,10 @@ import Logo from './Logo';
 
 interface LearnMorePageProps {
   onBack: () => void;
+  onStartQuiz?: () => void;
 }
 
-const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack }) => {
+const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack, onStartQuiz }) => {
   return (
     <div className="min-h-screen py-8 px-4 relative overflow-hidden">
       {/* Background Elements */}
@@ -254,7 +255,7 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack }) => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={onBack}
+                onClick={onStartQuiz || onBack}
                 className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2"
               >
                 <span>Start Your Journey</span>
