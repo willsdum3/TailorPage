@@ -166,7 +166,9 @@ const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBa
         {/* Strengths Overview */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4">Your Top Strengths</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Your Top {strengths.length === 1 ? 'Strength' : 'Strengths'}
+            </h2>
             <p className="text-white/70">These are the traits that set you apart and drive your success</p>
           </div>
           
