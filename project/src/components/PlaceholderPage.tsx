@@ -1,9 +1,11 @@
 import React from 'react';
-import { ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book } from 'lucide-react';
+import { ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight } from 'lucide-react';
 import { PersonalityProfile, BookRecommendation } from '../types';
 import { getBookRecommendations } from '../utils/bookRecommendations';
 import Logo from './Logo';
 import { analyzePersonality } from '../utils/personalityAnalysis';
+import StrengthsDetailPage from './StrengthsDetailPage';
+import GrowthAreasDetailPage from './GrowthAreasDetailPage';
 
 interface PlaceholderPageProps {
   title: string;
@@ -16,6 +18,7 @@ interface PlaceholderPageProps {
 const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onNewRecommendations }) => {
   const [expandedPersonality, setExpandedPersonality] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [currentPage, setCurrentPage] = React.useState<'profile' | 'strengths' | 'growth'>('profile');
 
   const getTraitIcon = (traitName: string) => {
     switch (traitName) {
@@ -49,9 +52,30 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     setIsGenerating(false);
   };
 
+  const handleNavigateToStrengths = () => {
+    setCurrentPage('strengths');
+  };
+
+  const handleNavigateToGrowth = () => {
+    setCurrentPage('growth');
+  };
+
+  const handleBackToProfile = () => {
+    setCurrentPage('profile');
+  };
+
   // If we have a profile, show the personality analysis
   if (profile) {
     const personalityAnalysis = analyzePersonality(profile);
+    
+    // Render different pages based on currentPage state
+    if (currentPage === 'strengths') {
+      return <StrengthsDetailPage profile={profile} onBack={handleBackToProfile} />;
+    }
+    
+    if (currentPage === 'growth') {
+      return <GrowthAreasDetailPage profile={profile} onBack={handleBackToProfile} />;
+    }
     
     return (
       <div className="min-h-screen py-8 px-4 relative overflow-hidden">
@@ -223,8 +247,14 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
             </h2>
             
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                <h3 className="text-xl font-semibold text-white mb-4">Your Strengths</h3>
+              <button 
+                onClick={handleNavigateToStrengths}
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold text-white">Your Strengths</h3>
+                  <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
+                </div>
                 <div className="space-y-3">
                   {personalityAnalysis
                     .filter(trait => trait.level === 'High' || trait.level === 'Very High')
@@ -237,10 +267,17 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                       </div>
                     ))}
                 </div>
-              </div>
+                <p className="text-white/60 text-sm mt-4">Click to explore your unique strengths and how to leverage them</p>
+              </button>
               
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                <h3 className="text-xl font-semibold text-white mb-4">Growth Areas</h3>
+              <button 
+                onClick={handleNavigateToGrowth}
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold text-white">Growth Areas</h3>
+                  <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
+                </div>
                 <div className="space-y-3">
                   {personalityAnalysis
                     .filter(trait => trait.level === 'Low' || trait.level === 'Very Low')
@@ -252,8 +289,29 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                         <span className="text-amber-400 text-sm font-medium">({trait.score}/25)</span>
                       </div>
                     ))}
+                  {/* Show universal growth areas if no specific low traits */}
+                  {personalityAnalysis.filter(trait => trait.level === 'Low' || trait.level === 'Very Low').length === 0 && (
+                    <>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                        <span className="text-white/80">Sleep Quality</span>
+                        <span className="text-amber-400 text-sm font-medium">Universal</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                        <span className="text-white/80">Physical Activity</span>
+                        <span className="text-amber-400 text-sm font-medium">Universal</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                        <span className="text-white/80">Social Connections</span>
+                        <span className="text-amber-400 text-sm font-medium">Universal</span>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
+                <p className="text-white/60 text-sm mt-4">Click to discover personalized growth strategies and universal improvement tips</p>
+              </button>
             </div>
           </div>
 
