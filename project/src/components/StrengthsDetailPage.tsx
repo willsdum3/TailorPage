@@ -11,7 +11,10 @@ interface StrengthsDetailPageProps {
 
 const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBack }) => {
   const personalityAnalysis = analyzePersonality(profile);
-  const strengths = personalityAnalysis.filter(trait => trait.level === 'High' || trait.level === 'Very High');
+  
+  // Get top traits by score (top 3, or all if less than 3)
+  const sortedTraits = [...personalityAnalysis].sort((a, b) => b.score - a.score);
+  const strengths = sortedTraits.slice(0, Math.max(3, sortedTraits.length));
 
   // Scroll to top when component mounts
   useEffect(() => {

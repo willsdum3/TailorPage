@@ -256,16 +256,19 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                   <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
                 </div>
                 <div className="space-y-3">
-                  {personalityAnalysis
-                    .filter(trait => trait.level === 'High' || trait.level === 'Very High')
-                    .slice(0, 3)
-                    .map((trait) => (
+                  {(() => {
+                    // Get top traits by score (top 3, or all if less than 3)
+                    const sortedTraits = [...personalityAnalysis].sort((a, b) => b.score - a.score);
+                    const topTraits = sortedTraits.slice(0, Math.max(3, sortedTraits.length));
+                    
+                    return topTraits.map((trait) => (
                       <div key={trait.name} className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                         <span className="text-white/80">{trait.name}</span>
                         <span className="text-green-400 text-sm font-medium">({trait.score}/25)</span>
                       </div>
-                    ))}
+                    ));
+                  })()}
                 </div>
                 <p className="text-white/60 text-sm mt-4">Click to explore your unique strengths and how to leverage them</p>
               </button>
