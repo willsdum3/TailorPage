@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowLeft, Star, Zap, Heart, Target, Brain, Shield, TrendingUp, Lightbulb, Award } from 'lucide-react';
 import { PersonalityProfile } from '../types';
 import Logo from './Logo';
@@ -12,6 +12,11 @@ interface StrengthsDetailPageProps {
 const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBack }) => {
   const personalityAnalysis = analyzePersonality(profile);
   const strengths = personalityAnalysis.filter(trait => trait.level === 'High' || trait.level === 'Very High');
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const getStrengthIcon = (traitName: string) => {
     switch (traitName) {

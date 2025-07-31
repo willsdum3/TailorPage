@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowLeft, TrendingUp, Brain, Target, Zap, Heart, Shield, Moon, Activity, Users, BookOpen, Coffee, CheckCircle } from 'lucide-react';
 import { PersonalityProfile } from '../types';
 import Logo from './Logo';
@@ -14,6 +14,11 @@ const GrowthAreasDetailPage: React.FC<GrowthAreasDetailPageProps> = ({ profile, 
   
   // Get growth areas (low traits) or create universal growth areas if none exist
   const growthAreas = personalityAnalysis.filter(trait => trait.level === 'Low' || trait.level === 'Very Low');
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   // If no specific growth areas, provide universal improvement areas
   const universalGrowthAreas = [
