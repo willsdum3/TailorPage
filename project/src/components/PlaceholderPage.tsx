@@ -285,18 +285,29 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                   <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
                 </div>
                 <div className="space-y-3">
-                  {personalityAnalysis
-                    .filter(trait => trait.level === 'Low' || trait.level === 'Very Low')
-                    .slice(0, 3)
-                    .map((trait) => (
+                  {(() => {
+                    // Get lowest-scoring traits (only traits tied for lowest scores, max 3)
+                    const sortedTraits = [...personalityAnalysis].sort((a, b) => a.score - b.score);
+                    const lowestScore = sortedTraits[0]?.score || 0;
+                    const lowestTraits = sortedTraits
+                      .filter(trait => trait.score === lowestScore)
+                      .slice(0, 3); // Limit to top 3 even if more are tied
+                    
+                    return lowestTraits.map((trait) => (
                       <div key={trait.name} className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
                         <span className="text-white/80">{trait.name}</span>
                         <span className="text-amber-400 text-sm font-medium">({trait.score}/25)</span>
                       </div>
-                    ))}
+                    ));
+                  })()}
                   {/* Show universal growth areas if no specific low traits */}
-                  {personalityAnalysis.filter(trait => trait.level === 'Low' || trait.level === 'Very Low').length === 0 && (
+                  {(() => {
+                    const sortedTraits = [...personalityAnalysis].sort((a, b) => a.score - b.score);
+                    const lowestScore = sortedTraits[0]?.score || 0;
+                    const lowestTraits = sortedTraits.filter(trait => trait.score === lowestScore);
+                    return lowestTraits.length === 0;
+                  })() && (
                     <>
                       <div className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-amber-400 rounded-full"></div>

@@ -12,8 +12,12 @@ interface GrowthAreasDetailPageProps {
 const GrowthAreasDetailPage: React.FC<GrowthAreasDetailPageProps> = ({ profile, onBack }) => {
   const personalityAnalysis = analyzePersonality(profile);
   
-  // Get growth areas (low traits) or create universal growth areas if none exist
-  const growthAreas = personalityAnalysis.filter(trait => trait.level === 'Low' || trait.level === 'Very Low');
+  // Get growth areas (lowest-scoring traits, max 3)
+  const sortedTraits = [...personalityAnalysis].sort((a, b) => a.score - b.score);
+  const lowestScore = sortedTraits[0]?.score || 0;
+  const growthAreas = sortedTraits
+    .filter(trait => trait.score === lowestScore)
+    .slice(0, 3); // Limit to top 3 even if more are tied
 
   // Scroll to top when component mounts
   useEffect(() => {
