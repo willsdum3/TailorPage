@@ -11,6 +11,7 @@ export interface BookQuestion {
   author: string;
   description: string;
   trait: keyof PersonalityProfile;
+  coverImageUrl?: string;
 }
 
 export type LikertResponse = 1 | 2 | 3 | 4 | 5; // 1 = Highly Likely, 5 = Highly Unlikely

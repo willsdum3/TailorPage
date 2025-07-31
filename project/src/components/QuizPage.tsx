@@ -153,11 +153,38 @@ const QuizPage: React.FC<QuizPageProps> = ({
                   <BookOpen className="w-4 h-4 text-amber-400" />
                   <span className="text-sm font-medium text-white/80">Book Question</span>
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-4">{currentBookData.title}</h2>
-                <p className="text-white/70 text-lg mb-2">by {currentBookData.author}</p>
-                <p className="text-white/80 text-base leading-relaxed max-w-2xl mx-auto">
-                  {currentBookData.description}
-                </p>
+                
+                {/* Book Cover and Info */}
+                <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
+                  {/* Book Cover */}
+                  <div className="w-48 h-64 bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-white/20 rounded-lg flex items-center justify-center shadow-xl">
+                    {currentBookData.coverImageUrl ? (
+                      <img 
+                        src={currentBookData.coverImageUrl} 
+                        alt={`${currentBookData.title} book cover`}
+                        className="w-full h-full object-cover rounded-lg"
+                        onError={(e) => {
+                          // Fallback to styled div if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`${currentBookData.coverImageUrl ? 'hidden' : ''} text-center p-4`}>
+                      <div className="text-4xl mb-2">📚</div>
+                      <div className="text-white/80 text-sm font-medium">{currentBookData.title}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Book Info */}
+                  <div className="text-left max-w-md">
+                    <h2 className="text-2xl font-bold text-white mb-2">{currentBookData.title}</h2>
+                    <p className="text-white/70 text-lg mb-3">by {currentBookData.author}</p>
+                    <p className="text-white/80 text-base leading-relaxed">
+                      {currentBookData.description}
+                    </p>
+                  </div>
+                </div>
               </div>
               
               <div className="mb-8">
