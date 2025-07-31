@@ -2,9 +2,20 @@ export interface Question {
   id: number;
   text: string;
   trait: keyof PersonalityProfile;
+  type: 'statement' | 'book';
+}
+
+export interface BookQuestion {
+  id: number;
+  title: string;
+  author: string;
+  description: string;
+  trait: keyof PersonalityProfile;
 }
 
 export type LikertResponse = 1 | 2 | 3 | 4 | 5; // 1 = Highly Likely, 5 = Highly Unlikely
+
+export type BookResponse = 'yes' | 'no';
 
 export interface PersonalityProfile {
   openness: number;

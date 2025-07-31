@@ -12,137 +12,236 @@ import TrendingAuthorsPage from './components/TrendingAuthorsPage';
 import CelebrityTesterPage from './components/CelebrityTesterPage';
 import AuthModal from './components/AuthModal';
 import AuthButton from './components/AuthButton';
-import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, LoginCredentials, SignupData } from './types';
+import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, LoginCredentials, SignupData, BookQuestion, BookResponse } from './types';
 import { User } from './types';
 import { getBookRecommendations } from './utils/bookRecommendations';
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 
+// Book questions for the quiz
+const bookQuestions: BookQuestion[] = [
+  {
+    id: 101,
+    title: "Invisible Cities",
+    author: "Italo Calvino",
+    description: "An experimental, poetic work in which Marco Polo describes fantastical cities to Kublai Khan.",
+    trait: "openness"
+  },
+  {
+    id: 102,
+    title: "Man's Search for Meaning",
+    author: "Viktor E. Frankl",
+    description: "A powerful memoir and philosophical reflection on purpose, responsibility, and resilience in the face of suffering.",
+    trait: "conscientiousness"
+  },
+  {
+    id: 103,
+    title: "Where the Crawdads Sing",
+    author: "Delia Owens",
+    description: "It includes themes of solitude, it offers rich emotional relationships, courtroom drama, and a strong female lead.",
+    trait: "extraversion"
+  },
+  {
+    id: 104,
+    title: "Wonder",
+    author: "R.J. Palacio",
+    description: "A moving middle-grade novel about a boy with a facial difference navigating school and relationships.",
+    trait: "agreeableness"
+  },
+  {
+    id: 105,
+    title: "Stillness Is the Key",
+    author: "Ryan Holiday",
+    description: "A modern take on ancient wisdom promoting inner calm, clarity, and balance in a busy world.",
+    trait: "emotionalStability"
+  }
+];
+
 const questions: Question[] = [
   {
     id: 1,
     text: "I forgive others easily.",
-    trait: "agreeableness"
+    trait: "agreeableness",
+    type: "statement"
   },
   {
     id: 2,
     text: "I enjoy trying new and different things.",
-    trait: "openness"
+    trait: "openness",
+    type: "statement"
   },
   {
     id: 3,
     text: "I get upset or irritated quickly.",
-    trait: "emotionalStability"
+    trait: "emotionalStability",
+    type: "statement"
   },
   {
     id: 4,
     text: "I follow through with my plans.",
-    trait: "conscientiousness"
+    trait: "conscientiousness",
+    type: "statement"
   },
   {
     id: 5,
     text: "I am interested in the well-being of others.",
-    trait: "agreeableness"
+    trait: "agreeableness",
+    type: "statement"
+  },
+  // Book question after 5 statements
+  {
+    id: 101,
+    text: "Does this sort of book interest you?",
+    trait: "openness",
+    type: "book"
   },
   {
     id: 6,
     text: "I enjoy being the center of attention.",
-    trait: "extraversion"
+    trait: "extraversion",
+    type: "statement"
   },
   {
     id: 7,
     text: "I pay close attention to detail.",
-    trait: "conscientiousness"
+    trait: "conscientiousness",
+    type: "statement"
   },
   {
     id: 8,
     text: "I experience frequent mood swings.",
-    trait: "emotionalStability"
+    trait: "emotionalStability",
+    type: "statement"
   },
   {
     id: 9,
     text: "I prefer variety over routine.",
-    trait: "openness"
+    trait: "openness",
+    type: "statement"
   },
   {
     id: 10,
     text: "I sympathize with people who are struggling.",
-    trait: "agreeableness"
+    trait: "agreeableness",
+    type: "statement"
+  },
+  // Book question after 10 statements
+  {
+    id: 102,
+    text: "Does this sort of book interest you?",
+    trait: "conscientiousness",
+    type: "book"
   },
   {
     id: 11,
     text: "I often feel anxious or tense.",
-    trait: "emotionalStability"
+    trait: "emotionalStability",
+    type: "statement"
   },
   {
     id: 12,
     text: "I finish tasks successfully.",
-    trait: "conscientiousness"
+    trait: "conscientiousness",
+    type: "statement"
   },
   {
     id: 13,
     text: "I am curious about many different topics.",
-    trait: "openness"
+    trait: "openness",
+    type: "statement"
   },
   {
     id: 14,
     text: "I make people feel comfortable and valued.",
-    trait: "agreeableness"
+    trait: "agreeableness",
+    type: "statement"
   },
   {
     id: 15,
     text: "I worry about things.",
-    trait: "emotionalStability"
+    trait: "emotionalStability",
+    type: "statement"
+  },
+  // Book question after 15 statements
+  {
+    id: 103,
+    text: "Does this sort of book interest you?",
+    trait: "extraversion",
+    type: "book"
   },
   {
     id: 16,
     text: "I have a vivid imagination.",
-    trait: "openness"
+    trait: "openness",
+    type: "statement"
   },
   {
     id: 17,
     text: "I am enthusiastic and full of energy.",
-    trait: "extraversion"
+    trait: "extraversion",
+    type: "statement"
   },
   {
     id: 18,
     text: "I am always prepared.",
-    trait: "conscientiousness"
+    trait: "conscientiousness",
+    type: "statement"
   },
   {
     id: 19,
     text: "I am outgoing and sociable.",
-    trait: "extraversion"
+    trait: "extraversion",
+    type: "statement"
   },
   {
     id: 20,
     text: "I enjoy thinking about abstract concepts.",
-    trait: "openness"
+    trait: "openness",
+    type: "statement"
+  },
+  // Book question after 20 statements
+  {
+    id: 104,
+    text: "Does this sort of book interest you?",
+    trait: "agreeableness",
+    type: "book"
   },
   {
     id: 21,
     text: "I am cooperative and avoid conflict.",
-    trait: "agreeableness"
+    trait: "agreeableness",
+    type: "statement"
   },
   {
     id: 22,
     text: "I start conversations easily.",
-    trait: "extraversion"
+    trait: "extraversion",
+    type: "statement"
   },
   {
     id: 23,
     text: "I am reliable and dependable.",
-    trait: "conscientiousness"
+    trait: "conscientiousness",
+    type: "statement"
   },
   {
     id: 24,
     text: "I feel energized by being around people.",
-    trait: "extraversion"
+    trait: "extraversion",
+    type: "statement"
   },
   {
     id: 25,
     text: "I get stressed out easily.",
-    trait: "emotionalStability"
+    trait: "emotionalStability",
+    type: "statement"
+  },
+  // Final book question after 25 statements
+  {
+    id: 105,
+    text: "Does this sort of book interest you?",
+    trait: "emotionalStability",
+    type: "book"
   }
 ];
 
@@ -155,6 +254,7 @@ function App() {
   const { signOut } = useClerk();
   const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
+  const [bookAnswers, setBookAnswers] = useState<Record<number, BookResponse>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [personalityProfile, setPersonalityProfile] = useState<PersonalityProfile | null>(null);
   const [favorites, setFavorites] = useState<FavoriteBook[]>([]);
@@ -205,44 +305,34 @@ function App() {
   };
 
   const handleLogin = async (credentials: LoginCredentials) => {
-    // This is now handled by Clerk in the AuthModal
-    setIsAuthModalOpen(false);
+    // This would integrate with your auth system
+    console.log('Login attempt:', credentials);
   };
 
   const handleSignup = async (data: SignupData) => {
-    // This is now handled by Clerk in the AuthModal
-    setIsAuthModalOpen(false);
+    // This would integrate with your auth system
+    console.log('Signup attempt:', data);
   };
 
   const handleLogout = async () => {
     try {
       await signOut();
-      // Clear user data
-      setFavorites([]);
-      setPersonalityProfile(null);
-      setAnswers({});
-      setCurrentPage('welcome');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Error signing out:', error);
     }
   };
 
-
-
   const handleStartQuiz = () => {
-    // If there are existing answers, resume from where they left off
-    if (Object.keys(answers).length > 0) {
-      const answeredQuestions = Object.keys(answers).map(Number);
-      const lastAnsweredIndex = questions.findIndex(q => !answeredQuestions.includes(q.id));
-      setCurrentQuestionIndex(lastAnsweredIndex === -1 ? questions.length - 1 : lastAnsweredIndex);
-    } else {
-      setCurrentQuestionIndex(0);
-    }
+    setAnswers({});
+    setBookAnswers({});
+    setCurrentQuestionIndex(0);
+    setPersonalityProfile(null);
     setCurrentPage('quiz');
   };
 
-  const handleQuizComplete = (quizAnswers: Record<number, LikertResponse>) => {
+  const handleQuizComplete = (quizAnswers: Record<number, LikertResponse>, quizBookAnswers: Record<number, BookResponse>) => {
     setAnswers(quizAnswers);
+    setBookAnswers(quizBookAnswers);
     setCurrentQuestionIndex(0); // Reset for next time
     
     // Calculate personality profile
@@ -259,7 +349,8 @@ function App() {
       selfExpression: 0
     };
 
-    questions.forEach(question => {
+    // Process regular statement questions
+    questions.filter(q => q.type === 'statement').forEach(question => {
       const answer = quizAnswers[question.id];
       if (answer !== undefined) {
         // Convert Likert scale to score (1-5 scale, where 1 = Strongly Agree, 5 = Strongly Disagree)
@@ -275,6 +366,14 @@ function App() {
       }
     });
 
+    // Process book questions - add 1 point for each "yes" answer
+    questions.filter(q => q.type === 'book').forEach(question => {
+      const answer = quizBookAnswers[question.id];
+      if (answer === 'yes') {
+        profile[question.trait] += 1;
+      }
+    });
+
     setPersonalityProfile(profile);
     // Generate and store recommendations ONCE per quiz completion
     const recs = getBookRecommendations(profile);
@@ -285,13 +384,15 @@ function App() {
 
   const handleRetakeQuiz = () => {
     setAnswers({});
+    setBookAnswers({});
     setCurrentQuestionIndex(0);
     setPersonalityProfile(null);
     setCurrentPage('quiz');
   };
 
-  const handleQuizProgress = (updatedAnswers: Record<number, LikertResponse>, questionIndex: number) => {
+  const handleQuizProgress = (updatedAnswers: Record<number, LikertResponse>, updatedBookAnswers: Record<number, BookResponse>, questionIndex: number) => {
     setAnswers(updatedAnswers);
+    setBookAnswers(updatedBookAnswers);
     setCurrentQuestionIndex(questionIndex);
   };
 
@@ -303,6 +404,7 @@ function App() {
   const handleHomeFromResults = () => {
     // Clear quiz progress when going home from results
     setAnswers({});
+    setBookAnswers({});
     setCurrentQuestionIndex(0);
     setCurrentPage('welcome');
   };
@@ -322,6 +424,7 @@ function App() {
     } else {
       // Clear quiz progress when navigating to any page other than quiz or results
       setAnswers({});
+      setBookAnswers({});
       setCurrentQuestionIndex(0);
       setCurrentPage(page as AppPage);
     }
@@ -423,7 +526,9 @@ function App() {
           />
           <QuizPage 
             questions={questions} 
+            bookQuestions={bookQuestions}
             initialAnswers={answers}
+            initialBookAnswers={bookAnswers}
             initialQuestionIndex={currentQuestionIndex}
             onComplete={handleQuizComplete}
             onProgress={handleQuizProgress}

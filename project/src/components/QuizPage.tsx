@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { ArrowRight, ArrowLeft, CheckCircle, Home } from 'lucide-react';
-import { Question, LikertResponse } from '../types';
+import { ArrowRight, ArrowLeft, CheckCircle, Home, BookOpen } from 'lucide-react';
+import { Question, LikertResponse, BookResponse, BookQuestion } from '../types';
 
 interface QuizPageProps {
   questions: Question[];
+  bookQuestions: BookQuestion[];
   initialAnswers: Record<number, LikertResponse>;
+  initialBookAnswers: Record<number, BookResponse>;
   initialQuestionIndex: number;
-  onComplete: (answers: Record<number, LikertResponse>) => void;
-  onProgress: (answers: Record<number, LikertResponse>, questionIndex: number) => void;
+  onComplete: (answers: Record<number, LikertResponse>, bookAnswers: Record<number, BookResponse>) => void;
+  onProgress: (answers: Record<number, LikertResponse>, bookAnswers: Record<number, BookResponse>, questionIndex: number) => void;
   onHome: () => void;
 }
 
 const QuizPage: React.FC<QuizPageProps> = ({ 
   questions, 
+  bookQuestions,
   initialAnswers, 
+  initialBookAnswers,
   initialQuestionIndex, 
   onComplete, 
   onProgress, 
@@ -21,7 +25,13 @@ const QuizPage: React.FC<QuizPageProps> = ({
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState(initialQuestionIndex);
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>(initialAnswers);
+  const [bookAnswers, setBookAnswers] = useState<Record<number, BookResponse>>(initialBookAnswers);
   const [selectedAnswer, setSelectedAnswer] = useState<LikertResponse | null>(null);
+  const [selectedBookAnswer, setSelectedBookAnswer] = useState<BookResponse | null>(null);
+
+  const currentQuestionData = questions[currentQuestion];
+  const isBookQuestion = currentQuestionData.type === 'book';
+  const currentBookData = isBookQuestion ? bookQuestions.find(bq => bq.id === currentQuestionData.id) : null;
 
   const handleAnswer = (answer: LikertResponse) => {
     setSelectedAnswer(answer);
@@ -31,14 +41,34 @@ const QuizPage: React.FC<QuizPageProps> = ({
     const nextQuestionIndex = currentQuestion + 1;
 
     if (currentQuestion < questions.length - 1) {
-      onProgress(newAnswers, nextQuestionIndex);
+      onProgress(newAnswers, bookAnswers, nextQuestionIndex);
       setTimeout(() => {
         setSelectedAnswer(null); // Reset selection for next question
         setCurrentQuestion(nextQuestionIndex);
       }, 300);
     } else {
       setTimeout(() => {
-        onComplete(newAnswers);
+        onComplete(newAnswers, bookAnswers);
+      }, 300);
+    }
+  };
+
+  const handleBookAnswer = (answer: BookResponse) => {
+    setSelectedBookAnswer(answer);
+    const newBookAnswers = { ...bookAnswers, [questions[currentQuestion].id]: answer };
+    setBookAnswers(newBookAnswers);
+    
+    const nextQuestionIndex = currentQuestion + 1;
+
+    if (currentQuestion < questions.length - 1) {
+      onProgress(answers, newBookAnswers, nextQuestionIndex);
+      setTimeout(() => {
+        setSelectedBookAnswer(null); // Reset selection for next question
+        setCurrentQuestion(nextQuestionIndex);
+      }, 300);
+    } else {
+      setTimeout(() => {
+        onComplete(answers, newBookAnswers);
       }, 300);
     }
   };
@@ -47,8 +77,9 @@ const QuizPage: React.FC<QuizPageProps> = ({
     if (currentQuestion > 0) {
       const prevQuestionIndex = currentQuestion - 1;
       setSelectedAnswer(null); // Reset selection when going back
+      setSelectedBookAnswer(null);
       setCurrentQuestion(prevQuestionIndex);
-      onProgress(answers, prevQuestionIndex);
+      onProgress(answers, bookAnswers, prevQuestionIndex);
     }
   };
 
@@ -58,6 +89,11 @@ const QuizPage: React.FC<QuizPageProps> = ({
     { value: 3 as LikertResponse, label: 'Neutral', color: 'from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700' },
     { value: 4 as LikertResponse, label: 'Disagree', color: 'from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' },
     { value: 5 as LikertResponse, label: 'Strongly Disagree', color: 'from-red-600 to-red-700 hover:from-red-700 hover:to-red-800' }
+  ];
+
+  const bookOptions = [
+    { value: 'yes' as BookResponse, label: 'Yes', color: 'from-emerald-600 to-green-700 hover:from-emerald-700 hover:to-green-800' },
+    { value: 'no' as BookResponse, label: 'No', color: 'from-red-600 to-red-700 hover:from-red-700 hover:to-red-800' }
   ];
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
@@ -98,63 +134,97 @@ const QuizPage: React.FC<QuizPageProps> = ({
             </div>
           </div>
           
-          <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
+          {/* Progress Bar */}
+          <div className="w-full bg-white/20 rounded-full h-2">
             <div 
-              className="bg-gradient-to-r from-amber-500 to-orange-600 h-3 rounded-full transition-all duration-700 ease-out"
+              className="bg-gradient-to-r from-amber-500 to-orange-600 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
-        {/* Question Card */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8 shadow-2xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 text-center leading-relaxed">
-            {questions[currentQuestion].text}
-          </h2>
-
-          <div className="space-y-4">
-            {likertOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleAnswer(option.value)}
-                className={`bg-gradient-to-r ${
-                  selectedAnswer === option.value 
-                    ? 'from-amber-500 to-orange-600' // Selected state color
-                    : option.color // Default color
-                } text-white px-6 py-4 rounded-xl font-medium text-base transition-all duration-300 transform hover:scale-105 hover:shadow-xl w-full flex items-center justify-between group`}
-              >
-                <span>{option.label}</span>
-                <CheckCircle className={`w-5 h-5 transition-opacity duration-200 ${
-                  selectedAnswer === option.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                }`} />
-              </button>
-            ))}
-          </div>
+        {/* Question Content */}
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+          {isBookQuestion && currentBookData ? (
+            // Book Question Display
+            <div className="text-center">
+              <div className="mb-6">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-4">
+                  <BookOpen className="w-4 h-4 text-amber-400" />
+                  <span className="text-sm font-medium text-white/80">Book Question</span>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-4">{currentBookData.title}</h2>
+                <p className="text-white/70 text-lg mb-2">by {currentBookData.author}</p>
+                <p className="text-white/80 text-base leading-relaxed max-w-2xl mx-auto">
+                  {currentBookData.description}
+                </p>
+              </div>
+              
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-white mb-6">
+                  Does this sort of book interest you?
+                </h3>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  {bookOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleBookAnswer(option.value)}
+                      disabled={selectedBookAnswer !== null}
+                      className={`bg-gradient-to-r ${option.color} text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                        selectedBookAnswer === option.value ? 'ring-4 ring-white/30' : ''
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Regular Statement Question Display
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-white mb-8 leading-relaxed">
+                {currentQuestionData.text}
+              </h2>
+              
+              <div className="space-y-4">
+                {likertOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleAnswer(option.value)}
+                    disabled={selectedAnswer !== null}
+                    className={`w-full bg-gradient-to-r ${option.color} text-white px-6 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                      selectedAnswer === option.value ? 'ring-4 ring-white/30' : ''
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Navigation */}
-        {currentQuestion > 0 && (
-          <div className="text-center">
-            <button
-              onClick={handlePrevious}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Previous Question</span>
-            </button>
-          </div>
-        )}
-      </div>
-      
-      {/* Home Button - Top Left Corner */}
-      <div className="fixed top-6 left-6 z-50">
-        <button
-          onClick={onHome}
-          className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
-          title="Go to Home"
-        >
-          <Home className="w-5 h-5" />
-        </button>
+        {/* Navigation Buttons */}
+        <div className="flex justify-between items-center">
+          <button
+            onClick={handlePrevious}
+            disabled={currentQuestion === 0}
+            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Previous</span>
+          </button>
+          
+          <button
+            onClick={onHome}
+            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+          >
+            <Home className="w-4 h-4" />
+            <span>Home</span>
+          </button>
+        </div>
       </div>
     </div>
   );
