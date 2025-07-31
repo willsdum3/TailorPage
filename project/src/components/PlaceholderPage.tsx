@@ -257,9 +257,12 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                 </div>
                 <div className="space-y-3">
                   {(() => {
-                    // Get top traits by score (top 3, or all if less than 3)
+                    // Get top traits by score (only traits tied for highest scores, max 3)
                     const sortedTraits = [...personalityAnalysis].sort((a, b) => b.score - a.score);
-                    const topTraits = sortedTraits.slice(0, Math.max(3, sortedTraits.length));
+                    const highestScore = sortedTraits[0]?.score || 0;
+                    const topTraits = sortedTraits
+                      .filter(trait => trait.score === highestScore)
+                      .slice(0, 3); // Limit to top 3 even if more are tied
                     
                     return topTraits.map((trait) => (
                       <div key={trait.name} className="flex items-center space-x-3">

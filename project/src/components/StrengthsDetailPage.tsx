@@ -12,9 +12,12 @@ interface StrengthsDetailPageProps {
 const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBack }) => {
   const personalityAnalysis = analyzePersonality(profile);
   
-  // Get top traits by score (top 3, or all if less than 3)
+  // Get top traits by score (only traits tied for highest scores, max 3)
   const sortedTraits = [...personalityAnalysis].sort((a, b) => b.score - a.score);
-  const strengths = sortedTraits.slice(0, Math.max(3, sortedTraits.length));
+  const highestScore = sortedTraits[0]?.score || 0;
+  const strengths = sortedTraits
+    .filter(trait => trait.score === highestScore)
+    .slice(0, 3); // Limit to top 3 even if more are tied
 
   // Scroll to top when component mounts
   useEffect(() => {
