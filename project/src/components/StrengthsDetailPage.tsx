@@ -129,7 +129,7 @@ const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBa
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
       
-      <div className="max-w-6xl mx-auto relative z-10 pt-40 pb-8 px-4">
+      <div className="max-w-6xl mx-auto relative z-10 pt-48 pb-8 px-4">
         {/* Header */}
         <div className="text-center mb-12">
           <button
@@ -149,12 +149,12 @@ const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBa
             <span className="text-sm font-medium text-white/80">Your Strengths</span>
           </div>
           
-                     <h1 className="text-6xl md:text-7xl font-bold text-white mb-8 leading-tight">
-             Your Unique
-             <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-               Strengths
-             </span>
-           </h1>
+                               <h1 className="text-5xl md:text-6xl font-bold text-white mb-8 leading-tight">
+            Your Unique
+            <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+              Strengths
+            </span>
+          </h1>
           
           <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto leading-relaxed">
             Discover what makes you special and how to leverage your natural talents for personal and professional success.
