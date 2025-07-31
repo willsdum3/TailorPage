@@ -60,7 +60,7 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack }) => {
               <div>
                 <h3 className="text-xl font-semibold text-white mb-4">Comprehensive Personality Mapping</h3>
                 <p className="text-white/70 mb-6 leading-relaxed">
-                  Our proprietary algorithm analyses your responses across all 10 personality dimensions to create a detailed psychological profile, then matches you with books based on:
+                  Our proprietary algorithm analyses your responses across all 5 personality dimensions to create a detailed psychological profile, then matches you with books based on:
                 </p>
                 
                 <div className="space-y-3">
@@ -128,13 +128,13 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack }) => {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center group hover:bg-white/15 transition-all duration-300">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-2xl font-bold text-white">50</span>
+                  <span className="text-2xl font-bold text-white">25</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-4">Complete 50-Statement Assessment</h3>
+                <h3 className="text-xl font-bold text-white mb-4">Complete 25-Statement Assessment</h3>
                 <p className="text-white/70 leading-relaxed mb-4">
-                  Answer 50 carefully crafted statements designed by psychology experts to create a comprehensive personality profile across 10 key dimensions.
+                  Answer 25 carefully crafted statements designed by psychology experts to create a comprehensive personality profile across 5 key dimensions.
                 </p>
-                <div className="text-sm text-amber-400 font-medium">~5-7 minutes</div>
+                <div className="text-sm text-amber-400 font-medium">~3-5 minutes</div>
               </div>
 
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center group hover:bg-white/15 transition-all duration-300">
@@ -143,7 +143,7 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack }) => {
                 </div>
                 <h3 className="text-xl font-bold text-white mb-4">Advanced AI Analysis</h3>
                 <p className="text-white/70 leading-relaxed mb-4">
-                  Our sophisticated AI analyses your responses across 10 personality dimensions and matches them with our curated database of over 100 books.
+                  Our sophisticated AI analyses your responses across 5 personality dimensions and matches them with our curated database of over 100 books.
                 </p>
                 <div className="text-sm text-amber-400 font-medium">Instant results</div>
               </div>
@@ -222,7 +222,7 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack }) => {
                   <h3 className="text-xl font-semibold text-white">Multi-Dimensional Compatibility</h3>
                 </div>
                 <p className="text-white/70 leading-relaxed mb-4">
-                  Books that align with multiple aspects of your personality create deeper emotional connections and more satisfying reading experiences. Our 10-dimension system ensures comprehensive compatibility.
+                  Books that align with multiple aspects of your personality create deeper emotional connections and more satisfying reading experiences. Our 5-dimension system ensures comprehensive compatibility.
                 </p>
                 <div className="text-sm text-amber-400 font-medium">97% user satisfaction rate</div>
               </div>

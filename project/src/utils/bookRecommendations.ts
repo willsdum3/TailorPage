@@ -1128,35 +1128,35 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       case 'Literary Fiction':
       case 'Philosophical Fiction':
       case 'Philosophy':
-        score += profile.openness * 2.5 + profile.selfExpression * 1.5 + profile.rationalThinking * 0.5;
+        score += profile.openness * 2.5 + profile.agreeableness * 1.5 + profile.conscientiousness * 0.5;
         break;
       case 'Fantasy':
       case 'Epic Fantasy':
       case 'Urban Fantasy':
       case 'Dark Fantasy':
-        score += profile.openness * 2.2 + (25 - profile.conscientiousness) * 0.8 + profile.selfExpression * 0.5;
+        score += profile.openness * 2.2 + (25 - profile.conscientiousness) * 0.8 + profile.extraversion * 0.5;
         break;
       case 'Science Fiction':
       case 'Cyberpunk':
       case 'Space Opera':
       case 'Post-Apocalyptic Fiction':
-        score += profile.openness * 2.0 + profile.rationalThinking * 1.5 + (25 - profile.conscientiousness) * 0.5;
+        score += profile.openness * 2.0 + profile.conscientiousness * 1.5 + (25 - profile.conscientiousness) * 0.5;
         break;
       case 'Self-Help':
       case 'Psychology':
-        score += profile.conscientiousness * 2.5 + profile.rationalThinking * 1.8 + profile.coreValues * 0.7;
+        score += profile.conscientiousness * 2.5 + profile.emotionalStability * 1.8 + profile.openness * 0.7;
         break;
       case 'Biography':
       case 'Memoir':
       case 'Autobiography':
-        score += profile.agreeableness * 1.5 + profile.selfExpression * 1.2 + profile.openness * 1.0 + profile.coreValues * 0.8;
+        score += profile.agreeableness * 1.5 + profile.openness * 1.2 + profile.extraversion * 1.0 + profile.conscientiousness * 0.8;
         break;
       case 'Psychological Thriller':
       case 'Crime Thriller':
-        score += profile.openness * 1.5 + profile.emotionalStability * 1.8 + profile.rationalThinking * 1.2;
+        score += profile.openness * 1.5 + profile.emotionalStability * 1.8 + profile.conscientiousness * 1.2;
         break;
       case 'Dystopian Fiction':
-        score += profile.openness * 1.8 + profile.rationalThinking * 1.5 + profile.coreValues * 1.2;
+        score += profile.openness * 1.8 + profile.conscientiousness * 1.5 + profile.emotionalStability * 1.2;
         break;
       case 'History':
       case 'Science':
@@ -1164,33 +1164,33 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       case 'Physics':
       case 'Biology':
       case 'Economics':
-        score += profile.openness * 1.5 + profile.conscientiousness * 1.8 + profile.rationalThinking * 2.0;
+        score += profile.openness * 1.5 + profile.conscientiousness * 1.8 + profile.emotionalStability * 2.0;
         break;
       case 'Classic Literature':
       case 'Classic Romance':
       case 'Gothic Romance':
       case 'Gothic Thriller':
-        score += profile.openness * 1.8 + profile.selfExpression * 1.2 + profile.agreeableness * 1.0;
+        score += profile.openness * 1.8 + profile.agreeableness * 1.2 + profile.extraversion * 1.0;
         break;
       case 'Mystery':
       case 'Detective Fiction':
       case 'Cozy Mystery':
-        score += profile.conscientiousness * 1.5 + profile.openness * 1.2 + profile.emotionalStability * 1.0 + profile.rationalThinking * 1.3;
+        score += profile.conscientiousness * 1.5 + profile.openness * 1.2 + profile.emotionalStability * 1.0 + profile.agreeableness * 1.3;
         break;
       case 'Contemporary Fiction':
       case 'Contemporary Romance':
       case 'Romance':
       case 'Historical Romance':
-        score += profile.agreeableness * 1.8 + profile.openness * 1.0 + profile.selfExpression * 1.2;
+        score += profile.agreeableness * 1.8 + profile.openness * 1.0 + profile.extraversion * 1.2;
         break;
       case 'Young Adult':
-        score += profile.openness * 1.2 + profile.agreeableness * 1.0 + profile.selfExpression * 0.8;
+        score += profile.openness * 1.2 + profile.agreeableness * 1.0 + profile.extraversion * 0.8;
         break;
       case 'Spirituality':
-        score += profile.selfExpression * 2.0 + profile.agreeableness * 1.5 + profile.openness * 1.0;
+        score += profile.agreeableness * 2.0 + profile.openness * 1.5 + profile.extraversion * 1.0;
         break;
       case 'Thriller':
-        score += profile.emotionalStability * 1.5 + profile.openness * 1.2 + profile.rationalThinking * 1.0;
+        score += profile.emotionalStability * 1.5 + profile.openness * 1.2 + profile.conscientiousness * 1.0;
         break;
       case 'Adventure Fiction':
         score += profile.openness * 1.5 + profile.extraversion * 1.2 + profile.emotionalStability * 1.0;
@@ -1199,56 +1199,56 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
         score += profile.openness * 1.5 + profile.agreeableness * 1.0 + profile.conscientiousness * 0.8;
         break;
       case 'Coming of Age':
-        score += profile.selfExpression * 1.5 + profile.openness * 1.2 + profile.agreeableness * 1.0;
+        score += profile.openness * 1.5 + profile.extraversion * 1.2 + profile.agreeableness * 1.0;
         break;
       case 'Political Satire':
       case 'Political Biography':
-        score += profile.rationalThinking * 1.8 + profile.openness * 1.5 + profile.coreValues * 1.2;
+        score += profile.conscientiousness * 1.8 + profile.openness * 1.5 + profile.emotionalStability * 1.2;
         break;
       case 'Sports Memoir':
       case 'Sports Biography':
-        score += profile.conscientiousness * 1.5 + profile.emotionalStability * 1.2 + profile.coreValues * 1.0;
+        score += profile.conscientiousness * 1.5 + profile.emotionalStability * 1.2 + profile.extraversion * 1.0;
         break;
       case 'Creativity':
-        score += profile.openness * 2.0 + profile.selfExpression * 1.8 + profile.extraversion * 0.5;
+        score += profile.openness * 2.0 + profile.extraversion * 1.8 + profile.agreeableness * 0.5;
         break;
       case 'Nature Writing':
-        score += profile.openness * 1.5 + profile.agreeableness * 1.2 + profile.selfExpression * 1.0;
+        score += profile.openness * 1.5 + profile.agreeableness * 1.2 + profile.emotionalStability * 1.0;
         break;
       case 'Business':
-        score += profile.conscientiousness * 2.0 + profile.rationalThinking * 1.5 + profile.extraversion * 1.0;
+        score += profile.conscientiousness * 2.0 + profile.emotionalStability * 1.5 + profile.extraversion * 1.0;
         break;
       case 'Social Commentary':
-        score += profile.agreeableness * 1.8 + profile.rationalThinking * 1.5 + profile.coreValues * 1.2;
+        score += profile.agreeableness * 1.8 + profile.conscientiousness * 1.5 + profile.emotionalStability * 1.2;
         break;
       case 'Feminist Literature':
-        score += profile.agreeableness * 1.8 + profile.coreValues * 1.5 + profile.selfExpression * 1.2;
+        score += profile.agreeableness * 1.8 + profile.openness * 1.5 + profile.extraversion * 1.2;
         break;
       case 'Existential Fiction':
-        score += profile.selfExpression * 2.0 + profile.rationalThinking * 1.5 + profile.openness * 1.2;
+        score += profile.openness * 2.0 + profile.conscientiousness * 1.5 + profile.emotionalStability * 1.2;
         break;
       case 'Modernist Literature':
       case 'Experimental Fiction':
-        score += profile.openness * 2.5 + profile.selfExpression * 1.5 + profile.rationalThinking * 1.0;
+        score += profile.openness * 2.5 + profile.extraversion * 1.5 + profile.conscientiousness * 1.0;
         break;
       case 'Western':
         score += profile.emotionalStability * 1.5 + profile.conscientiousness * 1.2 + profile.extraversion * 1.0;
         break;
       case 'Satirical Fiction':
-        score += profile.rationalThinking * 1.8 + profile.openness * 1.5 + profile.selfExpression * 1.2;
+        score += profile.conscientiousness * 1.8 + profile.openness * 1.5 + profile.extraversion * 1.2;
         break;
       case 'Magical Realism':
-        score += profile.openness * 2.2 + profile.selfExpression * 1.5 + profile.agreeableness * 1.0;
+        score += profile.openness * 2.2 + profile.extraversion * 1.5 + profile.agreeableness * 1.0;
         break;
       case 'Fantasy Romance':
-        score += profile.openness * 1.8 + profile.agreeableness * 1.5 + profile.selfExpression * 1.2;
+        score += profile.openness * 1.8 + profile.agreeableness * 1.5 + profile.extraversion * 1.2;
         break;
       default:
         score += 12; // Base score for other genres
     }
 
     // Enhanced personality trait adjustments
-    if (profile.extraversion <= 15) {
+    if (profile.extraversion <= 12) {
       // Introverts prefer character-driven, introspective books
       if (['Literary Fiction', 'Philosophy', 'Memoir', 'Biography', 'Spirituality', 'Philosophical Fiction'].includes(book.genre)) {
         score += 4;
@@ -1256,7 +1256,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       if (['Psychological Thriller', 'Mystery', 'Historical Fiction'].includes(book.genre)) {
         score += 2;
       }
-    } else if (profile.extraversion >= 20) {
+    } else if (profile.extraversion >= 16) {
       // Extroverts prefer action and social themes
       if (['Science Fiction', 'Fantasy', 'Adventure Fiction', 'Thriller', 'Contemporary Romance'].includes(book.genre)) {
         score += 3;
@@ -1266,7 +1266,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       }
     }
 
-    if (profile.openness >= 20) {
+    if (profile.openness >= 16) {
       // High openness enjoys experimental and diverse content
       if (['Fantasy', 'Science Fiction', 'Dystopian Fiction', 'Urban Fantasy', 'Dark Fantasy', 'Magical Realism', 'Experimental Fiction'].includes(book.genre)) {
         score += 3;
@@ -1274,14 +1274,14 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       if (['Literary Fiction', 'Philosophy', 'Modernist Literature'].includes(book.genre)) {
         score += 2;
       }
-    } else if (profile.openness <= 15) {
+    } else if (profile.openness <= 12) {
       // Lower openness prefers familiar genres
       if (['Contemporary Fiction', 'Romance', 'Mystery', 'Biography'].includes(book.genre)) {
         score += 2;
       }
     }
 
-    if (profile.conscientiousness >= 20) {
+    if (profile.conscientiousness >= 16) {
       // Highly conscientious readers prefer structured, goal-oriented content
       if (['Self-Help', 'Biography', 'History', 'Psychology', 'Business', 'Science'].includes(book.genre)) {
         score += 4;
@@ -1289,14 +1289,14 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       if (['Classic Literature', 'Historical Fiction'].includes(book.genre)) {
         score += 2;
       }
-    } else if (profile.conscientiousness <= 15) {
+    } else if (profile.conscientiousness <= 12) {
       // Lower conscientiousness prefers more spontaneous content
       if (['Fantasy', 'Science Fiction', 'Adventure Fiction', 'Contemporary Romance'].includes(book.genre)) {
         score += 2;
       }
     }
 
-    if (profile.agreeableness >= 20) {
+    if (profile.agreeableness >= 16) {
       // Highly agreeable readers prefer empathetic, socially conscious content
       if (['Biography', 'Memoir', 'Psychology', 'Contemporary Fiction', 'Social Commentary', 'Feminist Literature'].includes(book.genre)) {
         score += 3;
@@ -1306,7 +1306,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       }
     }
 
-    if (profile.emotionalStability >= 20) {
+    if (profile.emotionalStability >= 16) {
       // Emotionally stable readers can handle intense content
       if (['Psychological Thriller', 'Dystopian Fiction', 'Crime Thriller', 'Gothic Romance', 'Dark Fantasy'].includes(book.genre)) {
         score += 3;
@@ -1314,75 +1314,14 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       if (['Thriller', 'Mystery', 'Historical Fiction'].includes(book.genre)) {
         score += 2;
       }
-    } else if (profile.emotionalStability <= 15) {
+    } else if (profile.emotionalStability <= 12) {
       // Lower emotional stability prefers lighter content
       if (['Romance', 'Contemporary Fiction', 'Self-Help', 'Biography'].includes(book.genre)) {
         score += 2;
       }
     }
 
-    if (profile.rationalThinking >= 20) {
-      // High rational thinking prefers analytical content
-      if (['Science', 'Psychology', 'Philosophy', 'History', 'Economics', 'Political Biography'].includes(book.genre)) {
-        score += 4;
-      }
-      if (['Science Fiction', 'Mystery', 'Dystopian Fiction'].includes(book.genre)) {
-        score += 2;
-      }
-    }
-
-    if (profile.selfExpression >= 20) {
-      // High self-expression prefers authentic, personal content
-      if (['Memoir', 'Literary Fiction', 'Philosophy', 'Spirituality', 'Feminist Literature'].includes(book.genre)) {
-        score += 3;
-      }
-      if (['Contemporary Fiction', 'Young Adult', 'Coming of Age'].includes(book.genre)) {
-        score += 2;
-      }
-    }
-
-    if (profile.coreValues >= 20) {
-      // Strong core values prefer meaningful content
-      if (['Biography', 'Social Commentary', 'History', 'Philosophy', 'Memoir'].includes(book.genre)) {
-        score += 3;
-      }
-      if (['Dystopian Fiction', 'Literary Fiction', 'Young Adult'].includes(book.genre)) {
-        score += 2;
-      }
-    }
-
-    // Lifestyle preferences
-    if (profile.lifestyle >= 20) {
-      // Fast-paced lifestyle prefers engaging content
-      if (['Thriller', 'Science Fiction', 'Fantasy', 'Adventure Fiction', 'Crime Thriller'].includes(book.genre)) {
-        score += 2;
-      }
-    } else if (profile.lifestyle <= 15) {
-      // Calm lifestyle prefers contemplative content
-      if (['Literary Fiction', 'Philosophy', 'Memoir', 'Spirituality', 'Nature Writing'].includes(book.genre)) {
-        score += 2;
-      }
-    }
-
-    // Social style adjustments
-    if (profile.socialStyle >= 18) {
-      // Adaptable social style
-      if (['Contemporary Fiction', 'Romance', 'Business', 'Biography'].includes(book.genre)) {
-        score += 2;
-      }
-    } else if (profile.socialStyle <= 12) {
-      // More consistent social approach
-      if (['Literary Fiction', 'Philosophy', 'Science', 'History'].includes(book.genre)) {
-        score += 2;
-      }
-    }
-
-    // Add controlled randomness for variety while maintaining personality relevance
-    const randomFactor = (seededRandom() - 0.5) * 3; // Range: -1.5 to +1.5
-    score += randomFactor;
-
-    // Ensure minimum score
-    return Math.max(score, 1);
+    return score;
   };
 
   // Score all books and sort by relevance

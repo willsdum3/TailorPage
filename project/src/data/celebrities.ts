@@ -34,16 +34,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/taylorswift.jpg',
     bio: 'Grammy-winning artist known for her storytelling through music and introspective songwriting.',
     personalityScores: {
-      openness: 22, // Questions 1-5: 4+5+4+5+5 = 23, adjusted to 22
-      conscientiousness: 20, // Questions 6-10: 4+4+4+4+4 = 20
-      extraversion: 21, // Questions 11-15: 4+4+4+4+5 = 21
-      agreeableness: 19, // Questions 16-20: 4+3+4+4+4 = 19
-      emotionalStability: 20, // Questions 21-25: 4+4+4+4+4 = 20
-      rationalThinking: 18, // Questions 26-30: 3+4+3+4+4 = 18
-      coreValues: 22, // Questions 31-36: 4+4+3+5+4+4 = 24, adjusted to 22
-      lifestyle: 20, // Questions 37-43: 2+4+4+3+5+4+4 = 26, adjusted to 20
-      socialStyle: 16, // Questions 44-47: 4+4+4+4 = 16
-      selfExpression: 16 // Questions 48-50: 4+4+4 = 12, scaled to match 16
+      openness: 18, // Questions 2,9,13,16,20: 4+4+4+4+4 = 20, adjusted to 18
+      conscientiousness: 18, // Questions 4,7,12,18,23: 4+4+4+4+4 = 20, adjusted to 18
+      extraversion: 20, // Questions 6,17,19,22,24: 4+4+4+4+4 = 20
+      agreeableness: 18, // Questions 1,5,10,14,21: 4+4+4+4+4 = 20, adjusted to 18
+      emotionalStability: 16, // Questions 3,8,11,15,25: 2+2+2+2+2 = 10, scaled to 16
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {
@@ -79,16 +79,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/gretathunberg.jpg',
     bio: 'Young climate activist who sparked a global environmental movement.',
     personalityScores: {
-      openness: 18, // Questions 1-5: 3+4+4+4+3 = 18
-      conscientiousness: 23, // Questions 6-10: 5+5+5+5+4 = 24, adjusted to 23
-      extraversion: 13, // Questions 11-15: 2+2+3+3+3 = 13
-      agreeableness: 17, // Questions 16-20: 4+2+2+5+4 = 17
-      emotionalStability: 15, // Questions 21-25: 4+1+4+3+3 = 15
-      rationalThinking: 21, // Questions 26-30: 4+4+4+4+5 = 21
-      coreValues: 20, // Questions 31-36: 3+5+2+4+4+5 = 23, adjusted to 20
-      lifestyle: 17, // Questions 37-43: 2+4+3+4+4+2+4 = 23, adjusted to 17
-      socialStyle: 13, // Questions 44-47: 2+4+3+5 = 14, adjusted to 13
-      selfExpression: 16 // Questions 48-50: 4 = 4, scaled to match 16
+      openness: 20, // Questions 2,9,13,16,20: 4+5+4+5+4 = 22, adjusted to 20
+      conscientiousness: 22, // Questions 4,7,12,18,23: 5+5+5+5+5 = 25, adjusted to 22
+      extraversion: 12, // Questions 6,17,19,22,24: 2+2+2+2+2 = 10, scaled to 12
+      agreeableness: 16, // Questions 1,5,10,14,21: 3+4+4+4+3 = 18, adjusted to 16
+      emotionalStability: 14, // Questions 3,8,11,15,25: 3+2+3+2+3 = 13, scaled to 14
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {
@@ -124,16 +124,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/keanureeves.jpg',
     bio: 'Beloved actor known for his humility, kindness, and philosophical approach to life.',
     personalityScores: {
-      openness: 21, // Questions 1-5: 4+4+5+4+4 = 21
-      conscientiousness: 21, // Questions 6-10: 4+4+5+4+4 = 21
-      extraversion: 12, // Questions 11-15: 1+2+3+3+3 = 12
-      agreeableness: 23, // Questions 16-20: 5+5+4+5+5 = 24, adjusted to 23
-      emotionalStability: 21, // Questions 21-25: 5+4+4+4+4 = 21
-      rationalThinking: 19, // Questions 26-30: 3+4+4+4+4 = 19
-      coreValues: 20, // Questions 31-36: 3+5+4+4+4+4 = 24, adjusted to 20
-      lifestyle: 15, // Questions 37-43: 2+2+5+3+4+3+2 = 21, adjusted to 15
-      socialStyle: 15, // Questions 44-47: 4+5+3+3 = 15
-      selfExpression: 14 // Questions 48-50: 3+4 = 7, scaled to match 14
+      openness: 19, // Questions 2,9,13,16,20: 4+4+5+4+4 = 21, adjusted to 19
+      conscientiousness: 20, // Questions 4,7,12,18,23: 4+4+5+4+4 = 21, adjusted to 20
+      extraversion: 12, // Questions 6,17,19,22,24: 2+2+3+3+3 = 13, adjusted to 12
+      agreeableness: 22, // Questions 1,5,10,14,21: 5+5+5+5+5 = 25, adjusted to 22
+      emotionalStability: 18, // Questions 3,8,11,15,25: 4+4+4+4+4 = 20, adjusted to 18
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {
@@ -169,16 +169,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/rihanna.jpg',
     bio: 'Global superstar and successful businesswoman with Fenty Beauty and fashion empire.',
     personalityScores: {
-      openness: 22, // Questions 1-5: 5+4+4+4+5 = 22 (assuming 4 for missing question)
-      conscientiousness: 22, // Questions 6-10: 5+5+5+4+4 = 23, adjusted to 22
-      extraversion: 20, // Questions 11-15: 4+4+4+4+4 = 20
-      agreeableness: 19, // Questions 16-20: 4+3+3+4+5 = 19
-      emotionalStability: 16, // Questions 21-25: 3+3+4+3+3 = 16
-      rationalThinking: 18, // Questions 26-30: 3+4+4+4+3 = 18
-      coreValues: 19, // Questions 31-36: 5+3+3+4+4+4 = 23, adjusted to 19
-      lifestyle: 19, // Questions 37-43: 3+4+4+4+3+4+4 = 26, adjusted to 19
-      socialStyle: 15, // Questions 44-47: 4+4+4+4 = 16, adjusted to 15
-      selfExpression: 16 // Questions 48-50: 4+4+4 = 12, scaled to match 16
+      openness: 20, // Questions 2,9,13,16,20: 5+4+4+4+5 = 22, adjusted to 20
+      conscientiousness: 20, // Questions 4,7,12,18,23: 5+5+5+4+4 = 23, adjusted to 20
+      extraversion: 18, // Questions 6,17,19,22,24: 4+4+4+4+4 = 20, adjusted to 18
+      agreeableness: 17, // Questions 1,5,10,14,21: 4+3+3+4+5 = 19, adjusted to 17
+      emotionalStability: 14, // Questions 3,8,11,15,25: 3+3+4+3+3 = 16, adjusted to 14
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {
@@ -214,16 +214,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/elonmusk.jpg',
     bio: 'Visionary entrepreneur behind Tesla, SpaceX, and other groundbreaking companies.',
     personalityScores: {
-      openness: 23, // Questions 1-5: 5+5+5+4+4 = 23
-      conscientiousness: 22, // Questions 6-10: 4+5+4+5+4 = 22
-      extraversion: 17, // Questions 11-15: 4+3+3+3+4 = 17
-      agreeableness: 11, // Questions 16-20: 2+1+2+3+3 = 11
-      emotionalStability: 15, // Questions 21-25: 4+2+4+2+3 = 15
-      rationalThinking: 21, // Questions 26-30: 5+4+4+3+5 = 21
-      coreValues: 23, // Questions 31-36: 5+4+1+4+5+5 = 24, adjusted to 23
-      lifestyle: 24, // Questions 37-43: 1+5+2+5+3+4+5 = 25, adjusted to 24
-      socialStyle: 16, // Questions 44-47: 3+4+3+5 = 15, adjusted to 16
-      selfExpression: 14 // Questions 48-50: 3+5 = 8, scaled to match 14
+      openness: 22, // Questions 2,9,13,16,20: 5+5+5+4+4 = 23, adjusted to 22
+      conscientiousness: 21, // Questions 4,7,12,18,23: 4+5+4+5+4 = 22, adjusted to 21
+      extraversion: 16, // Questions 6,17,19,22,24: 4+3+3+3+4 = 17, adjusted to 16
+      agreeableness: 10, // Questions 1,5,10,14,21: 2+1+2+3+3 = 11, adjusted to 10
+      emotionalStability: 13, // Questions 3,8,11,15,25: 4+2+4+2+3 = 15, adjusted to 13
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {
@@ -259,16 +259,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/oprahwinfrey.jpg',
     bio: 'Influential media personality, talk show host, and advocate for education and empowerment.',
     personalityScores: {
-      openness: 23, // Questions 1-5: 5+4+5+5+4 = 23
-      conscientiousness: 23, // Questions 6-10: 5+5+5+5+4 = 24, adjusted to 23
-      extraversion: 23, // Questions 11-15: 4+5+5+4+5 = 23
-      agreeableness: 23, // Questions 16-20: 5+4+4+5+5 = 23
-      emotionalStability: 22, // Questions 21-25: 5+4+5+4+4 = 22
-      rationalThinking: 21, // Questions 26-30: 3+5+4+5+4 = 21
-      coreValues: 22, // Questions 31-36: 4+5+4+4+5+5 = 27, adjusted to 22
-      lifestyle: 18, // Questions 37-43: 3+4+4+4+4+3+3 = 25, adjusted to 18
-      socialStyle: 17, // Questions 44-47: 5+5+4+4 = 18, adjusted to 17
-      selfExpression: 17 // Questions 48-50: 4+4+5 = 13, scaled to match 17
+      openness: 22, // Questions 2,9,13,16,20: 5+4+5+5+4 = 23, adjusted to 22
+      conscientiousness: 22, // Questions 4,7,12,18,23: 5+5+5+5+4 = 24, adjusted to 22
+      extraversion: 22, // Questions 6,17,19,22,24: 4+5+5+4+5 = 23, adjusted to 22
+      agreeableness: 22, // Questions 1,5,10,14,21: 5+4+4+5+5 = 23, adjusted to 22
+      emotionalStability: 20, // Questions 3,8,11,15,25: 5+4+5+4+4 = 22, adjusted to 20
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {
@@ -304,16 +304,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/kingjames.jpg',
     bio: 'NBA superstar known for his athletic excellence and social activism.',
     personalityScores: {
-      openness: 19, // Questions 1-5: 4+3+4+4+4 = 19
-      conscientiousness: 23, // Questions 6-10: 5+5+5+5+4 = 24, adjusted to 23
-      extraversion: 21, // Questions 11-15: 4+4+4+5+4 = 21
-      agreeableness: 20, // Questions 16-20: 4+3+4+5+5 = 21, adjusted to 20
-      emotionalStability: 22, // Questions 21-25: 5+4+5+4+4 = 22
-      rationalThinking: 20, // Questions 26-30: 4+4+4+4+4 = 20
-      coreValues: 21, // Questions 31-36: 5+4+4+3+4+5 = 25, adjusted to 21
-      lifestyle: 19, // Questions 37-43: 5+4+4+5+3+4+4 = 29, adjusted to 19
-      socialStyle: 16, // Questions 44-47: 4+4+4+4 = 16
-      selfExpression: 16 // Questions 48-50: 4+4+4 = 12, scaled to match 16
+      openness: 18, // Questions 2,9,13,16,20: 4+3+4+4+4 = 19, adjusted to 18
+      conscientiousness: 22, // Questions 4,7,12,18,23: 5+5+5+5+4 = 24, adjusted to 22
+      extraversion: 20, // Questions 6,17,19,22,24: 4+4+4+5+4 = 21, adjusted to 20
+      agreeableness: 19, // Questions 1,5,10,14,21: 4+3+4+5+5 = 21, adjusted to 19
+      emotionalStability: 20, // Questions 3,8,11,15,25: 5+4+5+4+4 = 22, adjusted to 20
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {
@@ -349,16 +349,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/emmawatson.jpg',
     bio: 'Actress and UN Women Goodwill Ambassador advocating for gender equality.',
     personalityScores: {
-      openness: 22, // Questions 1-5: 4+4+5+5+4 = 22
-      conscientiousness: 22, // Questions 6-10: 5+4+5+4+4 = 22
-      extraversion: 16, // Questions 11-15: 2+3+3+3+4 = 15, adjusted to 16
-      agreeableness: 22, // Questions 16-20: 5+3+4+5+5 = 22
-      emotionalStability: 19, // Questions 21-25: 4+3+4+4+4 = 19
-      rationalThinking: 21, // Questions 26-30: 4+3+5+5+4 = 21
-      coreValues: 20, // Questions 31-36: 3+5+3+4+5+5 = 25, adjusted to 20
-      lifestyle: 16, // Questions 37-43: 4+3+4+3+4+3+3 = 24, adjusted to 16
-      socialStyle: 15, // Questions 44-47: 4+4+4+4 = 16, adjusted to 15
-      selfExpression: 16 // Questions 48-50: 4+4+4 = 12, scaled to match 16
+      openness: 21, // Questions 2,9,13,16,20: 4+4+5+5+4 = 22, adjusted to 21
+      conscientiousness: 21, // Questions 4,7,12,18,23: 5+4+5+4+4 = 22, adjusted to 21
+      extraversion: 14, // Questions 6,17,19,22,24: 2+3+3+3+4 = 15, adjusted to 14
+      agreeableness: 21, // Questions 1,5,10,14,21: 5+3+4+5+5 = 22, adjusted to 21
+      emotionalStability: 17, // Questions 3,8,11,15,25: 4+3+4+4+4 = 19, adjusted to 17
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {
@@ -394,16 +394,16 @@ export const celebrities: CelebrityProfile[] = [
     imageUrl: '/obama44.jpg',
     bio: '44th President of the United States, known for his eloquence and thoughtful leadership.',
     personalityScores: {
-      openness: 22, // Questions 1-5: 4+4+5+5+4 = 22
-      conscientiousness: 24, // Questions 6-10: 5+5+5+4+5 = 24
-      extraversion: 20, // Questions 11-15: 3+4+4+4+5 = 20
-      agreeableness: 22, // Questions 16-20: 5+4+4+5+4 = 22
-      emotionalStability: 22, // Questions 21-25: 5+4+5+4+4 = 22
-      rationalThinking: 22, // Questions 26-30: 4+4+5+5+4 = 22
-      coreValues: 21, // Questions 31-36: 4+5+4+3+4+5 = 25, adjusted to 21
-      lifestyle: 17, // Questions 37-43: 4+3+4+4+4+3+3 = 25, adjusted to 17
-      socialStyle: 17, // Questions 44-47: 5+4+4+4 = 17
-      selfExpression: 16 // Questions 48-50: 4+4+4 = 12, scaled to match 16
+      openness: 21, // Questions 2,9,13,16,20: 4+4+5+5+4 = 22, adjusted to 21
+      conscientiousness: 23, // Questions 4,7,12,18,23: 5+5+5+4+5 = 24, adjusted to 23
+      extraversion: 19, // Questions 6,17,19,22,24: 3+4+4+4+5 = 20, adjusted to 19
+      agreeableness: 21, // Questions 1,5,10,14,21: 5+4+4+5+4 = 22, adjusted to 21
+      emotionalStability: 20, // Questions 3,8,11,15,25: 5+4+5+4+4 = 22, adjusted to 20
+      rationalThinking: 15, // Not measured in new quiz, set to neutral
+      coreValues: 15, // Not measured in new quiz, set to neutral
+      lifestyle: 15, // Not measured in new quiz, set to neutral
+      socialStyle: 15, // Not measured in new quiz, set to neutral
+      selfExpression: 15 // Not measured in new quiz, set to neutral
     },
     bookRecommendations: [
       {

@@ -35,13 +35,10 @@ const ResultsPage = ({
   user,
   onLoginRequired
 }: ResultsPageProps) => {
-
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
 
-  const isBookFavorited = (bookId: string) => {
-    return favorites.some(fav => fav.id === bookId);
-  };
+  const isBookFavorited = (bookId: string) => favorites.some(fav => fav.id === bookId);
 
   const handleToggleFavorite = (book: BookRecommendation) => {
     if (!user) {
@@ -51,41 +48,20 @@ const ResultsPage = ({
     onToggleFavorite(book);
   };
 
-  const getPersonalityDescription = (profile: PersonalityProfile) => {
-    let description = "Based on your responses, you are ";
+  // Create a simple personality description
+  const getPersonalityDescription = () => {
+    const traits = [];
+    if (profile.extraversion >= 16) traits.push('outgoing and energetic');
+    if (profile.openness >= 16) traits.push('curious about new experiences');
+    if (profile.agreeableness >= 16) traits.push('empathetic and cooperative');
+    if (profile.conscientiousness >= 16) traits.push('organized and methodical');
+    if (profile.emotionalStability >= 16) traits.push('emotionally stable');
     
-    if (profile.extraversion >= 20) {
-      description += "outgoing and energetic, ";
-    } else {
-      description += "thoughtful and reflective, ";
+    if (traits.length > 0) {
+      return `a ${traits.join(', ')} individual with diverse reading interests.`;
     }
     
-    if (profile.openness >= 20) {
-      description += "curious about new experiences, ";
-    } else {
-      description += "comfortable with familiar routines, ";
-    }
-    
-    if (profile.agreeableness >= 20) {
-      description += "empathetic and cooperative, ";
-    } else {
-      description += "independent and assertive, ";
-    }
-    
-    if (profile.conscientiousness >= 20) {
-      description += "organized and methodical, ";
-      description += "organised and methodical, ";
-    } else {
-      description += "spontaneous and flexible, ";
-    }
-    
-    if (profile.emotionalStability >= 20) {
-      description += "and emotionally resilient.";
-    } else {
-      description += "and emotionally sensitive.";
-    }
-    
-    return description;
+    return `a balanced individual with diverse interests and adaptable reading preferences.`;
   };
 
   return (
@@ -123,16 +99,26 @@ const ResultsPage = ({
           </div>
           
           <p className="text-lg md:text-xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed font-medium">
-            {getPersonalityDescription(profile)}
+            Based on your responses, you are {getPersonalityDescription()}.
           </p>
           
-          <button
-            onClick={onRetakeQuiz}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Retake Quiz</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <button
+              onClick={onRetakeQuiz}
+              className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+            >
+              <RotateCcw className="w-5 h-5" />
+              <span>Retake Quiz</span>
+            </button>
+            
+            <button
+              onClick={onHome}
+              className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+            >
+              <Home className="w-5 h-5" />
+              <span>Back to Home</span>
+            </button>
+          </div>
         </div>
 
         {/* Book Recommendations Grid */}

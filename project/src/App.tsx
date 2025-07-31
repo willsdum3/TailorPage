@@ -22,253 +22,128 @@ import { useScrollToTopInstant } from './hooks/useScrollToTop';
 const questions: Question[] = [
   {
     id: 1,
-    text: "I enjoy trying new activities and experiences.",
-    trait: "openness"
+    text: "I forgive others easily.",
+    trait: "agreeableness"
   },
   {
     id: 2,
-    text: "I have a vivid imagination.",
+    text: "I enjoy trying new and different things.",
     trait: "openness"
   },
   {
     id: 3,
-    text: "I enjoy reflecting on abstract ideas.",
-    trait: "openness"
+    text: "I get upset or irritated quickly.",
+    trait: "emotionalStability"
   },
   {
     id: 4,
-    text: "I am curious about different cultures and lifestyles.",
-    trait: "openness"
-  },
-  {
-    id: 5,
-    text: "I enjoy artistic or creative activities.",
-    trait: "openness"
-  },
-  {
-    id: 6,
-    text: "I like to have a clear plan before starting anything.",
+    text: "I follow through with my plans.",
     trait: "conscientiousness"
   },
   {
+    id: 5,
+    text: "I am interested in the well-being of others.",
+    trait: "agreeableness"
+  },
+  {
+    id: 6,
+    text: "I enjoy being the center of attention.",
+    trait: "extraversion"
+  },
+  {
     id: 7,
-    text: "I pay attention to details.",
+    text: "I pay close attention to detail.",
     trait: "conscientiousness"
   },
   {
     id: 8,
-    text: "I follow through with my commitments.",
-    trait: "conscientiousness"
+    text: "I experience frequent mood swings.",
+    trait: "emotionalStability"
   },
   {
     id: 9,
-    text: "I rarely procrastinate.",
-    trait: "conscientiousness"
+    text: "I prefer variety over routine.",
+    trait: "openness"
   },
   {
     id: 10,
-    text: "I keep my space and belongings organized.",
-    trait: "conscientiousness"
+    text: "I sympathize with people who are struggling.",
+    trait: "agreeableness"
   },
   {
     id: 11,
-    text: "I enjoy being the centre of attention.",
-    trait: "extraversion"
+    text: "I often feel anxious or tense.",
+    trait: "emotionalStability"
   },
   {
     id: 12,
-    text: "I feel energized after social events.",
-    trait: "extraversion"
+    text: "I finish tasks successfully.",
+    trait: "conscientiousness"
   },
   {
     id: 13,
+    text: "I am curious about many different topics.",
+    trait: "openness"
+  },
+  {
+    id: 14,
+    text: "I make people feel comfortable and valued.",
+    trait: "agreeableness"
+  },
+  {
+    id: 15,
+    text: "I worry about things.",
+    trait: "emotionalStability"
+  },
+  {
+    id: 16,
+    text: "I have a vivid imagination.",
+    trait: "openness"
+  },
+  {
+    id: 17,
+    text: "I am enthusiastic and full of energy.",
+    trait: "extraversion"
+  },
+  {
+    id: 18,
+    text: "I am always prepared.",
+    trait: "conscientiousness"
+  },
+  {
+    id: 19,
+    text: "I am outgoing and sociable.",
+    trait: "extraversion"
+  },
+  {
+    id: 20,
+    text: "I enjoy thinking about abstract concepts.",
+    trait: "openness"
+  },
+  {
+    id: 21,
+    text: "I am cooperative and avoid conflict.",
+    trait: "agreeableness"
+  },
+  {
+    id: 22,
     text: "I start conversations easily.",
     trait: "extraversion"
   },
   {
-    id: 14,
-    text: "I prefer group activities to being alone.",
-    trait: "extraversion"
-  },
-  {
-    id: 15,
-    text: "I am comfortable meeting new people.",
-    trait: "extraversion"
-  },
-  {
-    id: 16,
-    text: "I try to see things from others' perspectives.",
-    trait: "agreeableness"
-  },
-  {
-    id: 17,
-    text: "I avoid conflict when possible.",
-    trait: "agreeableness"
-  },
-  {
-    id: 18,
-    text: "I trust others easily.",
-    trait: "agreeableness"
-  },
-  {
-    id: 19,
-    text: "I feel compassion for those less fortunate.",
-    trait: "agreeableness"
-  },
-  {
-    id: 20,
-    text: "I am generous with my time or resources.",
-    trait: "agreeableness"
-  },
-  {
-    id: 21,
-    text: "I remain calm under pressure.",
-    trait: "emotionalStability"
-  },
-  {
-    id: 22,
-    text: "I don't worry much about the future.",
-    trait: "emotionalStability"
-  },
-  {
     id: 23,
-    text: "I bounce back quickly after setbacks.",
-    trait: "emotionalStability"
+    text: "I am reliable and dependable.",
+    trait: "conscientiousness"
   },
   {
     id: 24,
-    text: "I rarely feel overwhelmed.",
-    trait: "emotionalStability"
+    text: "I feel energized by being around people.",
+    trait: "extraversion"
   },
   {
     id: 25,
-    text: "I don't dwell on mistakes.",
+    text: "I get stressed out easily.",
     trait: "emotionalStability"
-  },
-  {
-    id: 26,
-    text: "I rely on logic more than feelings when making decisions.",
-    trait: "rationalThinking"
-  },
-  {
-    id: 27,
-    text: "I follow my instincts when facing a tough choice.",
-    trait: "rationalThinking"
-  },
-  {
-    id: 28,
-    text: "I analyse situations thoroughly before acting.",
-    trait: "rationalThinking"
-  },
-  {
-    id: 29,
-    text: "I seek multiple perspectives before deciding.",
-    trait: "rationalThinking"
-  },
-  {
-    id: 30,
-    text: "I often question conventional wisdom.",
-    trait: "rationalThinking"
-  },
-  {
-    id: 31,
-    text: "I strive for success and achievement.",
-    trait: "coreValues"
-  },
-  {
-    id: 32,
-    text: "I prioritize helping others over personal gain.",
-    trait: "coreValues"
-  },
-  {
-    id: 33,
-    text: "I value tradition and stability.",
-    trait: "coreValues"
-  },
-  {
-    id: 34,
-    text: "I desire freedom and independence above all.",
-    trait: "coreValues"
-  },
-  {
-    id: 35,
-    text: "I am driven by curiosity and learning.",
-    trait: "coreValues"
-  },
-  {
-    id: 36,
-    text: "I want to make a meaningful impact on the world.",
-    trait: "coreValues"
-  },
-  {
-    id: 37,
-    text: "I prefer predictability over risk-taking.",
-    trait: "lifestyle"
-  },
-  {
-    id: 38,
-    text: "I enjoy taking leadership roles when possible.",
-    trait: "lifestyle"
-  },
-  {
-    id: 39,
-    text: "I enjoy a fast-paced lifestyle.",
-    trait: "lifestyle"
-  },
-  {
-    id: 40,
-    text: "I prefer quiet, calm environments.",
-    trait: "lifestyle"
-  },
-  {
-    id: 41,
-    text: "I like to keep busy and have full schedules.",
-    trait: "lifestyle"
-  },
-  {
-    id: 42,
-    text: "I find comfort in routines.",
-    trait: "lifestyle"
-  },
-  {
-    id: 43,
-    text: "I enjoy spontaneous adventures.",
-    trait: "lifestyle"
-  },
-  {
-    id: 44,
-    text: "I make decisions quickly and easily.",
-    trait: "socialStyle"
-  },
-  {
-    id: 45,
-    text: "I get restless when things stay the same too long.",
-    trait: "socialStyle"
-  },
-  {
-    id: 46,
-    text: "I adapt my behaviour to fit in with different groups.",
-    trait: "socialStyle"
-  },
-  {
-    id: 47,
-    text: "I prefer deep one-on-one conversations to group chats.",
-    trait: "socialStyle"
-  },
-  {
-    id: 48,
-    text: "I often reflect on how others perceive me.",
-    trait: "selfExpression"
-  },
-  {
-    id: 49,
-    text: "I express my opinions even if they're unpopular.",
-    trait: "selfExpression"
-  },
-  {
-    id: 50,
-    text: "I feel comfortable being vulnerable with people I trust.",
-    trait: "selfExpression"
   }
 ];
 
@@ -406,8 +281,8 @@ function App() {
         // Convert Likert scale to score (1-5 scale, where 1 = Strongly Agree, 5 = Strongly Disagree)
         let score = 6 - answer; // Convert so agreement = higher score
         
-        // Handle reverse-scored questions
-        const reverseScored = [27, 37, 40, 42, 44, 46, 47, 48]; // Questions that need reverse scoring
+        // Handle reverse-scored questions for emotional stability (negative items)
+        const reverseScored = [3, 8, 11, 15, 25]; // Questions that need reverse scoring
         if (reverseScored.includes(question.id)) {
           score = answer; // Keep original score for reverse-scored items
         }

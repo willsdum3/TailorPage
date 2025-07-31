@@ -26,6 +26,7 @@ import { CelebrityProfile } from '../data/celebrities';
 import Logo from './Logo';
 import BookCover from './BookCover';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { analyzePersonality, TraitAnalysis } from '../utils/personalityAnalysis';
 
 interface CelebrityTesterPageProps {
   onBack: () => void;
@@ -39,95 +40,21 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
   // Scroll to top when selected celebrity changes
   useScrollToTop([selectedCelebrity?.id]);
 
-  const getPersonalityTraitInfo = (trait: string, score: number) => {
-    const traitInfo = {
-      openness: {
-        name: 'Openness to Experience',
-        icon: Brain,
-        description: 'Enjoys trying new things and creative activities',
-        lowDesc: 'Prefers familiar experiences and routines',
-        highDesc: 'Highly adventurous and open to new experiences'
-      },
-      conscientiousness: {
-        name: 'Conscientiousness',
-        icon: Target,
-        description: 'Plans ahead and stays organized',
-        lowDesc: 'More spontaneous and flexible approach',
-        highDesc: 'Highly organized and methodical'
-      },
-      extraversion: {
-        name: 'Extraversion',
-        icon: Users,
-        description: 'Enjoys social interaction and being around people',
-        lowDesc: 'More introverted, prefers solitude and reflection',
-        highDesc: 'Very extroverted, energized by social interaction'
-      },
-      agreeableness: {
-        name: 'Agreeableness',
-        icon: Heart,
-        description: 'Considers others\' perspectives and avoids conflict',
-        lowDesc: 'More independent and assertive',
-        highDesc: 'Highly empathetic and considerate'
-      },
-      emotionalStability: {
-        name: 'Emotional Stability',
-        icon: Shield,
-        description: 'Stays calm under pressure and bounces back from setbacks',
-        lowDesc: 'More emotionally reactive to stress',
-        highDesc: 'Exceptionally calm and composed'
-      },
-      rationalThinking: {
-        name: 'Rational Thinking',
-        icon: Brain,
-        description: 'Relies on logic and analysis when making decisions',
-        lowDesc: 'More intuitive and emotion-based decision making',
-        highDesc: 'Highly analytical and logical approach'
-      },
-      coreValues: {
-        name: 'Core Values & Motivation',
-        icon: Heart,
-        description: 'Driven by personal values and meaningful goals',
-        lowDesc: 'More pragmatic and flexible in values',
-        highDesc: 'Strongly principled and value-driven'
-      },
-      lifestyle: {
-        name: 'Lifestyle Preferences',
-        icon: Zap,
-        description: 'Prefers fast-paced, busy lifestyle with variety',
-        lowDesc: 'Prefers calm, predictable, routine-based lifestyle',
-        highDesc: 'Enjoys fast-paced, dynamic, and varied lifestyle'
-      },
-      socialStyle: {
-        name: 'Social Style',
-        icon: Users,
-        description: 'Adapts behavior and makes decisions quickly in social settings',
-        lowDesc: 'More consistent, thoughtful social approach',
-        highDesc: 'Highly adaptable and quick in social situations'
-      },
-      selfExpression: {
-        name: 'Self-Expression',
-        icon: Lightbulb,
-        description: 'Comfortable expressing opinions and being vulnerable',
-        lowDesc: 'More reserved and private in self-expression',
-        highDesc: 'Very open and authentic in self-expression'
-      }
-    };
-
-    return traitInfo[trait as keyof typeof traitInfo];
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score <= 15) return 'from-red-500 to-red-600';
-    if (score <= 18) return 'from-yellow-500 to-orange-500';
-    if (score <= 21) return 'from-blue-500 to-blue-600';
-    return 'from-green-500 to-green-600';
-  };
-
-  const getScoreDescription = (score: number) => {
-    if (score <= 15) return 'Low';
-    if (score <= 18) return 'Moderate';
-    if (score <= 21) return 'High';
-    return 'Very High';
+  const getTraitIcon = (traitName: string) => {
+    switch (traitName) {
+      case 'Openness to Experience':
+        return Brain;
+      case 'Conscientiousness':
+        return Target;
+      case 'Extraversion':
+        return Users;
+      case 'Agreeableness':
+        return Heart;
+      case 'Emotional Stability':
+        return Shield;
+      default:
+        return Brain;
+    }
   };
 
   if (selectedCelebrity) {
@@ -172,7 +99,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-3xl font-bold text-white flex items-center space-x-3">
                 <Brain className="w-8 h-8 text-amber-400" />
-                <span>Personality Profile</span>
+                <span>Personality Breakdown</span>
               </h2>
               <button
                 onClick={() => setExpandedPersonality(!expandedPersonality)}
@@ -184,44 +111,148 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {Object.entries(selectedCelebrity.personalityScores).map(([trait, score]) => {
-                const traitInfo = getPersonalityTraitInfo(trait, score);
-                if (!traitInfo) return null;
-                
-                const IconComponent = traitInfo.icon;
+              {(() => {
+                // Define custom order for the first 4 traits
+                const traitOrder = ['openness', 'conscientiousness', 'extraversion', 'agreeableness'];
+                const orderedTraits = traitOrder.map(trait => [trait, selectedCelebrity.personalityScores[trait as keyof typeof selectedCelebrity.personalityScores]]);
                 
                 return (
-                  <div key={trait} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <div className={`w-10 h-10 bg-gradient-to-r ${getScoreColor(score)} rounded-lg flex items-center justify-center`}>
-                        <IconComponent className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-white">{traitInfo.name}</h3>
-                        <div className="flex items-center space-x-2">
-                          <div className="flex-1 bg-white/20 rounded-full h-2">
-                            <div 
-                              className={`bg-gradient-to-r ${getScoreColor(score)} h-2 rounded-full transition-all duration-500`}
-                              style={{ width: `${(score / 25) * 100}%` }}
-                            />
+                  <>
+                    {orderedTraits.map(([trait, score]) => {
+                      // Create a mock profile to use with analyzePersonality
+                      const mockProfile = {
+                        openness: trait === 'openness' ? Number(score) : 0,
+                        conscientiousness: trait === 'conscientiousness' ? Number(score) : 0,
+                        extraversion: trait === 'extraversion' ? Number(score) : 0,
+                        agreeableness: trait === 'agreeableness' ? Number(score) : 0,
+                        emotionalStability: trait === 'emotionalStability' ? Number(score) : 0,
+                        rationalThinking: 0,
+                        coreValues: 0,
+                        lifestyle: 0,
+                        socialStyle: 0,
+                        selfExpression: 0
+                      };
+                      
+                      const traitAnalyses = analyzePersonality(mockProfile);
+                      const traitInfo = traitAnalyses.find(t => 
+                        t.name === 'Openness to Experience' && trait === 'openness' ||
+                        t.name === 'Conscientiousness' && trait === 'conscientiousness' ||
+                        t.name === 'Extraversion' && trait === 'extraversion' ||
+                        t.name === 'Agreeableness' && trait === 'agreeableness' ||
+                        t.name === 'Emotional Stability' && trait === 'emotionalStability'
+                      );
+                      
+                      if (!traitInfo) return null;
+                      
+                      const IconComponent = getTraitIcon(traitInfo.name);
+                      
+                      return (
+                        <div key={trait} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className={`w-10 h-10 bg-gradient-to-r ${traitInfo.color} rounded-lg flex items-center justify-center`}>
+                              <IconComponent className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-white">{traitInfo.name}</h3>
+                              <div className="flex items-center space-x-2">
+                                <div className="flex-1 bg-white/20 rounded-full h-2">
+                                  <div 
+                                    className={`bg-gradient-to-r ${traitInfo.color} h-2 rounded-full transition-all duration-500`}
+                                    style={{ width: `${traitInfo.percentage}%` }}
+                                  />
+                                </div>
+                                <span className="text-white/80 text-sm font-medium">{traitInfo.score}/25</span>
+                              </div>
+                            </div>
                           </div>
-                          <span className="text-white/80 text-sm font-medium">{score}/25</span>
+                          
+                          {expandedPersonality && (
+                            <div className="mt-3 pt-3 border-t border-white/10">
+                              <p className="text-white/70 text-sm mb-2">{traitInfo.description}</p>
+                              <div className="mb-3">
+                                <p className="text-white/60 text-xs mb-1">
+                                  <span className="font-medium text-amber-400">Level:</span> {traitInfo.level}
+                                </p>
+                                <p className="text-white/60 text-xs mb-2">
+                                  <span className="font-medium text-amber-400">Strengths:</span> {traitInfo.strengths.join(', ')}
+                                </p>
+                                <p className="text-white/60 text-xs">
+                                  <span className="font-medium text-amber-400">Reading Preferences:</span> {traitInfo.readingPreferences.join(', ')}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    
+                    {/* Emotional Stability at bottom center */}
+                    {(() => {
+                      const emotionalStabilityScore = selectedCelebrity.personalityScores.emotionalStability;
+                      const mockProfile = {
+                        openness: 0,
+                        conscientiousness: 0,
+                        extraversion: 0,
+                        agreeableness: 0,
+                        emotionalStability: Number(emotionalStabilityScore),
+                        rationalThinking: 0,
+                        coreValues: 0,
+                        lifestyle: 0,
+                        socialStyle: 0,
+                        selfExpression: 0
+                      };
+                      
+                      const traitAnalyses = analyzePersonality(mockProfile);
+                      const traitInfo = traitAnalyses.find(t => t.name === 'Emotional Stability');
+                      
+                      if (!traitInfo) return null;
+                      
+                      const IconComponent = getTraitIcon(traitInfo.name);
+                      
+                      return (
+                        <div key="emotionalStability" className="md:col-span-2 flex justify-center">
+                          <div className="w-full max-w-md bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 transform scale-105">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className={`w-10 h-10 bg-gradient-to-r ${traitInfo.color} rounded-lg flex items-center justify-center`}>
+                              <IconComponent className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-white">{traitInfo.name}</h3>
+                              <div className="flex items-center space-x-2">
+                                <div className="flex-1 bg-white/20 rounded-full h-2">
+                                  <div 
+                                    className={`bg-gradient-to-r ${traitInfo.color} h-2 rounded-full transition-all duration-500`}
+                                    style={{ width: `${traitInfo.percentage}%` }}
+                                  />
+                                </div>
+                                <span className="text-white/80 text-sm font-medium">{traitInfo.score}/25</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {expandedPersonality && (
+                            <div className="mt-3 pt-3 border-t border-white/10">
+                              <p className="text-white/70 text-sm mb-2">{traitInfo.description}</p>
+                              <div className="mb-3">
+                                <p className="text-white/60 text-xs mb-1">
+                                  <span className="font-medium text-amber-400">Level:</span> {traitInfo.level}
+                                </p>
+                                <p className="text-white/60 text-xs mb-2">
+                                  <span className="font-medium text-amber-400">Strengths:</span> {traitInfo.strengths.join(', ')}
+                                </p>
+                                <p className="text-white/60 text-xs">
+                                  <span className="font-medium text-amber-400">Reading Preferences:</span> {traitInfo.readingPreferences.join(', ')}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                    
-                    {expandedPersonality && (
-                      <div className="mt-3 pt-3 border-t border-white/10">
-                        <p className="text-white/70 text-sm mb-2">{traitInfo.description}</p>
-                        <p className="text-white/60 text-xs">
-                          <span className="font-medium text-amber-400">{getScoreDescription(score)}:</span>{' '}
-                          {score <= 12 ? traitInfo.lowDesc : traitInfo.highDesc}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                    );
+                  })()}
+                  </>
                 );
-              })}
+              })()}
             </div>
           </div>
 

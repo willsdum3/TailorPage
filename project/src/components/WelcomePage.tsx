@@ -139,13 +139,13 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onLearnMore, has
             <div className="text-center group">
               <div className="relative mb-6">
                 <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-2xl font-bold text-white">50</span>
+                  <span className="text-2xl font-bold text-white">25</span>
                 </div>
                 <div className="absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent hidden md:block" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Complete Assessment</h3>
               <p className="text-white/70 leading-relaxed">
-                Answer 50 carefully crafted statements across 10 personality dimensions in just 5-7 minutes
+                Answer 25 carefully crafted statements across 5 personality dimensions in just 3-5 minutes
               </p>
             </div>
 
@@ -158,7 +158,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onLearnMore, has
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Advanced AI Analysis</h3>
               <p className="text-white/70 leading-relaxed">
-                Our sophisticated AI analyses your responses across 10 dimensions to create a comprehensive personality profile
+                Our sophisticated AI analyses your responses across 5 dimensions to create a comprehensive personality profile
               </p>
             </div>
 
