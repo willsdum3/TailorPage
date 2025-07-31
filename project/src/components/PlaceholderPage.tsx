@@ -491,11 +491,11 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-white">50</span>
+                <span className="text-2xl font-bold text-white">25</span>
               </div>
               <h3 className="text-lg font-bold text-white mb-2">Take the Quiz</h3>
               <p className="text-white/70 text-sm">
-                Answer 50 carefully crafted questions about your personality, preferences, and lifestyle in just 5-7 minutes.
+                Answer 25 carefully crafted questions about your personality, preferences, and lifestyle in just 3-5 minutes.
               </p>
             </div>
             
@@ -536,7 +536,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
             
             <div className="grid md:grid-cols-2 gap-4 mb-8">
               <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-                <div className="text-2xl font-bold text-white mb-1">5-7 min</div>
+                <div className="text-2xl font-bold text-white mb-1">3-5 min</div>
                 <div className="text-sm text-white/70">Quick & Easy</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
