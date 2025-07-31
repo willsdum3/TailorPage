@@ -128,12 +128,12 @@ const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBa
     <div className="min-h-screen py-8 px-4 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
-      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-40 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 pt-8">
           <button
             onClick={onBack}
             className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
