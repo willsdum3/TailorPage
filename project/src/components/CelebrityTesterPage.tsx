@@ -272,7 +272,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
               {selectedCelebrity.bookRecommendations.map((book, index) => (
                 <div key={index} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
                   <div className="flex items-start justify-between mb-4">
@@ -377,7 +377,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
         </div>
 
         {/* Celebrity Grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mb-16">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5 mb-16">
           {celebrities.map((celebrity) => (
             <div 
               key={celebrity.id} 

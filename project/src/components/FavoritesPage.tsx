@@ -151,7 +151,7 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
         </div>
 
         {/* Favorites Grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-16">
+        <div className="grid gap-12 md:grid-cols-2 xl:grid-cols-3 mb-16">
           {favorites.map((book, index) => (
             <div key={book.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
               <div className="flex items-start justify-between mb-4">
