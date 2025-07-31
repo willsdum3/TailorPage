@@ -412,9 +412,9 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
             <span className="text-sm font-medium text-white/80">Your Profile</span>
           </div>
           
-          <h1 className="text-6xl md:text-7xl font-bold text-white mb-8 leading-tight">
-            Create Your
-            <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">
+            <span className="text-white">Create Your </span>
+            <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
               Reading Profile
             </span>
           </h1>
