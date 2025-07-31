@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import WelcomePage from './components/WelcomePage';
 import QuizPage from './components/QuizPage';
 import ResultsPage from './components/ResultsPage';
@@ -9,10 +10,12 @@ import LearnMorePage from './components/LearnMorePage';
 import TrendingBooksPage from './components/TrendingBooksPage';
 import TrendingAuthorsPage from './components/TrendingAuthorsPage';
 import CelebrityTesterPage from './components/CelebrityTesterPage';
-import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation } from './types';
+import AuthModal from './components/AuthModal';
+import AuthButton from './components/AuthButton';
+import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, LoginCredentials, SignupData } from './types';
+import { User } from './types';
 import { getBookRecommendations } from './utils/bookRecommendations';
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
-import { useEffect } from 'react';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 
 const questions: Question[] = [
@@ -148,16 +151,34 @@ type AppPage = 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'tren
 // No Supabase or external auth logic present
 
 function App() {
+  const { user: clerkUser, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [personalityProfile, setPersonalityProfile] = useState<PersonalityProfile | null>(null);
   const [favorites, setFavorites] = useState<FavoriteBook[]>([]);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<BookRecommendation[]>([]);
   const [allRecommendedIds, setAllRecommendedIds] = useState<string[]>([]);
 
   // Scroll to top when page changes
   useScrollToTopInstant([currentPage]);
+
+  // Convert Clerk user to our User type
+  const user: User | null = clerkUser ? {
+    id: clerkUser.id,
+    name: clerkUser.fullName || clerkUser.firstName || clerkUser.username || 'User',
+    username: clerkUser.username || clerkUser.emailAddresses[0]?.emailAddress?.split('@')[0] || 'user',
+    email: clerkUser.emailAddresses[0]?.emailAddress || ''
+  } : null;
+
+  // Close auth modal when user becomes authenticated
+  useEffect(() => {
+    if (isLoaded && clerkUser && isAuthModalOpen) {
+      setIsAuthModalOpen(false);
+    }
+  }, [isLoaded, clerkUser, isAuthModalOpen]);
 
   const handleToggleFavorite = (book: BookRecommendation) => {
     // Only allow favoriting books that are in the current recommendations
@@ -181,6 +202,29 @@ function App() {
 
   const handleRemoveFavorite = (bookId: string) => {
     setFavorites(favorites.filter(fav => fav.id !== bookId));
+  };
+
+  const handleLogin = async (credentials: LoginCredentials) => {
+    // This is now handled by Clerk in the AuthModal
+    setIsAuthModalOpen(false);
+  };
+
+  const handleSignup = async (data: SignupData) => {
+    // This is now handled by Clerk in the AuthModal
+    setIsAuthModalOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Clear user data
+      setFavorites([]);
+      setPersonalityProfile(null);
+      setAnswers({});
+      setCurrentPage('welcome');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
 
@@ -318,87 +362,170 @@ function App() {
     }
   };
 
+  // Show loading while Clerk is initializing
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/80 text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       <BurgerMenu 
         onNavigate={handleNavigation} 
-        user={null}
-        onLoginRequired={() => {}}
+        user={user}
+        onLoginRequired={() => setIsAuthModalOpen(true)}
+      />
+      
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
       />
       
       {currentPage === 'welcome' && (
-        <WelcomePage
-          onStartQuiz={handleStartQuiz}
-          hasQuizProgress={Object.keys(answers).length > 0}
-          onLearnMore={() => setCurrentPage('learn-more')}
-          isLoggedIn={false}
-          hasCompletedQuiz={!!personalityProfile}
-          onGenerateNewBooks={() => {
-            if (!personalityProfile) return;
-            const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
-            setRecommendations(newRecs);
-            setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
-            setCurrentPage('generated');
-          }}
-        />
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-center"
+          />
+          <WelcomePage
+            onStartQuiz={handleStartQuiz}
+            hasQuizProgress={Object.keys(answers).length > 0}
+            onLearnMore={() => setCurrentPage('learn-more')}
+            isLoggedIn={!!user}
+            hasCompletedQuiz={!!personalityProfile}
+            onGenerateNewBooks={() => {
+              if (!personalityProfile) return;
+              const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
+              setRecommendations(newRecs);
+              setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+              setCurrentPage('generated');
+            }}
+          />
+        </>
       )}
       {currentPage === 'quiz' && (
-        <QuizPage 
-          questions={questions} 
-          initialAnswers={answers}
-          initialQuestionIndex={currentQuestionIndex}
-          onComplete={handleQuizComplete}
-          onProgress={handleQuizProgress}
-          onHome={handleHomeFromQuiz}
-        />
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-right"
+          />
+          <QuizPage 
+            questions={questions} 
+            initialAnswers={answers}
+            initialQuestionIndex={currentQuestionIndex}
+            onComplete={handleQuizComplete}
+            onProgress={handleQuizProgress}
+            onHome={handleHomeFromQuiz}
+          />
+        </>
       )}
       {currentPage === 'results' && personalityProfile && (
-        <ResultsPage 
-          profile={personalityProfile}
-          recommendations={recommendations}
-          onRetakeQuiz={handleRetakeQuiz}
-          onHome={handleHomeFromResults}
-          favorites={favorites}
-          onToggleFavorite={handleToggleFavorite}
-          user={null}
-          onLoginRequired={() => {}}
-        />
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-right"
+          />
+          <ResultsPage 
+            profile={personalityProfile}
+            recommendations={recommendations}
+            onRetakeQuiz={handleRetakeQuiz}
+            onHome={handleHomeFromResults}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
+            user={user}
+            onLoginRequired={() => setIsAuthModalOpen(true)}
+          />
+        </>
       )}
       {currentPage === 'favourites' && (
-        <FavoritesPage
-          favorites={favorites}
-          onRemoveFavorite={handleRemoveFavorite}
-          onBack={() => setCurrentPage('welcome')}
-          hasCompletedQuiz={!!personalityProfile}
-          onGenerateNewBooks={() => {
-            if (!personalityProfile) return;
-            const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
-            setRecommendations(newRecs);
-            setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
-            setCurrentPage('generated');
-          }}
-        />
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-left"
+          />
+          <FavoritesPage
+            favorites={favorites}
+            onRemoveFavorite={handleRemoveFavorite}
+            onBack={() => setCurrentPage('welcome')}
+            hasCompletedQuiz={!!personalityProfile}
+            onGenerateNewBooks={() => {
+              if (!personalityProfile) return;
+              const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
+              setRecommendations(newRecs);
+              setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+              setCurrentPage('generated');
+            }}
+          />
+        </>
       )}
       {currentPage === 'learn-more' && (
-        <LearnMorePage onBack={() => setCurrentPage('welcome')} />
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-left"
+          />
+          <LearnMorePage onBack={() => setCurrentPage('welcome')} />
+        </>
       )}
       {currentPage === 'trending-books' && (
-        <TrendingBooksPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-left"
+          />
+          <TrendingBooksPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+        </>
       )}
       {currentPage === 'trending-authors' && (
-        <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-left"
+          />
+          <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+        </>
       )}
       {['profile', 'celebrity-books'].includes(currentPage) && (
-        currentPage === 'celebrity-books' ? (
-          <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
-        ) : (
-          <PlaceholderPage
-            {...getPlaceholderContent(currentPage)}
-            onBack={() => setCurrentPage('welcome')}
-            profile={personalityProfile}
-            onNewRecommendations={handleNewRecommendations}
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-left"
           />
-        )
+          {currentPage === 'celebrity-books' ? (
+            <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} />
+          ) : (
+            <PlaceholderPage
+              {...getPlaceholderContent(currentPage)}
+              onBack={() => setCurrentPage('welcome')}
+              profile={personalityProfile}
+              onNewRecommendations={handleNewRecommendations}
+            />
+          )}
+        </>
       )}
       {currentPage === 'generated' && personalityProfile && (
         <GeneratedRecommendationsPage
@@ -408,8 +535,8 @@ function App() {
           onHome={() => setCurrentPage('welcome')}
           favorites={favorites}
           onToggleFavorite={handleToggleFavorite}
-          user={null}
-          onLoginRequired={() => {}}
+          user={user}
+          onLoginRequired={() => setIsAuthModalOpen(true)}
         />
       )}
     </div>
