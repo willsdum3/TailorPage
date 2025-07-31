@@ -202,13 +202,13 @@ const GrowthAreasDetailPage: React.FC<GrowthAreasDetailPageProps> = ({ profile, 
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
       
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10 pt-32 pb-8 px-4">
         {/* Header */}
-        <div className="text-center mb-12 pt-20">
+        <div className="text-center mb-12">
           <button
             onClick={onBack}
             className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
