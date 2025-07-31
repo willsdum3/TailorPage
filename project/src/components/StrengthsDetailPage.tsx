@@ -144,12 +144,12 @@ const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBa
             <Logo size="lg" showText={true} />
           </div>
           
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
-            <Award className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-medium text-white/80">Your Strengths</span>
-          </div>
-          
-                               <h1 className="text-5xl md:text-6xl font-bold text-white mb-8 leading-tight">
+                     <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-12">
+             <Award className="w-4 h-4 text-amber-400" />
+             <span className="text-sm font-medium text-white/80">Your Strengths</span>
+           </div>
+           
+                                <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">
             Your Unique
             <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
               Strengths
