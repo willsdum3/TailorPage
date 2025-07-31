@@ -25,35 +25,40 @@ const bookQuestions: BookQuestion[] = [
     title: "Invisible Cities",
     author: "Italo Calvino",
     description: "An experimental, poetic work in which Marco Polo describes fantastical cities to Kublai Khan.",
-    trait: "openness"
+    trait: "openness",
+    coverImageUrl: "/book-covers/InvisibleCities.jpg"
   },
   {
     id: 102,
     title: "Man's Search for Meaning",
     author: "Viktor E. Frankl",
     description: "A powerful memoir and philosophical reflection on purpose, responsibility, and resilience in the face of suffering.",
-    trait: "conscientiousness"
+    trait: "conscientiousness",
+    coverImageUrl: "/book-covers/MansSearchForMeaning.jpg"
   },
   {
     id: 103,
     title: "Where the Crawdads Sing",
     author: "Delia Owens",
     description: "It includes themes of solitude, it offers rich emotional relationships, courtroom drama, and a strong female lead.",
-    trait: "extraversion"
+    trait: "extraversion",
+    coverImageUrl: "/book-covers/WhereTheCrawdadsSing.jpg"
   },
   {
     id: 104,
     title: "Wonder",
     author: "R.J. Palacio",
     description: "A moving middle-grade novel about a boy with a facial difference navigating school and relationships.",
-    trait: "agreeableness"
+    trait: "agreeableness",
+    coverImageUrl: "/book-covers/Wonder.jpg"
   },
   {
     id: 105,
     title: "Stillness Is the Key",
     author: "Ryan Holiday",
     description: "A modern take on ancient wisdom promoting inner calm, clarity, and balance in a busy world.",
-    trait: "emotionalStability"
+    trait: "emotionalStability",
+    coverImageUrl: "/book-covers/StillnessIsTheKey.jpg"
   }
 ];
 
