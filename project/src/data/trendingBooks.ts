@@ -24,7 +24,7 @@ export const trendingBooks: TrendingBook[] = [
     price: '£9.99',
     rating: 4.6,
     reviewCount: 89234,
-    coverImage: 'https://m.media-amazon.com/images/I/81cquiyLW8L._SY466_.jpg'
+    coverImage: 'https://m.media-amazon.com/images/I/51NFbaChFPL._SY445_SX342_.jpg'
   },
   {
     id: 'iron-flame',
@@ -128,7 +128,7 @@ export const trendingBooks: TrendingBook[] = [
     price: '£7.99',
     rating: 4.4,
     reviewCount: 167890,
-    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
+    coverImage: 'https://m.media-amazon.com/images/I/81JJPDNlxSL._SY466_.jpg'
   },
   {
     id: 'the-guest-list',

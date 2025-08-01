@@ -13,6 +13,7 @@ interface BookCoverProps {
   description?: string;
   amazonLink?: string;
   hoverable?: boolean;
+  coverImage?: string;
 }
 
 const sizeClasses = {
@@ -31,7 +32,8 @@ const BookCover: React.FC<BookCoverProps> = ({
   genre,
   description,
   amazonLink,
-  hoverable = true
+  hoverable = true,
+  coverImage
 }) => {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,6 +47,16 @@ const BookCover: React.FC<BookCoverProps> = ({
         setIsLoading(true);
         setHasError(false);
         
+        // If coverImage is provided, use it directly
+        if (coverImage) {
+          if (isMounted) {
+            setCoverUrl(coverImage);
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        // Otherwise, fetch from service
         const url = await getBookCover(bookId, title, author);
         
         if (isMounted) {
@@ -65,7 +77,7 @@ const BookCover: React.FC<BookCoverProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [bookId, title, author]);
+  }, [bookId, title, author, coverImage]);
 
   const handleImageError = () => {
     setHasError(true);

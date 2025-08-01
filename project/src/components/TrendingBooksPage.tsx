@@ -188,6 +188,7 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
                     genre={book.genre}
                     description={book.description}
                     amazonLink={book.amazonLink}
+                    coverImage={book.coverImage}
                   />
                 </div>
                 
