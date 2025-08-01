@@ -10,10 +10,10 @@ const manualCoverOverrides: Record<string, string> = {
   // Format: 'book-id': 'https://example.com/correct-cover.jpg'
   
   // Fix for "Becoming" by Michelle Obama - using correct cover
-  'becoming': 'https://m.media-amazon.com/images/I/71KjJ+QKzQL._AC_UF1000,1000_QL80_.jpg',
+  'becoming': 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg',
   
   // Fix for "A People's History of the United States" by Howard Zinn - using correct cover
-  'a-peoples-history-united-states': 'https://m.media-amazon.com/images/I/71KjJ+QKzQL._AC_UF1000,1000_QL80_.jpg',
+  'a-peoples-history-united-states': 'https://m.media-amazon.com/images/I/71Zb-D8NaGL._SY466_.jpg',
   
   // Add more as needed when you find other mismatched covers
   // 'book-id': 'https://example.com/correct-cover.jpg',
