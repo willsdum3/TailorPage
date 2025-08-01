@@ -22,7 +22,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Matt Haig",
       genre: "Literary Fiction",
       description: "A thought-provoking tale about life's infinite possibilities and the paths we choose not to take.",
-      amazonLink: "https://www.amazon.com/dp/0525559477",
+      amazonLink: "https://www.amazon.co.uk/dp/0525559477",
       reason: "Perfect for introspective readers who enjoy contemplating life's deeper meanings and alternative possibilities."
     },
     {
@@ -31,7 +31,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Taylor Jenkins Reid",
       genre: "Contemporary Fiction",
       description: "A captivating novel about a reclusive Hollywood icon finally ready to tell her story.",
-      amazonLink: "https://www.amazon.com/dp/1501161938",
+      amazonLink: "https://www.amazon.co.uk/dp/1501161938",
       reason: "Perfect for readers who enjoy character-driven narratives and exploring different perspectives on fame and identity."
     },
     {
@@ -40,7 +40,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Paulo Coelho",
       genre: "Philosophical Fiction",
       description: "A mystical story about a shepherd boy's journey to find his personal legend.",
-      amazonLink: "https://www.amazon.com/dp/0061122416",
+      amazonLink: "https://www.amazon.co.uk/dp/0061122416",
       reason: "Resonates with readers seeking meaning, personal growth, and spiritual exploration."
     },
     {
@@ -49,7 +49,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Sally Rooney",
       genre: "Literary Fiction",
       description: "A story about mutual fascination, friendship and love between two people.",
-      amazonLink: "https://www.amazon.com/dp/1984822179",
+      amazonLink: "https://www.amazon.co.uk/dp/1984822179",
       reason: "Perfect for readers who appreciate nuanced character development and complex relationships."
     },
     {
@@ -58,7 +58,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Kazuo Ishiguro",
       genre: "Literary Fiction",
       description: "A story told from the perspective of an artificial friend observing human nature.",
-      amazonLink: "https://www.amazon.com/dp/0593318188",
+      amazonLink: "https://www.amazon.co.uk/dp/0593318188",
       reason: "Appeals to thoughtful readers who enjoy philosophical questions about consciousness and humanity."
     },
     {
@@ -67,7 +67,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Madeline Miller",
       genre: "Literary Fiction",
       description: "A beautiful retelling of Greek mythology from Circe's perspective.",
-      amazonLink: "https://www.amazon.com/dp/0316556343",
+      amazonLink: "https://www.amazon.co.uk/dp/0316556343",
       reason: "Perfect for readers who appreciate lyrical prose and character transformation stories."
     },
     {
@@ -76,7 +76,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Madeline Miller",
       genre: "Historical Fiction",
       description: "A tale of gods, kings, immortal fame and the human heart.",
-      amazonLink: "https://www.amazon.com/dp/0062060627",
+      amazonLink: "https://www.amazon.co.uk/dp/0062060627",
       reason: "Resonates with readers who enjoy emotional depth and beautifully crafted relationships."
     },
     {
@@ -85,7 +85,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Delia Owens",
       genre: "Literary Fiction",
       description: "A coming-of-age story and murder mystery set in the marshlands of North Carolina.",
-      amazonLink: "https://www.amazon.com/dp/0735219095",
+      amazonLink: "https://www.amazon.co.uk/dp/0735219095",
       reason: "Appeals to readers who enjoy nature writing combined with compelling character development."
     },
     {
@@ -94,7 +94,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Celeste Ng",
       genre: "Contemporary Fiction",
       description: "A story about family, art, identity, and the weight of secrets.",
-      amazonLink: "https://www.amazon.com/dp/0735224293",
+      amazonLink: "https://www.amazon.co.uk/dp/0735224293",
       reason: "Perfect for readers interested in family dynamics and social issues."
     },
     {
@@ -103,7 +103,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Donna Tartt",
       genre: "Literary Fiction",
       description: "A young boy's journey through grief, art, and coming of age after a museum bombing.",
-      amazonLink: "https://www.amazon.com/dp/0316055433",
+      amazonLink: "https://www.amazon.co.uk/dp/0316055433",
       reason: "Appeals to readers who appreciate complex narratives and deep emotional exploration."
     },
     {
@@ -112,7 +112,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Fredrik Backman",
       genre: "Contemporary Fiction",
       description: "A heartwarming story about a grumpy man whose life is changed by new neighbors.",
-      amazonLink: "https://www.amazon.com/dp/1476738025",
+      amazonLink: "https://www.amazon.co.uk/dp/1476738025",
       reason: "Perfect for readers who enjoy character-driven stories about human connection and redemption."
     },
     {
@@ -121,7 +121,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Khaled Hosseini",
       genre: "Literary Fiction",
       description: "A story of friendship, guilt, and redemption set in Afghanistan.",
-      amazonLink: "https://www.amazon.com/dp/1594631931",
+      amazonLink: "https://www.amazon.co.uk/dp/1594631931",
       reason: "Resonates with empathetic readers interested in different cultures and moral complexity."
     },
     {
@@ -130,7 +130,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Yann Martel",
       genre: "Adventure Fiction",
       description: "A boy survives 227 days at sea with a Bengal tiger.",
-      amazonLink: "https://www.amazon.com/dp/0156027321",
+      amazonLink: "https://www.amazon.co.uk/dp/0156027321",
       reason: "Appeals to readers who enjoy philosophical adventure and survival stories."
     },
     {
@@ -139,7 +139,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Markus Zusak",
       genre: "Historical Fiction",
       description: "Death narrates the story of a girl in Nazi Germany who steals books.",
-      amazonLink: "https://www.amazon.com/dp/0375842209",
+      amazonLink: "https://www.amazon.co.uk/dp/0375842209",
       reason: "Perfect for readers who appreciate unique narrative perspectives and historical depth."
     },
     {
@@ -148,7 +148,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Toni Morrison",
       genre: "Literary Fiction",
       description: "A haunting story about slavery and its lasting impact on the human spirit.",
-      amazonLink: "https://www.amazon.com/dp/1400033411",
+      amazonLink: "https://www.amazon.co.uk/dp/1400033411",
       reason: "Appeals to readers interested in profound social issues and powerful prose."
     },
     // Additional Literary Fiction entries (485 more)
@@ -158,7 +158,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Donna Tartt",
       genre: "Literary Fiction",
       description: "A group of classics students at an elite Vermont college become entangled in murder.",
-      amazonLink: "https://www.amazon.com/dp/1400031702",
+      amazonLink: "https://www.amazon.co.uk/dp/1400031702",
       reason: "Perfect for readers who enjoy dark academia, complex characters, and psychological depth."
     },
     {
@@ -167,7 +167,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Kazuo Ishiguro",
       genre: "Literary Fiction",
       description: "A haunting tale of love, loss and hidden truths in a boarding school setting.",
-      amazonLink: "https://www.amazon.com/dp/1400078776",
+      amazonLink: "https://www.amazon.co.uk/dp/1400078776",
       reason: "Appeals to readers who appreciate subtle storytelling and profound emotional impact."
     },
     {
@@ -176,7 +176,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Kazuo Ishiguro",
       genre: "Literary Fiction",
       description: "An English butler reflects on his life of service and missed opportunities.",
-      amazonLink: "https://www.amazon.com/dp/0679731725",
+      amazonLink: "https://www.amazon.co.uk/dp/0679731725",
       reason: "Resonates with introspective readers who appreciate understated emotion and regret."
     },
     {
@@ -185,7 +185,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Ian McEwan",
       genre: "Literary Fiction",
       description: "A young girl's lie destroys lives and haunts her into adulthood.",
-      amazonLink: "https://www.amazon.com/dp/0385721790",
+      amazonLink: "https://www.amazon.co.uk/dp/0385721790",
       reason: "Perfect for readers who enjoy complex narratives about guilt, redemption, and consequences."
     },
     {
@@ -194,7 +194,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Margaret Atwood",
       genre: "Dystopian Fiction",
       description: "A powerful exploration of women's rights in a totalitarian society.",
-      amazonLink: "https://www.amazon.com/dp/0385490818",
+      amazonLink: "https://www.amazon.co.uk/dp/0385490818",
       reason: "Perfect for socially conscious readers who appreciate thought-provoking dystopian narratives."
     },
 
@@ -205,7 +205,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Patrick Rothfuss",
       genre: "Fantasy",
       description: "The first book in the Kingkiller Chronicle, following the legendary figure Kvothe.",
-      amazonLink: "https://www.amazon.com/dp/0756404746",
+      amazonLink: "https://www.amazon.co.uk/dp/0756404746",
       reason: "Ideal for readers who appreciate complex worldbuilding, introspective storytelling, and lyrical prose."
     },
     {
@@ -214,7 +214,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Samantha Shannon",
       genre: "Epic Fantasy",
       description: "An epic fantasy featuring dragons, magic, and strong themes of friendship and loyalty.",
-      amazonLink: "https://www.amazon.com/dp/1635570301",
+      amazonLink: "https://www.amazon.co.uk/dp/1635570301",
       reason: "Perfect for readers who value cooperation, empathy, and epic storytelling with strong character relationships."
     },
     {
@@ -223,7 +223,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Rebecca Yarros",
       genre: "Fantasy Romance",
       description: "Enter the brutal and elite world of a war college for dragon riders.",
-      amazonLink: "https://www.amazon.com/dp/0349436002",
+      amazonLink: "https://www.amazon.co.uk/dp/0349436002",
       reason: "Great for readers who enjoy adventure, romance, and stories about overcoming challenges through determination."
     },
     {
@@ -232,7 +232,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Andy Weir",
       genre: "Science Fiction",
       description: "An astronaut uses science and ingenuity to survive on Mars.",
-      amazonLink: "https://www.amazon.com/dp/0553418025",
+      amazonLink: "https://www.amazon.co.uk/dp/0553418025",
       reason: "Great for problem-solving oriented readers who appreciate technical detail and perseverance under pressure."
     },
     {
@@ -241,7 +241,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Frank Herbert",
       genre: "Science Fiction",
       description: "Set on the desert planet Arrakis, this is the story of Paul Atreides.",
-      amazonLink: "https://www.amazon.com/dp/0441172717",
+      amazonLink: "https://www.amazon.co.uk/dp/0441172717",
       reason: "Perfect for readers who enjoy complex political intrigue and detailed world-building."
     },
     {
@@ -250,7 +250,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Andy Weir",
       genre: "Science Fiction",
       description: "A lone astronaut must save humanity in this science-heavy adventure.",
-      amazonLink: "https://www.amazon.com/dp/0593135202",
+      amazonLink: "https://www.amazon.co.uk/dp/0593135202",
       reason: "Appeals to readers who enjoy scientific problem-solving and optimistic sci-fi."
     },
     {
@@ -259,7 +259,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "J.R.R. Tolkien",
       genre: "Fantasy",
       description: "The classic tale of Bilbo Baggins and his unexpected journey.",
-      amazonLink: "https://www.amazon.com/dp/054792822X",
+      amazonLink: "https://www.amazon.co.uk/dp/054792822X",
       reason: "Perfect for readers who enjoy adventure, friendship, and timeless storytelling."
     },
     {
@@ -268,7 +268,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Brandon Sanderson",
       genre: "Fantasy",
       description: "A world where ash falls from the sky and mist dominates the night.",
-      amazonLink: "https://www.amazon.com/dp/0765311844",
+      amazonLink: "https://www.amazon.co.uk/dp/0765311844",
       reason: "Great for readers who appreciate innovative magic systems and underdog protagonists."
     },
     {
@@ -277,7 +277,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Brandon Sanderson",
       genre: "Epic Fantasy",
       description: "The first book in The Stormlight Archive series.",
-      amazonLink: "https://www.amazon.com/dp/0765326353",
+      amazonLink: "https://www.amazon.co.uk/dp/0765326353",
       reason: "Perfect for readers who enjoy epic scope, detailed magic systems, and character growth."
     },
     {
@@ -286,7 +286,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "William Gibson",
       genre: "Cyberpunk",
       description: "The novel that defined cyberpunk and virtual reality.",
-      amazonLink: "https://www.amazon.com/dp/0441569595",
+      amazonLink: "https://www.amazon.co.uk/dp/0441569595",
       reason: "Appeals to readers interested in technology's impact on society and noir atmospheres."
     },
     {
@@ -295,7 +295,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Isaac Asimov",
       genre: "Science Fiction",
       description: "The first book in the Foundation series about psychohistory and galactic empire.",
-      amazonLink: "https://www.amazon.com/dp/0553293354",
+      amazonLink: "https://www.amazon.co.uk/dp/0553293354",
       reason: "Perfect for readers who enjoy big-picture thinking and scientific approaches to social problems."
     },
     {
@@ -304,7 +304,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Orson Scott Card",
       genre: "Science Fiction",
       description: "A child prodigy is trained to fight an alien invasion.",
-      amazonLink: "https://www.amazon.com/dp/0812550706",
+      amazonLink: "https://www.amazon.co.uk/dp/0812550706",
       reason: "Appeals to readers interested in strategy, moral complexity, and coming-of-age stories."
     },
     {
@@ -313,7 +313,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Ernest Cline",
       genre: "Science Fiction",
       description: "A virtual reality treasure hunt in a dystopian future filled with 80s pop culture.",
-      amazonLink: "https://www.amazon.com/dp/0307887448",
+      amazonLink: "https://www.amazon.co.uk/dp/0307887448",
       reason: "Great for readers who enjoy adventure, gaming culture, and nostalgic references."
     },
     {
@@ -322,7 +322,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "N.K. Jemisin",
       genre: "Fantasy",
       description: "A world of devastating seismic events and people with geological powers.",
-      amazonLink: "https://www.amazon.com/dp/0316229296",
+      amazonLink: "https://www.amazon.co.uk/dp/0316229296",
       reason: "Perfect for readers who appreciate innovative fantasy concepts and social commentary."
     },
     {
@@ -331,7 +331,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Neil Gaiman",
       genre: "Urban Fantasy",
       description: "Old gods clash with new in modern America.",
-      amazonLink: "https://www.amazon.com/dp/0380789035",
+      amazonLink: "https://www.amazon.co.uk/dp/0380789035",
       reason: "Appeals to readers who enjoy mythology, dark fantasy, and cultural exploration."
     },
     {
@@ -340,7 +340,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Ursula K. Le Guin",
       genre: "Science Fiction",
       description: "A groundbreaking exploration of gender and society on an alien world.",
-      amazonLink: "https://www.amazon.com/dp/0441478123",
+      amazonLink: "https://www.amazon.co.uk/dp/0441478123",
       reason: "Perfect for readers interested in social science fiction and philosophical questions."
     },
     {
@@ -349,7 +349,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Emily St. John Mandel",
       genre: "Post-Apocalyptic Fiction",
       description: "A post-pandemic world where art and culture help humanity survive.",
-      amazonLink: "https://www.amazon.com/dp/0804172447",
+      amazonLink: "https://www.amazon.co.uk/dp/0804172447",
       reason: "Appeals to readers who appreciate literary sci-fi and stories about human resilience."
     },
     {
@@ -358,7 +358,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "H.G. Wells",
       genre: "Science Fiction",
       description: "A classic tale of time travel and social commentary.",
-      amazonLink: "https://www.amazon.com/dp/0486284727",
+      amazonLink: "https://www.amazon.co.uk/dp/0486284727",
       reason: "Perfect for readers who enjoy classic sci-fi and social criticism."
     },
     {
@@ -367,7 +367,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "V.E. Schwab",
       genre: "Fantasy",
       description: "A woman cursed to be forgotten by everyone she meets.",
-      amazonLink: "https://www.amazon.com/dp/0765387565",
+      amazonLink: "https://www.amazon.co.uk/dp/0765387565",
       reason: "Appeals to readers who enjoy romantic fantasy and stories about identity and memory."
     },
     {
@@ -376,7 +376,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "R.F. Kuang",
       genre: "Dark Fantasy",
       description: "A military fantasy inspired by 20th-century Chinese history.",
-      amazonLink: "https://www.amazon.com/dp/0062662597",
+      amazonLink: "https://www.amazon.co.uk/dp/0062662597",
       reason: "Perfect for readers who appreciate dark, complex fantasy with historical depth."
     },
     // Additional Fantasy & Sci-Fi entries (1980 more would be added here)
@@ -386,7 +386,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Dan Simmons",
       genre: "Science Fiction",
       description: "A Canterbury Tales-style journey to a mysterious world.",
-      amazonLink: "https://www.amazon.com/dp/0553283685",
+      amazonLink: "https://www.amazon.co.uk/dp/0553283685",
       reason: "Appeals to readers who enjoy complex narratives and philosophical science fiction."
     },
     {
@@ -395,7 +395,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Joe Abercrombie",
       genre: "Dark Fantasy",
       description: "A gritty, morally complex fantasy with realistic characters.",
-      amazonLink: "https://www.amazon.com/dp/0316387312",
+      amazonLink: "https://www.amazon.co.uk/dp/0316387312",
       reason: "Perfect for readers who appreciate dark, realistic fantasy with complex moral choices."
     },
     {
@@ -404,7 +404,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "James S.A. Corey",
       genre: "Space Opera",
       description: "Political intrigue and mystery in a colonized solar system.",
-      amazonLink: "https://www.amazon.com/dp/0316129089",
+      amazonLink: "https://www.amazon.co.uk/dp/0316129089",
       reason: "Great for readers who enjoy space politics, mystery, and realistic space travel."
     },
 
@@ -415,7 +415,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "James Clear",
       genre: "Self-Help",
       description: "A practical guide to building good habits and breaking bad ones through small changes.",
-      amazonLink: "https://www.amazon.com/dp/0735211299",
+      amazonLink: "https://www.amazon.co.uk/dp/0735211299",
       reason: "Perfect for organized, goal-oriented readers who appreciate systematic approaches to personal improvement."
     },
     {
@@ -424,7 +424,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Viktor Frankl",
       genre: "Philosophy",
       description: "A Holocaust survivor's profound insights into finding purpose and meaning in life.",
-      amazonLink: "https://www.amazon.com/dp/080701429X",
+      amazonLink: "https://www.amazon.co.uk/dp/080701429X",
       reason: "Resonates with reflective readers who seek deeper understanding of human resilience and purpose."
     },
     {
@@ -433,7 +433,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Eckhart Tolle",
       genre: "Spirituality",
       description: "A guide to spiritual enlightenment and living in the present moment.",
-      amazonLink: "https://www.amazon.com/dp/1577314808",
+      amazonLink: "https://www.amazon.co.uk/dp/1577314808",
       reason: "Appeals to introspective readers interested in mindfulness and spiritual growth."
     },
     {
@@ -442,7 +442,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Carol S. Dweck",
       genre: "Psychology",
       description: "How a simple idea about the brain can help you learn and improve.",
-      amazonLink: "https://www.amazon.com/dp/0345472322",
+      amazonLink: "https://www.amazon.co.uk/dp/0345472322",
       reason: "Perfect for growth-oriented readers who want to understand learning and achievement."
     },
     {
@@ -451,7 +451,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Stephen R. Covey",
       genre: "Self-Help",
       description: "Timeless principles for personal and professional effectiveness.",
-      amazonLink: "https://www.amazon.com/dp/1982137134",
+      amazonLink: "https://www.amazon.co.uk/dp/1982137134",
       reason: "Great for conscientious readers who value structured approaches to success."
     },
     {
@@ -460,7 +460,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Daniel Kahneman",
       genre: "Psychology",
       description: "How we make decisions and the two systems that drive the way we think.",
-      amazonLink: "https://www.amazon.com/dp/0374533555",
+      amazonLink: "https://www.amazon.co.uk/dp/0374533555",
       reason: "Appeals to analytical readers interested in understanding human cognition and decision-making."
     },
     {
@@ -469,7 +469,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Brené Brown",
       genre: "Self-Help",
       description: "How the courage to be vulnerable transforms the way we live, love, parent, and lead.",
-      amazonLink: "https://www.amazon.com/dp/1592408419",
+      amazonLink: "https://www.amazon.co.uk/dp/1592408419",
       reason: "Perfect for empathetic readers seeking emotional growth and authentic connections."
     },
     {
@@ -478,7 +478,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Mihaly Csikszentmihalyi",
       genre: "Psychology",
       description: "The psychology of optimal experience and how to achieve it.",
-      amazonLink: "https://www.amazon.com/dp/0061339202",
+      amazonLink: "https://www.amazon.co.uk/dp/0061339202",
       reason: "Appeals to readers interested in peak performance and understanding happiness."
     },
     {
@@ -487,7 +487,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Mark Manson",
       genre: "Self-Help",
       description: "A counterintuitive approach to living a good life.",
-      amazonLink: "https://www.amazon.com/dp/0062457713",
+      amazonLink: "https://www.amazon.co.uk/dp/0062457713",
       reason: "Great for readers who appreciate direct, no-nonsense approaches to personal development."
     },
     {
@@ -496,7 +496,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Angela Duckworth",
       genre: "Psychology",
       description: "The power of passion and perseverance in achieving long-term goals.",
-      amazonLink: "https://www.amazon.com/dp/1501111116",
+      amazonLink: "https://www.amazon.co.uk/dp/1501111116",
       reason: "Perfect for determined readers who want to understand the psychology of achievement."
     },
     // Additional Self-Help entries (990 more would be added here)
@@ -506,7 +506,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Don Miguel Ruiz",
       genre: "Spirituality",
       description: "A practical guide to personal freedom based on ancient Toltec wisdom.",
-      amazonLink: "https://www.amazon.com/dp/1878424319",
+      amazonLink: "https://www.amazon.co.uk/dp/1878424319",
       reason: "Appeals to readers seeking spiritual wisdom and practical life philosophy."
     },
     {
@@ -515,7 +515,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Dale Carnegie",
       genre: "Self-Help",
       description: "Timeless advice on building relationships and influencing others positively.",
-      amazonLink: "https://www.amazon.com/dp/0671027034",
+      amazonLink: "https://www.amazon.co.uk/dp/0671027034",
       reason: "Perfect for socially conscious readers who want to improve their interpersonal skills."
     },
 
@@ -526,7 +526,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Tara Westover",
       genre: "Memoir",
       description: "A powerful memoir about education, family, and the struggle for self-invention.",
-      amazonLink: "https://www.amazon.com/dp/0399590501",
+      amazonLink: "https://www.amazon.co.uk/dp/0399590501",
       reason: "Perfect for readers who value personal transformation and overcoming challenging circumstances."
     },
     {
@@ -535,7 +535,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Michelle Obama",
       genre: "Biography",
       description: "The inspiring memoir of the former First Lady of the United States.",
-      amazonLink: "https://www.amazon.com/dp/1524763136",
+      amazonLink: "https://www.amazon.co.uk/dp/1524763136",
       reason: "Appeals to readers who value personal growth, social consciousness, and inspirational leadership stories."
     },
     {
@@ -544,7 +544,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Trevor Noah",
       genre: "Memoir",
       description: "Stories from a South African childhood during and after apartheid.",
-      amazonLink: "https://www.amazon.com/dp/0399588175",
+      amazonLink: "https://www.amazon.co.uk/dp/0399588175",
       reason: "Perfect for readers who appreciate humor, resilience, and cross-cultural perspectives."
     },
     {
@@ -553,7 +553,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Walter Isaacson",
       genre: "Biography",
       description: "The definitive biography of the Apple co-founder and tech visionary.",
-      amazonLink: "https://www.amazon.com/dp/1451648537",
+      amazonLink: "https://www.amazon.co.uk/dp/1451648537",
       reason: "Appeals to readers interested in innovation, leadership, and entrepreneurship."
     },
     {
@@ -562,7 +562,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Nelson Mandela",
       genre: "Autobiography",
       description: "The inspiring story of Mandela's journey from prisoner to president.",
-      amazonLink: "https://www.amazon.com/dp/0316548189",
+      amazonLink: "https://www.amazon.co.uk/dp/0316548189",
       reason: "Perfect for readers who value social justice, perseverance, and moral leadership."
     },
     {
@@ -571,7 +571,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Cheryl Strayed",
       genre: "Memoir",
       description: "A journey of self-discovery through hiking the Pacific Crest Trail.",
-      amazonLink: "https://www.amazon.com/dp/0307476073",
+      amazonLink: "https://www.amazon.co.uk/dp/0307476073",
       reason: "Appeals to readers who appreciate personal transformation and adventure."
     },
     {
@@ -580,7 +580,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Anthony Bourdain",
       genre: "Memoir",
       description: "Adventures in the culinary underbelly from a renowned chef.",
-      amazonLink: "https://www.amazon.com/dp/0060899220",
+      amazonLink: "https://www.amazon.co.uk/dp/0060899220",
       reason: "Great for readers who enjoy behind-the-scenes stories and authentic voices."
     },
     {
@@ -589,7 +589,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Andre Agassi",
       genre: "Sports Memoir",
       description: "Honest memoir about the pressures and rewards of professional tennis.",
-      amazonLink: "https://www.amazon.com/dp/0307388409",
+      amazonLink: "https://www.amazon.co.uk/dp/0307388409",
       reason: "Perfect for readers interested in the psychology of competition and personal struggle."
     },
     {
@@ -598,7 +598,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Amy Poehler",
       genre: "Memoir",
       description: "Funny and honest stories from the comedian and actress.",
-      amazonLink: "https://www.amazon.com/dp/0062268341",
+      amazonLink: "https://www.amazon.co.uk/dp/0062268341",
       reason: "Appeals to readers who appreciate humor, creativity, and authentic storytelling."
     },
     {
@@ -607,7 +607,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Paul Kalanithi",
       genre: "Memoir",
       description: "A neurosurgeon's profound reflections on life and death.",
-      amazonLink: "https://www.amazon.com/dp/081298840X",
+      amazonLink: "https://www.amazon.co.uk/dp/081298840X",
       reason: "Perfect for reflective readers interested in meaning, mortality, and the medical profession."
     },
     // Additional Biography & Memoir entries (990 more would be added here)
@@ -617,7 +617,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Jeannette Walls",
       genre: "Memoir",
       description: "A memoir of resilience and redemption from a dysfunctional childhood.",
-      amazonLink: "https://www.amazon.com/dp/074324754X",
+      amazonLink: "https://www.amazon.co.uk/dp/074324754X",
       reason: "Appeals to readers who appreciate stories of overcoming adversity and family complexity."
     },
     {
@@ -626,7 +626,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Maya Angelou",
       genre: "Autobiography",
       description: "A powerful memoir of growing up Black in the American South.",
-      amazonLink: "https://www.amazon.com/dp/0345514408",
+      amazonLink: "https://www.amazon.co.uk/dp/0345514408",
       reason: "Perfect for readers interested in civil rights, personal growth, and poetic prose."
     },
 
@@ -637,7 +637,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Alex Michaelides",
       genre: "Psychological Thriller",
       description: "A psychological thriller about a woman who refuses to speak after allegedly murdering her husband.",
-      amazonLink: "https://www.amazon.com/dp/1250301696",
+      amazonLink: "https://www.amazon.co.uk/dp/1250301696",
       reason: "Perfect for readers who enjoy psychological complexity, mystery, and unexpected plot twists."
     },
     {
@@ -646,7 +646,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Gillian Flynn",
       genre: "Psychological Thriller",
       description: "A marriage gone terribly, terribly wrong with shocking twists.",
-      amazonLink: "https://www.amazon.com/dp/0307588378",
+      amazonLink: "https://www.amazon.co.uk/dp/0307588378",
       reason: "Appeals to readers who appreciate dark psychology, complex characters, and unreliable narrators."
     },
     {
@@ -655,7 +655,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Stieg Larsson",
       genre: "Crime Thriller",
       description: "A journalist and a hacker investigate a decades-old disappearance.",
-      amazonLink: "https://www.amazon.com/dp/0307949486",
+      amazonLink: "https://www.amazon.co.uk/dp/0307949486",
       reason: "Great for readers who enjoy complex mysteries and strong, unconventional characters."
     },
     {
@@ -664,7 +664,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Liane Moriarty",
       genre: "Mystery",
       description: "Secrets and lies among suburban mothers lead to a shocking climax.",
-      amazonLink: "https://www.amazon.com/dp/0399167064",
+      amazonLink: "https://www.amazon.co.uk/dp/0399167064",
       reason: "Perfect for readers who enjoy domestic drama with mystery elements."
     },
     {
@@ -673,7 +673,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Dan Brown",
       genre: "Thriller",
       description: "A symbologist uncovers a conspiracy that goes to the heart of Christianity.",
-      amazonLink: "https://www.amazon.com/dp/0307474275",
+      amazonLink: "https://www.amazon.co.uk/dp/0307474275",
       reason: "Appeals to readers who enjoy fast-paced adventure with historical mysteries."
     },
     {
@@ -682,7 +682,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Tana French",
       genre: "Mystery",
       description: "A detective investigates a child's murder that echoes his own traumatic past.",
-      amazonLink: "https://www.amazon.com/dp/0143113496",
+      amazonLink: "https://www.amazon.co.uk/dp/0143113496",
       reason: "Perfect for readers who appreciate literary mysteries with psychological depth."
     },
     {
@@ -691,7 +691,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Richard Osman",
       genre: "Cozy Mystery",
       description: "Four unlikely friends meet weekly to investigate cold cases.",
-      amazonLink: "https://www.amazon.com/dp/1984880985",
+      amazonLink: "https://www.amazon.co.uk/dp/1984880985",
       reason: "Great for readers who enjoy clever mysteries with humor and heart."
     },
     {
@@ -700,7 +700,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Lucy Foley",
       genre: "Mystery Thriller",
       description: "A wedding celebration turns deadly on a remote island.",
-      amazonLink: "https://www.amazon.com/dp/0062868934",
+      amazonLink: "https://www.amazon.co.uk/dp/0062868934",
       reason: "Appeals to readers who enjoy atmospheric mysteries with multiple perspectives."
     },
     {
@@ -709,7 +709,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Stuart Turton",
       genre: "Mystery",
       description: "A murder mystery with a time loop twist.",
-      amazonLink: "https://www.amazon.com/dp/1492657964",
+      amazonLink: "https://www.amazon.co.uk/dp/1492657964",
       reason: "Perfect for readers who enjoy innovative mystery concepts and puzzle-solving."
     },
     {
@@ -718,7 +718,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "A.J. Finn",
       genre: "Psychological Thriller",
       description: "An agoraphobic woman believes she witnesses a crime from her window.",
-      amazonLink: "https://www.amazon.com/dp/0062678418",
+      amazonLink: "https://www.amazon.co.uk/dp/0062678418",
       reason: "Appeals to readers who enjoy unreliable narrators and psychological suspense."
     },
     {
@@ -727,7 +727,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Peter Swanson",
       genre: "Psychological Thriller",
       description: "A chance encounter leads to a deadly conspiracy.",
-      amazonLink: "https://www.amazon.com/dp/0062267523",
+      amazonLink: "https://www.amazon.co.uk/dp/0062267523",
       reason: "Great for readers who appreciate moral ambiguity and plot twists."
     },
     {
@@ -736,7 +736,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Gillian Flynn",
       genre: "Psychological Thriller",
       description: "A journalist returns to her hometown to cover a series of murders.",
-      amazonLink: "https://www.amazon.com/dp/0307341550",
+      amazonLink: "https://www.amazon.co.uk/dp/0307341550",
       reason: "Perfect for readers who enjoy dark, atmospheric thrillers with complex characters."
     },
     {
@@ -745,7 +745,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Patricia Highsmith",
       genre: "Psychological Thriller",
       description: "A young man's obsession leads to identity theft and murder.",
-      amazonLink: "https://www.amazon.com/dp/0393332144",
+      amazonLink: "https://www.amazon.co.uk/dp/0393332144",
       reason: "Appeals to readers who appreciate classic psychological suspense and moral complexity."
     },
     {
@@ -754,7 +754,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Daphne du Maurier",
       genre: "Gothic Thriller",
       description: "A young bride is haunted by her husband's deceased first wife.",
-      amazonLink: "https://www.amazon.com/dp/0380730405",
+      amazonLink: "https://www.amazon.co.uk/dp/0380730405",
       reason: "Perfect for readers who enjoy atmospheric gothic fiction and psychological tension."
     },
     {
@@ -763,7 +763,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Dashiell Hammett",
       genre: "Detective Fiction",
       description: "A private detective gets caught up in a hunt for a valuable statue.",
-      amazonLink: "https://www.amazon.com/dp/0679722645",
+      amazonLink: "https://www.amazon.co.uk/dp/0679722645",
       reason: "Great for readers who appreciate classic noir and hard-boiled detective stories."
     },
     // Additional Thriller & Mystery entries (1485 more would be added here)
@@ -773,7 +773,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Raymond Chandler",
       genre: "Detective Fiction",
       description: "Philip Marlowe investigates a blackmail case in 1940s Los Angeles.",
-      amazonLink: "https://www.amazon.com/dp/0394758285",
+      amazonLink: "https://www.amazon.co.uk/dp/0394758285",
       reason: "Appeals to readers who enjoy classic noir atmosphere and witty detective work."
     },
     {
@@ -782,7 +782,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Agatha Christie",
       genre: "Mystery",
       description: "Ten strangers are invited to an island where they start dying one by one.",
-      amazonLink: "https://www.amazon.com/dp/0062073486",
+      amazonLink: "https://www.amazon.co.uk/dp/0062073486",
       reason: "Perfect for readers who enjoy classic puzzle mysteries and ingenious plot construction."
     },
 
@@ -793,7 +793,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Harper Lee",
       genre: "Classic Literature",
       description: "A timeless story about justice, morality, and growing up in the American South.",
-      amazonLink: "https://www.amazon.com/dp/0060935464",
+      amazonLink: "https://www.amazon.co.uk/dp/0060935464",
       reason: "Resonates with readers who value social justice, moral complexity, and coming-of-age narratives."
     },
     {
@@ -802,7 +802,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Jane Austen",
       genre: "Classic Romance",
       description: "The timeless story of Elizabeth Bennet and Mr. Darcy's complex relationship.",
-      amazonLink: "https://www.amazon.com/dp/0141439513",
+      amazonLink: "https://www.amazon.co.uk/dp/0141439513",
       reason: "Perfect for readers who appreciate wit, social commentary, and well-developed romantic relationships."
     },
     {
@@ -811,7 +811,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "George Orwell",
       genre: "Dystopian Fiction",
       description: "A chilling vision of totalitarian control and surveillance.",
-      amazonLink: "https://www.amazon.com/dp/0452284236",
+      amazonLink: "https://www.amazon.co.uk/dp/0452284236",
       reason: "Appeals to readers interested in political themes and social criticism."
     },
     {
@@ -820,7 +820,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "F. Scott Fitzgerald",
       genre: "Classic Literature",
       description: "The American Dream in the Jazz Age.",
-      amazonLink: "https://www.amazon.com/dp/0743273567",
+      amazonLink: "https://www.amazon.co.uk/dp/0743273567",
       reason: "Perfect for readers who appreciate lyrical prose and social commentary."
     },
     {
@@ -829,7 +829,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Charlotte Brontë",
       genre: "Gothic Romance",
       description: "An orphaned girl becomes a governess and finds love and independence.",
-      amazonLink: "https://www.amazon.com/dp/0141441143",
+      amazonLink: "https://www.amazon.co.uk/dp/0141441143",
       reason: "Appeals to readers who enjoy strong female protagonists and gothic atmosphere."
     },
     {
@@ -838,7 +838,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Emily Brontë",
       genre: "Gothic Romance",
       description: "A tale of passionate and destructive love on the Yorkshire moors.",
-      amazonLink: "https://www.amazon.com/dp/0141439556",
+      amazonLink: "https://www.amazon.co.uk/dp/0141439556",
       reason: "Perfect for readers who appreciate intense emotions and atmospheric settings."
     },
     {
@@ -847,7 +847,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "J.D. Salinger",
       genre: "Coming of Age",
       description: "Holden Caulfield's journey through New York City and adolescence.",
-      amazonLink: "https://www.amazon.com/dp/0316769487",
+      amazonLink: "https://www.amazon.co.uk/dp/0316769487",
       reason: "Resonates with readers who appreciate authentic teenage voice and social criticism."
     },
     {
@@ -856,7 +856,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "John Steinbeck",
       genre: "Classic Literature",
       description: "Two migrant workers dream of owning a farm during the Great Depression.",
-      amazonLink: "https://www.amazon.com/dp/0140177396",
+      amazonLink: "https://www.amazon.co.uk/dp/0140177396",
       reason: "Appeals to readers interested in friendship, dreams, and social issues."
     },
     {
@@ -865,7 +865,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "William Golding",
       genre: "Classic Literature",
       description: "British boys stranded on an island descend into savagery.",
-      amazonLink: "https://www.amazon.com/dp/0571056865",
+      amazonLink: "https://www.amazon.co.uk/dp/0571056865",
       reason: "Perfect for readers interested in human nature and social psychology."
     },
     {
@@ -874,7 +874,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Aldous Huxley",
       genre: "Dystopian Fiction",
       description: "A chilling vision of a future society controlled by technology and conditioning.",
-      amazonLink: "https://www.amazon.com/dp/0060850523",
+      amazonLink: "https://www.amazon.co.uk/dp/0060850523",
       reason: "Appeals to readers interested in social criticism and philosophical questions."
     },
     {
@@ -883,7 +883,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Ray Bradbury",
       genre: "Dystopian Fiction",
       description: "In a future where books are banned, a fireman begins to question his role.",
-      amazonLink: "https://www.amazon.com/dp/1451673310",
+      amazonLink: "https://www.amazon.co.uk/dp/1451673310",
       reason: "Perfect for readers who value intellectual freedom and the power of literature."
     },
     {
@@ -892,7 +892,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Ken Kesey",
       genre: "Literary Fiction",
       description: "A rebellious patient challenges the psychiatric system.",
-      amazonLink: "https://www.amazon.com/dp/0143105027",
+      amazonLink: "https://www.amazon.co.uk/dp/0143105027",
       reason: "Appeals to readers interested in individual freedom and institutional criticism."
     },
     {
@@ -901,7 +901,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "George Orwell",
       genre: "Political Satire",
       description: "All animals are equal, but some animals are more equal than others.",
-      amazonLink: "https://www.amazon.com/dp/0452284244",
+      amazonLink: "https://www.amazon.co.uk/dp/0452284244",
       reason: "Appeals to readers who appreciate political allegory and social criticism."
     },
     {
@@ -910,7 +910,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "John Steinbeck",
       genre: "Classic Literature",
       description: "A family's journey during the Great Depression.",
-      amazonLink: "https://www.amazon.com/dp/0143039431",
+      amazonLink: "https://www.amazon.co.uk/dp/0143039431",
       reason: "Perfect for readers interested in social justice and human resilience."
     },
     // Additional Classic Literature entries (1485 more would be added here)
@@ -920,7 +920,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Herman Melville",
       genre: "Classic Literature",
       description: "Captain Ahab's obsessive quest for the white whale.",
-      amazonLink: "https://www.amazon.com/dp/0142437247",
+      amazonLink: "https://www.amazon.co.uk/dp/0142437247",
       reason: "Appeals to readers who appreciate epic narratives and philosophical depth."
     },
     {
@@ -929,7 +929,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Leo Tolstoy",
       genre: "Historical Fiction",
       description: "Russian society during the Napoleonic era.",
-      amazonLink: "https://www.amazon.com/dp/0140447938",
+      amazonLink: "https://www.amazon.co.uk/dp/0140447938",
       reason: "Perfect for readers who enjoy epic historical narratives and complex character development."
     },
 
@@ -940,7 +940,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Yuval Noah Harari",
       genre: "History",
       description: "A fascinating look at how Homo sapiens came to dominate the world.",
-      amazonLink: "https://www.amazon.com/dp/0062316095",
+      amazonLink: "https://www.amazon.co.uk/dp/0062316095",
       reason: "Perfect for curious, open-minded readers who enjoy big-picture thinking about humanity and civilization."
     },
     {
@@ -949,7 +949,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Jared Diamond",
       genre: "History",
       description: "The fates of human societies and why some civilizations succeeded.",
-      amazonLink: "https://www.amazon.com/dp/0393317552",
+      amazonLink: "https://www.amazon.co.uk/dp/0393317552",
       reason: "Appeals to readers interested in understanding historical patterns and human development."
     },
     {
@@ -958,7 +958,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Bill Bryson",
       genre: "Science",
       description: "An accessible journey through the history of science and discovery.",
-      amazonLink: "https://www.amazon.com/dp/076790818X",
+      amazonLink: "https://www.amazon.co.uk/dp/076790818X",
       reason: "Perfect for curious readers who want to understand science in an entertaining way."
     },
     {
@@ -967,7 +967,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Rebecca Skloot",
       genre: "Science",
       description: "The story of how one woman's cells revolutionized medical science.",
-      amazonLink: "https://www.amazon.com/dp/1400052181",
+      amazonLink: "https://www.amazon.co.uk/dp/1400052181",
       reason: "Appeals to readers interested in science, ethics, and human stories behind discoveries."
     },
     {
@@ -976,7 +976,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Carl Sagan",
       genre: "Science",
       description: "A journey through the universe and our place in it.",
-      amazonLink: "https://www.amazon.com/dp/0345331354",
+      amazonLink: "https://www.amazon.co.uk/dp/0345331354",
       reason: "Perfect for readers who appreciate wonder, scientific thinking, and cosmic perspective."
     },
     {
@@ -985,7 +985,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Jonathan Haidt",
       genre: "Psychology",
       description: "An exploration of moral psychology and how good people are divided by politics and religion.",
-      amazonLink: "https://www.amazon.com/dp/0307455777",
+      amazonLink: "https://www.amazon.co.uk/dp/0307455777",
       reason: "Appeals to empathetic, thoughtful readers who want to understand different perspectives and moral reasoning."
     },
     {
@@ -994,7 +994,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Steven D. Levitt",
       genre: "Economics",
       description: "A rogue economist explores the hidden side of everything.",
-      amazonLink: "https://www.amazon.com/dp/0060731338",
+      amazonLink: "https://www.amazon.co.uk/dp/0060731338",
       reason: "Great for analytical readers who enjoy unconventional thinking and data-driven insights."
     },
     {
@@ -1003,7 +1003,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Elizabeth Kolbert",
       genre: "Environmental Science",
       description: "An exploration of species extinction and human impact on the planet.",
-      amazonLink: "https://www.amazon.com/dp/0805092994",
+      amazonLink: "https://www.amazon.co.uk/dp/0805092994",
       reason: "Perfect for environmentally conscious readers interested in current scientific issues."
     },
     {
@@ -1012,7 +1012,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Doris Kearns Goodwin",
       genre: "Political Biography",
       description: "How Lincoln brought his political enemies into his cabinet.",
-      amazonLink: "https://www.amazon.com/dp/0684827107",
+      amazonLink: "https://www.amazon.co.uk/dp/0684827107",
       reason: "Appeals to readers interested in leadership, politics, and historical decision-making."
     },
     {
@@ -1021,7 +1021,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Brian Greene",
       genre: "Physics",
       description: "Superstrings, hidden dimensions, and the quest for the ultimate theory.",
-      amazonLink: "https://www.amazon.com/dp/039333810X",
+      amazonLink: "https://www.amazon.co.uk/dp/039333810X",
       reason: "Perfect for readers fascinated by theoretical physics and the nature of reality."
     },
     // Additional History & Science entries (990 more would be added here)
@@ -1031,7 +1031,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Howard Zinn",
       genre: "History",
       description: "American history from the perspective of ordinary people and marginalized groups.",
-      amazonLink: "https://www.amazon.com/dp/0062397346",
+      amazonLink: "https://www.amazon.co.uk/dp/0062397346",
       reason: "Appeals to readers interested in alternative historical perspectives and social justice."
     },
     {
@@ -1040,7 +1040,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Richard Dawkins",
       genre: "Biology",
       description: "A revolutionary look at evolution from the gene's perspective.",
-      amazonLink: "https://www.amazon.com/dp/0198788606",
+      amazonLink: "https://www.amazon.co.uk/dp/0198788606",
       reason: "Perfect for readers interested in evolutionary biology and scientific thinking."
     },
 
@@ -1051,7 +1051,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Suzanne Collins",
       genre: "Dystopian Fiction",
       description: "A thrilling story of survival and rebellion in a post-apocalyptic world.",
-      amazonLink: "https://www.amazon.com/dp/0439023483",
+      amazonLink: "https://www.amazon.co.uk/dp/0439023483",
       reason: "Perfect for readers who enjoy action, social commentary, and strong protagonists fighting injustice."
     },
     {
@@ -1060,7 +1060,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Colleen Hoover",
       genre: "Contemporary Romance",
       description: "A powerful story about love, courage, and the strength to break cycles.",
-      amazonLink: "https://www.amazon.com/dp/1501110365",
+      amazonLink: "https://www.amazon.co.uk/dp/1501110365",
       reason: "Appeals to readers who appreciate emotional depth and contemporary relationship issues."
     },
     {
@@ -1069,7 +1069,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Angie Thomas",
       genre: "Young Adult",
       description: "A powerful story about finding your voice in the face of injustice.",
-      amazonLink: "https://www.amazon.com/dp/0062498533",
+      amazonLink: "https://www.amazon.co.uk/dp/0062498533",
       reason: "Perfect for socially conscious readers interested in contemporary issues and authentic voices."
     },
     {
@@ -1078,7 +1078,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Jojo Moyes",
       genre: "Contemporary Romance",
       description: "An unlikely relationship that changes two lives forever.",
-      amazonLink: "https://www.amazon.com/dp/0143124544",
+      amazonLink: "https://www.amazon.co.uk/dp/0143124544",
       reason: "Appeals to readers who enjoy emotional stories about personal growth and love."
     },
     {
@@ -1087,7 +1087,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "John Green",
       genre: "Young Adult",
       description: "Two teenagers with cancer fall in love and find meaning in their limited time.",
-      amazonLink: "https://www.amazon.com/dp/0142424179",
+      amazonLink: "https://www.amazon.co.uk/dp/0142424179",
       reason: "Perfect for readers who appreciate emotional depth, humor, and philosophical questions about life."
     },
     // Additional Contemporary Issues & Romance entries (1495 more would be added here)
@@ -1097,7 +1097,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Nicholas Sparks",
       genre: "Romance",
       description: "A timeless love story that spans decades.",
-      amazonLink: "https://www.amazon.com/dp/0446605239",
+      amazonLink: "https://www.amazon.co.uk/dp/0446605239",
       reason: "Appeals to readers who enjoy emotional romance and enduring love stories."
     },
     {
@@ -1106,7 +1106,7 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
       author: "Diana Gabaldon",
       genre: "Historical Romance",
       description: "A WWII nurse is transported back to 18th-century Scotland.",
-      amazonLink: "https://www.amazon.com/dp/0440212561",
+      amazonLink: "https://www.amazon.co.uk/dp/0440212561",
       reason: "Perfect for readers who enjoy time travel, historical settings, and epic romance."
     }
 
@@ -1383,3 +1383,4 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
   // Ensure we always return exactly 6 books
   return selectedBooks.slice(0, 6);
 };
+

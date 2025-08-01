@@ -51,7 +51,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Madeline Miller",
         genre: "Historical Fiction",
         description: "A beautiful retelling of the Iliad focusing on love, friendship, and destiny.",
-        amazonLink: "https://www.amazon.com/dp/0062060627",
+        amazonLink: "https://www.amazon.co.uk/dp/0062060627",
         reason: "Perfect for someone who appreciates storytelling, emotional depth, and creative reinterpretations of classic tales."
       },
       {
@@ -59,7 +59,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Elizabeth Gilbert",
         genre: "Creativity",
         description: "Insights into living creatively beyond fear and embracing curiosity.",
-        amazonLink: "https://www.amazon.com/dp/1594634718",
+        amazonLink: "https://www.amazon.co.uk/dp/1594634718",
         reason: "Ideal for a highly creative, self-aware artist who constantly pushes boundaries and explores new artistic territories."
       },
       {
@@ -67,7 +67,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Taylor Jenkins Reid",
         genre: "Fiction",
         description: "A reclusive Hollywood icon finally tells her story of love, ambition, and secrets.",
-        amazonLink: "https://www.amazon.com/dp/1501161938",
+        amazonLink: "https://www.amazon.co.uk/dp/1501161938",
         reason: "Appeals to someone who understands fame, storytelling, and the complexity of public vs. private personas."
       }
     ]
@@ -96,7 +96,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Rachel Carson",
         genre: "Environmental Science",
         description: "The groundbreaking book that launched the modern environmental movement.",
-        amazonLink: "https://www.amazon.com/dp/0618249060",
+        amazonLink: "https://www.amazon.co.uk/dp/0618249060",
         reason: "Perfect for someone passionate about environmental protection and using science to drive social change."
       },
       {
@@ -104,7 +104,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Elizabeth Kolbert",
         genre: "Science",
         description: "An exploration of species extinction and human impact on the planet.",
-        amazonLink: "https://www.amazon.com/dp/0805092994",
+        amazonLink: "https://www.amazon.co.uk/dp/0805092994",
         reason: "Resonates with someone deeply concerned about climate change and committed to raising awareness about environmental issues."
       },
       {
@@ -112,7 +112,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Robin Wall Kimmerer",
         genre: "Nature Writing",
         description: "Indigenous wisdom and scientific knowledge about our relationship with nature.",
-        amazonLink: "https://www.amazon.com/dp/1571313567",
+        amazonLink: "https://www.amazon.co.uk/dp/1571313567",
         reason: "Appeals to someone who sees the interconnectedness of all life and values both traditional wisdom and scientific understanding."
       }
     ]
@@ -141,7 +141,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Fritjof Capra",
         genre: "Philosophy/Science",
         description: "Exploring the parallels between modern physics and Eastern mysticism.",
-        amazonLink: "https://www.amazon.com/dp/1590308352",
+        amazonLink: "https://www.amazon.co.uk/dp/1590308352",
         reason: "Perfect for someone who is introspective, spiritually curious, and interested in the deeper connections between science and philosophy."
       },
       {
@@ -149,7 +149,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Hermann Hesse",
         genre: "Philosophical Fiction",
         description: "A spiritual journey of self-discovery and enlightenment.",
-        amazonLink: "https://www.amazon.com/dp/0553208845",
+        amazonLink: "https://www.amazon.co.uk/dp/0553208845",
         reason: "Resonates with someone who values inner peace, spiritual growth, and finding meaning through quiet contemplation."
       },
       {
@@ -157,7 +157,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Dalai Lama & Desmond Tutu",
         genre: "Spirituality",
         description: "Conversations about finding joy in the face of life's challenges.",
-        amazonLink: "https://www.amazon.com/dp/0399185046",
+        amazonLink: "https://www.amazon.co.uk/dp/0399185046",
         reason: "Appeals to someone with high emotional stability, empathy, and a genuine desire to spread kindness and positivity."
       }
     ]
@@ -186,7 +186,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Eric Ries",
         genre: "Business",
         description: "How to build a successful business through innovation and adaptation.",
-        amazonLink: "https://www.amazon.com/dp/0307887898",
+        amazonLink: "https://www.amazon.co.uk/dp/0307887898",
         reason: "Perfect for an innovative entrepreneur who takes risks and builds successful businesses from scratch."
       },
       {
@@ -194,7 +194,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Cheryl Strayed",
         genre: "Memoir",
         description: "A journey of self-discovery through hiking the Pacific Crest Trail.",
-        amazonLink: "https://www.amazon.com/dp/0307476073",
+        amazonLink: "https://www.amazon.co.uk/dp/0307476073",
         reason: "Resonates with someone who embraces adventure, personal transformation, and isn't afraid to take unconventional paths."
       },
       {
@@ -202,7 +202,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Alice Walker",
         genre: "Literary Fiction",
         description: "A powerful story of resilience, sisterhood, and finding one's voice.",
-        amazonLink: "https://www.amazon.com/dp/0156028352",
+        amazonLink: "https://www.amazon.co.uk/dp/0156028352",
         reason: "Appeals to someone who values empowerment, creativity, and using their platform to inspire others."
       }
     ]
@@ -231,7 +231,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Isaac Asimov",
         genre: "Science Fiction",
         description: "Epic saga about the future of human civilization and psychohistory.",
-        amazonLink: "https://www.amazon.com/dp/0553293354",
+        amazonLink: "https://www.amazon.co.uk/dp/0553293354",
         reason: "Perfect for a visionary leader who thinks about humanity's future and enjoys complex, large-scale problem solving."
       },
       {
@@ -239,7 +239,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Peter Thiel",
         genre: "Business",
         description: "Notes on startups and how to build the future through innovation.",
-        amazonLink: "https://www.amazon.com/dp/0804139296",
+        amazonLink: "https://www.amazon.co.uk/dp/0804139296",
         reason: "Resonates with someone who takes massive risks, leads innovation, and thinks about creating entirely new markets."
       },
       {
@@ -247,7 +247,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Andy Weir",
         genre: "Science Fiction",
         description: "An astronaut uses science and ingenuity to survive on Mars.",
-        amazonLink: "https://www.amazon.com/dp/0553418025",
+        amazonLink: "https://www.amazon.co.uk/dp/0553418025",
         reason: "Appeals to someone fascinated by space exploration, problem-solving under pressure, and technical innovation."
       }
     ]
@@ -276,7 +276,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Michelle Obama",
         genre: "Memoir",
         description: "The inspiring memoir of the former First Lady.",
-        amazonLink: "https://www.amazon.com/dp/1524763136",
+        amazonLink: "https://www.amazon.co.uk/dp/1524763136",
         reason: "Perfect for someone who values personal growth, empowerment, and inspiring others through authentic storytelling."
       },
       {
@@ -284,7 +284,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Eckhart Tolle",
         genre: "Spirituality",
         description: "A guide to spiritual enlightenment and living in the present moment.",
-        amazonLink: "https://www.amazon.com/dp/1577314808",
+        amazonLink: "https://www.amazon.co.uk/dp/1577314808",
         reason: "Resonates with someone highly self-aware, emotionally stable, and interested in helping others find inner peace."
       },
       {
@@ -292,7 +292,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Toni Morrison",
         genre: "Literary Fiction",
         description: "A powerful novel about slavery's lasting impact and the strength of the human spirit.",
-        amazonLink: "https://www.amazon.com/dp/1400033411",
+        amazonLink: "https://www.amazon.co.uk/dp/1400033411",
         reason: "Appeals to someone with high empathy, social consciousness, and appreciation for profound, transformative literature."
       }
     ]
@@ -321,7 +321,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Kobe Bryant",
         genre: "Sports Biography",
         description: "Insights into the mindset and approach of a basketball legend.",
-        amazonLink: "https://www.amazon.com/dp/0374201234",
+        amazonLink: "https://www.amazon.co.uk/dp/0374201234",
         reason: "Perfect for a disciplined athlete who values excellence, leadership, and continuous improvement."
       },
       {
@@ -329,7 +329,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Nelson Mandela",
         genre: "Autobiography",
         description: "The inspiring story of Mandela's journey from prisoner to president.",
-        amazonLink: "https://www.amazon.com/dp/0316548189",
+        amazonLink: "https://www.amazon.co.uk/dp/0316548189",
         reason: "Resonates with someone who uses their platform for social change and understands the power of perseverance."
       },
       {
@@ -337,7 +337,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Daniel James Brown",
         genre: "Sports History",
         description: "The story of the 1936 U.S. Olympic rowing team and their triumph.",
-        amazonLink: "https://www.amazon.com/dp/0143125478",
+        amazonLink: "https://www.amazon.co.uk/dp/0143125478",
         reason: "Appeals to someone who values teamwork, dedication, and overcoming adversity through collective effort."
       }
     ]
@@ -366,7 +366,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Virginia Woolf",
         genre: "Feminist Literature",
         description: "A foundational text on women's rights and creative freedom.",
-        amazonLink: "https://www.amazon.com/dp/0156787334",
+        amazonLink: "https://www.amazon.co.uk/dp/0156787334",
         reason: "Perfect for someone passionate about gender equality, literature, and intellectual discourse."
       },
       {
@@ -374,7 +374,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Margaret Atwood",
         genre: "Dystopian Fiction",
         description: "A powerful exploration of women's rights in a totalitarian society.",
-        amazonLink: "https://www.amazon.com/dp/0385490818",
+        amazonLink: "https://www.amazon.co.uk/dp/0385490818",
         reason: "Resonates with someone who advocates for women's rights and appreciates thought-provoking, socially conscious fiction."
       },
       {
@@ -382,7 +382,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Tara Westover",
         genre: "Memoir",
         description: "A memoir about education, family, and the struggle for self-invention.",
-        amazonLink: "https://www.amazon.com/dp/0399590501",
+        amazonLink: "https://www.amazon.co.uk/dp/0399590501",
         reason: "Appeals to someone who values education, personal growth, and breaking barriers through knowledge."
       }
     ]
@@ -411,7 +411,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Doris Kearns Goodwin",
         genre: "Political Biography",
         description: "How Lincoln brought his political enemies into his cabinet.",
-        amazonLink: "https://www.amazon.com/dp/0684827107",
+        amazonLink: "https://www.amazon.co.uk/dp/0684827107",
         reason: "Perfect for a thoughtful leader who values collaboration, historical perspective, and principled governance."
       },
       {
@@ -419,7 +419,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "W.E.B. Du Bois",
         genre: "Social Commentary",
         description: "Foundational work on African American experience and civil rights.",
-        amazonLink: "https://www.amazon.com/dp/0486280411",
+        amazonLink: "https://www.amazon.co.uk/dp/0486280411",
         reason: "Resonates with someone deeply committed to social justice, equality, and understanding historical context."
       },
       {
@@ -427,7 +427,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Marilynne Robinson",
         genre: "Literary Fiction",
         description: "A contemplative novel about faith, family, and forgiveness.",
-        amazonLink: "https://www.amazon.com/dp/0312424409",
+        amazonLink: "https://www.amazon.co.uk/dp/0312424409",
         reason: "Appeals to someone who appreciates thoughtful prose, moral complexity, and reflective storytelling."
       }
     ]
@@ -456,7 +456,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Paulo Coelho",
         genre: "Philosophical Fiction",
         description: "A shepherd boy's journey to find his personal legend.",
-        amazonLink: "https://www.amazon.com/dp/0061122416",
+        amazonLink: "https://www.amazon.co.uk/dp/0061122416",
         reason: "Perfect for someone who values perseverance, following dreams, and finding meaning through dedication."
       },
       {
@@ -464,7 +464,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Andre Agassi",
         genre: "Sports Memoir",
         description: "Honest memoir about the pressures and rewards of professional sports.",
-        amazonLink: "https://www.amazon.com/dp/0307388409",
+        amazonLink: "https://www.amazon.co.uk/dp/0307388409",
         reason: "Resonates with someone who understands the mental challenges of elite competition and staying grounded."
       },
       {
@@ -472,7 +472,7 @@ export const celebrities: CelebrityProfile[] = [
         author: "Josh Waitzkin",
         genre: "Self-Improvement",
         description: "Insights into mastery and peak performance from a chess and martial arts champion.",
-        amazonLink: "https://www.amazon.com/dp/0743277465",
+        amazonLink: "https://www.amazon.co.uk/dp/0743277465",
         reason: "Appeals to someone dedicated to continuous improvement and understanding the psychology of excellence."
       }
     ]
