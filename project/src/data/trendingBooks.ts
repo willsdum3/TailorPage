@@ -23,7 +23,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 1,
     price: '£8.99',
     rating: 4.6,
-    reviewCount: 89234
+    reviewCount: 89234,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'iron-flame',
@@ -35,7 +36,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 2,
     price: '£9.99',
     rating: 4.5,
-    reviewCount: 67891
+    reviewCount: 67891,
+    coverImage: 'https://m.media-amazon.com/images/I/71Zb-D8NaGL._SY466_.jpg'
   },
   {
     id: 'atomic-habits',
@@ -47,7 +49,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 3,
     price: '£10.99',
     rating: 4.7,
-    reviewCount: 156789
+    reviewCount: 156789,
+    coverImage: 'https://m.media-amazon.com/images/I/81wgcld4wxL._SY466_.jpg'
   },
   {
     id: 'it-ends-with-us',
@@ -59,7 +62,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 4,
     price: '£7.99',
     rating: 4.4,
-    reviewCount: 234567
+    reviewCount: 234567,
+    coverImage: 'https://m.media-amazon.com/images/I/81wgcld4wxL._SY466_.jpg'
   },
   {
     id: 'it-starts-with-us',
@@ -311,7 +315,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 25,
     price: '£8.99',
     rating: 4.4,
-    reviewCount: 87654
+    reviewCount: 87654,
+    coverImage: 'https://m.media-amazon.com/images/I/71KjJ+QKzQL._SY466_.jpg'
   },
   {
     id: 'the-labyrinth-of-spirits',
@@ -323,7 +328,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 26,
     price: '£9.99',
     rating: 4.6,
-    reviewCount: 123456
+    reviewCount: 123456,
+    coverImage: 'https://m.media-amazon.com/images/I/71Zb-D8NaGL._SY466_.jpg'
   },
   {
     id: 'the-marina',
@@ -383,7 +389,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 31,
     price: '£7.99',
     rating: 4.8,
-    reviewCount: 345678
+    reviewCount: 345678,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-lord-of-the-rings',
@@ -395,7 +402,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 32,
     price: '£12.99',
     rating: 4.9,
-    reviewCount: 456789
+    reviewCount: 456789,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-fellowship-of-the-ring',
@@ -551,7 +559,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 45,
     price: '£7.99',
     rating: 4.5,
-    reviewCount: 234567
+    reviewCount: 234567,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'to-kill-a-mockingbird',
