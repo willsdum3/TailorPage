@@ -99,7 +99,7 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
           </h1>
           
           <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Discover the top 100 bestselling books on Amazon UK. From gripping thrillers to heartwarming romances, find your next great read from what everyone is talking about.
+            Discover the top 50 bestselling books on Amazon UK. From gripping thrillers to heartwarming romances, find your next great read from what everyone is talking about.
           </p>
         </div>
 
