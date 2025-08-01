@@ -19,7 +19,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Rebecca Yarros',
     genre: 'Fantasy Romance',
     description: 'Enter the brutal and elite world of a war college for dragon riders.',
-    amazonLink: 'https://www.amazon.co.uk/dp/0349437009',
+    amazonLink: 'https://www.amazon.co.uk/dp/0349436002',
     rank: 1,
     price: '£8.99',
     rating: 4.6,
@@ -32,7 +32,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Rebecca Yarros',
     genre: 'Fantasy Romance',
     description: 'The highly anticipated sequel to Fourth Wing.',
-    amazonLink: 'https://amzn.eu/d/68bP2du',
+    amazonLink: 'https://www.amazon.co.uk/dp/0349437009',
     rank: 2,
     price: '£9.99',
     rating: 4.5,
@@ -75,67 +75,8 @@ export const trendingBooks: TrendingBook[] = [
     rank: 5,
     price: '£8.49',
     rating: 4.3,
-    reviewCount: 178923
-  },
-  {
-    id: 'the-seven-moons',
-    title: 'The Seven Moons of Maali Almeida',
-    author: 'Shehan Karunatilaka',
-    genre: 'Literary Fiction',
-    description: 'Booker Prize winner - a darkly comic afterlife adventure.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1914484002',
-    rank: 6,
-    price: '£9.99',
-    rating: 4.2,
-    reviewCount: 45678
-  },
-  {
-    id: 'spare',
-    title: 'Spare',
-    author: 'Prince Harry',
-    genre: 'Biography',
-    description: 'The Duke of Sussex tells his story in his own words.',
-    amazonLink: 'https://www.amazon.co.uk/dp/0593593804',
-    rank: 7,
-    price: '£14.99',
-    rating: 4.1,
-    reviewCount: 298765
-  },
-  {
-    id: 'the-thursday-murder-club',
-    title: 'The Thursday Murder Club',
-    author: 'Richard Osman',
-    genre: 'Mystery',
-    description: 'Four unlikely friends meet weekly to investigate cold cases.',
-    amazonLink: 'https://www.amazon.co.uk/dp/0241988268',
-    rank: 8,
-    price: '£8.99',
-    rating: 4.5,
-    reviewCount: 187654
-  },
-  {
-    id: 'the-midnight-library',
-    title: 'The Midnight Library',
-    author: 'Matt Haig',
-    genre: 'Literary Fiction',
-    description: 'Between life and death there is a library, and within that library, the shelves go on forever.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1786892707',
-    rank: 9,
-    price: '£8.99',
-    rating: 4.3,
-    reviewCount: 234567
-  },
-  {
-    id: 'the-housemaid',
-    title: 'The Housemaid',
-    author: 'Freida McFadden',
-    genre: 'Thriller',
-    description: 'A psychological thriller about a housemaid with a dark secret.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1538742578',
-    rank: 10,
-    price: '£7.99',
-    rating: 4.4,
-    reviewCount: 98765
+    reviewCount: 178923,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'verity',
@@ -144,10 +85,24 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A psychological thriller that will keep you guessing until the very end.',
     amazonLink: 'https://www.amazon.co.uk/dp/1538724731',
-    rank: 11,
+    rank: 6,
     price: '£8.99',
     rating: 4.5,
-    reviewCount: 145678
+    reviewCount: 145678,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
+  },
+  {
+    id: 'the-housemaid',
+    title: 'The Housemaid',
+    author: 'Freida McFadden',
+    genre: 'Thriller',
+    description: 'A psychological thriller about a housemaid with a dark secret.',
+    amazonLink: 'https://www.amazon.co.uk/dp/1538742578',
+    rank: 7,
+    price: '£7.99',
+    rating: 4.4,
+    reviewCount: 98765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'lessons-in-chemistry',
@@ -156,10 +111,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Historical Fiction',
     description: 'A novel about a female scientist in the 1960s who becomes a cooking show host.',
     amazonLink: 'https://www.amazon.co.uk/dp/0857528124',
-    rank: 12,
+    rank: 8,
     price: '£8.99',
     rating: 4.6,
-    reviewCount: 123456
+    reviewCount: 123456,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-silent-patient',
@@ -168,10 +124,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A psychological thriller about a woman who shoots her husband and then never speaks again.',
     amazonLink: 'https://www.amazon.co.uk/dp/1409181634',
-    rank: 13,
+    rank: 9,
     price: '£7.99',
     rating: 4.4,
-    reviewCount: 167890
+    reviewCount: 167890,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-guest-list',
@@ -180,10 +137,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A wedding celebration turns deadly in this atmospheric thriller.',
     amazonLink: 'https://www.amazon.co.uk/dp/0008379258',
-    rank: 14,
+    rank: 10,
     price: '£8.99',
     rating: 4.3,
-    reviewCount: 98765
+    reviewCount: 98765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-paris-apartment',
@@ -192,10 +150,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A journalist arrives in Paris to stay with her brother, but he\'s missing.',
     amazonLink: 'https://www.amazon.co.uk/dp/0008379266',
-    rank: 15,
+    rank: 11,
     price: '£8.99',
     rating: 4.2,
-    reviewCount: 87654
+    reviewCount: 87654,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-sanatorium',
@@ -204,10 +163,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A detective must solve a murder at a remote hotel in the Swiss Alps.',
     amazonLink: 'https://www.amazon.co.uk/dp/0241434554',
-    rank: 16,
+    rank: 12,
     price: '£8.99',
     rating: 4.1,
-    reviewCount: 76543
+    reviewCount: 76543,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-hunting-party',
@@ -216,10 +176,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A group of friends gather for New Year\'s Eve at a remote estate in Scotland.',
     amazonLink: 'https://www.amazon.co.uk/dp/0008297149',
-    rank: 17,
+    rank: 13,
     price: '£8.99',
     rating: 4.0,
-    reviewCount: 65432
+    reviewCount: 65432,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-family-upstairs',
@@ -228,10 +189,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A woman inherits a mansion and discovers the dark secrets of its previous occupants.',
     amazonLink: 'https://www.amazon.co.uk/dp/1780898448',
-    rank: 18,
+    rank: 14,
     price: '£8.99',
     rating: 4.3,
-    reviewCount: 98765
+    reviewCount: 98765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-night-she-disappeared',
@@ -240,10 +202,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A young couple disappears without a trace, leaving behind their baby.',
     amazonLink: 'https://www.amazon.co.uk/dp/1780898456',
-    rank: 19,
+    rank: 15,
     price: '£8.99',
     rating: 4.2,
-    reviewCount: 87654
+    reviewCount: 87654,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-invisible-life-of-addie-larue',
@@ -252,10 +215,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Fantasy',
     description: 'A young woman makes a Faustian bargain to live forever and is cursed to be forgotten by everyone she meets.',
     amazonLink: 'https://www.amazon.co.uk/dp/0765387561',
-    rank: 20,
+    rank: 16,
     price: '£9.99',
     rating: 4.5,
-    reviewCount: 123456
+    reviewCount: 123456,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-midnight-rose',
@@ -264,10 +228,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Historical Fiction',
     description: 'A sweeping historical novel spanning from India to England.',
     amazonLink: 'https://www.amazon.co.uk/dp/0330511211',
-    rank: 21,
+    rank: 17,
     price: '£8.99',
     rating: 4.4,
-    reviewCount: 87654
+    reviewCount: 87654,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-seven-sisters',
@@ -276,10 +241,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Historical Fiction',
     description: 'The first book in the Seven Sisters series about adopted sisters.',
     amazonLink: 'https://www.amazon.co.uk/dp/0330510940',
-    rank: 22,
+    rank: 18,
     price: '£8.99',
     rating: 4.6,
-    reviewCount: 145678
+    reviewCount: 145678,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-shadow-of-the-wind',
@@ -288,10 +254,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Mystery',
     description: 'A boy discovers a mysterious book that leads him into a labyrinth of intrigue.',
     amazonLink: 'https://www.amazon.co.uk/dp/0753827662',
-    rank: 23,
+    rank: 19,
     price: '£8.99',
     rating: 4.7,
-    reviewCount: 167890
+    reviewCount: 167890,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-angel-game',
@@ -300,10 +267,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Mystery',
     description: 'A young writer receives an offer that seems too good to be true.',
     amazonLink: 'https://www.amazon.co.uk/dp/0857054368',
-    rank: 24,
+    rank: 20,
     price: '£8.99',
     rating: 4.5,
-    reviewCount: 98765
+    reviewCount: 98765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-prisoner-of-heaven',
@@ -312,11 +280,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Mystery',
     description: 'The third book in the Cemetery of Forgotten Books series.',
     amazonLink: 'https://www.amazon.co.uk/dp/0552161276',
-    rank: 25,
+    rank: 21,
     price: '£8.99',
     rating: 4.4,
     reviewCount: 87654,
-    coverImage: 'https://m.media-amazon.com/images/I/71KjJ+QKzQL._SY466_.jpg'
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-labyrinth-of-spirits',
@@ -325,11 +293,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Mystery',
     description: 'The final book in the Cemetery of Forgotten Books series.',
     amazonLink: 'https://www.amazon.co.uk/dp/1526604736',
-    rank: 26,
+    rank: 22,
     price: '£9.99',
     rating: 4.6,
     reviewCount: 123456,
-    coverImage: 'https://m.media-amazon.com/images/I/71Zb-D8NaGL._SY466_.jpg'
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-marina',
@@ -338,10 +306,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Mystery',
     description: 'A standalone novel from the master of Gothic fiction.',
     amazonLink: 'https://www.amazon.co.uk/dp/1526604744',
-    rank: 27,
+    rank: 23,
     price: '£8.99',
     rating: 4.3,
-    reviewCount: 76543
+    reviewCount: 76543,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-girl-with-the-dragon-tattoo',
@@ -350,10 +319,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'A journalist and a computer hacker investigate a 40-year-old disappearance.',
     amazonLink: 'https://www.amazon.co.uk/dp/1786891689',
-    rank: 28,
+    rank: 24,
     price: '£8.99',
     rating: 4.5,
-    reviewCount: 234567
+    reviewCount: 234567,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-girl-who-played-with-fire',
@@ -362,10 +332,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'The second book in the Millennium series.',
     amazonLink: 'https://www.amazon.co.uk/dp/1784162122',
-    rank: 29,
+    rank: 25,
     price: '£8.99',
     rating: 4.4,
-    reviewCount: 198765
+    reviewCount: 198765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-girl-who-kicked-the-hornets-nest',
@@ -374,10 +345,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Thriller',
     description: 'The final book in the Millennium trilogy.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141345659',
-    rank: 30,
+    rank: 26,
     price: '£8.99',
     rating: 4.3,
-    reviewCount: 187654
+    reviewCount: 187654,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-hobbit',
@@ -386,7 +358,7 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Fantasy',
     description: 'A hobbit embarks on an unexpected journey with a group of dwarves.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141328290',
-    rank: 31,
+    rank: 27,
     price: '£7.99',
     rating: 4.8,
     reviewCount: 345678,
@@ -399,7 +371,7 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Fantasy',
     description: 'The epic fantasy trilogy about the quest to destroy the One Ring.',
     amazonLink: 'https://www.amazon.co.uk/dp/1407132083',
-    rank: 32,
+    rank: 28,
     price: '£12.99',
     rating: 4.9,
     reviewCount: 456789,
@@ -412,10 +384,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Fantasy',
     description: 'The first book in The Lord of the Rings trilogy.',
     amazonLink: 'https://www.amazon.co.uk/dp/0007536739',
-    rank: 33,
+    rank: 29,
     price: '£8.99',
     rating: 4.8,
-    reviewCount: 234567
+    reviewCount: 234567,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-two-towers',
@@ -424,10 +397,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Fantasy',
     description: 'The second book in The Lord of the Rings trilogy.',
     amazonLink: 'https://www.amazon.co.uk/dp/0007488308',
-    rank: 34,
+    rank: 30,
     price: '£8.99',
     rating: 4.7,
-    reviewCount: 198765
+    reviewCount: 198765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-return-of-the-king',
@@ -436,10 +410,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Fantasy',
     description: 'The final book in The Lord of the Rings trilogy.',
     amazonLink: 'https://www.amazon.co.uk/dp/0007488316',
-    rank: 35,
+    rank: 31,
     price: '£8.99',
     rating: 4.8,
-    reviewCount: 212345
+    reviewCount: 212345,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-silmarillion',
@@ -448,10 +423,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Fantasy',
     description: 'The mythology and legends of Middle-earth.',
     amazonLink: 'https://www.amazon.co.uk/dp/0007488324',
-    rank: 36,
+    rank: 32,
     price: '£9.99',
     rating: 4.6,
-    reviewCount: 98765
+    reviewCount: 98765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: '1984',
@@ -460,10 +436,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Dystopian Fiction',
     description: 'A dystopian novel about totalitarianism and surveillance.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141036141',
-    rank: 37,
+    rank: 33,
     price: '£7.99',
     rating: 4.7,
-    reviewCount: 234567
+    reviewCount: 234567,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'animal-farm',
@@ -472,10 +449,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Political Satire',
     description: 'An allegorical novella about the Russian Revolution.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141036133',
-    rank: 38,
+    rank: 34,
     price: '£6.99',
     rating: 4.6,
-    reviewCount: 187654
+    reviewCount: 187654,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'pride-and-prejudice',
@@ -484,10 +462,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Classic Romance',
     description: 'A classic romance about the relationship between Elizabeth Bennet and Mr. Darcy.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141439513',
-    rank: 39,
+    rank: 35,
     price: '£6.99',
     rating: 4.8,
-    reviewCount: 298765
+    reviewCount: 298765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'sense-and-sensibility',
@@ -496,10 +475,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Classic Romance',
     description: 'A story about two sisters with different approaches to love and life.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141441143',
-    rank: 40,
+    rank: 36,
     price: '£6.99',
     rating: 4.7,
-    reviewCount: 145678
+    reviewCount: 145678,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'emma',
@@ -508,10 +488,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Classic Romance',
     description: 'A comedy of manners about a young woman who meddles in others\' love lives.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141439556',
-    rank: 41,
+    rank: 37,
     price: '£6.99',
     rating: 4.6,
-    reviewCount: 134567
+    reviewCount: 134567,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'mansfield-park',
@@ -520,10 +501,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Classic Romance',
     description: 'A novel about a young woman who goes to live with wealthy relatives.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141439564',
-    rank: 42,
+    rank: 38,
     price: '£6.99',
     rating: 4.5,
-    reviewCount: 98765
+    reviewCount: 98765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'northanger-abbey',
@@ -532,10 +514,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Classic Romance',
     description: 'A parody of Gothic novels about a young woman who loves reading them.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141439742',
-    rank: 43,
+    rank: 39,
     price: '£6.99',
     rating: 4.4,
-    reviewCount: 87654
+    reviewCount: 87654,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'persuasion',
@@ -544,10 +527,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Classic Romance',
     description: 'Austen\'s last completed novel about second chances at love.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141439513',
-    rank: 44,
+    rank: 40,
     price: '£6.99',
     rating: 4.7,
-    reviewCount: 112345
+    reviewCount: 112345,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-catcher-in-the-rye',
@@ -556,7 +540,7 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Literary Fiction',
     description: 'A classic novel about teenage alienation and loss of innocence.',
     amazonLink: 'https://www.amazon.co.uk/dp/0316769487',
-    rank: 45,
+    rank: 41,
     price: '£7.99',
     rating: 4.5,
     reviewCount: 234567,
@@ -569,10 +553,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Literary Fiction',
     description: 'A powerful story about racial injustice in the American South.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141023571',
-    rank: 46,
+    rank: 42,
     price: '£7.99',
     rating: 4.8,
-    reviewCount: 345678
+    reviewCount: 345678,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-great-gatsby',
@@ -581,10 +566,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Literary Fiction',
     description: 'A story about the American Dream and the Jazz Age.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141185066',
-    rank: 47,
+    rank: 43,
     price: '£7.99',
     rating: 4.6,
-    reviewCount: 198765
+    reviewCount: 198765,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'lord-of-the-flies',
@@ -593,10 +579,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Literary Fiction',
     description: 'A novel about the dark side of human nature when civilization breaks down.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141182636',
-    rank: 48,
+    rank: 44,
     price: '£7.99',
     rating: 4.5,
-    reviewCount: 187654
+    reviewCount: 187654,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'of-mice-and-men',
@@ -605,10 +592,11 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Literary Fiction',
     description: 'A story about friendship and the American Dream during the Great Depression.',
     amazonLink: 'https://www.amazon.co.uk/dp/0141181222',
-    rank: 49,
+    rank: 45,
     price: '£6.99',
     rating: 4.7,
-    reviewCount: 156789
+    reviewCount: 156789,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   },
   {
     id: 'the-old-man-and-the-sea',
@@ -617,9 +605,10 @@ export const trendingBooks: TrendingBook[] = [
     genre: 'Literary Fiction',
     description: 'A story about an old fisherman\'s struggle with a giant marlin.',
     amazonLink: 'https://www.amazon.co.uk/dp/0099536013',
-    rank: 50,
+    rank: 46,
     price: '£6.99',
     rating: 4.6,
-    reviewCount: 134567
+    reviewCount: 134567,
+    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
   }
 ];
