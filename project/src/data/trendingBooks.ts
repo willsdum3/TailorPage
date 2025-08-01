@@ -31,7 +31,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Rebecca Yarros',
     genre: 'Fantasy Romance',
     description: 'The highly anticipated sequel to Fourth Wing.',
-    amazonLink: 'https://www.amazon.co.uk/dp/0349437009',
+    amazonLink: 'https://www.amazon.co.uk/dp/0349437017',
     rank: 2,
     price: '£9.99',
     rating: 4.5,
