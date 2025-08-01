@@ -32,10 +32,10 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
   const menuItems = [
     { id: 'profile', label: 'Profile', icon: User, requiresAuth: true },
     { id: 'favourites', label: 'Favourites', icon: Heart, requiresAuth: true },
+    { id: 'tailor-mates', label: 'Tailor Mates', icon: MessageCircle, requiresAuth: false },
     { id: 'trending-books', label: 'Trending Books', icon: TrendingUp, requiresAuth: false },
     { id: 'trending-authors', label: 'Trending Authors', icon: Users, requiresAuth: false },
-    { id: 'celebrity-books', label: 'Celebrity Tester', icon: Star, requiresAuth: false },
-    { id: 'tailor-mates', label: 'Tailor Mates', icon: MessageCircle, requiresAuth: false }
+    { id: 'celebrity-books', label: 'Celebrity Tester', icon: Star, requiresAuth: false }
   ];
 
   return (
@@ -63,7 +63,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-6 pt-20">
+        <div className="p-6 pt-20 h-full overflow-y-auto">
           <div className="mb-8 pb-6 border-b border-white/10">
             <button 
               onClick={() => handleNavigation('home')}
@@ -82,6 +82,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
             {menuItems.map((item) => {
               const IconComponent = item.icon;
               const isDisabled = item.requiresAuth && !user;
+              const isTailorMates = item.id === 'tailor-mates';
               
               return (
                 <button
@@ -90,18 +91,25 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
                   className={`w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition-all duration-300 group ${
                     isDisabled 
                       ? 'text-white/30 cursor-not-allowed' 
-                      : 'text-white hover:bg-white/10 transform hover:scale-105'
+                      : isTailorMates
+                        ? 'text-white hover:bg-gradient-to-r hover:from-pink-500/20 hover:to-purple-500/20 transform hover:scale-105 border border-pink-500/30'
+                        : 'text-white hover:bg-white/10 transform hover:scale-105'
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                     isDisabled 
                       ? 'bg-white/10' 
-                      : 'bg-gradient-to-r from-amber-500 to-orange-600 group-hover:from-amber-600 group-hover:to-orange-700'
+                      : isTailorMates
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 group-hover:from-pink-600 group-hover:to-purple-700'
+                        : 'bg-gradient-to-r from-amber-500 to-orange-600 group-hover:from-amber-600 group-hover:to-orange-700'
                   }`}>
                     <IconComponent className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
                     <span className="font-medium">{item.label}</span>
+                    {isTailorMates && (
+                      <div className="text-xs text-pink-300 mt-1">Virtual Book Club</div>
+                    )}
                     {isDisabled && (
                       <div className="text-xs text-white/40 mt-1">Log in required</div>
                     )}
