@@ -4,34 +4,68 @@
 // Cache for book covers to avoid repeated API calls
 const bookCoverCache = new Map<string, string>();
 
+// Manual overrides for specific books to ensure correct covers
+const manualCoverOverrides: Record<string, string> = {
+  // Add specific book cover URLs here for books that have incorrect covers
+  // Format: 'book-id': 'https://example.com/correct-cover.jpg'
+  // Example:
+  // 'midnight-library': 'https://example.com/midnight-library-correct.jpg',
+  // 'seven-husbands-evelyn-hugo': 'https://example.com/evelyn-hugo-correct.jpg',
+};
+
 // Google Books API key - replace with your actual API key
-const GOOGLE_BOOKS_API_KEY = process.env.REACT_APP_GOOGLE_BOOKS_API_KEY || '';
+const GOOGLE_BOOKS_API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY || '';
 
 /**
  * Fetch book cover from Google Books API
  */
 const fetchBookCoverFromGoogle = async (title: string, author: string): Promise<string | null> => {
   try {
-    const query = `${title} ${author}`;
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&key=${GOOGLE_BOOKS_API_KEY}&maxResults=1`;
+    // Create more specific search queries to improve accuracy
+    const queries = [
+      `"${title}" "${author}"`, // Exact match with quotes
+      `${title} ${author}`, // Standard search
+      `${title} author:${author}`, // Author-specific search
+    ];
     
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (data.items && data.items.length > 0) {
-      const book = data.items[0];
-      const imageLinks = book.volumeInfo?.imageLinks;
+    for (const query of queries) {
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&key=${GOOGLE_BOOKS_API_KEY}&maxResults=3&orderBy=relevance`;
       
-      // Try different image sizes in order of preference
-      return imageLinks?.thumbnail || 
-             imageLinks?.smallThumbnail || 
-             imageLinks?.small || 
-             imageLinks?.medium || 
-             null;
+      const response = await fetch(url);
+      if (!response.ok) {
+        continue; // Try next query if this one fails
+      }
+      
+      const data = await response.json();
+      
+      if (data.items && data.items.length > 0) {
+        // Find the best match by comparing title and author
+        for (const book of data.items) {
+          const bookTitle = book.volumeInfo?.title?.toLowerCase() || '';
+          const bookAuthor = book.volumeInfo?.authors?.[0]?.toLowerCase() || '';
+          const searchTitle = title.toLowerCase();
+          const searchAuthor = author.toLowerCase();
+          
+          // Check if title and author match reasonably well
+          const titleMatch = bookTitle.includes(searchTitle) || searchTitle.includes(bookTitle);
+          const authorMatch = bookAuthor.includes(searchAuthor) || searchAuthor.includes(bookAuthor);
+          
+          if (titleMatch && authorMatch) {
+            const imageLinks = book.volumeInfo?.imageLinks;
+            
+            // Try different image sizes in order of preference
+            const coverUrl = imageLinks?.thumbnail || 
+                           imageLinks?.smallThumbnail || 
+                           imageLinks?.small || 
+                           imageLinks?.medium || 
+                           null;
+            
+            if (coverUrl) {
+              return coverUrl;
+            }
+          }
+        }
+      }
     }
     
     return null;
@@ -50,6 +84,11 @@ export const getBookCover = async (bookId: string, title: string, author: string
     return bookCoverCache.get(bookId)!;
   }
   
+  // Check manual overrides
+  if (manualCoverOverrides[bookId]) {
+    return manualCoverOverrides[bookId];
+  }
+
   // Fetch from API
   const coverUrl = await fetchBookCoverFromGoogle(title, author);
   

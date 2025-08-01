@@ -120,26 +120,20 @@ const BookCover: React.FC<BookCoverProps> = ({
     );
   }
 
-  // Show fallback
-  if (showFallback) {
+  // Show fallback when no cover is available or on error
+  if (!coverUrl || hasError) {
     return (
       <div className={`${className} relative group`}>
         <div 
-          className={`${sizeClasses[size]} rounded-md bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg ${hoverable ? 'cursor-pointer transition-all duration-300' : ''}`}
+          className={`${sizeClasses[size]} rounded-md overflow-hidden shadow-lg bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-white/20 flex items-center justify-center ${hoverable ? 'cursor-pointer transition-all duration-300' : ''}`}
         >
-          <Book className="w-6 h-6 text-white" />
-        </div>
-        
-        {/* Expanded Fallback on Hover */}
-        {hoverable && (
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50 scale-0 group-hover:scale-100 origin-bottom">
-            <div className="w-48 h-60 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-2xl border-2 border-white/20">
-              <Book className="w-16 h-16 text-white" />
+          <div className="text-center p-2">
+            <Book className="w-6 h-8 text-amber-400 mx-auto mb-1" />
+            <div className="text-xs text-white/80 font-medium leading-tight">
+              {title.split(' ').slice(0, 2).join(' ')}
             </div>
-            {/* Arrow */}
-            <div className="w-0 h-0 border-l-6 border-r-6 border-t-6 border-transparent border-t-white/20 mx-auto mt-1"></div>
           </div>
-        )}
+        </div>
       </div>
     );
   }
