@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, User, Heart, TrendingUp, Users, Star } from 'lucide-react';
+import { Menu, X, User, Heart, TrendingUp, Users, Star, MessageCircle } from 'lucide-react';
 import { User as UserType } from '../types';
 import Logo from './Logo';
 
@@ -33,7 +33,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
     { id: 'favourites', label: 'Favourites', icon: Heart, requiresAuth: true },
     { id: 'trending-books', label: 'Trending Books', icon: TrendingUp, requiresAuth: false },
     { id: 'trending-authors', label: 'Trending Authors', icon: Users, requiresAuth: false },
-    { id: 'celebrity-books', label: 'Celebrity Tester', icon: Star, requiresAuth: false }
+    { id: 'celebrity-books', label: 'Celebrity Tester', icon: Star, requiresAuth: false },
+    { id: 'tailor-mates', label: 'Tailor Mates', icon: MessageCircle, requiresAuth: false }
   ];
 
   return (

@@ -10,6 +10,7 @@ import LearnMorePage from './components/LearnMorePage';
 import TrendingBooksPage from './components/TrendingBooksPage';
 import TrendingAuthorsPage from './components/TrendingAuthorsPage';
 import CelebrityTesterPage from './components/CelebrityTesterPage';
+import TailorMatesPage from './components/TailorMatesPage';
 import AuthModal from './components/AuthModal';
 import AuthButton from './components/AuthButton';
 import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, LoginCredentials, SignupData, BookQuestion, BookResponse } from './types';
@@ -250,7 +251,7 @@ const questions: Question[] = [
   }
 ];
 
-type AppPage = 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'trending-books' | 'trending-authors' | 'celebrity-books' | 'learn-more' | 'generated';
+type AppPage = 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'trending-books' | 'trending-authors' | 'celebrity-books' | 'learn-more' | 'generated' | 'tailor-mates';
 
 // No Supabase or external auth logic present
 
@@ -616,6 +617,17 @@ function App() {
             position="top-left"
           />
           <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
+        </>
+      )}
+      {currentPage === 'tailor-mates' && (
+        <>
+          <AuthButton 
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            position="top-left"
+          />
+          <TailorMatesPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
         </>
       )}
       {['profile', 'celebrity-books'].includes(currentPage) && (
