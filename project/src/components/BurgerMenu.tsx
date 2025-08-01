@@ -17,6 +17,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
   };
 
   const handleNavigation = (page: string) => {
+    console.log('Navigation requested to:', page); // Debug log
     // Check if user needs to be logged in for certain pages
     if ((page === 'profile' || page === 'favourites') && !user) {
       setIsOpen(false);

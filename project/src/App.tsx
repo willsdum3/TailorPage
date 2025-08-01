@@ -425,6 +425,7 @@ function App() {
   };
 
   const handleNavigation = (page: string) => {
+    console.log('App navigation handler received:', page); // Debug log
     if (page === 'home') {
       setCurrentPage('welcome');
     } else {
