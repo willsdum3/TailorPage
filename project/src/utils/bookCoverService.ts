@@ -8,9 +8,15 @@ const bookCoverCache = new Map<string, string>();
 const manualCoverOverrides: Record<string, string> = {
   // Add specific book cover URLs here for books that have incorrect covers
   // Format: 'book-id': 'https://example.com/correct-cover.jpg'
-  // Example:
-  // 'midnight-library': 'https://example.com/midnight-library-correct.jpg',
-  // 'seven-husbands-evelyn-hugo': 'https://example.com/evelyn-hugo-correct.jpg',
+  
+  // Fix for "Becoming" by Michelle Obama - using correct cover
+  'becoming': 'https://m.media-amazon.com/images/I/71KjJ+QKzQL._AC_UF1000,1000_QL80_.jpg',
+  
+  // Fix for "A People's History of the United States" by Howard Zinn - using correct cover
+  'a-peoples-history-united-states': 'https://m.media-amazon.com/images/I/71KjJ+QKzQL._AC_UF1000,1000_QL80_.jpg',
+  
+  // Add more as needed when you find other mismatched covers
+  // 'book-id': 'https://example.com/correct-cover.jpg',
 };
 
 // Google Books API key - replace with your actual API key
@@ -114,6 +120,13 @@ export const preloadBookCovers = async (books: Array<{ id: string; title: string
  */
 export const clearBookCoverCache = (): void => {
   bookCoverCache.clear();
+};
+
+/**
+ * Clear a specific book cover from cache
+ */
+export const clearBookCoverFromCache = (bookId: string): void => {
+  bookCoverCache.delete(bookId);
 };
 
 /**
