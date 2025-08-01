@@ -23,8 +23,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 1,
     price: '£9.99',
     rating: 4.6,
-    reviewCount: 89234,
-    coverImage: 'https://m.media-amazon.com/images/I/51NFbaChFPL._SY445_SX342_.jpg'
+    reviewCount: 89234
   },
   {
     id: 'iron-flame',
@@ -36,8 +35,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 2,
     price: '£10.99',
     rating: 4.5,
-    reviewCount: 67891,
-    coverImage: 'https://m.media-amazon.com/images/I/71Zb-D8NaGL._SY466_.jpg'
+    reviewCount: 67891
   },
   {
     id: 'atomic-habits',
@@ -49,8 +47,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 3,
     price: '£10.99',
     rating: 4.7,
-    reviewCount: 156789,
-    coverImage: 'https://m.media-amazon.com/images/I/81wgcld4wxL._SY466_.jpg'
+    reviewCount: 156789
   },
   {
     id: 'it-ends-with-us',
@@ -62,8 +59,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 4,
     price: '£7.99',
     rating: 4.4,
-    reviewCount: 234567,
-    coverImage: 'https://m.media-amazon.com/images/I/81wgcld4wxL._SY466_.jpg'
+    reviewCount: 234567
   },
   {
     id: 'it-starts-with-us',
@@ -75,8 +71,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 5,
     price: '£7.99',
     rating: 4.3,
-    reviewCount: 178923,
-    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
+    reviewCount: 178923
   },
   {
     id: 'verity',
@@ -88,8 +83,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 6,
     price: '£7.99',
     rating: 4.5,
-    reviewCount: 145678,
-    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
+    reviewCount: 145678
   },
   {
     id: 'the-housemaid',
@@ -101,8 +95,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 7,
     price: '£7.99',
     rating: 4.4,
-    reviewCount: 98765,
-    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
+    reviewCount: 98765
   },
   {
     id: 'lessons-in-chemistry',
@@ -114,8 +107,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 8,
     price: '£7.99',
     rating: 4.6,
-    reviewCount: 123456,
-    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
+    reviewCount: 123456
   },
   {
     id: 'the-silent-patient',
@@ -127,8 +119,7 @@ export const trendingBooks: TrendingBook[] = [
     rank: 9,
     price: '£7.99',
     rating: 4.4,
-    reviewCount: 167890,
-    coverImage: 'https://m.media-amazon.com/images/I/81JJPDNlxSL._SY466_.jpg'
+    reviewCount: 167890
   },
   {
     id: 'the-guest-list',
@@ -140,7 +131,6 @@ export const trendingBooks: TrendingBook[] = [
     rank: 10,
     price: '£7.99',
     rating: 4.3,
-    reviewCount: 98765,
-    coverImage: 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg'
+    reviewCount: 98765
   }
 ];
