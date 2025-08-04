@@ -649,6 +649,8 @@ function App() {
               onStartQuiz={handleStartQuiz}
               onNewRecommendations={handleNewRecommendations}
               onNavigate={handleNavigation}
+              favorites={favorites}
+              onRemoveFavorite={handleRemoveFavorite}
             />
           )}
         </>

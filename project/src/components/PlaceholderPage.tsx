@@ -1,11 +1,12 @@
 import React from 'react';
 import { ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight, Star } from 'lucide-react';
-import { PersonalityProfile, BookRecommendation } from '../types';
+import { PersonalityProfile, BookRecommendation, FavoriteBook } from '../types';
 import { getBookRecommendations } from '../utils/bookRecommendations';
 import Logo from './Logo';
 import { analyzePersonality } from '../utils/personalityAnalysis';
 import StrengthsDetailPage from './StrengthsDetailPage';
 import GrowthAreasDetailPage from './GrowthAreasDetailPage';
+import FavoritesPage from './FavoritesPage';
 
 interface PlaceholderPageProps {
   title: string;
@@ -15,9 +16,11 @@ interface PlaceholderPageProps {
   onStartQuiz?: () => void;
   onNewRecommendations?: (recommendations: BookRecommendation[]) => void;
   onNavigate?: (page: string) => void;
+  favorites?: FavoriteBook[];
+  onRemoveFavorite?: (bookId: string) => void;
 }
 
-const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations, onNavigate }) => {
+const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations, onNavigate, favorites = [], onRemoveFavorite }) => {
   const [expandedPersonality, setExpandedPersonality] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState<'profile' | 'strengths' | 'growth'>('profile');
@@ -427,7 +430,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                   <span>Key Insights</span>
                 </h2>
                 
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 gap-6">
                   <button 
                     onClick={handleNavigateToStrengths}
                     className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
@@ -510,61 +513,20 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                     </div>
                     <p className="text-white/60 text-sm mt-4">Click to discover personalized growth strategies and universal improvement tips</p>
                   </button>
-
-                  <button 
-                    onClick={handleNavigateToFavourites}
-                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-white">Favourites</h3>
-                      <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                        <span className="text-white/80">Saved Books</span>
-                        <span className="text-pink-400 text-sm font-medium">Personal</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                        <span className="text-white/80">Reading List</span>
-                        <span className="text-pink-400 text-sm font-medium">Curated</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                        <span className="text-white/80">Bookmarks</span>
-                        <span className="text-pink-400 text-sm font-medium">Organized</span>
-                      </div>
-                    </div>
-                    <p className="text-white/60 text-sm mt-4">Access your saved books and personalized reading collection</p>
-                  </button>
                 </div>
               </div>
             </>
           )}
 
           {activeTab === 'favourites' && (
-            <>
-              {/* Favourites Section */}
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
-                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
-                  <Star className="w-8 h-8 text-pink-400" />
-                  <span>Your Favourites</span>
-                </h2>
-                
-                <div className="text-center py-12">
-                  <Star className="w-16 h-16 text-pink-400/50 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No Favourites Yet</h3>
-                  <p className="text-white/60 mb-6">Start exploring books and save your favourites to see them here</p>
-                  <button
-                    onClick={() => onNavigate?.('trending-books')}
-                    className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
-                  >
-                    Explore Books
-                  </button>
-                </div>
-              </div>
-            </>
+            <FavoritesPage
+              favorites={favorites}
+              onRemoveFavorite={onRemoveFavorite || (() => {})}
+              onBack={onBack}
+              hasCompletedQuiz={!!profile}
+              onStartQuiz={onStartQuiz}
+              onGenerateNewBooks={handleGenerateNewBooks}
+            />
           )}
 
           {activeTab === 'settings' && (
