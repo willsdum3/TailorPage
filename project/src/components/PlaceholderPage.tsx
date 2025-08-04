@@ -388,14 +388,77 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
 
           {activeTab === 'favourites' && (
-            <FavoritesPage
-              favorites={favorites}
-              onRemoveFavorite={onRemoveFavorite || (() => {})}
-              onBack={onBack}
-              hasCompletedQuiz={!!profile}
-              onStartQuiz={onStartQuiz}
-              onGenerateNewBooks={handleGenerateNewBooks}
-            />
+            <>
+              {/* Favourites Section */}
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
+                  <Star className="w-8 h-8 text-amber-400" />
+                  <span>Your Favourites</span>
+                </h2>
+                
+                {favorites.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Star className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">No Favourites Yet</h3>
+                    <p className="text-white/60 mb-6">
+                      {profile 
+                        ? "You haven't saved any books to your favourites yet. Start exploring and save books you love!"
+                        : "Complete the personality quiz to get book recommendations and start building your favourites list."
+                      }
+                    </p>
+                    {!profile && onStartQuiz && (
+                      <button
+                        onClick={onStartQuiz}
+                        className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+                      >
+                        <Brain className="w-4 h-4" />
+                        <span>Take Personality Quiz</span>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {favorites.map((book) => (
+                      <div key={book.id} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300">
+                              {book.title}
+                            </h3>
+                            <p className="text-white/70 text-sm mb-3">{book.author}</p>
+                          </div>
+                          <button
+                            onClick={() => onRemoveFavorite && onRemoveFavorite(book.id)}
+                            className="text-white/40 hover:text-red-400 transition-colors duration-300 ml-2"
+                            title="Remove from favourites"
+                          >
+                            <Star className="w-5 h-5 fill-current" />
+                          </button>
+                        </div>
+                        
+                        <p className="text-white/60 text-sm mb-4 line-clamp-3">
+                          {book.description}
+                        </p>
+                        
+                                                 <div className="flex items-center justify-between">
+                           <span className="text-amber-400 text-sm font-medium">
+                             {book.genre}
+                           </span>
+                           <a
+                             href={book.amazonLink}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-lg text-sm transition-all duration-300"
+                           >
+                             View Book
+                           </a>
+                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
           )}
 
           {activeTab === 'settings' && (
