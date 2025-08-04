@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, useClerk } from '@clerk/clerk-react';
+import IntroPage from './components/IntroPage';
 import WelcomePage from './components/WelcomePage';
 import QuizPage from './components/QuizPage';
 import ResultsPage from './components/ResultsPage';
@@ -251,14 +252,14 @@ const questions: Question[] = [
   }
 ];
 
-type AppPage = 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'trending-books' | 'trending-authors' | 'celebrity-books' | 'learn-more' | 'generated' | 'tailor-mates';
+type AppPage = 'intro' | 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'trending-books' | 'trending-authors' | 'celebrity-books' | 'learn-more' | 'generated' | 'tailor-mates';
 
 // No Supabase or external auth logic present
 
 function App() {
   const { user: clerkUser, isLoaded } = useUser();
   const { signOut } = useClerk();
-  const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
+  const [currentPage, setCurrentPage] = useState<AppPage>('intro');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
   const [bookAnswers, setBookAnswers] = useState<Record<number, BookResponse>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -279,12 +280,22 @@ function App() {
     email: clerkUser.emailAddresses[0]?.emailAddress || ''
   } : null;
 
-  // Close auth modal when user becomes authenticated
+  // Close auth modal when user becomes authenticated and redirect to welcome
   useEffect(() => {
     if (isLoaded && clerkUser && isAuthModalOpen) {
       setIsAuthModalOpen(false);
+      setCurrentPage('welcome');
     }
   }, [isLoaded, clerkUser, isAuthModalOpen]);
+
+  // Handle intro page navigation
+  const handleIntroLogin = () => {
+    setIsAuthModalOpen(true);
+  };
+
+  const handleIntroSignup = () => {
+    setIsAuthModalOpen(true);
+  };
 
   const handleToggleFavorite = (book: BookRecommendation) => {
     // Only allow favoriting books that are in the current recommendations
@@ -486,43 +497,54 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      <BurgerMenu 
-        onNavigate={handleNavigation} 
-        user={user}
-        onLoginRequired={() => setIsAuthModalOpen(true)}
-      />
-      
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onLogin={handleLogin}
-        onSignup={handleSignup}
-      />
-      
-      {currentPage === 'welcome' && (
-        <>
-          <AuthButton 
-            user={user}
-            onLogin={() => setIsAuthModalOpen(true)}
-            onLogout={handleLogout}
-            position="top-center"
-          />
-          <WelcomePage
-            onStartQuiz={handleStartQuiz}
-            hasQuizProgress={Object.keys(answers).length > 0}
-            onLearnMore={() => setCurrentPage('learn-more')}
-            isLoggedIn={!!user}
-            hasCompletedQuiz={!!personalityProfile}
-            onGenerateNewBooks={() => {
-              if (!personalityProfile) return;
-              const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
-              setRecommendations(newRecs);
-              setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
-              setCurrentPage('generated');
-            }}
-          />
-        </>
+      {/* Show IntroPage if user is not authenticated */}
+      {!user && currentPage === 'intro' && (
+        <IntroPage
+          onLogin={handleIntroLogin}
+          onSignup={handleIntroSignup}
+        />
       )}
+      
+      {/* Show authenticated content only if user is logged in */}
+      {user && (
+        <>
+          <BurgerMenu 
+            onNavigate={handleNavigation} 
+            user={user}
+            onLoginRequired={() => setIsAuthModalOpen(true)}
+          />
+          
+          <AuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            onLogin={handleLogin}
+            onSignup={handleSignup}
+          />
+          
+                    {currentPage === 'welcome' && (
+            <>
+              <AuthButton 
+                user={user}
+                onLogin={() => setIsAuthModalOpen(true)}
+                onLogout={handleLogout}
+                position="top-center"
+              />
+              <WelcomePage
+                onStartQuiz={handleStartQuiz}
+                hasQuizProgress={Object.keys(answers).length > 0}
+                onLearnMore={() => setCurrentPage('learn-more')}
+                isLoggedIn={!!user}
+                hasCompletedQuiz={!!personalityProfile}
+                onGenerateNewBooks={() => {
+                  if (!personalityProfile) return;
+                  const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
+                  setRecommendations(newRecs);
+                  setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+                  setCurrentPage('generated');
+                }}
+              />
+            </>
+          )}
       {currentPage === 'quiz' && (
         <>
           <AuthButton 
@@ -666,6 +688,8 @@ function App() {
           user={user}
           onLoginRequired={() => setIsAuthModalOpen(true)}
         />
+      )}
+        </>
       )}
     </div>
   );

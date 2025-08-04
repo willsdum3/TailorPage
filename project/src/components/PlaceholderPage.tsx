@@ -7,6 +7,7 @@ import { analyzePersonality } from '../utils/personalityAnalysis';
 import StrengthsDetailPage from './StrengthsDetailPage';
 import GrowthAreasDetailPage from './GrowthAreasDetailPage';
 import FavoritesPage from './FavoritesPage';
+import BookCover from './BookCover';
 
 interface PlaceholderPageProps {
   title: string;
@@ -24,7 +25,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
   const [expandedPersonality, setExpandedPersonality] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState<'profile' | 'strengths' | 'growth'>('profile');
-  const [activeTab, setActiveTab] = React.useState<'personality' | 'favourites' | 'settings'>('personality');
+  const [activeTab, setActiveTab] = React.useState<'personality' | 'favourites' | 'profile-settings' | 'help'>('personality');
 
   const getTraitIcon = (traitName: string) => {
     switch (traitName) {
@@ -139,26 +140,36 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               >
                 Personality
               </button>
-              <button
-                onClick={() => setActiveTab('favourites')}
-                className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                  activeTab === 'favourites'
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/70 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Favourites
-              </button>
-              <button
-                onClick={() => setActiveTab('settings')}
-                className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                  activeTab === 'settings'
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/70 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Settings
-              </button>
+                             <button
+                 onClick={() => setActiveTab('favourites')}
+                 className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                   activeTab === 'favourites'
+                     ? 'bg-white/20 text-white shadow-lg'
+                     : 'text-white/70 hover:text-white hover:bg-white/5'
+                 }`}
+               >
+                 Favourites
+               </button>
+               <button
+                 onClick={() => setActiveTab('profile-settings')}
+                 className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                   activeTab === 'profile-settings'
+                     ? 'bg-white/20 text-white shadow-lg'
+                     : 'text-white/70 hover:text-white hover:bg-white/5'
+                 }`}
+               >
+                 Profile Settings
+               </button>
+               <button
+                 onClick={() => setActiveTab('help')}
+                 className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                   activeTab === 'help'
+                     ? 'bg-white/20 text-white shadow-lg'
+                     : 'text-white/70 hover:text-white hover:bg-white/5'
+                 }`}
+               >
+                 Help
+               </button>
             </div>
           </div>
 
@@ -417,30 +428,39 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                     )}
                   </div>
                 ) : (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {favorites.map((book) => (
-                      <div key={book.id} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300">
-                              {book.title}
-                            </h3>
-                            <p className="text-white/70 text-sm mb-3">{book.author}</p>
-                          </div>
-                          <button
-                            onClick={() => onRemoveFavorite && onRemoveFavorite(book.id)}
-                            className="text-white/40 hover:text-red-400 transition-colors duration-300 ml-2"
-                            title="Remove from favourites"
-                          >
-                            <Star className="w-5 h-5 fill-current" />
-                          </button>
-                        </div>
-                        
-                        <p className="text-white/60 text-sm mb-4 line-clamp-3">
-                          {book.description}
-                        </p>
-                        
-                                                 <div className="flex items-center justify-between">
+                                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                     {favorites.map((book) => (
+                       <div key={book.id} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+                         <div className="flex items-start justify-between mb-4">
+                           <div className="flex-1">
+                             <h3 className="font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300">
+                               {book.title}
+                             </h3>
+                             <p className="text-white/70 text-sm mb-3">{book.author}</p>
+                           </div>
+                           <button
+                             onClick={() => onRemoveFavorite && onRemoveFavorite(book.id)}
+                             className="text-white/40 hover:text-red-400 transition-colors duration-300 ml-2"
+                             title="Remove from favourites"
+                           >
+                             <Star className="w-5 h-5 fill-current" />
+                           </button>
+                         </div>
+                         
+                         <div className="mb-4">
+                           <BookCover 
+                             bookId={book.id}
+                             title={book.title}
+                             author={book.author}
+                             coverImage={book.coverImageUrl}
+                           />
+                         </div>
+                         
+                         <p className="text-white/60 text-sm mb-4 line-clamp-3">
+                           {book.description}
+                         </p>
+                         
+                         <div className="flex items-center justify-between">
                            <span className="text-amber-400 text-sm font-medium">
                              {book.genre}
                            </span>
@@ -453,26 +473,184 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                              View Book
                            </a>
                          </div>
-                      </div>
-                    ))}
-                  </div>
+                       </div>
+                     ))}
+                   </div>
                 )}
               </div>
             </>
           )}
 
-          {activeTab === 'settings' && (
+          {activeTab === 'help' && (
             <>
-              {/* Settings Section */}
+              {/* Help Section */}
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
                 <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
                   <User className="w-8 h-8 text-blue-400" />
-                  <span>Settings</span>
+                  <span>Help</span>
                 </h2>
                 
                 <div className="space-y-6">
                   <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Account Settings</h3>
+                    <h3 className="text-xl font-semibold text-white mb-4">How to Use Tailor Page</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">1</div>
+                        <div>
+                          <p className="text-white/80 font-medium">Take the Personality Quiz</p>
+                          <p className="text-white/60 text-sm">Answer 25 questions about your personality and preferences to get started.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">2</div>
+                        <div>
+                          <p className="text-white/80 font-medium">Get Personalized Recommendations</p>
+                          <p className="text-white/60 text-sm">Receive 6 book recommendations perfectly matched to your personality.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">3</div>
+                        <div>
+                          <p className="text-white/80 font-medium">Save Your Favorites</p>
+                          <p className="text-white/60 text-sm">Click the star icon to save books you love to your favorites list.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Need More Help?</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80">Contact Support</span>
+                        <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
+                          Get Help
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80">FAQ</span>
+                        <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
+                          View FAQ
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            </>
+          )}
+
+          {activeTab === 'profile-settings' && (
+            <>
+              {/* Profile Settings Section */}
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
+                  <User className="w-8 h-8 text-blue-400" />
+                  <span>Profile Settings</span>
+                </h2>
+                
+                <div className="space-y-6">
+                  {/* Profile Picture Section */}
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Profile Picture</h3>
+                    <div className="flex items-center space-x-6">
+                      <div className="relative">
+                        <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                          JD
+                        </div>
+                        <button className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm hover:bg-amber-600 transition-colors duration-300">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white/80 text-sm mb-2">Upload a profile picture to personalize your account</p>
+                        <div className="flex space-x-2">
+                          <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
+                            Upload Photo
+                          </button>
+                          <button className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Account Information Section */}
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Account Information</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-white/80 text-sm font-medium mb-2">Username</label>
+                        <div className="flex items-center space-x-2">
+                          <input 
+                            type="text" 
+                            defaultValue="johndoe" 
+                            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            placeholder="Enter your username"
+                          />
+                          <button className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
+                            Update
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-white/80 text-sm font-medium mb-2">Email</label>
+                        <input 
+                          type="email" 
+                          defaultValue="john.doe@example.com" 
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                          placeholder="Enter your email"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Password Change Section */}
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Change Password</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-white/80 text-sm font-medium mb-2">Current Password</label>
+                        <input 
+                          type="password" 
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                          placeholder="Enter current password"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-white/80 text-sm font-medium mb-2">New Password</label>
+                        <input 
+                          type="password" 
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                          placeholder="Enter new password"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-white/80 text-sm font-medium mb-2">Confirm New Password</label>
+                        <input 
+                          type="password" 
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                          placeholder="Confirm new password"
+                        />
+                      </div>
+                      
+                      <button className="w-full bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
+                        Update Password
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Notification Settings */}
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Notification Settings</h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-white/80">Email Notifications</span>
@@ -489,8 +667,9 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                     </div>
                   </div>
                   
+                  {/* Privacy Settings */}
                   <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Privacy</h3>
+                    <h3 className="text-xl font-semibold text-white mb-4">Privacy Settings</h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-white/80">Profile Visibility</span>
@@ -503,8 +682,6 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                   </div>
                 </div>
               </div>
-
-
             </>
           )}
 
