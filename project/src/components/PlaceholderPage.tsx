@@ -295,7 +295,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               <span>Key Insights</span>
             </h2>
             
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               <button 
                 onClick={handleNavigateToStrengths}
                 className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
@@ -379,33 +379,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                 <p className="text-white/60 text-sm mt-4">Click to discover personalized growth strategies and universal improvement tips</p>
               </button>
 
-              <button 
-                onClick={handleNavigateToFavourites}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-white">Favourites</h3>
-                  <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                    <span className="text-white/80">Saved Books</span>
-                    <span className="text-pink-400 text-sm font-medium">Personal</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                    <span className="text-white/80">Reading List</span>
-                    <span className="text-pink-400 text-sm font-medium">Curated</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                    <span className="text-white/80">Bookmarks</span>
-                    <span className="text-pink-400 text-sm font-medium">Organized</span>
-                  </div>
-                </div>
-                <p className="text-white/60 text-sm mt-4">Access your saved books and personalized reading collection</p>
-              </button>
+
             </div>
           </div>
             </>
@@ -467,98 +441,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                 </div>
               </div>
 
-              {/* Key Insights Section */}
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
-                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
-                  <Sparkles className="w-8 h-8 text-amber-400" />
-                  <span>Key Insights</span>
-                </h2>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  <button 
-                    onClick={handleNavigateToStrengths}
-                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-white">Your Strengths</h3>
-                      <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
-                    </div>
-                    <div className="space-y-3">
-                      {(() => {
-                        // Get top traits by score (only traits tied for highest scores, max 3)
-                        const sortedTraits = [...personalityAnalysis].sort((a, b) => b.score - a.score);
-                        const highestScore = sortedTraits[0]?.score || 0;
-                        const topTraits = sortedTraits
-                          .filter(trait => trait.score === highestScore)
-                          .slice(0, 3); // Limit to top 3 even if more are tied
-                        
-                        return topTraits.map((trait) => (
-                          <div key={trait.name} className="flex items-center space-x-3">
-                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                            <span className="text-white/80">{trait.name}</span>
-                            <span className="text-green-400 text-sm font-medium">({trait.score}/25)</span>
-                          </div>
-                        ));
-                      })()}
-                    </div>
-                    <p className="text-white/60 text-sm mt-4">Click to explore your unique strengths and how to leverage them</p>
-                  </button>
-                  
-                  <button 
-                    onClick={handleNavigateToGrowth}
-                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-white">Growth Areas</h3>
-                      <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
-                    </div>
-                    <div className="space-y-3">
-                      {(() => {
-                        // Get lowest-scoring traits (only traits tied for lowest scores, max 3)
-                        const sortedTraits = [...personalityAnalysis].sort((a, b) => a.score - b.score);
-                        const lowestScore = sortedTraits[0]?.score || 0;
-                        const lowestTraits = sortedTraits
-                          .filter(trait => trait.score === lowestScore)
-                          .slice(0, 3); // Limit to top 3 even if more are tied
-                        
-                        return lowestTraits.map((trait) => (
-                          <div key={trait.name} className="flex items-center space-x-3">
-                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                            <span className="text-white/80">{trait.name}</span>
-                            <span className="text-amber-400 text-sm font-medium">({trait.score}/25)</span>
-                          </div>
-                        ));
-                      })()}
-                      {/* Show universal growth areas if no specific low traits */}
-                      {(() => {
-                        const sortedTraits = [...personalityAnalysis].sort((a, b) => a.score - b.score);
-                        const lowestScore = sortedTraits[0]?.score || 0;
-                        const lowestTraits = sortedTraits.filter(trait => trait.score === lowestScore);
-                        return lowestTraits.length === 0;
-                      })() && (
-                        <>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                            <span className="text-white/80">Sleep Quality</span>
-                            <span className="text-amber-400 text-sm font-medium">Universal</span>
-                          </div>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                            <span className="text-white/80">Physical Activity</span>
-                            <span className="text-amber-400 text-sm font-medium">Universal</span>
-                          </div>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                            <span className="text-white/80">Social Connections</span>
-                            <span className="text-amber-400 text-sm font-medium">Universal</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <p className="text-white/60 text-sm mt-4">Click to discover personalized growth strategies and universal improvement tips</p>
-                  </button>
-                </div>
-              </div>
+
             </>
           )}
 
