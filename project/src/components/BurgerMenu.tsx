@@ -31,7 +31,6 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
 
   const menuItems = [
     { id: 'profile', label: 'Profile', icon: User, requiresAuth: true },
-    { id: 'favourites', label: 'Favourites', icon: Heart, requiresAuth: true },
     { id: 'tailor-mates', label: 'Tailor Mates', icon: MessageCircle, requiresAuth: false },
     { id: 'trending-books', label: 'Trending Books', icon: TrendingUp, requiresAuth: false },
     { id: 'trending-authors', label: 'Trending Authors', icon: Users, requiresAuth: false },

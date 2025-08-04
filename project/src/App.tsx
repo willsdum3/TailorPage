@@ -648,6 +648,7 @@ function App() {
               profile={personalityProfile}
               onStartQuiz={handleStartQuiz}
               onNewRecommendations={handleNewRecommendations}
+              onNavigate={handleNavigation}
             />
           )}
         </>
