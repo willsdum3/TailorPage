@@ -24,7 +24,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
   const [expandedPersonality, setExpandedPersonality] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState<'profile' | 'strengths' | 'growth'>('profile');
-  const [activeTab, setActiveTab] = React.useState<'personality' | 'insights' | 'favourites' | 'settings'>('personality');
+  const [activeTab, setActiveTab] = React.useState<'personality' | 'favourites' | 'settings'>('personality');
 
   const getTraitIcon = (traitName: string) => {
     switch (traitName) {
@@ -138,16 +138,6 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                 }`}
               >
                 Personality
-              </button>
-              <button
-                onClick={() => setActiveTab('insights')}
-                className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                  activeTab === 'insights'
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-white/70 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Key Insights
               </button>
               <button
                 onClick={() => setActiveTab('favourites')}
@@ -421,9 +411,63 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
             </>
           )}
 
-          {activeTab === 'insights' && (
+
+
+          {activeTab === 'favourites' && (
+            <FavoritesPage
+              favorites={favorites}
+              onRemoveFavorite={onRemoveFavorite || (() => {})}
+              onBack={onBack}
+              hasCompletedQuiz={!!profile}
+              onStartQuiz={onStartQuiz}
+              onGenerateNewBooks={handleGenerateNewBooks}
+            />
+          )}
+
+          {activeTab === 'settings' && (
             <>
-              {/* Insights Section */}
+              {/* Settings Section */}
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
+                  <User className="w-8 h-8 text-blue-400" />
+                  <span>Settings</span>
+                </h2>
+                
+                <div className="space-y-6">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Account Settings</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80">Email Notifications</span>
+                        <div className="w-12 h-6 bg-white/20 rounded-full relative">
+                          <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80">Book Recommendations</span>
+                        <div className="w-12 h-6 bg-amber-500 rounded-full relative">
+                          <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform duration-300"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Privacy</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80">Profile Visibility</span>
+                        <select className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
+                          <option>Public</option>
+                          <option>Private</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Insights Section */}
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
                 <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
                   <Sparkles className="w-8 h-8 text-amber-400" />
@@ -513,62 +557,6 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                     </div>
                     <p className="text-white/60 text-sm mt-4">Click to discover personalized growth strategies and universal improvement tips</p>
                   </button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {activeTab === 'favourites' && (
-            <FavoritesPage
-              favorites={favorites}
-              onRemoveFavorite={onRemoveFavorite || (() => {})}
-              onBack={onBack}
-              hasCompletedQuiz={!!profile}
-              onStartQuiz={onStartQuiz}
-              onGenerateNewBooks={handleGenerateNewBooks}
-            />
-          )}
-
-          {activeTab === 'settings' && (
-            <>
-              {/* Settings Section */}
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
-                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
-                  <User className="w-8 h-8 text-blue-400" />
-                  <span>Settings</span>
-                </h2>
-                
-                <div className="space-y-6">
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Account Settings</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/80">Email Notifications</span>
-                        <div className="w-12 h-6 bg-white/20 rounded-full relative">
-                          <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300"></div>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/80">Book Recommendations</span>
-                        <div className="w-12 h-6 bg-amber-500 rounded-full relative">
-                          <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform duration-300"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Privacy</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/80">Profile Visibility</span>
-                        <select className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
-                          <option>Public</option>
-                          <option>Private</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </>
