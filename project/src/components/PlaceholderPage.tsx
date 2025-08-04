@@ -21,6 +21,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
   const [expandedPersonality, setExpandedPersonality] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState<'profile' | 'strengths' | 'growth'>('profile');
+  const [activeTab, setActiveTab] = React.useState<'personality' | 'insights' | 'favourites' | 'settings'>('personality');
 
   const getTraitIcon = (traitName: string) => {
     switch (traitName) {
@@ -122,8 +123,57 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
             </p>
           </div>
 
-          {/* Personality Profile */}
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+          {/* Tab Navigation */}
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-2 mb-8">
+            <div className="flex space-x-1">
+              <button
+                onClick={() => setActiveTab('personality')}
+                className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  activeTab === 'personality'
+                    ? 'bg-white/20 text-white shadow-lg'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                Personality
+              </button>
+              <button
+                onClick={() => setActiveTab('insights')}
+                className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  activeTab === 'insights'
+                    ? 'bg-white/20 text-white shadow-lg'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                Key Insights
+              </button>
+              <button
+                onClick={() => setActiveTab('favourites')}
+                className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  activeTab === 'favourites'
+                    ? 'bg-white/20 text-white shadow-lg'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                Favourites
+              </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  activeTab === 'settings'
+                    ? 'bg-white/20 text-white shadow-lg'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                Settings
+              </button>
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === 'personality' && (
+            <>
+              {/* Personality Profile */}
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-3xl font-bold text-white flex items-center space-x-3">
                 <Brain className="w-8 h-8 text-amber-400" />
@@ -365,8 +415,204 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               </button>
             </div>
           </div>
+            </>
+          )}
 
-          {/* Call to Action */}
+          {activeTab === 'insights' && (
+            <>
+              {/* Insights Section */}
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
+                  <Sparkles className="w-8 h-8 text-amber-400" />
+                  <span>Key Insights</span>
+                </h2>
+                
+                <div className="grid md:grid-cols-3 gap-6">
+                  <button 
+                    onClick={handleNavigateToStrengths}
+                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold text-white">Your Strengths</h3>
+                      <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
+                    </div>
+                    <div className="space-y-3">
+                      {(() => {
+                        // Get top traits by score (only traits tied for highest scores, max 3)
+                        const sortedTraits = [...personalityAnalysis].sort((a, b) => b.score - a.score);
+                        const highestScore = sortedTraits[0]?.score || 0;
+                        const topTraits = sortedTraits
+                          .filter(trait => trait.score === highestScore)
+                          .slice(0, 3); // Limit to top 3 even if more are tied
+                        
+                        return topTraits.map((trait) => (
+                          <div key={trait.name} className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                            <span className="text-white/80">{trait.name}</span>
+                            <span className="text-green-400 text-sm font-medium">({trait.score}/25)</span>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                    <p className="text-white/60 text-sm mt-4">Click to explore your unique strengths and how to leverage them</p>
+                  </button>
+                  
+                  <button 
+                    onClick={handleNavigateToGrowth}
+                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold text-white">Growth Areas</h3>
+                      <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
+                    </div>
+                    <div className="space-y-3">
+                      {(() => {
+                        // Get lowest-scoring traits (only traits tied for lowest scores, max 3)
+                        const sortedTraits = [...personalityAnalysis].sort((a, b) => a.score - b.score);
+                        const lowestScore = sortedTraits[0]?.score || 0;
+                        const lowestTraits = sortedTraits
+                          .filter(trait => trait.score === lowestScore)
+                          .slice(0, 3); // Limit to top 3 even if more are tied
+                        
+                        return lowestTraits.map((trait) => (
+                          <div key={trait.name} className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                            <span className="text-white/80">{trait.name}</span>
+                            <span className="text-amber-400 text-sm font-medium">({trait.score}/25)</span>
+                          </div>
+                        ));
+                      })()}
+                      {/* Show universal growth areas if no specific low traits */}
+                      {(() => {
+                        const sortedTraits = [...personalityAnalysis].sort((a, b) => a.score - b.score);
+                        const lowestScore = sortedTraits[0]?.score || 0;
+                        const lowestTraits = sortedTraits.filter(trait => trait.score === lowestScore);
+                        return lowestTraits.length === 0;
+                      })() && (
+                        <>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                            <span className="text-white/80">Sleep Quality</span>
+                            <span className="text-amber-400 text-sm font-medium">Universal</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                            <span className="text-white/80">Physical Activity</span>
+                            <span className="text-amber-400 text-sm font-medium">Universal</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                            <span className="text-white/80">Social Connections</span>
+                            <span className="text-amber-400 text-sm font-medium">Universal</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <p className="text-white/60 text-sm mt-4">Click to discover personalized growth strategies and universal improvement tips</p>
+                  </button>
+
+                  <button 
+                    onClick={handleNavigateToFavourites}
+                    className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 text-left group"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold text-white">Favourites</h3>
+                      <ArrowRight className="w-5 h-5 text-white/60 group-hover:text-amber-400 transition-colors duration-300" />
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                        <span className="text-white/80">Saved Books</span>
+                        <span className="text-pink-400 text-sm font-medium">Personal</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                        <span className="text-white/80">Reading List</span>
+                        <span className="text-pink-400 text-sm font-medium">Curated</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                        <span className="text-white/80">Bookmarks</span>
+                        <span className="text-pink-400 text-sm font-medium">Organized</span>
+                      </div>
+                    </div>
+                    <p className="text-white/60 text-sm mt-4">Access your saved books and personalized reading collection</p>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'favourites' && (
+            <>
+              {/* Favourites Section */}
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
+                  <Star className="w-8 h-8 text-pink-400" />
+                  <span>Your Favourites</span>
+                </h2>
+                
+                <div className="text-center py-12">
+                  <Star className="w-16 h-16 text-pink-400/50 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">No Favourites Yet</h3>
+                  <p className="text-white/60 mb-6">Start exploring books and save your favourites to see them here</p>
+                  <button
+                    onClick={() => onNavigate?.('trending-books')}
+                    className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
+                  >
+                    Explore Books
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'settings' && (
+            <>
+              {/* Settings Section */}
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+                <h2 className="text-3xl font-bold text-white mb-6 flex items-center space-x-3">
+                  <User className="w-8 h-8 text-blue-400" />
+                  <span>Settings</span>
+                </h2>
+                
+                <div className="space-y-6">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Account Settings</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80">Email Notifications</span>
+                        <div className="w-12 h-6 bg-white/20 rounded-full relative">
+                          <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80">Book Recommendations</span>
+                        <div className="w-12 h-6 bg-amber-500 rounded-full relative">
+                          <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform duration-300"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Privacy</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80">Profile Visibility</span>
+                        <select className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
+                          <option>Public</option>
+                          <option>Private</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Call to Action - Always visible */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gradient-to-r from-amber-500/20 to-orange-600/20 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-8 text-center">
               <div className="mb-6">
