@@ -99,10 +99,7 @@ const TrendingAuthorsPage: React.FC<TrendingAuthorsPageProps> = ({ onBack, hasCo
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Trending
-            <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-              Authors
-            </span>
+            Trending <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Authors</span>
           </h1>
           
           <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto leading-relaxed">

@@ -365,10 +365,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Celebrity
-            <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-              Book Tester
-            </span>
+            Celebrity <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Book Tester</span>
           </h1>
           
           <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto leading-relaxed">

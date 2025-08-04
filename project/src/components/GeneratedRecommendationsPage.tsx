@@ -68,10 +68,7 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
             <span className="text-sm font-medium text-white/80">Fresh Recommendations</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Your New
-            <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-              Book Picks
-            </span>
+            Your New <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Book Picks</span>
           </h1>
           <p className="text-xl text-white/70 mb-8 max-w-4xl mx-auto leading-relaxed">
             Here are 6 new books tailored to your personality profile. Save your favourites!

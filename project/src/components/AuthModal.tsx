@@ -8,12 +8,13 @@ interface AuthModalProps {
   onClose: () => void;
   onLogin: (credentials: LoginCredentials) => void;
   onSignup: (data: SignupData) => void;
+  initialMode?: 'login' | 'signup';
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignup }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignup, initialMode = 'login' }) => {
   const { signIn, setActive } = useSignIn();
   const { signUp, setActive: setActiveSignUp } = useSignUp();
-  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [isLoginMode, setIsLoginMode] = useState(initialMode === 'login');
   const [showVerification, setShowVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [formData, setFormData] = useState({
@@ -24,6 +25,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update mode when modal opens with different initialMode
+  React.useEffect(() => {
+    if (isOpen) {
+      setIsLoginMode(initialMode === 'login');
+    }
+  }, [isOpen, initialMode]);
 
   const handleSSOAuth = async (provider: 'oauth_google' | 'oauth_apple' | 'oauth_facebook' | 'oauth_microsoft') => {
     if (!signIn) return;
@@ -535,20 +543,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
             </div>
           )}
 
-          {!showVerification && (
-            <div className="text-center pt-3 border-t border-white/10">
-            <p className="text-white/70">
-              {isLoginMode ? "Don't have an account?" : "Already have an account?"}
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="ml-2 text-amber-400 hover:text-amber-300 font-medium transition-colors duration-200"
-              >
-                {isLoginMode ? 'Sign Up' : 'Log In'}
-              </button>
-            </p>
-            </div>
-          )}
+                     {!showVerification && (
+             <>
+               <div className="relative">
+                 <div className="absolute inset-0 flex items-center">
+                   <div className="w-full border-t border-white/10" />
+                 </div>
+                 <div className="relative flex justify-center text-sm">
+                   <span className="px-2 bg-slate-900/95 text-white/60">
+                     {isLoginMode ? "Don't have an account?" : "Already have an account?"}
+                   </span>
+                 </div>
+               </div>
+               
+               <div className="text-center">
+                 <button
+                   type="button"
+                   onClick={toggleMode}
+                   className="text-amber-400 hover:text-amber-300 font-medium transition-colors duration-200"
+                 >
+                   {isLoginMode ? 'Sign Up' : 'Log In'}
+                 </button>
+               </div>
+             </>
+           )}
         </form>
       </div>
     </div>

@@ -28,20 +28,18 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onLearnMore, has
                 <Logo size="lg" showText={true} />
               </div>
               
-              <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span className="text-sm font-medium text-white/80">AI-Powered Recommendations</span>
+              <div className="inline-flex items-center space-x-3 bg-gradient-to-r from-white/15 to-white/10 backdrop-blur-md border border-white/25 rounded-full px-6 py-3 mb-8 shadow-lg">
+                <Sparkles className="w-5 h-5 text-amber-400" />
+                <span className="text-sm font-semibold text-white/90 tracking-wide">AI-Powered Recommendations</span>
               </div>
               
-              <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Discover Your
-                <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-                  Perfect Books
-                </span>
+              <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
+                <span className="block mb-2">Discover Your</span>
+                <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 bg-clip-text text-transparent drop-shadow-sm">Perfect Books</span>
               </h1>
               
-              <p className="text-xl text-white/70 mb-8 leading-relaxed max-w-lg">
-                Get personalised book recommendations tailored to your unique personality through our advanced AI-powered quiz system.
+              <p className="text-lg lg:text-xl text-white/80 mb-10 leading-relaxed max-w-2xl font-medium">
+                Get personalized book recommendations tailored to your unique personality through our advanced AI-powered quiz system.
               </p>
             </div>
 

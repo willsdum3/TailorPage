@@ -151,9 +151,7 @@ const StrengthsDetailPage: React.FC<StrengthsDetailPageProps> = ({ profile, onBa
            
                                                                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">
              <span className="text-white">Your Unique </span>
-             <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-               Strengths
-             </span>
+             <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Strengths</span>
            </h1>
           
           <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto leading-relaxed">

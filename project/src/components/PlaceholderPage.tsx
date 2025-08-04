@@ -1,5 +1,6 @@
-import React from 'react';
-import { ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight, Star, Check, X, Upload, Camera } from 'lucide-react';
+import { useUser } from '@clerk/clerk-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook } from '../types';
 import { getBookRecommendations } from '../utils/bookRecommendations';
 import Logo from './Logo';
@@ -22,10 +23,38 @@ interface PlaceholderPageProps {
 }
 
 const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations, onNavigate, favorites = [], onRemoveFavorite }) => {
-  const [expandedPersonality, setExpandedPersonality] = React.useState(false);
-  const [isGenerating, setIsGenerating] = React.useState(false);
-  const [currentPage, setCurrentPage] = React.useState<'profile' | 'strengths' | 'growth'>('profile');
-  const [activeTab, setActiveTab] = React.useState<'personality' | 'favourites' | 'profile-settings' | 'help'>('personality');
+  const { user } = useUser();
+  const [expandedPersonality, setExpandedPersonality] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [currentPage, setCurrentPage] = useState<'profile' | 'strengths' | 'growth'>('profile');
+  const [activeTab, setActiveTab] = useState<'personality' | 'favourites' | 'profile-settings' | 'help'>('personality');
+  
+  // Profile Settings State
+  const [profileSettings, setProfileSettings] = useState({
+    username: user?.username || '',
+    email: user?.primaryEmailAddress?.emailAddress || '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+    profilePicture: user?.imageUrl || null
+  });
+  
+  const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
+  const [profileSuccess, setProfileSuccess] = useState<Record<string, string>>({});
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  // Update profile settings when user data changes
+  useEffect(() => {
+    if (user) {
+      setProfileSettings(prev => ({
+        ...prev,
+        username: user.username || '',
+        email: user.primaryEmailAddress?.emailAddress || '',
+        profilePicture: user.imageUrl || null
+      }));
+    }
+  }, [user]);
 
   const getTraitIcon = (traitName: string) => {
     switch (traitName) {
@@ -77,6 +106,119 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     }
   };
 
+  // Profile Settings Handlers
+  const handleProfileInputChange = (field: string, value: string) => {
+    setProfileSettings(prev => ({ ...prev, [field]: value }));
+    // Clear errors when user starts typing
+    if (profileErrors[field]) {
+      setProfileErrors(prev => ({ ...prev, [field]: '' }));
+    }
+    // Clear success messages
+    if (profileSuccess[field]) {
+      setProfileSuccess(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const validateProfileSettings = (section: 'username' | 'password') => {
+    const newErrors: Record<string, string> = {};
+
+    if (section === 'username') {
+      if (!profileSettings.username.trim()) {
+        newErrors.username = 'Username is required';
+      } else if (profileSettings.username.length < 3) {
+        newErrors.username = 'Username must be at least 3 characters';
+      } else if (!/^[a-zA-Z0-9_]+$/.test(profileSettings.username)) {
+        newErrors.username = 'Username can only contain letters, numbers, and underscores';
+      }
+    }
+
+    if (section === 'password') {
+      if (!profileSettings.currentPassword.trim()) {
+        newErrors.currentPassword = 'Current password is required';
+      }
+      if (!profileSettings.newPassword.trim()) {
+        newErrors.newPassword = 'New password is required';
+      } else if (profileSettings.newPassword.length < 8) {
+        newErrors.newPassword = 'Password must be at least 8 characters';
+      }
+      if (!profileSettings.confirmPassword.trim()) {
+        newErrors.confirmPassword = 'Please confirm your new password';
+      } else if (profileSettings.newPassword !== profileSettings.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      }
+    }
+
+    setProfileErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleUpdateUsername = async () => {
+    if (!user || !validateProfileSettings('username')) return;
+
+    setIsUpdating(true);
+    try {
+      await user.update({
+        username: profileSettings.username
+      });
+      
+      setProfileSuccess({ username: 'Username updated successfully!' });
+      setTimeout(() => setProfileSuccess(prev => ({ ...prev, username: '' })), 3000);
+    } catch (error: any) {
+      setProfileErrors({ username: error.errors?.[0]?.message || 'Failed to update username' });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!user || !validateProfileSettings('password')) return;
+
+    setIsUpdating(true);
+    try {
+      // For password updates, we need to use a different approach
+      // This would typically involve the user's session and password change flow
+      // For now, we'll show a message that this feature requires additional setup
+      setProfileErrors({ password: 'Password change requires additional security verification. Please use the "Forgot Password" option from the login screen.' });
+    } catch (error: any) {
+      setProfileErrors({ password: error.errors?.[0]?.message || 'Failed to update password' });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploadingImage(true);
+    try {
+      await user.setProfileImage({ file });
+      setProfileSettings(prev => ({ ...prev, profilePicture: user.imageUrl }));
+      setProfileSuccess({ profilePicture: 'Profile picture updated successfully!' });
+      setTimeout(() => setProfileSuccess(prev => ({ ...prev, profilePicture: '' })), 3000);
+    } catch (error: any) {
+      setProfileErrors({ profilePicture: error.errors?.[0]?.message || 'Failed to upload profile picture' });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleRemoveProfilePicture = async () => {
+    if (!user) return;
+
+    setIsUploadingImage(true);
+    try {
+      await user.setProfileImage({ file: null });
+      setProfileSettings(prev => ({ ...prev, profilePicture: null }));
+      setProfileSuccess({ profilePicture: 'Profile picture removed successfully!' });
+      setTimeout(() => setProfileSuccess(prev => ({ ...prev, profilePicture: '' })), 3000);
+    } catch (error: any) {
+      setProfileErrors({ profilePicture: error.errors?.[0]?.message || 'Failed to remove profile picture' });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   // If we have a profile, show the personality analysis
   if (profile) {
     const personalityAnalysis = analyzePersonality(profile);
@@ -110,16 +252,32 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               <Logo size="lg" showText={true} />
             </div>
             
+            {/* User Avatar and Welcome */}
+            <div className="flex items-center justify-center space-x-4 mb-6">
+              {user?.imageUrl ? (
+                <img 
+                  src={user.imageUrl} 
+                  alt="Profile" 
+                  className="w-16 h-16 rounded-full object-cover border-2 border-white/20"
+                />
+              ) : (
+                <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full flex items-center justify-center border-2 border-white/20">
+                  <User className="w-8 h-8 text-white" />
+                </div>
+              )}
+              <div className="text-left">
+                <h2 className="text-2xl font-bold text-white">Welcome back, {user?.firstName || user?.username || 'User'}!</h2>
+                <p className="text-white/70">Ready to explore your personality insights</p>
+              </div>
+            </div>
+            
             <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
               <Brain className="w-4 h-4 text-amber-400" />
               <span className="text-sm font-medium text-white/80">Your Personality Analysis</span>
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Your
-              <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-                Profile
-              </span>
+              Your <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Profile</span>
             </h1>
             
             <p className="text-xl text-white/70 mb-8 max-w-4xl mx-auto leading-relaxed">
@@ -557,25 +715,64 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                     <h3 className="text-xl font-semibold text-white mb-4">Profile Picture</h3>
                     <div className="flex items-center space-x-6">
                       <div className="relative">
-                        <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                          JD
-                        </div>
-                        <button className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm hover:bg-amber-600 transition-colors duration-300">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                          </svg>
-                        </button>
+                        {profileSettings.profilePicture ? (
+                          <img 
+                            src={profileSettings.profilePicture} 
+                            alt="Profile" 
+                            className="w-20 h-20 rounded-full object-cover border-2 border-white/20"
+                          />
+                        ) : (
+                          <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                            {user?.firstName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                          </div>
+                        )}
+                        <label className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm hover:bg-amber-600 transition-colors duration-300 cursor-pointer">
+                          <Camera className="w-3 h-3" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProfilePictureUpload}
+                            className="hidden"
+                            disabled={isUploadingImage}
+                          />
+                        </label>
                       </div>
                       <div className="flex-1">
                         <p className="text-white/80 text-sm mb-2">Upload a profile picture to personalize your account</p>
+                        {profileErrors.profilePicture && (
+                          <p className="text-red-400 text-sm mb-2">{profileErrors.profilePicture}</p>
+                        )}
+                        {profileSuccess.profilePicture && (
+                          <p className="text-green-400 text-sm mb-2 flex items-center">
+                            <Check className="w-4 h-4 mr-1" />
+                            {profileSuccess.profilePicture}
+                          </p>
+                        )}
                         <div className="flex space-x-2">
-                          <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
+                          <label className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300 cursor-pointer flex items-center">
+                            <Upload className="w-4 h-4 mr-1" />
                             Upload Photo
-                          </button>
-                          <button className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
-                            Remove
-                          </button>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleProfilePictureUpload}
+                              className="hidden"
+                              disabled={isUploadingImage}
+                            />
+                          </label>
+                          {profileSettings.profilePicture && (
+                            <button 
+                              onClick={handleRemoveProfilePicture}
+                              disabled={isUploadingImage}
+                              className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white px-4 py-2 rounded-lg text-sm transition-all duration-300 disabled:opacity-50"
+                            >
+                              Remove
+                            </button>
+                          )}
                         </div>
+                        {isUploadingImage && (
+                          <p className="text-white/60 text-sm mt-2">Uploading...</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -589,24 +786,45 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                         <div className="flex items-center space-x-2">
                           <input 
                             type="text" 
-                            defaultValue="johndoe" 
+                            value={profileSettings.username}
+                            onChange={(e) => handleProfileInputChange('username', e.target.value)}
                             className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                             placeholder="Enter your username"
                           />
-                          <button className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
+                          <button 
+                            onClick={handleUpdateUsername}
+                            disabled={isUpdating}
+                            className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300 flex items-center"
+                          >
+                            {isUpdating ? (
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                            ) : (
+                              <Check className="w-4 h-4 mr-1" />
+                            )}
                             Update
                           </button>
                         </div>
+                        {profileErrors.username && (
+                          <p className="text-red-400 text-sm mt-2">{profileErrors.username}</p>
+                        )}
+                        {profileSuccess.username && (
+                          <p className="text-green-400 text-sm mt-2 flex items-center">
+                            <Check className="w-4 h-4 mr-1" />
+                            {profileSuccess.username}
+                          </p>
+                        )}
                       </div>
                       
                       <div>
                         <label className="block text-white/80 text-sm font-medium mb-2">Email</label>
                         <input 
                           type="email" 
-                          defaultValue="john.doe@example.com" 
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                          placeholder="Enter your email"
+                          value={profileSettings.email}
+                          disabled
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/60 cursor-not-allowed"
+                          placeholder="Email cannot be changed"
                         />
+                        <p className="text-white/60 text-xs mt-1">Email address cannot be changed for security reasons</p>
                       </div>
                     </div>
                   </div>
@@ -619,31 +837,75 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                         <label className="block text-white/80 text-sm font-medium mb-2">Current Password</label>
                         <input 
                           type="password" 
+                          value={profileSettings.currentPassword}
+                          onChange={(e) => handleProfileInputChange('currentPassword', e.target.value)}
                           className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                           placeholder="Enter current password"
                         />
+                        {profileErrors.currentPassword && (
+                          <p className="text-red-400 text-sm mt-2">{profileErrors.currentPassword}</p>
+                        )}
                       </div>
                       
                       <div>
                         <label className="block text-white/80 text-sm font-medium mb-2">New Password</label>
                         <input 
                           type="password" 
+                          value={profileSettings.newPassword}
+                          onChange={(e) => handleProfileInputChange('newPassword', e.target.value)}
                           className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                           placeholder="Enter new password"
                         />
+                        {profileErrors.newPassword && (
+                          <p className="text-red-400 text-sm mt-2">{profileErrors.newPassword}</p>
+                        )}
                       </div>
                       
                       <div>
                         <label className="block text-white/80 text-sm font-medium mb-2">Confirm New Password</label>
                         <input 
                           type="password" 
+                          value={profileSettings.confirmPassword}
+                          onChange={(e) => handleProfileInputChange('confirmPassword', e.target.value)}
                           className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                           placeholder="Confirm new password"
                         />
+                        {profileErrors.confirmPassword && (
+                          <p className="text-red-400 text-sm mt-2">{profileErrors.confirmPassword}</p>
+                        )}
                       </div>
                       
-                      <button className="w-full bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
-                        Update Password
+                      {profileErrors.password && (
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                          <p className="text-red-400 text-sm">{profileErrors.password}</p>
+                        </div>
+                      )}
+                      
+                      {profileSuccess.password && (
+                        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                          <p className="text-green-400 text-sm flex items-center">
+                            <Check className="w-4 h-4 mr-1" />
+                            {profileSuccess.password}
+                          </p>
+                        </div>
+                      )}
+                      
+                      <button 
+                        onClick={handleUpdatePassword}
+                        disabled={isUpdating}
+                        className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center"
+                      >
+                        {isUpdating ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                            Updating...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4 mr-1" />
+                            Update Password
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -768,9 +1030,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
           
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">
             <span className="text-white">Create Your </span>
-            <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-              Reading Profile
-            </span>
+            <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Reading Profile</span>
           </h1>
           
           <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto leading-relaxed">

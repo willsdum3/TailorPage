@@ -35,10 +35,7 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack, onStartQuiz }) =>
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            The Science Behind
-            <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-              Perfect Matches
-            </span>
+            The Science Behind <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Perfect Matches</span>
           </h1>
           
           <p className="text-xl text-white/70 mb-8 max-w-4xl mx-auto leading-relaxed">

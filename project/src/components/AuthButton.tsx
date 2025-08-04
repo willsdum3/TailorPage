@@ -30,9 +30,17 @@ const AuthButton: React.FC<AuthButtonProps> = ({ user, onLogin, onLogout, positi
           <Logo size="sm" showText={false} className="mr-4" />
         )}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2 flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-            <User className="w-4 h-4 text-white" />
-          </div>
+          {user.imageUrl ? (
+            <img 
+              src={user.imageUrl} 
+              alt="Profile" 
+              className="w-8 h-8 rounded-lg object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
+            </div>
+          )}
           <span className="text-white font-medium">{user.name || user.username}</span>
         </div>
         <button

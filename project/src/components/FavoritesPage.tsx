@@ -47,10 +47,7 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
               <Heart className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-              Your
-              <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-                Favourites
-              </span>
+              Your <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Favourites</span>
             </h1>
             <p className="text-xl text-white/70 mb-8">
               You haven't added any books to your favorites yet.
@@ -131,10 +128,7 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Your
-            <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-              Favourites
-            </span>
+            Your <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Favourites</span>
           </h1>
           
           <p className="text-xl text-white/70 mb-8">
