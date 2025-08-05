@@ -1,15 +1,14 @@
 import React from 'react';
-import { LogIn, User, LogOut } from 'lucide-react';
+import { LogIn, User } from 'lucide-react';
 import { User as UserType } from '../types';
 
 interface AuthButtonProps {
   user: UserType | null;
   onLogin: () => void;
-  onLogout: () => void;
   position?: 'top-left' | 'top-center' | 'top-right';
 }
 
-const AuthButton: React.FC<AuthButtonProps> = ({ user, onLogin, onLogout, position = 'top-left' }) => {
+const AuthButton: React.FC<AuthButtonProps> = ({ user, onLogin, position = 'top-left' }) => {
   const getPositionClasses = () => {
     switch (position) {
       case 'top-center':
@@ -24,8 +23,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({ user, onLogin, onLogout, positi
 
   if (user) {
     return (
-      <div className={`${getPositionClasses()} flex items-center space-x-3`}>
-
+      <div className={`${getPositionClasses()}`}>
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2 flex items-center space-x-2">
           {user.imageUrl ? (
             <img 
@@ -40,13 +38,6 @@ const AuthButton: React.FC<AuthButtonProps> = ({ user, onLogin, onLogout, positi
           )}
           <span className="text-white font-medium">{user.name || user.username}</span>
         </div>
-        <button
-          onClick={onLogout}
-          className="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
-          title="Log Out"
-        >
-          <LogOut className="w-5 h-5" />
-        </button>
       </div>
     );
   }

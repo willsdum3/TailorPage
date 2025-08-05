@@ -100,12 +100,30 @@ const QuizPage: React.FC<QuizPageProps> = ({
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Home Button - Top Left */}
+      <button
+        onClick={onHome}
+        className="fixed top-6 left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+        aria-label="Go to Home"
+      >
+        <Home className="w-6 h-6" />
+      </button>
+
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
       <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       
       <div className="max-w-3xl mx-auto w-full relative z-10">
+        {/* Previous Button - Left Side */}
+        <button
+          onClick={handlePrevious}
+          disabled={currentQuestion === 0}
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-20 bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white/90 hover:text-white p-4 rounded-2xl font-medium transition-all duration-300 hover:shadow-lg"
+        >
+          <ArrowLeft className="w-7 h-7" />
+        </button>
+
         {/* Progress Section */}
         <div className="mb-12">
           <div className="flex justify-between items-center mb-6">
@@ -233,25 +251,7 @@ const QuizPage: React.FC<QuizPageProps> = ({
           )}
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between items-center">
-          <button
-            onClick={handlePrevious}
-            disabled={currentQuestion === 0}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Previous</span>
-          </button>
-          
-          <button
-            onClick={onHome}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-          >
-            <Home className="w-4 h-4" />
-            <span>Home</span>
-          </button>
-        </div>
+
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ const IntroPage: React.FC<IntroPageProps> = ({ onLogin, onSignup }) => {
                      <div className="text-center relative z-10">
              <Logo size="xl" showText={false} />
              <p className="mt-6 text-white/80 text-lg font-medium">
-               AI-Powered Book Recommendations
+               Ai Book Recommendations
              </p>
            </div>
         </div>

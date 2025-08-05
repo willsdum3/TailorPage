@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X, User, Heart, TrendingUp, Users, Star, MessageCircle } from 'lucide-react';
 import { User as UserType } from '../types';
+import Logo from './Logo';
 
 interface BurgerMenuProps {
   onNavigate: (page: string) => void;
@@ -65,9 +66,9 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
           <div className="mb-8 pb-6 border-b border-white/10">
             <button 
               onClick={() => handleNavigation('home')}
-              className="w-full text-left hover:opacity-80 transition-opacity duration-300 text-white text-xl font-bold"
+              className="w-full text-left hover:opacity-80 transition-opacity duration-300"
             >
-              Tailor Page
+              <Logo size="md" showText={true} />
             </button>
           </div>
           
@@ -81,30 +82,50 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
               const IconComponent = item.icon;
               const isDisabled = item.requiresAuth && !user;
               const isTailorMates = item.id === 'tailor-mates';
+              const isProfile = item.id === 'profile';
               
               return (
                 <button
                   key={item.id}
                   onClick={() => handleNavigation(item.id)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition-all duration-300 group ${
+                  className={`w-full flex items-center space-x-4 px-5 py-4 text-left rounded-2xl transition-all duration-300 group ${
                     isDisabled 
                       ? 'text-white/30 cursor-not-allowed' 
                       : isTailorMates
                         ? 'text-white hover:bg-gradient-to-r hover:from-pink-500/20 hover:to-purple-500/20 transform hover:scale-105 border border-pink-500/30'
-                        : 'text-white hover:bg-white/10 transform hover:scale-105'
+                        : isProfile && user
+                          ? 'text-white hover:bg-white/5 hover:border-white/20 border border-transparent transform hover:scale-102'
+                          : 'text-white hover:bg-white/10 transform hover:scale-105'
                   }`}
                 >
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  <div className={`flex items-center justify-center ${
                     isDisabled 
-                      ? 'bg-white/10' 
+                      ? 'bg-white/10 w-10 h-10 rounded-lg' 
                       : isTailorMates
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 group-hover:from-pink-600 group-hover:to-purple-700'
-                        : 'bg-gradient-to-r from-amber-500 to-orange-600 group-hover:from-amber-600 group-hover:to-orange-700'
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 group-hover:from-pink-600 group-hover:to-purple-700 w-10 h-10 rounded-lg'
+                        : isProfile && user
+                          ? 'w-12 h-12 rounded-2xl bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-amber-500/30 group-hover:border-amber-500/50 group-hover:from-amber-500/30 group-hover:to-orange-600/30'
+                          : 'bg-gradient-to-r from-amber-500 to-orange-600 group-hover:from-amber-600 group-hover:to-orange-700 w-10 h-10 rounded-lg'
                   }`}>
-                    <IconComponent className="w-5 h-5 text-white" />
+                    {isProfile && user?.imageUrl ? (
+                      <img 
+                        src={user.imageUrl} 
+                        alt={user.name || user.username} 
+                        className="w-10 h-10 rounded-xl object-cover border border-white/20"
+                      />
+                    ) : (
+                      <IconComponent className="w-5 h-5 text-white" />
+                    )}
                   </div>
                   <div className="flex-1">
-                    <span className="font-medium">{item.label}</span>
+                    <span className={`font-semibold ${
+                      isProfile && user ? 'text-lg' : 'font-medium'
+                    }`}>
+                      {isProfile && user ? (user.name || user.username) : item.label}
+                    </span>
+                    {isProfile && user && (
+                      <div className="text-xs text-white/60 mt-1 font-medium">Profile</div>
+                    )}
                     {isTailorMates && (
                       <div className="text-xs text-pink-300 mt-1">Virtual Book Club</div>
                     )}

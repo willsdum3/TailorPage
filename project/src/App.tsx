@@ -358,6 +358,12 @@ function App() {
     setCurrentPage('quiz');
   };
 
+  const handleResumeQuiz = () => {
+    // Don't reset answers, bookAnswers, or currentQuestionIndex
+    // Just navigate back to the quiz page
+    setCurrentPage('quiz');
+  };
+
   const handleQuizComplete = (quizAnswers: Record<number, LikertResponse>, quizBookAnswers: Record<number, BookResponse>) => {
     setAnswers(quizAnswers);
     setBookAnswers(quizBookAnswers);
@@ -533,14 +539,9 @@ function App() {
           
           {currentPage === 'welcome' && (
             <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
-                position="top-center"
-              />
               <WelcomePage
                 onStartQuiz={handleStartQuiz}
+                onResumeQuiz={handleResumeQuiz}
                 hasQuizProgress={Object.keys(answers).length > 0}
                 onLearnMore={() => setCurrentPage('learn-more')}
                 isLoggedIn={!!user}
@@ -557,12 +558,6 @@ function App() {
           )}
           {currentPage === 'quiz' && (
             <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
-                position="top-right"
-              />
               <QuizPage 
                 questions={questions} 
                 bookQuestions={bookQuestions}
@@ -577,12 +572,6 @@ function App() {
           )}
           {currentPage === 'results' && personalityProfile && (
             <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
-                position="top-right"
-              />
               <ResultsPage 
                 profile={personalityProfile}
                 recommendations={recommendations}
@@ -597,12 +586,6 @@ function App() {
           )}
           {currentPage === 'favourites' && (
             <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
-                position="top-left"
-              />
               <FavoritesPage
                 favorites={favorites}
                 onRemoveFavorite={handleRemoveFavorite}
@@ -621,70 +604,47 @@ function App() {
           )}
           {currentPage === 'learn-more' && (
             <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
-                position="top-left"
-              />
               <LearnMorePage onBack={() => setCurrentPage('welcome')} onStartQuiz={handleStartQuiz} />
             </>
           )}
           {currentPage === 'trending-books' && (
             <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
-                position="top-left"
-              />
               <TrendingBooksPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
             </>
           )}
           {currentPage === 'trending-authors' && (
             <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
-                position="top-left"
-              />
               <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
             </>
           )}
           {currentPage === 'tailor-mates' && (
             <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
-                position="top-left"
-              />
               <TailorMatesPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
             </>
           )}
-          {['profile', 'celebrity-books'].includes(currentPage) && (
+          {currentPage === 'celebrity-books' && (
+            <>
+              <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
+            </>
+          )}
+          {currentPage === 'profile' && (
             <>
               <AuthButton 
                 user={user}
                 onLogin={() => setIsAuthModalOpen(true)}
-                onLogout={handleLogout}
                 position="top-left"
               />
-              {currentPage === 'celebrity-books' ? (
-                <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
-              ) : (
-                <PlaceholderPage
-                  {...getPlaceholderContent(currentPage)}
-                  onBack={() => setCurrentPage('welcome')}
-                  profile={personalityProfile}
-                  onStartQuiz={handleStartQuiz}
-                  onNewRecommendations={handleNewRecommendations}
-                  onNavigate={handleNavigation}
-                  favorites={favorites}
-                  onRemoveFavorite={handleRemoveFavorite}
-                />
-              )}
+              <PlaceholderPage
+                {...getPlaceholderContent(currentPage)}
+                onBack={() => setCurrentPage('welcome')}
+                profile={personalityProfile}
+                onStartQuiz={handleStartQuiz}
+                onNewRecommendations={handleNewRecommendations}
+                onNavigate={handleNavigation}
+                favorites={favorites}
+                onRemoveFavorite={handleRemoveFavorite}
+                onLogout={handleLogout}
+              />
             </>
           )}
           {currentPage === 'generated' && personalityProfile && (

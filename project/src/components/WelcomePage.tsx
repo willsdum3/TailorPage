@@ -4,6 +4,7 @@ import Logo from './Logo';
 
 interface WelcomePageProps {
   onStartQuiz: () => void;
+  onResumeQuiz: () => void;
   onLearnMore: () => void;
   hasQuizProgress?: boolean;
   isLoggedIn?: boolean;
@@ -11,7 +12,7 @@ interface WelcomePageProps {
   onGenerateNewBooks?: () => void;
 }
 
-const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onLearnMore, hasQuizProgress = false, isLoggedIn = false, hasCompletedQuiz = false, onGenerateNewBooks }) => {
+const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onResumeQuiz, onLearnMore, hasQuizProgress = false, isLoggedIn = false, hasCompletedQuiz = false, onGenerateNewBooks }) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Elements */}
@@ -28,10 +29,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onLearnMore, has
                 <Logo size="lg" showText={true} />
               </div>
               
-              <div className="inline-flex items-center space-x-3 bg-gradient-to-r from-white/15 to-white/10 backdrop-blur-md border border-white/25 rounded-full px-6 py-3 mb-8 shadow-lg">
-                <Sparkles className="w-5 h-5 text-amber-400" />
-                <span className="text-sm font-semibold text-white/90 tracking-wide">AI-Powered Recommendations</span>
-              </div>
+
               
               <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
                 <span className="block mb-2">Discover Your</span>
@@ -67,7 +65,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onLearnMore, has
                 </button>
               ) : (
                 <button
-                  onClick={onStartQuiz}
+                  onClick={hasQuizProgress ? onResumeQuiz : onStartQuiz}
                   className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group"
                 >
                   <span>{hasQuizProgress ? 'Resume Quiz' : 'Start Discovery'}</span>
@@ -124,55 +122,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onLearnMore, has
           </div>
         </div>
 
-        {/* How It Works Section */}
-        <div className="mt-24">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">How It Works</h2>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto">
-              Three simple steps to discover books perfectly matched to your personality
-            </p>
-          </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center group">
-              <div className="relative mb-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-2xl font-bold text-white">25</span>
-                </div>
-                <div className="absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent hidden md:block" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Complete Assessment</h3>
-              <p className="text-white/70 leading-relaxed">
-                Answer 25 carefully crafted statements across 5 personality dimensions in just 3-5 minutes
-              </p>
-            </div>
-
-            <div className="text-center group">
-              <div className="relative mb-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Brain className="w-8 h-8 text-white" />
-                </div>
-                <div className="absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent hidden md:block" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Advanced AI Analysis</h3>
-              <p className="text-white/70 leading-relaxed">
-                Our sophisticated AI analyses your responses across 5 dimensions to create a comprehensive personality profile
-              </p>
-            </div>
-
-            <div className="text-center group">
-              <div className="relative mb-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <BookOpen className="w-8 h-8 text-white" />
-                </div>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Personalised Matches</h3>
-              <p className="text-white/70 leading-relaxed">
-                Receive 6 carefully selected book recommendations with detailed explanations of why each matches your unique personality
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

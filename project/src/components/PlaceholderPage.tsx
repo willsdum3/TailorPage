@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight, Star, Check, X, Upload, Camera } from 'lucide-react';
+import { Home, ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight, Star, Check, X, Upload, Camera } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook } from '../types';
 import { getBookRecommendations } from '../utils/bookRecommendations';
@@ -19,9 +19,10 @@ interface PlaceholderPageProps {
   onNavigate?: (page: string) => void;
   favorites?: FavoriteBook[];
   onRemoveFavorite?: (bookId: string) => void;
+  onLogout?: () => void;
 }
 
-const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations, onNavigate, favorites = [], onRemoveFavorite }) => {
+const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations, onNavigate, favorites = [], onRemoveFavorite, onLogout }) => {
   const { user } = useUser();
   const [expandedPersonality, setExpandedPersonality] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -241,30 +242,11 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
           <div className="text-center mb-12">
             <button
               onClick={onBack}
-              className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+              className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center"
+              aria-label="Go to Home"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Home</span>
+              <Home className="w-6 h-6" />
             </button>
-            
-            {/* User Avatar and Welcome */}
-            <div className="flex items-center justify-center space-x-4 mb-6">
-              {user?.imageUrl ? (
-                <img 
-                  src={user.imageUrl} 
-                  alt="Profile" 
-                  className="w-16 h-16 rounded-full object-cover border-2 border-white/20"
-                />
-              ) : (
-                <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full flex items-center justify-center border-2 border-white/20">
-                  <User className="w-8 h-8 text-white" />
-                </div>
-              )}
-              <div className="text-left">
-                <h2 className="text-2xl font-bold text-white">Welcome back, {user?.firstName || user?.username || 'User'}!</h2>
-                <p className="text-white/70">Ready to explore your personality insights</p>
-              </div>
-            </div>
             
             <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
               <Brain className="w-4 h-4 text-amber-400" />
@@ -937,6 +919,16 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                       </div>
                     </div>
                   </div>
+
+                  {/* Log Out Button */}
+                  <div className="flex justify-end mt-8">
+                    <button
+                      onClick={onLogout}
+                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg"
+                    >
+                      Log Out
+                    </button>
+                  </div>
                 </div>
               </div>
             </>
@@ -1157,6 +1149,16 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               <span>Take Personality Quiz</span>
             </button>
           </div>
+        </div>
+
+        {/* Log Out Button */}
+        <div className="flex justify-center">
+          <button
+            onClick={onLogout}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg"
+          >
+            Log Out
+          </button>
         </div>
       </div>
     </div>

@@ -33,7 +33,7 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '
             Tailor Page
           </h1>
           {size === 'lg' && (
-            <p className="text-sm text-white/70">Personalised Book Recommendations</p>
+            <p className="text-sm text-white/70">Ai Book Recommendations</p>
           )}
         </div>
       )}

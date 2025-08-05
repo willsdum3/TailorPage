@@ -107,16 +107,16 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
+      {/* Home Button - Top Left */}
+      <button
+        onClick={onBack}
+        className="fixed top-6 left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+        aria-label="Go to Home"
+      >
+        <Home className="w-6 h-6" />
+      </button>
+
         <div className="text-center mb-16">
-          <div className="absolute top-0 right-0">
-            <button
-              onClick={onBack}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
-              title="Go to Home"
-            >
-              <Home className="w-5 h-5" />
-            </button>
-          </div>
 
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
             <Heart className="w-4 h-4 text-amber-400" />
@@ -130,14 +130,6 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
           <p className="text-xl text-white/70 mb-8">
             {favorites.length} book{favorites.length !== 1 ? 's' : ''} saved to your personal collection
           </p>
-          
-          <button
-            onClick={onBack}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Home</span>
-          </button>
         </div>
 
         {/* Favorites Grid */}

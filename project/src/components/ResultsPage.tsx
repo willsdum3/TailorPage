@@ -71,19 +71,18 @@ const ResultsPage = ({
       <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       
+      {/* Home Button - Top Left */}
+      <button
+        onClick={onHome}
+        className="fixed top-6 left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+        aria-label="Go to Home"
+      >
+        <Home className="w-6 h-6" />
+      </button>
+      
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-16 pt-12">
-          <div className="absolute top-0 left-0">
-            <button
-              onClick={onHome}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
-              title="Go to Home"
-            >
-              <Home className="w-5 h-5" />
-            </button>
-          </div>
-
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-10">
             <Sparkles className="w-4 h-4 text-amber-400" />
             <span className="text-sm font-medium text-white/90">Personalised Results</span>
@@ -111,13 +110,7 @@ const ResultsPage = ({
               <span>Retake Quiz</span>
             </button>
             
-            <button
-              onClick={onHome}
-              className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-            >
-              <Home className="w-5 h-5" />
-              <span>Back to Home</span>
-            </button>
+
           </div>
         </div>
 
