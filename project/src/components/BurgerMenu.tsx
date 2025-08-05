@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, User, Heart, TrendingUp, Users, Star, MessageCircle } from 'lucide-react';
 import { User as UserType } from '../types';
-import Logo from './Logo';
 
 interface BurgerMenuProps {
   onNavigate: (page: string) => void;
@@ -66,9 +65,9 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
           <div className="mb-8 pb-6 border-b border-white/10">
             <button 
               onClick={() => handleNavigation('home')}
-              className="w-full text-left hover:opacity-80 transition-opacity duration-300"
+              className="w-full text-left hover:opacity-80 transition-opacity duration-300 text-white text-xl font-bold"
             >
-              <Logo size="md" showText={true} />
+              Tailor Page
             </button>
           </div>
           

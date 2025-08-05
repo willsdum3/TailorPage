@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Book, ShoppingCart, ExternalLink, Star, Search, Filter, TrendingUp, Sparkles } from 'lucide-react';
 import { trendingBooks, TrendingBook } from '../data/trendingBooks';
-import Logo from './Logo';
 import BookCover from './BookCover';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
@@ -81,10 +80,6 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </button>
-          
-          <div className="mb-8">
-            <Logo size="lg" showText={true} />
-          </div>
           
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
             <TrendingUp className="w-4 h-4 text-amber-400" />

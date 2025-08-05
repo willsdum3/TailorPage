@@ -1,7 +1,6 @@
 import React from 'react';
 import { Book, ShoppingCart, ExternalLink, Trash2, ArrowLeft, Heart, Sparkles, Home } from 'lucide-react';
 import { FavoriteBook, User } from '../types';
-import Logo from './Logo';
 import BookCover from './BookCover';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
@@ -40,9 +39,6 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
           </div>
           
           <div className="mb-8">
-            <div className="mb-8">
-              <Logo size="lg" showText={true} />
-            </div>
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl mb-6">
               <Heart className="w-10 h-10 text-white" />
             </div>

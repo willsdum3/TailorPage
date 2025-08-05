@@ -1,6 +1,5 @@
 import React from 'react';
 import { ArrowLeft, Brain, Target, Zap, BookOpen, Users, Star, CheckCircle, Lightbulb, TrendingUp, Heart, Sparkles } from 'lucide-react';
-import Logo from './Logo';
 
 interface LearnMorePageProps {
   onBack: () => void;
@@ -18,9 +17,6 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack, onStartQuiz }) =>
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="mb-8">
-            <Logo size="lg" showText={true} />
-          </div>
           <button
             onClick={onBack}
             className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"

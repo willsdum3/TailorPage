@@ -3,7 +3,6 @@ import { ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, 
 import { useUser } from '@clerk/clerk-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook } from '../types';
 import { getBookRecommendations } from '../utils/bookRecommendations';
-import Logo from './Logo';
 import { analyzePersonality } from '../utils/personalityAnalysis';
 import StrengthsDetailPage from './StrengthsDetailPage';
 import GrowthAreasDetailPage from './GrowthAreasDetailPage';
@@ -247,10 +246,6 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>
             </button>
-            
-            <div className="mb-8">
-              <Logo size="lg" showText={true} />
-            </div>
             
             {/* User Avatar and Welcome */}
             <div className="flex items-center justify-center space-x-4 mb-6">
@@ -1018,10 +1013,6 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </button>
-          
-          <div className="mb-8">
-            <Logo size="lg" showText={true} />
-          </div>
           
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
             <User className="w-4 h-4 text-amber-400" />

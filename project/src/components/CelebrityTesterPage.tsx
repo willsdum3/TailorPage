@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import { celebrities } from '../data/celebrities';
 import { CelebrityProfile } from '../data/celebrities';
-import Logo from './Logo';
 import BookCover from './BookCover';
 import { useScrollToTop } from '../hooks/useScrollToTop';
 import { analyzePersonality, TraitAnalysis } from '../utils/personalityAnalysis';
@@ -354,10 +353,6 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </button>
-          
-          <div className="mb-8">
-            <Logo size="lg" showText={true} />
-          </div>
           
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
             <Star className="w-4 h-4 text-amber-400" />

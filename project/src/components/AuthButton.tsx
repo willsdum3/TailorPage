@@ -1,7 +1,6 @@
 import React from 'react';
 import { LogIn, User, LogOut } from 'lucide-react';
 import { User as UserType } from '../types';
-import Logo from './Logo';
 
 interface AuthButtonProps {
   user: UserType | null;
@@ -26,9 +25,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({ user, onLogin, onLogout, positi
   if (user) {
     return (
       <div className={`${getPositionClasses()} flex items-center space-x-3`}>
-        {position === 'top-center' && (
-          <Logo size="sm" showText={false} className="mr-4" />
-        )}
+
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2 flex items-center space-x-2">
           {user.imageUrl ? (
             <img 

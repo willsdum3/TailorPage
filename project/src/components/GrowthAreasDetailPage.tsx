@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { ArrowLeft, TrendingUp, Brain, Target, Zap, Heart, Shield, Moon, Activity, Users, BookOpen, Coffee, CheckCircle, Apple } from 'lucide-react';
 import { PersonalityProfile } from '../types';
-import Logo from './Logo';
 import { analyzePersonality } from '../utils/personalityAnalysis';
 
 interface GrowthAreasDetailPageProps {
@@ -216,10 +215,6 @@ const GrowthAreasDetailPage: React.FC<GrowthAreasDetailPageProps> = ({ profile, 
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Profile</span>
           </button>
-          
-          <div className="mb-8">
-            <Logo size="lg" showText={true} />
-          </div>
           
                      <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-12">
              <TrendingUp className="w-4 h-4 text-amber-400" />
