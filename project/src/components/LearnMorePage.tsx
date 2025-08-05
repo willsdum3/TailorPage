@@ -180,8 +180,8 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack, onStartQuiz }) =>
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Users className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-white mb-2">Social Sharing</h3>
-                <p className="text-sm text-white/70">Share your results and inspire friends to discover new books</p>
+                <h3 className="font-semibold text-white mb-2">Tailor Mates</h3>
+                <p className="text-sm text-white/70">Connect with like-minded readers and join virtual book clubs</p>
               </div>
 
               <div className="text-center group">
@@ -198,6 +198,87 @@ const LearnMorePage: React.FC<LearnMorePageProps> = ({ onBack, onStartQuiz }) =>
                 </div>
                 <h3 className="font-semibold text-white mb-2">Celebrity Tester</h3>
                 <p className="text-sm text-white/70">Test your knowledge about celebrities and their reading habits</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Tailor Mates Feature */}
+          <section className="bg-gradient-to-r from-pink-500/10 to-purple-600/10 backdrop-blur-xl border border-pink-500/20 rounded-2xl p-8">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center space-x-2 mb-4">
+                <Users className="w-8 h-8 text-pink-400" />
+                <h2 className="text-4xl font-bold text-white">Tailor Mates</h2>
+              </div>
+              <p className="text-xl text-white/70 max-w-3xl mx-auto">
+                Connect with readers who share your personality profile and reading preferences
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-6">Virtual Book Club Experience</h3>
+                <p className="text-white/70 mb-6 leading-relaxed">
+                  Tailor Mates brings together readers with similar personality profiles to create meaningful connections and enhance your reading journey through shared experiences.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-xs font-bold">1</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white mb-1">Personality-Based Matching</h4>
+                      <p className="text-white/70 text-sm">Connect with readers who share similar personality traits and reading preferences, ensuring meaningful discussions and book recommendations.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-xs font-bold">2</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white mb-1">Virtual Book Clubs</h4>
+                      <p className="text-white/70 text-sm">Join themed book clubs where members read and discuss books that align with your shared personality profile and interests.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-xs font-bold">3</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white mb-1">Community Discussions</h4>
+                      <p className="text-white/70 text-sm">Engage in thoughtful conversations about books, share insights, and discover new perspectives from like-minded readers.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-6">Enhanced Reading Experience</h3>
+                <p className="text-white/70 mb-6 leading-relaxed">
+                  Transform your reading journey by connecting with a community that understands your reading style and preferences.
+                </p>
+                
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 mb-4">
+                  <h4 className="font-semibold text-pink-400 mb-3">Community Benefits</h4>
+                  <div className="space-y-2 text-sm text-white/70">
+                    <div>• <strong>Shared Reading Lists:</strong> Discover books loved by readers with similar tastes</div>
+                    <div>• <strong>Discussion Forums:</strong> Deep dive into themes and characters with your community</div>
+                    <div>• <strong>Reading Challenges:</strong> Participate in personality-based reading challenges</div>
+                    <div>• <strong>Book Swaps:</strong> Exchange recommendations with your Tailor Mates</div>
+                  </div>
+                </div>
+                
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+                  <h4 className="font-semibold text-pink-400 mb-3">Why It Works</h4>
+                  <div className="space-y-2 text-sm text-white/70">
+                    <div>• <strong>Personality Compatibility:</strong> Connect with readers who think like you</div>
+                    <div>• <strong>Deeper Discussions:</strong> Share insights that resonate with your community</div>
+                    <div>• <strong>Continuous Discovery:</strong> Get recommendations from trusted sources</div>
+                    <div>• <strong>Reading Motivation:</strong> Stay engaged with your reading goals</div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>

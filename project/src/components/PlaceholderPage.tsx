@@ -1000,10 +1000,10 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
         <div className="text-center mb-12">
           <button
             onClick={onBack}
-            className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+            className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center"
+            aria-label="Go to Home"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Home</span>
+            <Home className="w-6 h-6" />
           </button>
           
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
