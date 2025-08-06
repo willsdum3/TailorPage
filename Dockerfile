@@ -8,6 +8,10 @@ RUN npm ci
 
 # Copy project source code
 COPY project/ .
+
+# Copy environment variables for build
+COPY project/.env ./
+
 RUN npm run build
 
 # Stage 2: Serve with a lightweight web server
@@ -15,6 +19,9 @@ FROM nginx:alpine
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy public assets (if they exist and are needed)
 COPY --from=builder /app/public /usr/share/nginx/html/public

@@ -9,9 +9,6 @@ const manualCoverOverrides: Record<string, string> = {
   // Add specific book cover URLs here for books that have incorrect covers
   // Format: 'book-id': 'https://example.com/correct-cover.jpg'
   
-  // Fix for "Becoming" by Michelle Obama - using correct cover
-  'becoming': 'https://m.media-amazon.com/images/I/81cJTmFpG-L._SY466_.jpg',
-  
   // Fix for "A People's History of the United States" by Howard Zinn - using correct cover
   'a-peoples-history-united-states': 'https://m.media-amazon.com/images/I/71Zb-D8NaGL._SY466_.jpg',
   
@@ -85,9 +82,12 @@ const fetchBookCoverFromGoogle = async (title: string, author: string): Promise<
  * Get cached book cover or fetch from API
  */
 export const getBookCover = async (bookId: string, title: string, author: string): Promise<string | null> => {
+  // Create a cache key based on title and author to avoid duplicates
+  const cacheKey = `${title.toLowerCase()}-${author.toLowerCase()}`;
+  
   // Check cache first
-  if (bookCoverCache.has(bookId)) {
-    return bookCoverCache.get(bookId)!;
+  if (bookCoverCache.has(cacheKey)) {
+    return bookCoverCache.get(cacheKey)!;
   }
   
   // Check manual overrides
@@ -99,7 +99,7 @@ export const getBookCover = async (bookId: string, title: string, author: string
   const coverUrl = await fetchBookCoverFromGoogle(title, author);
   
   // Cache the result (even if null to avoid repeated failed requests)
-  bookCoverCache.set(bookId, coverUrl || '');
+  bookCoverCache.set(cacheKey, coverUrl || '');
   
   return coverUrl;
 };
@@ -125,8 +125,15 @@ export const clearBookCoverCache = (): void => {
 /**
  * Clear a specific book cover from cache
  */
-export const clearBookCoverFromCache = (bookId: string): void => {
-  bookCoverCache.delete(bookId);
+export const clearBookCoverFromCache = (bookId: string, title?: string, author?: string): void => {
+  if (title && author) {
+    // Use title-author key if available
+    const cacheKey = `${title.toLowerCase()}-${author.toLowerCase()}`;
+    bookCoverCache.delete(cacheKey);
+  } else {
+    // Fallback to bookId (for backward compatibility)
+    bookCoverCache.delete(bookId);
+  }
 };
 
 /**

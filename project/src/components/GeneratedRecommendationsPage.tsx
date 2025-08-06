@@ -25,7 +25,20 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
   user,
   onLoginRequired
 }) => {
-  const isBookFavorited = (bookId: string) => favorites.some(fav => fav.id === bookId);
+  const isBookFavorited = (bookId: string) => {
+    // Find the book in recommendations to get title and author
+    const book = recommendations.find(rec => rec.id === bookId);
+    if (!book) return false;
+    
+    // Check if this book is favorited by comparing title and author
+    const isFavorited = favorites.some(fav => 
+      fav.title.toLowerCase() === book.title.toLowerCase() && 
+      fav.author.toLowerCase() === book.author.toLowerCase()
+    );
+    
+    console.log(`isBookFavorited for ${book.title}:`, isFavorited, 'favorites count:', favorites.length);
+    return isFavorited;
+  };
 
   // Scroll to top when component mounts
   useScrollToTopInstant([]);

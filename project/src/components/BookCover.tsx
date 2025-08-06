@@ -79,6 +79,13 @@ const BookCover: React.FC<BookCoverProps> = ({
     };
   }, [bookId, title, author, coverImage]);
 
+  // Clear cover URL when bookId changes to prevent stale covers
+  useEffect(() => {
+    setCoverUrl(null);
+    setHasError(false);
+    setIsLoading(true);
+  }, [bookId]);
+
   const handleImageError = () => {
     setHasError(true);
     setCoverUrl(null);

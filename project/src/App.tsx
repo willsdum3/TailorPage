@@ -19,6 +19,9 @@ import { User } from './types';
 import { getBookRecommendations } from './utils/bookRecommendations';
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
+import { useUserSync } from './hooks/useUserSync';
+import { saveUserPersonalityProfile, getUserPersonalityProfile, addBookToFavorites, removeBookFromFavorites, getUserFavorites } from './lib/supabase';
+import { clearBookCoverFromCache } from './utils/bookCoverService';
 
 // Book questions for the quiz
 const bookQuestions: BookQuestion[] = [
@@ -257,7 +260,8 @@ type AppPage = 'intro' | 'welcome' | 'quiz' | 'results' | 'profile' | 'favourite
 // No Supabase or external auth logic present
 
 function App() {
-  const { user: clerkUser, isLoaded } = useUser();
+  // Use user sync hook to automatically sync Clerk user to Supabase
+  const { user: clerkUser, isLoaded } = useUserSync();
   const { signOut } = useClerk();
   const [currentPage, setCurrentPage] = useState<AppPage>('intro');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
@@ -297,6 +301,57 @@ function App() {
     }
   }, [isLoaded, clerkUser, currentPage]);
 
+  // Load user data from database when user is authenticated
+  useEffect(() => {
+    console.log('loadUserData useEffect triggered, user:', user);
+    
+    if (user) {
+      console.log('Loading user data for user:', user.id);
+      
+      const loadUserData = async () => {
+        try {
+          // Load personality profile
+          console.log('Loading personality profile...');
+          const profile = await getUserPersonalityProfile(user.id);
+          if (profile) {
+            console.log('Personality profile loaded:', profile);
+            setPersonalityProfile(profile);
+          } else {
+            console.log('No personality profile found for user');
+          }
+          
+          // Load favorites
+          console.log('Loading favorites...');
+          const dbFavorites = await getUserFavorites(user.id);
+          console.log('getUserFavorites returned:', dbFavorites);
+          
+          const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => ({
+            id: fav.book_id,
+            title: fav.title,
+            author: fav.author,
+            genre: fav.genre,
+            description: fav.description,
+            amazonLink: fav.amazon_link,
+            coverImageUrl: fav.cover_image_url,
+            dateAdded: fav.date_added
+          }));
+          console.log('Formatted favorites:', formattedFavorites);
+          setFavorites(formattedFavorites);
+        } catch (error) {
+          console.error('Error loading user data:', error);
+          // Don't reset data if database fails - keep local state
+        }
+      };
+      
+      loadUserData();
+    } else {
+      console.log('No user, clearing user data');
+      // Clear user data when user logs out
+      setFavorites([]);
+      setPersonalityProfile(null);
+    }
+  }, [user]); // Trigger on any user change
+
   // Handle intro page navigation
   const handleIntroLogin = () => {
     setAuthModalMode('login');
@@ -308,28 +363,93 @@ function App() {
     setIsAuthModalOpen(true);
   };
 
-  const handleToggleFavorite = (book: BookRecommendation) => {
-    // Only allow favoriting books that are in the current recommendations
-    const isRecommended = recommendations.some(rec => rec.id === book.id);
-    if (!isRecommended) {
-      alert("You can only favorite books from your current recommendations.");
+  const handleToggleFavorite = async (book: BookRecommendation) => {
+    console.log('handleToggleFavorite called with book:', book);
+    console.log('Current user:', user);
+    
+    if (!user) {
+      console.log('No user found, returning early');
       return;
     }
-    const isAlreadyFavorited = favorites.some(fav => fav.id === book.id);
     
+    // Check if book is already favorited by comparing title and author
+    const isAlreadyFavorited = favorites.some(fav => 
+      fav.title.toLowerCase() === book.title.toLowerCase() && 
+      fav.author.toLowerCase() === book.author.toLowerCase()
+    );
+    console.log('Is already favorited:', isAlreadyFavorited);
+    
+    // Update UI immediately for better user experience
     if (isAlreadyFavorited) {
-      setFavorites(favorites.filter(fav => fav.id !== book.id));
+      // Remove from favorites immediately
+      setFavorites(prev => prev.filter(fav => 
+        !(fav.title.toLowerCase() === book.title.toLowerCase() && 
+          fav.author.toLowerCase() === book.author.toLowerCase())
+      ));
+      console.log('Book removed from favorites (UI updated)');
     } else {
+      // Add to favorites immediately
       const favoriteBook: FavoriteBook = {
         ...book,
         dateAdded: new Date().toISOString()
       };
-      setFavorites([...favorites, favoriteBook]);
+      setFavorites(prev => [...prev, favoriteBook]);
+      console.log('Book added to favorites (UI updated)');
+      
+      // Clear the book cover cache for this book to ensure fresh cover
+      clearBookCoverFromCache(book.id, book.title, book.author);
+    }
+    
+    // Then try to sync with database in the background
+    try {
+      console.log('Starting database sync...');
+      if (isAlreadyFavorited) {
+        console.log('Removing from database...');
+        const success = await removeBookFromFavorites(user.id, book.title, book.author);
+        console.log('Database remove result:', success);
+      } else {
+        console.log('Adding to database...');
+        const result = await addBookToFavorites(user.id, {
+          title: book.title,
+          author: book.author,
+          genre: book.genre,
+          description: book.description,
+          amazon_link: book.amazonLink,
+          cover_image_url: book.coverImageUrl
+        });
+        console.log('Database add result:', result);
+      }
+    } catch (error) {
+      console.error('Error syncing with database:', error);
+      // Don't show alert to user since UI already updated
     }
   };
 
-  const handleRemoveFavorite = (bookId: string) => {
-    setFavorites(favorites.filter(fav => fav.id !== bookId));
+  const handleRemoveFavorite = async (bookId: string) => {
+    if (!user) return;
+    
+    const favorite = favorites.find(fav => fav.id === bookId);
+    if (!favorite) return;
+
+    // Update UI immediately for better user experience
+    setFavorites(prev => prev.filter(fav => fav.id !== bookId));
+
+    // Clear the book cover cache for this book to prevent stale covers
+    clearBookCoverFromCache(bookId, favorite.title, favorite.author);
+
+    try {
+      const success = await removeBookFromFavorites(user.id, favorite.title, favorite.author);
+      if (!success) {
+        // If database removal failed, revert the UI change
+        setFavorites(prev => [...prev, favorite]);
+        alert('Failed to remove favorite. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+      // Revert the UI change if there was an error
+      setFavorites(prev => [...prev, favorite]);
+      alert('Failed to remove favorite. Please try again.');
+    }
   };
 
   const handleLogin = async (credentials: LoginCredentials) => {
@@ -364,7 +484,7 @@ function App() {
     setCurrentPage('quiz');
   };
 
-  const handleQuizComplete = (quizAnswers: Record<number, LikertResponse>, quizBookAnswers: Record<number, BookResponse>) => {
+  const handleQuizComplete = async (quizAnswers: Record<number, LikertResponse>, quizBookAnswers: Record<number, BookResponse>) => {
     setAnswers(quizAnswers);
     setBookAnswers(quizBookAnswers);
     setCurrentQuestionIndex(0); // Reset for next time
@@ -409,6 +529,17 @@ function App() {
     });
 
     setPersonalityProfile(profile);
+
+    // Save personality profile to database
+    if (user) {
+      try {
+        await saveUserPersonalityProfile(user.id, profile);
+        console.log('Personality profile saved successfully');
+      } catch (error) {
+        console.error('Error saving personality profile:', error);
+      }
+    }
+
     // Generate and store recommendations ONCE per quiz completion
     const recs = getBookRecommendations(profile);
     setRecommendations(recs);
@@ -456,6 +587,30 @@ function App() {
     console.log('App navigation handler received:', page); // Debug log
     if (page === 'home') {
       setCurrentPage('welcome');
+    } else if (page === 'favourites' && user) {
+      // Load favorites when navigating to favorites page
+      console.log('Navigating to favorites, loading favorites for user:', user.id);
+      const loadFavorites = async () => {
+        try {
+          const dbFavorites = await getUserFavorites(user.id);
+          const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => ({
+            id: fav.book_id,
+            title: fav.title,
+            author: fav.author,
+            genre: fav.genre,
+            description: fav.description,
+            amazonLink: fav.amazon_link,
+            coverImageUrl: fav.cover_image_url,
+            dateAdded: fav.date_added
+          }));
+          setFavorites(formattedFavorites);
+          console.log('Favorites loaded from database:', formattedFavorites);
+        } catch (error) {
+          console.error('Error loading favorites on navigation:', error);
+        }
+      };
+      loadFavorites();
+      setCurrentPage(page as AppPage);
     } else {
       // Clear quiz progress when navigating to any page other than quiz or results
       setAnswers({});

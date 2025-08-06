@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .image-test { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        img { max-width: 200px; height: auto; margin: 10px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Docker Image Test</h1>
+    <p>Testing if images are accessible from the Docker container...</p>
+    
+    <div class="image-test">
+        <h3>Book Covers Test:</h3>
+        <img src="/public/book-covers/InvisibleCities.jpg" alt="Invisible Cities" onload="this.parentElement.innerHTML += '<div class=success>✓ InvisibleCities.jpg loaded successfully</div>'" onerror="this.parentElement.innerHTML += '<div class=error>✗ InvisibleCities.jpg failed to load</div>'">
+        <img src="/public/book-covers/MansSearchForMeaning.jpg" alt="Man's Search for Meaning" onload="this.parentElement.innerHTML += '<div class=success>✓ MansSearchForMeaning.jpg loaded successfully</div>'" onerror="this.parentElement.innerHTML += '<div class=error>✗ MansSearchForMeaning.jpg failed to load</div>'">
+        <img src="/public/book-covers/WhereTheCrawdadsSing.jpg" alt="Where the Crawdads Sing" onload="this.parentElement.innerHTML += '<div class=success>✓ WhereTheCrawdadsSing.jpg loaded successfully</div>'" onerror="this.parentElement.innerHTML += '<div class=error>✗ WhereTheCrawdadsSing.jpg failed to load</div>'">
+        <img src="/public/book-covers/Wonder.jpg" alt="Wonder" onload="this.parentElement.innerHTML += '<div class=success>✓ Wonder.jpg loaded successfully</div>'" onerror="this.parentElement.innerHTML += '<div class=error>✗ Wonder.jpg failed to load</div>'">
+        <img src="/public/book-covers/StillnessIsTheKey.jpg" alt="Stillness Is the Key" onload="this.parentElement.innerHTML += '<div class=success>✓ StillnessIsTheKey.jpg loaded successfully</div>'" onerror="this.parentElement.innerHTML += '<div class=error>✗ StillnessIsTheKey.jpg failed to load</div>'">
+    </div>
+    
+    <div class="image-test">
+        <h3>Other Images Test:</h3>
+        <img src="/public/tailorpagelogoupdate.png" alt="Tailor Page Logo" onload="this.parentElement.innerHTML += '<div class=success>✓ Logo loaded successfully</div>'" onerror="this.parentElement.innerHTML += '<div class=error>✗ Logo failed to load</div>'">
+        <img src="/public/favicon.svg" alt="Favicon" onload="this.parentElement.innerHTML += '<div class=success>✓ Favicon loaded successfully</div>'" onerror="this.parentElement.innerHTML += '<div class=error>✗ Favicon failed to load</div>'">
+    </div>
+    
+    <div class="image-test">
+        <h3>Direct URL Test:</h3>
+        <p>Try these URLs directly in your browser:</p>
+        <ul>
+            <li><a href="/public/book-covers/InvisibleCities.jpg" target="_blank">/public/book-covers/InvisibleCities.jpg</a></li>
+            <li><a href="/public/book-covers/MansSearchForMeaning.jpg" target="_blank">/public/book-covers/MansSearchForMeaning.jpg</a></li>
+            <li><a href="/public/tailorpagelogoupdate.png" target="_blank">/public/tailorpagelogoupdate.png</a></li>
+        </ul>
+    </div>
+</body>
+</html> 
