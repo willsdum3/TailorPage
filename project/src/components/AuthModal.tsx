@@ -231,12 +231,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           onClose();
         }
       } else {
-        // Sign up with Clerk - include username if provided
+        // Sign up with Clerk - optimized payload for better performance
         const signUpData: any = {
-          emailAddress: formData.email,
+          emailAddress: formData.email.trim().toLowerCase(), // Normalize email
           password: formData.password,
-          username: formData.username,
         };
+        
+        // Only include username if it's provided and valid
+        if (formData.username && formData.username.trim()) {
+          signUpData.username = formData.username.trim().toLowerCase();
+        }
         
         // Don't include firstName/lastName - your Clerk org doesn't accept them
         // The name will be added to the user profile after signup if needed
@@ -244,7 +248,35 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         console.log('Clerk signup data:', signUpData);
         console.log('Starting Clerk signup...');
         
-        const result = await signUp.create(signUpData);
+        // Add timeout and retry logic for better performance
+        const createSignupWithTimeout = async (retryCount = 0) => {
+          const maxRetries = 2;
+          const timeout = 30000; // 30 seconds timeout
+          
+          try {
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Signup request timed out')), timeout)
+            );
+            
+            const signupPromise = signUp.create(signUpData);
+            
+            const result = await Promise.race([signupPromise, timeoutPromise]);
+            return result;
+          } catch (error: any) {
+            console.error(`Signup attempt ${retryCount + 1} failed:`, error);
+            
+            if (retryCount < maxRetries && (error.message?.includes('timeout') || error.message?.includes('network'))) {
+              console.log(`Retrying signup... (attempt ${retryCount + 2}/${maxRetries + 1})`);
+              setErrors({ general: `Connection slow, retrying... (attempt ${retryCount + 2}/${maxRetries + 1})` });
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+              return createSignupWithTimeout(retryCount + 1);
+            }
+            
+            throw error;
+          }
+        };
+        
+        const result = await createSignupWithTimeout();
         console.log('Clerk signup result:', result);
         console.log('Signup status:', result.status);
 
@@ -316,8 +348,25 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         <form onSubmit={showVerification ? handleVerificationSubmit : handleSubmit} className="p-6 space-y-4">
           {errors.general && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-              <p className="text-red-400 text-sm">{errors.general}</p>
+            <div className={`${errors.general.includes('retrying') ? 'bg-blue-500/10 border-blue-500/20' : 'bg-red-500/10 border-red-500/20'} rounded-xl p-3`}>
+              <p className={`text-sm ${errors.general.includes('retrying') ? 'text-blue-400' : 'text-red-400'}`}>
+                {errors.general}
+              </p>
+            </div>
+          )}
+
+          {/* Loading progress indicator */}
+          {isLoading && !showVerification && !isLoginMode && (
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-5 h-5 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+                <div className="flex-1">
+                  <p className="text-amber-400 text-sm font-medium">Creating your account...</p>
+                  <p className="text-amber-400/70 text-xs mt-1">
+                    This may take up to 30 seconds. Please don't close this window.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -501,7 +550,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 disabled:from-amber-500/50 disabled:to-orange-600/50 text-white py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 disabled:transform-none disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           >
             {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>
+                  {showVerification ? 'Verifying...' : 
+                   isLoginMode ? 'Signing in...' : 'Creating account...'}
+                </span>
+              </>
             ) : (
               <>
                 {showVerification ? (
