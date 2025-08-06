@@ -91,7 +91,7 @@ TailorPage combines psychology and literature to deliver personalized book recom
 
 2. **Run the container**
    ```bash
-   docker run -d -p 3000:80 tailorpage
+   docker run -d -p 3000:80 tailorpage 
    ```
 
 3. **Access the application**
