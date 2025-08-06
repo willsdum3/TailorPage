@@ -403,6 +403,46 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                     placeholder="Enter your password"
                   />
                 </div>
+                
+                {/* Password Requirements */}
+                {!isLoginMode && (
+                  <div className="mt-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <p className="text-blue-400 text-xs font-medium mb-2">Password Requirements:</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${formData.password.length >= 8 ? 'bg-green-400' : 'bg-white/30'}`}></div>
+                        <span className={`text-xs ${formData.password.length >= 8 ? 'text-green-400' : 'text-white/60'}`}>
+                          At least 8 characters
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(formData.password) ? 'bg-green-400' : 'bg-white/30'}`}></div>
+                        <span className={`text-xs ${/[A-Z]/.test(formData.password) ? 'text-green-400' : 'text-white/60'}`}>
+                          One uppercase letter (A-Z)
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(formData.password) ? 'bg-green-400' : 'bg-white/30'}`}></div>
+                        <span className={`text-xs ${/[a-z]/.test(formData.password) ? 'text-green-400' : 'text-white/60'}`}>
+                          One lowercase letter (a-z)
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${/\d/.test(formData.password) ? 'bg-green-400' : 'bg-white/30'}`}></div>
+                        <span className={`text-xs ${/\d/.test(formData.password) ? 'text-green-400' : 'text-white/60'}`}>
+                          One number (0-9)
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+                        <span className="text-xs text-white/60">
+                          Not found in data breaches
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 {errors.password && <p className="text-red-400 text-sm mt-2">{errors.password}</p>}
               </div>
             </>
