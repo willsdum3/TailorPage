@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useUser, useClerk } from '@clerk/clerk-react';
+import { useState, useEffect } from 'react';
+import { useClerk } from '@clerk/clerk-react';
 import IntroPage from './components/IntroPage';
 import WelcomePage from './components/WelcomePage';
 import QuizPage from './components/QuizPage';
@@ -14,7 +14,7 @@ import CelebrityTesterPage from './components/CelebrityTesterPage';
 import TailorMatesPage from './components/TailorMatesPage';
 import AuthModal from './components/AuthModal';
 import AuthButton from './components/AuthButton';
-import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, LoginCredentials, SignupData, BookQuestion, BookResponse } from './types';
+import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, BookQuestion, BookResponse } from './types';
 import { User } from './types';
 import { getBookRecommendations } from './utils/bookRecommendations';
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
@@ -452,15 +452,7 @@ function App() {
     }
   };
 
-  const handleLogin = async (credentials: LoginCredentials) => {
-    // This would integrate with your auth system
-    console.log('Login attempt:', credentials);
-  };
 
-  const handleSignup = async (data: SignupData) => {
-    // This would integrate with your auth system
-    console.log('Signup attempt:', data);
-  };
 
   const handleLogout = async () => {
     try {
@@ -673,8 +665,6 @@ function App() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onLogin={handleLogin}
-        onSignup={handleSignup}
         initialMode={authModalMode}
       />
       

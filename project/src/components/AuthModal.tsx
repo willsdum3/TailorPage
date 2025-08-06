@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { X, User, Mail, Lock, UserPlus, LogIn, Chrome } from 'lucide-react';
 import { useSignIn, useSignUp } from '@clerk/clerk-react';
-import { LoginCredentials, SignupData, User as UserType } from '../types';
+
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (credentials: LoginCredentials) => void;
-  onSignup: (data: SignupData) => void;
   initialMode?: 'login' | 'signup';
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignup, initialMode = 'login' }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login' }) => {
   const { signIn, setActive } = useSignIn();
   const { signUp, setActive: setActiveSignUp } = useSignUp();
   const [isLoginMode, setIsLoginMode] = useState(initialMode === 'login');
@@ -204,6 +202,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
     }
 
     setErrors(newErrors);
@@ -244,15 +244,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
         console.log('Clerk signup data:', signUpData);
         console.log('Starting Clerk signup...');
         
-        // Add timeout to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Signup timeout after 30 seconds')), 30000)
-        );
-        
-        const result = await Promise.race([
-          signUp.create(signUpData),
-          timeoutPromise
-        ]) as any;
+        const result = await signUp.create(signUpData);
         console.log('Clerk signup result:', result);
         console.log('Signup status:', result.status);
 
@@ -278,7 +270,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, onSignu
       setErrors({});
     } catch (error: any) {
       console.error('Authentication error:', error);
-      setErrors({ general: error.errors?.[0]?.message || 'Authentication failed. Please try again.' });
+      
+      // Handle specific error types
+      let errorMessage = 'Authentication failed. Please try again.';
+      
+      if (error.errors && error.errors.length > 0) {
+        const firstError = error.errors[0];
+        if (firstError.code === 'form_password_pwned') {
+          errorMessage = 'This password has been found in a data breach. Please choose a different, more secure password.';
+        } else if (firstError.code === 'form_password_validation_failed') {
+          errorMessage = 'Password does not meet security requirements. Please use a stronger password.';
+        } else {
+          errorMessage = firstError.message || errorMessage;
+        }
+      }
+      
+      setErrors({ general: errorMessage });
     } finally {
       setIsLoading(false);
     }
