@@ -569,7 +569,15 @@ function App() {
 
   const handleNewRecommendations = () => {
     // Generate new recommendations with expanded personality matching, excluding all previously recommended book IDs and favorited books
+    console.log('🎯 handleNewRecommendations FUNCTION CALLED!');
+    alert('🎯 Generate New Books button clicked! Check console for debug logs.');
+    
     if (!personalityProfile) return;
+    
+    // Ensure favorites are loaded
+    if (favorites.length === 0) {
+      console.log('⚠️ WARNING: No favorites loaded, this might cause issues with exclusion');
+    }
     
     // Create a set of favorited book title/author combinations for robust exclusion
     // Note: We can't rely on book IDs since database uses UUIDs and recommendations use string IDs
@@ -586,11 +594,46 @@ function App() {
     console.log('📝 Favorited book signatures:', Array.from(favoritedBookSignatures));
     console.log('🚫 Exclude IDs (previously recommended):', excludeIds);
     
+    // Simple test to verify favorites are loaded
+    if (favorites.length > 0) {
+      console.log(`✅ Favorites loaded successfully: ${favorites.length} books`);
+      console.log('Sample favorites:', favorites.slice(0, 3).map(f => `${f.title} by ${f.author}`));
+    } else {
+      console.log('⚠️ No favorites loaded!');
+    }
+    
+    // Test signature matching for "The Goldfinch"
+    const testSignature = 'the goldfinch-donna tartt';
+    console.log(`🧪 Test: Is "The Goldfinch" in favorites? ${favoritedBookSignatures.has(testSignature)}`);
+    console.log(`🧪 Test: All signatures:`, Array.from(favoritedBookSignatures));
+    
     // Use expanded personality matching for more diverse recommendations
-    const newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, excludeIds, true, favoritedBookSignatures);
+    let newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, excludeIds, true, favoritedBookSignatures);
+    
+    // MANUAL FILTERING AS A BACKUP - Remove any favorited books that might have slipped through
+    const removedFavorites: string[] = [];
+    newRecs = newRecs.filter(book => {
+      const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
+      const isFavorited = favoritedBookSignatures.has(bookSignature);
+      
+      if (isFavorited) {
+        console.log(`🚫 MANUAL FILTER: Removing favorited book "${book.title}" by ${book.author}`);
+        removedFavorites.push(`${book.title} by ${book.author}`);
+      }
+      
+      return !isFavorited;
+    });
+    
+    // Show alert if any favorited books were removed
+    if (removedFavorites.length > 0) {
+      console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from recommendations:`, removedFavorites);
+      alert(`✅ SUCCESS: Removed ${removedFavorites.length} favorited books from new recommendations!\n\nRemoved: ${removedFavorites.join(', ')}`);
+    } else {
+      console.log('✅ No favorited books found in recommendations - filtering working correctly');
+    }
     
     // Debug logging for results
-    console.log('✅ New recommendations generated:', newRecs.map(book => `${book.title} by ${book.author}`));
+    console.log('✅ Final recommendations after manual filtering:', newRecs.map(book => `${book.title} by ${book.author}`));
     
     setRecommendations(newRecs);
     setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
@@ -715,7 +758,39 @@ function App() {
                 hasCompletedQuiz={!!personalityProfile}
                 onGenerateNewBooks={() => {
                   if (!personalityProfile) return;
-                  const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
+                  
+                  console.log('🎯 HOME PAGE Generate New Books button clicked!');
+                  
+                  // Create a set of favorited book title/author combinations for robust exclusion
+                  const favoritedBookSignatures = new Set(
+                    favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
+                  );
+                  
+                  // Use expanded personality matching for more diverse recommendations
+                  let newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, allRecommendedIds, true, favoritedBookSignatures);
+                  
+                  // MANUAL FILTERING AS A BACKUP - Remove any favorited books that might have slipped through
+                  const removedFavorites: string[] = [];
+                  newRecs = newRecs.filter(book => {
+                    const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
+                    const isFavorited = favoritedBookSignatures.has(bookSignature);
+                    
+                    if (isFavorited) {
+                      console.log(`🚫 MANUAL FILTER: Removing favorited book "${book.title}" by ${book.author}`);
+                      removedFavorites.push(`${book.title} by ${book.author}`);
+                    }
+                    
+                    return !isFavorited;
+                  });
+                  
+                  // Show alert if any favorited books were removed
+                  if (removedFavorites.length > 0) {
+                    console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from recommendations:`, removedFavorites);
+                    alert(`✅ SUCCESS: Removed ${removedFavorites.length} favorited books from new recommendations!\n\nRemoved: ${removedFavorites.join(', ')}`);
+                  } else {
+                    console.log('✅ No favorited books found in recommendations - filtering working correctly');
+                  }
+                  
                   setRecommendations(newRecs);
                   setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
                   setCurrentPage('generated');
@@ -761,7 +836,39 @@ function App() {
                 onStartQuiz={handleStartQuiz}
                 onGenerateNewBooks={() => {
                   if (!personalityProfile) return;
-                  const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
+                  
+                  console.log('🎯 FAVORITES PAGE Generate New Books button clicked!');
+                  
+                  // Create a set of favorited book title/author combinations for robust exclusion
+                  const favoritedBookSignatures = new Set(
+                    favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
+                  );
+                  
+                  // Use expanded personality matching for more diverse recommendations
+                  let newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, allRecommendedIds, true, favoritedBookSignatures);
+                  
+                  // MANUAL FILTERING AS A BACKUP - Remove any favorited books that might have slipped through
+                  const removedFavorites: string[] = [];
+                  newRecs = newRecs.filter(book => {
+                    const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
+                    const isFavorited = favoritedBookSignatures.has(bookSignature);
+                    
+                    if (isFavorited) {
+                      console.log(`🚫 MANUAL FILTER: Removing favorited book "${book.title}" by ${book.author}`);
+                      removedFavorites.push(`${book.title} by ${book.author}`);
+                    }
+                    
+                    return !isFavorited;
+                  });
+                  
+                  // Show alert if any favorited books were removed
+                  if (removedFavorites.length > 0) {
+                    console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from recommendations:`, removedFavorites);
+                    alert(`✅ SUCCESS: Removed ${removedFavorites.length} favorited books from new recommendations!\n\nRemoved: ${removedFavorites.join(', ')}`);
+                  } else {
+                    console.log('✅ No favorited books found in recommendations - filtering working correctly');
+                  }
+                  
                   setRecommendations(newRecs);
                   setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
                   setCurrentPage('generated');

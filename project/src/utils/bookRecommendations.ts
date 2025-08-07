@@ -1364,10 +1364,17 @@ export const getBookRecommendationsWithExpandedMatching = (
     // Check if this book matches a favorited book by title and author (primary exclusion method)
     if (favoritedBookSignatures && favoritedBookSignatures.size > 0) {
       const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
+      console.log(`🔍 Checking book: ${book.title} by ${book.author} (Signature: ${bookSignature})`);
+      console.log(`🔍 Available signatures:`, Array.from(favoritedBookSignatures));
+      
       if (favoritedBookSignatures.has(bookSignature)) {
         console.log(`🚫 Excluded by signature: ${book.title} by ${book.author} (Signature: ${bookSignature})`);
         return false;
+      } else {
+        console.log(`✅ Not excluded: ${book.title} by ${book.author} (Signature: ${bookSignature})`);
       }
+    } else {
+      console.log(`⚠️ No favorited book signatures provided for exclusion`);
     }
     
     return true;
