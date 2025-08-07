@@ -60,7 +60,7 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-16 relative">
-          <div className="absolute top-0 right-0">
+          <div className="absolute top-0 left-0">
             <button
               onClick={onHome}
               className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
