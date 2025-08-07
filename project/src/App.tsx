@@ -16,7 +16,7 @@ import AuthModal from './components/AuthModal';
 import AuthButton from './components/AuthButton';
 import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, BookQuestion, BookResponse } from './types';
 import { User } from './types';
-import { getBookRecommendations } from './utils/bookRecommendations';
+import { getBookRecommendations, getBookRecommendationsWithExpandedMatching } from './utils/bookRecommendations';
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 import { useUserSync } from './hooks/useUserSync';
@@ -568,16 +568,22 @@ function App() {
   };
 
   const handleNewRecommendations = () => {
-    // Generate new recommendations, excluding all previously recommended book IDs and favorited books
+    // Generate new recommendations with expanded personality matching, excluding all previously recommended book IDs and favorited books
     if (!personalityProfile) return;
     
     // Get IDs of favorited books to exclude them from new recommendations
     const favoritedBookIds = favorites.map(fav => fav.id);
     
+    // Also create a set of favorited book title/author combinations for more robust exclusion
+    const favoritedBookSignatures = new Set(
+      favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
+    );
+    
     // Combine previously recommended IDs with favorited book IDs
     const excludeIds = [...allRecommendedIds, ...favoritedBookIds];
     
-    const newRecs = getBookRecommendations(personalityProfile, excludeIds);
+    // Use expanded personality matching for more diverse recommendations
+    const newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, excludeIds, true, favoritedBookSignatures);
     setRecommendations(newRecs);
     setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
     setCurrentPage('generated');

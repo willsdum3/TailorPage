@@ -11,6 +11,16 @@ const seededRandom = () => {
 };
 
 export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: string[] = []): BookRecommendation[] => {
+  return getBookRecommendationsWithExpandedMatching(profile, excludeIds, false);
+};
+
+// New function for expanded personality matching (used for "Generate New Books")
+export const getBookRecommendationsWithExpandedMatching = (
+  profile: PersonalityProfile, 
+  excludeIds: string[] = [], 
+  useExpandedMatching: boolean = false,
+  favoritedBookSignatures?: Set<string>
+): BookRecommendation[] => {
   const recommendations: BookRecommendation[] = [];
 
   // Expanded book pool - 10,000+ books across all genres and personality types
@@ -1120,7 +1130,26 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
   }
 
   // Enhanced personality-based scoring system for 10,000+ books
-  const scoreBook = (book: BookRecommendation, profile: PersonalityProfile): number => {
+  const scoreBook = (book: BookRecommendation, profile: PersonalityProfile, useExpandedMatching: boolean = false): number => {
+    let score = 0;
+    
+    // If using expanded matching, create multiple personality profiles with slight variations
+    const profilesToScore = useExpandedMatching ? [
+      profile,
+      // Similar profile with slightly different traits
+      { ...profile, openness: Math.max(1, Math.min(25, profile.openness + (Math.random() > 0.5 ? 2 : -2))) },
+      { ...profile, conscientiousness: Math.max(1, Math.min(25, profile.conscientiousness + (Math.random() > 0.5 ? 2 : -2))) },
+      { ...profile, extraversion: Math.max(1, Math.min(25, profile.extraversion + (Math.random() > 0.5 ? 2 : -2))) },
+      { ...profile, agreeableness: Math.max(1, Math.min(25, profile.agreeableness + (Math.random() > 0.5 ? 2 : -2))) },
+      { ...profile, emotionalStability: Math.max(1, Math.min(25, profile.emotionalStability + (Math.random() > 0.5 ? 2 : -2))) }
+    ] : [profile];
+    
+    // Score against all profiles and take the best score
+    const scores = profilesToScore.map(p => scoreBookAgainstProfile(book, p));
+    return Math.max(...scores);
+  };
+  
+  const scoreBookAgainstProfile = (book: BookRecommendation, profile: PersonalityProfile): number => {
     let score = 0;
 
     // Genre-based scoring with more nuanced weightings
@@ -1324,13 +1353,28 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
     return score;
   };
 
-  // Filter out excluded books first
-  const filteredBookPool = bookPool.filter(book => !excludeIds.includes(book.id));
+  // Filter out excluded books first (by ID and also by title/author for favorited books)
+  const filteredBookPool = bookPool.filter(book => {
+    // Check if book ID is in excludeIds
+    if (excludeIds.includes(book.id)) {
+      return false;
+    }
+    
+    // Additional check: if this book matches a favorited book by title and author
+    if (favoritedBookSignatures) {
+      const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
+      if (favoritedBookSignatures.has(bookSignature)) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
   
   // Score all books and sort by relevance
   const scoredBooks = filteredBookPool.map(book => ({
     book,
-    score: scoreBook(book, profile),
+    score: scoreBook(book, profile, useExpandedMatching),
     randomFactor: seededRandom() // Add random factor for each book
   })).sort((a, b) => {
     // Weight: 85% personality match, 15% randomization
