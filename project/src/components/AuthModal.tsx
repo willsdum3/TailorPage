@@ -231,16 +231,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           onClose();
         }
       } else {
-        // Sign up with Clerk - optimized payload for better performance
+        // Sign up with Clerk
         const signUpData: any = {
-          emailAddress: formData.email.trim().toLowerCase(), // Normalize email
+          emailAddress: formData.email,
           password: formData.password,
+          username: formData.username,
         };
-        
-        // Only include username if it's provided and valid
-        if (formData.username && formData.username.trim()) {
-          signUpData.username = formData.username.trim().toLowerCase();
-        }
         
         // Don't include firstName/lastName - your Clerk org doesn't accept them
         // The name will be added to the user profile after signup if needed
@@ -248,35 +244,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         console.log('Clerk signup data:', signUpData);
         console.log('Starting Clerk signup...');
         
-        // Add timeout and retry logic for better performance
-        const createSignupWithTimeout = async (retryCount = 0) => {
-          const maxRetries = 2;
-          const timeout = 30000; // 30 seconds timeout
-          
-          try {
-            const timeoutPromise = new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Signup request timed out')), timeout)
-            );
-            
-            const signupPromise = signUp.create(signUpData);
-            
-            const result = await Promise.race([signupPromise, timeoutPromise]);
-            return result;
-          } catch (error: any) {
-            console.error(`Signup attempt ${retryCount + 1} failed:`, error);
-            
-            if (retryCount < maxRetries && (error.message?.includes('timeout') || error.message?.includes('network'))) {
-              console.log(`Retrying signup... (attempt ${retryCount + 2}/${maxRetries + 1})`);
-              setErrors({ general: `Connection slow, retrying... (attempt ${retryCount + 2}/${maxRetries + 1})` });
-              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
-              return createSignupWithTimeout(retryCount + 1);
-            }
-            
-            throw error;
-          }
-        };
-        
-        const result = await createSignupWithTimeout();
+        const result = await signUp.create(signUpData);
         console.log('Clerk signup result:', result);
         console.log('Signup status:', result.status);
 

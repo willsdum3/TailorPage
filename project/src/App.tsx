@@ -532,8 +532,9 @@ function App() {
       }
     }
 
-    // Generate and store recommendations ONCE per quiz completion
-    const recs = getBookRecommendations(profile);
+    // Generate and store recommendations ONCE per quiz completion, excluding favorited books
+    const favoritedBookIds = favorites.map(fav => fav.id);
+    const recs = getBookRecommendations(profile, favoritedBookIds);
     setRecommendations(recs);
     setAllRecommendedIds(recs.map(book => book.id));
     setCurrentPage('results');
@@ -567,9 +568,16 @@ function App() {
   };
 
   const handleNewRecommendations = () => {
-    // Generate new recommendations, excluding all previously recommended book IDs
+    // Generate new recommendations, excluding all previously recommended book IDs and favorited books
     if (!personalityProfile) return;
-    const newRecs = getBookRecommendations(personalityProfile, allRecommendedIds);
+    
+    // Get IDs of favorited books to exclude them from new recommendations
+    const favoritedBookIds = favorites.map(fav => fav.id);
+    
+    // Combine previously recommended IDs with favorited book IDs
+    const excludeIds = [...allRecommendedIds, ...favoritedBookIds];
+    
+    const newRecs = getBookRecommendations(personalityProfile, excludeIds);
     setRecommendations(newRecs);
     setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
     setCurrentPage('generated');
