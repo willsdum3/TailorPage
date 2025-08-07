@@ -1324,8 +1324,11 @@ export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: 
     return score;
   };
 
+  // Filter out excluded books first
+  const filteredBookPool = bookPool.filter(book => !excludeIds.includes(book.id));
+  
   // Score all books and sort by relevance
-  const scoredBooks = bookPool.map(book => ({
+  const scoredBooks = filteredBookPool.map(book => ({
     book,
     score: scoreBook(book, profile),
     randomFactor: seededRandom() // Add random factor for each book
