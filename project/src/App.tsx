@@ -570,7 +570,6 @@ function App() {
   const handleNewRecommendations = () => {
     // Generate new recommendations with expanded personality matching, excluding all previously recommended book IDs and favorited books
     console.log('🎯 handleNewRecommendations FUNCTION CALLED!');
-    alert('🎯 Generate New Books button clicked! Check console for debug logs.');
     
     if (!personalityProfile) return;
     
@@ -925,7 +924,6 @@ function App() {
             <GeneratedRecommendationsPage
               profile={personalityProfile}
               recommendations={recommendations}
-              onBack={() => setCurrentPage('profile')}
               onHome={() => setCurrentPage('welcome')}
               favorites={favorites}
               onToggleFavorite={handleToggleFavorite}

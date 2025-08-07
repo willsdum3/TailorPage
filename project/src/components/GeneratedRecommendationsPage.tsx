@@ -7,7 +7,6 @@ import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 interface GeneratedRecommendationsPageProps {
   profile: PersonalityProfile;
   recommendations: BookRecommendation[];
-  onBack: () => void;
   onHome: () => void;
   favorites: FavoriteBook[];
   onToggleFavorite: (book: BookRecommendation) => void;
@@ -18,7 +17,6 @@ interface GeneratedRecommendationsPageProps {
 const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> = ({
   profile,
   recommendations,
-  onBack,
   onHome,
   favorites,
   onToggleFavorite,
@@ -69,13 +67,6 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
               <Home className="w-5 h-5" />
             </button>
           </div>
-          <button
-            onClick={onBack}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
-            title="Back to Profile"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6 mt-6">
             <Star className="w-4 h-4 text-amber-400" />
             <span className="text-sm font-medium text-white/80">Fresh Recommendations</span>
