@@ -571,19 +571,27 @@ function App() {
     // Generate new recommendations with expanded personality matching, excluding all previously recommended book IDs and favorited books
     if (!personalityProfile) return;
     
-    // Get IDs of favorited books to exclude them from new recommendations
-    const favoritedBookIds = favorites.map(fav => fav.id);
-    
-    // Also create a set of favorited book title/author combinations for more robust exclusion
+    // Create a set of favorited book title/author combinations for robust exclusion
+    // Note: We can't rely on book IDs since database uses UUIDs and recommendations use string IDs
     const favoritedBookSignatures = new Set(
       favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
     );
     
-    // Combine previously recommended IDs with favorited book IDs
-    const excludeIds = [...allRecommendedIds, ...favoritedBookIds];
+    // Only exclude previously recommended book IDs (not favorited book IDs since they don't match)
+    const excludeIds = [...allRecommendedIds];
+    
+    // Debug logging
+    console.log('🔍 DEBUG: Generating new recommendations');
+    console.log('📚 Favorited books:', favorites);
+    console.log('📝 Favorited book signatures:', Array.from(favoritedBookSignatures));
+    console.log('🚫 Exclude IDs (previously recommended):', excludeIds);
     
     // Use expanded personality matching for more diverse recommendations
     const newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, excludeIds, true, favoritedBookSignatures);
+    
+    // Debug logging for results
+    console.log('✅ New recommendations generated:', newRecs.map(book => `${book.title} by ${book.author}`));
+    
     setRecommendations(newRecs);
     setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
     setCurrentPage('generated');

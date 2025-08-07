@@ -1355,21 +1355,25 @@ export const getBookRecommendationsWithExpandedMatching = (
 
   // Filter out excluded books first (by ID and also by title/author for favorited books)
   const filteredBookPool = bookPool.filter(book => {
-    // Check if book ID is in excludeIds
+    // Check if book ID is in excludeIds (for previously recommended books)
     if (excludeIds.includes(book.id)) {
+      console.log(`🚫 Excluded by ID: ${book.title} by ${book.author} (ID: ${book.id})`);
       return false;
     }
     
-    // Additional check: if this book matches a favorited book by title and author
-    if (favoritedBookSignatures) {
+    // Check if this book matches a favorited book by title and author (primary exclusion method)
+    if (favoritedBookSignatures && favoritedBookSignatures.size > 0) {
       const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
       if (favoritedBookSignatures.has(bookSignature)) {
+        console.log(`🚫 Excluded by signature: ${book.title} by ${book.author} (Signature: ${bookSignature})`);
         return false;
       }
     }
     
     return true;
   });
+  
+  console.log(`📊 Book pool filtered: ${bookPool.length} -> ${filteredBookPool.length} books`);
   
   // Score all books and sort by relevance
   const scoredBooks = filteredBookPool.map(book => ({
