@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Book } from 'lucide-react';
 import { getBookCover } from '../utils/bookCoverService';
-import { getGuaranteedCover } from '../utils/bookCoverFallback';
 
 interface BookCoverProps {
   bookId: string;
@@ -67,8 +66,16 @@ const BookCover: React.FC<BookCoverProps> = ({
           setApiKeyMissing(true);
         }
         
-        // Otherwise, fetch from service with guaranteed fallback
-        const url = await getGuaranteedCover(bookId, title, author, getBookCover);
+        // Otherwise, fetch from service with simple fallback
+        let url = await getBookCover(bookId, title, author);
+        
+        // If no cover found, use a simple fallback
+        if (!url) {
+          const cleanTitle = title.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+          const cleanAuthor = author.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+          url = `https://via.placeholder.com/300x400/1f2937/ffffff?text=${encodeURIComponent(cleanTitle)}+by+${encodeURIComponent(cleanAuthor)}`;
+          console.log(`Using fallback cover for: ${title} by ${author}`);
+        }
         
         if (isMounted) {
           setCoverUrl(url);

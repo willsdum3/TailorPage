@@ -292,7 +292,9 @@ export const getBookCover = async (bookId: string, title: string, author: string
   // Check cache first
   if (bookCoverCache.has(cacheKey)) {
     const cachedUrl = bookCoverCache.get(cacheKey)!;
-    return cachedUrl || null;
+    if (cachedUrl && cachedUrl.trim() !== '') {
+      return cachedUrl;
+    }
   }
   
   // Check manual overrides first (most reliable)
@@ -328,8 +330,10 @@ export const getBookCover = async (bookId: string, title: string, author: string
     }
   }
   
-  // Cache the result (even if null to avoid repeated failed requests)
-  bookCoverCache.set(cacheKey, coverUrl || '');
+  // Cache the result (only if we have a valid URL)
+  if (coverUrl) {
+    bookCoverCache.set(cacheKey, coverUrl);
+  }
   
   if (coverUrl) {
     console.log(`Found cover for: ${title} by ${author}`);
