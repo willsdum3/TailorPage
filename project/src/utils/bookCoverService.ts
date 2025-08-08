@@ -4,6 +4,9 @@
 // Cache for book covers to avoid repeated API calls
 const bookCoverCache = new Map<string, string>();
 
+// Clear cache on module load to ensure fresh manual overrides
+bookCoverCache.clear();
+
 // Manual overrides for specific books to ensure correct covers
 const manualCoverOverrides: Record<string, string> = {
   // High-quality external covers for books that frequently fail
@@ -34,6 +37,21 @@ const manualCoverOverrides: Record<string, string> = {
   'big-magic': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1440559032i/24453082.jpg',
   'evelyn-hugo': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
   'seven-husbands': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
+  
+  // Books from celebrities.ts and other sources that are failing
+  'becoming': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1528206996i/38746485.jpg',
+  'never-let-me-go': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/6334.jpg',
+  'tao-physics': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/18423.jpg',
+  'the-tao-of-physics': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/18423.jpg',
+  'siddhartha': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/52036.jpg',
+  'book-joy': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1451442486i/27209414.jpg',
+  'the-book-of-joy': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1451442486i/27209414.jpg',
+  'lean-startup': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/10127019.jpg',
+  'the-lean-startup': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/10127019.jpg',
+  'color-purple': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/37435.jpg',
+  'the-color-purple': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/37435.jpg',
+  'foundation-series': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/29579.jpg',
+  'the-foundation-series': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/29579.jpg',
   
   // Additional covers for books that might be failing
   'left-hand-darkness': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/18423.jpg',
@@ -77,7 +95,6 @@ const manualCoverOverrides: Record<string, string> = {
   'blueberries-sal': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/19543.jpg',
   'snowy-day': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/19543.jpg',
   'brown-bear': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/19543.jpg',
-
 };
 
 // Google Books API key - replace with your actual API key
@@ -286,12 +303,22 @@ export const getBookCover = async (bookId: string, title: string, author: string
   }
   
   // Check manual overrides first (most reliable)
-  const overrideKey = bookId.toLowerCase().replace(/[^a-z0-9]/g, '-');
-  if (manualCoverOverrides[overrideKey]) {
-    const overrideUrl = manualCoverOverrides[overrideKey];
-    bookCoverCache.set(cacheKey, overrideUrl);
-    console.log(`Using manual override for: ${title} by ${author}`);
-    return overrideUrl;
+  // Try multiple override keys for better matching
+  const possibleOverrideKeys = [
+    bookId.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+    title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+    `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${author.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+    title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/\s+/g, '-'),
+    title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/\s+/g, ''),
+  ];
+  
+  for (const overrideKey of possibleOverrideKeys) {
+    if (manualCoverOverrides[overrideKey]) {
+      const overrideUrl = manualCoverOverrides[overrideKey];
+      bookCoverCache.set(cacheKey, overrideUrl);
+      console.log(`Using manual override for: ${title} by ${author} (key: ${overrideKey})`);
+      return overrideUrl;
+    }
   }
 
   // Try Google Books API first, then OpenLibrary
