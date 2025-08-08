@@ -22,6 +22,13 @@ import { useScrollToTopInstant } from './hooks/useScrollToTop';
 import { useUserSync } from './hooks/useUserSync';
 import { saveUserPersonalityProfile, getUserPersonalityProfile, addBookToFavorites, removeBookFromFavorites, getUserFavorites } from './lib/supabase';
 import { clearBookCoverFromCache } from './utils/bookCoverService';
+import { 
+  createFavoriteBook, 
+  findFavoriteByTitleAuthor, 
+  removeFavoriteByTitleAuthor, 
+  isBookFavorited,
+  normalizeFavoriteFromDatabase 
+} from './utils/favoritesUtils';
 
 // Book questions for the quiz
 const bookQuestions: BookQuestion[] = [
@@ -325,16 +332,10 @@ function App() {
           const dbFavorites = await getUserFavorites(user.id);
           console.log('getUserFavorites returned:', dbFavorites);
           
-          const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => ({
-            id: fav.book_id,
-            title: fav.title,
-            author: fav.author,
-            genre: fav.genre,
-            description: fav.description,
-            amazonLink: fav.amazon_link,
-            coverImageUrl: fav.cover_image_url,
-            dateAdded: fav.date_added
-          }));
+          const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => 
+            normalizeFavoriteFromDatabase(fav)
+          );
+          console.log('Raw database favorites:', dbFavorites);
           console.log('Formatted favorites:', formattedFavorites);
           setFavorites(formattedFavorites);
         } catch (error) {
@@ -372,27 +373,18 @@ function App() {
       return;
     }
     
-    // Check if book is already favorited by comparing title and author
-    const isAlreadyFavorited = favorites.some(fav => 
-      fav.title.toLowerCase() === book.title.toLowerCase() && 
-      fav.author.toLowerCase() === book.author.toLowerCase()
-    );
+    // Check if book is already favorited using the utility function
+    const isAlreadyFavorited = isBookFavorited(favorites, book.title, book.author);
     console.log('Is already favorited:', isAlreadyFavorited);
     
     // Update UI immediately for better user experience
     if (isAlreadyFavorited) {
-      // Remove from favorites immediately
-      setFavorites(prev => prev.filter(fav => 
-        !(fav.title.toLowerCase() === book.title.toLowerCase() && 
-          fav.author.toLowerCase() === book.author.toLowerCase())
-      ));
+      // Remove from favorites immediately using the utility function
+      setFavorites(prev => removeFavoriteByTitleAuthor(prev, book.title, book.author));
       console.log('Book removed from favorites (UI updated)');
     } else {
-      // Add to favorites immediately
-      const favoriteBook: FavoriteBook = {
-        ...book,
-        dateAdded: new Date().toISOString()
-      };
+      // Add to favorites immediately using the utility function
+      const favoriteBook = createFavoriteBook(book);
       setFavorites(prev => [...prev, favoriteBook]);
       console.log('Book added to favorites (UI updated)');
       
@@ -429,10 +421,16 @@ function App() {
     if (!user) return;
     
     const favorite = favorites.find(fav => fav.id === bookId);
-    if (!favorite) return;
+    if (!favorite) {
+      console.error('Favorite not found for bookId:', bookId);
+      console.log('Available favorites:', favorites.map(f => ({ id: f.id, title: f.title, author: f.author })));
+      return;
+    }
 
-    // Update UI immediately for better user experience
-    setFavorites(prev => prev.filter(fav => fav.id !== bookId));
+    console.log('Removing favorite:', favorite.title, 'by', favorite.author, 'with bookId:', bookId);
+
+    // Update UI immediately for better user experience using utility function
+    setFavorites(prev => removeFavoriteByTitleAuthor(prev, favorite.title, favorite.author));
 
     // Clear the book cover cache for this book to prevent stale covers
     clearBookCoverFromCache(bookId, favorite.title, favorite.author);
@@ -443,6 +441,8 @@ function App() {
         // If database removal failed, revert the UI change
         setFavorites(prev => [...prev, favorite]);
         alert('Failed to remove favorite. Please try again.');
+      } else {
+        console.log('Successfully removed favorite from database');
       }
     } catch (error) {
       console.error('Error removing favorite:', error);

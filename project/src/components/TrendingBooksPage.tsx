@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Home, ArrowLeft, Book, ShoppingCart, ExternalLink, Star, Search, Filter, TrendingUp, Sparkles } from 'lucide-react';
 import { trendingBooks, TrendingBook } from '../data/trendingBooks';
 import BookCover from './BookCover';
+import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
 interface TrendingBooksPageProps {
@@ -206,16 +207,12 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
               </div>
               
               {/* Buy Button */}
-              <a
-                href={book.amazonLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center space-x-2 w-full group"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>Buy on Amazon</span>
-                <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              <AmazonLink
+                title={book.title}
+                author={book.author}
+                originalLink={book.amazonLink}
+                className="w-full"
+              />
             </div>
           ))}
         </div>

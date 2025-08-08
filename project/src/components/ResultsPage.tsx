@@ -12,7 +12,9 @@ import {
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
 import Logo from './Logo';
 import BookCover from './BookCover';
+import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
+import { isBookFavorited } from '../utils/favoritesUtils';
 
 interface ResultsPageProps {
   profile: PersonalityProfile;
@@ -38,16 +40,13 @@ const ResultsPage = ({
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
 
-  const isBookFavorited = (bookId: string) => {
+  const checkIfBookFavorited = (bookId: string) => {
     // Find the book in recommendations to get title and author
     const book = recommendations.find(rec => rec.id === bookId);
     if (!book) return false;
     
-    // Check if this book is favorited by comparing title and author
-    const isFavorited = favorites.some(fav => 
-      fav.title.toLowerCase() === book.title.toLowerCase() && 
-      fav.author.toLowerCase() === book.author.toLowerCase()
-    );
+    // Check if this book is favorited using the utility function
+    const isFavorited = isBookFavorited(favorites, book.title, book.author);
     
     console.log(`isBookFavorited for ${book.title}:`, isFavorited, 'favorites count:', favorites.length);
     return isFavorited;
@@ -146,20 +145,20 @@ const ResultsPage = ({
                     <button
                       onClick={() => handleToggleFavorite(book)}
                       className={`p-2 rounded-full transition-all duration-300 transform hover:scale-110 ${
-                        isBookFavorited(book.id)
+                        checkIfBookFavorited(book.id)
                           ? 'text-amber-400 hover:text-amber-300 bg-amber-400/10'
                           : 'text-white/40 hover:text-amber-400 hover:bg-amber-400/10'
                       }`}
                       title={
                         !user 
                           ? 'Login to add to favorites'
-                          : isBookFavorited(book.id) 
+                          : checkIfBookFavorited(book.id) 
                             ? 'Remove from favorites' 
                             : 'Add to favorites'
                       }
                     >
                       <Star 
-                        className={`w-5 h-5 ${isBookFavorited(book.id) ? 'fill-current' : ''}`}
+                        className={`w-5 h-5 ${checkIfBookFavorited(book.id) ? 'fill-current' : ''}`}
                       />
                     </button>
                   </div>
@@ -191,16 +190,12 @@ const ResultsPage = ({
                 </p>
               </div>
               
-              <a
-                href={book.amazonLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center space-x-2 w-full group"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>Buy on Amazon</span>
-                <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              <AmazonLink
+                title={book.title}
+                author={book.author}
+                originalLink={book.amazonLink}
+                className="w-full"
+              />
             </div>
           ))}
         </div>
