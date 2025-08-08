@@ -38,6 +38,7 @@ const BookCover: React.FC<BookCoverProps> = ({
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [apiKeyMissing, setApiKeyMissing] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -46,6 +47,7 @@ const BookCover: React.FC<BookCoverProps> = ({
       try {
         setIsLoading(true);
         setHasError(false);
+        setApiKeyMissing(false);
         
         // If coverImage is provided, use it directly
         if (coverImage) {
@@ -54,6 +56,13 @@ const BookCover: React.FC<BookCoverProps> = ({
             setIsLoading(false);
           }
           return;
+        }
+        
+        // Check if Google Books API key is configured
+        const googleBooksApiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+        if (!googleBooksApiKey) {
+          console.warn('Google Books API key not configured. Using OpenLibrary fallback only.');
+          setApiKeyMissing(true);
         }
         
         // Otherwise, fetch from service
@@ -83,6 +92,7 @@ const BookCover: React.FC<BookCoverProps> = ({
   useEffect(() => {
     setCoverUrl(null);
     setHasError(false);
+    setApiKeyMissing(false);
     setIsLoading(true);
   }, [bookId]);
 
@@ -151,6 +161,16 @@ const BookCover: React.FC<BookCoverProps> = ({
             <div className="text-xs text-white/80 font-medium leading-tight">
               {title.split(' ').slice(0, 2).join(' ')}
             </div>
+            {apiKeyMissing && (
+              <div className="text-xs text-amber-400/80 mt-1">
+                Using OpenLibrary
+              </div>
+            )}
+            {!apiKeyMissing && hasError && (
+              <div className="text-xs text-red-400/80 mt-1">
+                Cover Not Found
+              </div>
+            )}
           </div>
         </div>
       </div>

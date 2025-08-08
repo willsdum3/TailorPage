@@ -1,4 +1,4 @@
-// Book cover service using Google Books API
+// Book cover service using Google Books API and OpenLibrary as fallback
 // Note: You'll need to get a Google Books API key from https://console.cloud.google.com/
 
 // Cache for book covers to avoid repeated API calls
@@ -6,11 +6,12 @@ const bookCoverCache = new Map<string, string>();
 
 // Manual overrides for specific books to ensure correct covers
 const manualCoverOverrides: Record<string, string> = {
-  // Add specific book cover URLs here for books that have incorrect covers
-  // Format: 'book-id': 'https://example.com/correct-cover.jpg'
-  
-  // Fix for "A People's History of the United States" by Howard Zinn - using correct cover
-  'a-peoples-history-united-states': 'https://m.media-amazon.com/images/I/71Zb-D8NaGL._SY466_.jpg',
+  // Local book covers from public folder
+  'mans-search-for-meaning': '/book-covers/MansSearchForMeaning.jpg',
+  'stillness-is-the-key': '/book-covers/StillnessIsTheKey.jpg',
+  'wonder': '/book-covers/Wonder.jpg',
+  'where-the-crawdads-sing': '/book-covers/WhereTheCrawdadsSing.jpg',
+  'invisible-cities': '/book-covers/InvisibleCities.jpg',
   
   // Add more as needed when you find other mismatched covers
   // 'book-id': 'https://example.com/correct-cover.jpg',
@@ -20,19 +21,137 @@ const manualCoverOverrides: Record<string, string> = {
 const GOOGLE_BOOKS_API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY || '';
 
 /**
- * Fetch book cover from Google Books API
+ * Clean and normalize book title for better search results
+ */
+const normalizeTitle = (title: string): string => {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '') // Remove special characters
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
+};
+
+/**
+ * Clean and normalize author name for better search results
+ */
+const normalizeAuthor = (author: string): string => {
+  return author
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '') // Remove special characters
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
+};
+
+/**
+ * Calculate similarity score between two strings
+ */
+const calculateSimilarity = (str1: string, str2: string): number => {
+  const words1 = str1.split(' ').filter(word => word.length > 2);
+  const words2 = str2.split(' ').filter(word => word.length > 2);
+  
+  if (words1.length === 0 || words2.length === 0) return 0;
+  
+  const commonWords = words1.filter(word => words2.includes(word));
+  return commonWords.length / Math.max(words1.length, words2.length);
+};
+
+/**
+ * Fetch book cover from OpenLibrary API with improved search strategies
+ */
+const fetchBookCoverFromOpenLibrary = async (title: string, author: string): Promise<string | null> => {
+  try {
+    const normalizedTitle = normalizeTitle(title);
+    const normalizedAuthor = normalizeAuthor(author);
+    
+    // Create multiple search strategies to improve coverage
+    const searchStrategies = [
+      // Strategy 1: Exact title and author match
+      `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&limit=20`,
+      // Strategy 2: Title only with more results
+      `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=20`,
+      // Strategy 3: Author only for books with different titles
+      `https://openlibrary.org/search.json?author=${encodeURIComponent(author)}&limit=20`,
+      // Strategy 4: Combined search
+      `https://openlibrary.org/search.json?q=${encodeURIComponent(`${title} ${author}`)}&limit=20`,
+      // Strategy 5: ISBN search if available (future enhancement)
+    ];
+
+    let bestMatch: { book: any; score: number; coverUrl: string } | null = null;
+
+    for (const url of searchStrategies) {
+      const response = await fetch(url);
+      if (!response.ok) {
+        continue;
+      }
+      
+      const data = await response.json();
+      
+      if (data.docs && data.docs.length > 0) {
+        // Find the best match using multiple criteria
+        for (const book of data.docs) {
+          if (!book.cover_i) continue; // Skip books without covers
+          
+          const bookTitle = normalizeTitle(book.title || '');
+          const bookAuthor = normalizeAuthor(book.author_name?.[0] || '');
+          
+          // Calculate similarity scores
+          const titleSimilarity = calculateSimilarity(normalizedTitle, bookTitle);
+          const authorSimilarity = calculateSimilarity(normalizedAuthor, bookAuthor);
+          
+          // Combined score (weighted towards title match)
+          const combinedScore = (titleSimilarity * 0.7) + (authorSimilarity * 0.3);
+          
+          // Only consider matches with reasonable similarity
+          if (combinedScore > 0.3) {
+            const coverUrl = `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`;
+            
+            // Update best match if this score is higher
+            if (!bestMatch || combinedScore > bestMatch.score) {
+              bestMatch = {
+                book,
+                score: combinedScore,
+                coverUrl
+              };
+            }
+          }
+        }
+      }
+    }
+    
+    return bestMatch?.coverUrl || null;
+  } catch (error) {
+    console.error('Error fetching book cover from OpenLibrary:', error);
+    return null;
+  }
+};
+
+/**
+ * Fetch book cover from Google Books API with improved search
  */
 const fetchBookCoverFromGoogle = async (title: string, author: string): Promise<string | null> => {
+  // Check if API key is available
+  if (!GOOGLE_BOOKS_API_KEY) {
+    console.warn('Google Books API key not configured. Skipping Google Books API.');
+    return null;
+  }
+
   try {
+    const normalizedTitle = normalizeTitle(title);
+    const normalizedAuthor = normalizeAuthor(author);
+    
     // Create more specific search queries to improve accuracy
     const queries = [
       `"${title}" "${author}"`, // Exact match with quotes
       `${title} ${author}`, // Standard search
+      `intitle:${title} inauthor:${author}`, // Google Books specific syntax
       `${title} author:${author}`, // Author-specific search
+      `${title}`, // Title only (fallback)
     ];
     
+    let bestMatch: { book: any; score: number; coverUrl: string } | null = null;
+    
     for (const query of queries) {
-      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&key=${GOOGLE_BOOKS_API_KEY}&maxResults=3&orderBy=relevance`;
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&key=${GOOGLE_BOOKS_API_KEY}&maxResults=10&orderBy=relevance`;
       
       const response = await fetch(url);
       if (!response.ok) {
@@ -44,36 +163,62 @@ const fetchBookCoverFromGoogle = async (title: string, author: string): Promise<
       if (data.items && data.items.length > 0) {
         // Find the best match by comparing title and author
         for (const book of data.items) {
-          const bookTitle = book.volumeInfo?.title?.toLowerCase() || '';
-          const bookAuthor = book.volumeInfo?.authors?.[0]?.toLowerCase() || '';
-          const searchTitle = title.toLowerCase();
-          const searchAuthor = author.toLowerCase();
+          const bookTitle = normalizeTitle(book.volumeInfo?.title || '');
+          const bookAuthor = normalizeAuthor(book.volumeInfo?.authors?.[0] || '');
+          const imageLinks = book.volumeInfo?.imageLinks;
           
-          // Check if title and author match reasonably well
-          const titleMatch = bookTitle.includes(searchTitle) || searchTitle.includes(bookTitle);
-          const authorMatch = bookAuthor.includes(searchAuthor) || searchAuthor.includes(bookAuthor);
+          if (!imageLinks) continue; // Skip books without covers
           
-          if (titleMatch && authorMatch) {
-            const imageLinks = book.volumeInfo?.imageLinks;
-            
-            // Try different image sizes in order of preference
-            const coverUrl = imageLinks?.thumbnail || 
-                           imageLinks?.smallThumbnail || 
-                           imageLinks?.small || 
-                           imageLinks?.medium || 
+          // Calculate similarity scores
+          const titleSimilarity = calculateSimilarity(normalizedTitle, bookTitle);
+          const authorSimilarity = calculateSimilarity(normalizedAuthor, bookAuthor);
+          
+          // Combined score (weighted towards title match)
+          const combinedScore = (titleSimilarity * 0.7) + (authorSimilarity * 0.3);
+          
+          // Only consider matches with reasonable similarity
+          if (combinedScore > 0.3) {
+            // Try different image sizes in order of preference (highest quality first)
+            const coverUrl = imageLinks.thumbnail?.replace('&edge=curl', '') || 
+                           imageLinks.smallThumbnail?.replace('&edge=curl', '') || 
+                           imageLinks.small || 
+                           imageLinks.medium || 
                            null;
             
-            if (coverUrl) {
-              return coverUrl;
+            if (coverUrl && (!bestMatch || combinedScore > bestMatch.score)) {
+              bestMatch = {
+                book,
+                score: combinedScore,
+                coverUrl
+              };
             }
           }
         }
       }
     }
     
-    return null;
+    return bestMatch?.coverUrl || null;
   } catch (error) {
     console.error('Error fetching book cover from Google Books API:', error);
+    return null;
+  }
+};
+
+/**
+ * Fetch book cover from a generic book cover service
+ */
+const fetchBookCoverFromGeneric = async (title: string, author: string): Promise<string | null> => {
+  try {
+    // Try to get cover from a generic book cover service
+    // This is a fallback that uses a different approach
+    const searchQuery = `${title} ${author}`.replace(/[^a-zA-Z0-9\s]/g, '');
+    const url = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_BOOKS_API_KEY}&cx=YOUR_CUSTOM_SEARCH_ENGINE_ID&q=${encodeURIComponent(searchQuery + ' book cover')}&searchType=image&num=1`;
+    
+    // For now, we'll skip this as it requires additional setup
+    // But this shows how you could add another fallback
+    return null;
+  } catch (error) {
+    console.error('Error fetching book cover from generic service:', error);
     return null;
   }
 };
@@ -95,8 +240,18 @@ export const getBookCover = async (bookId: string, title: string, author: string
     return manualCoverOverrides[bookId];
   }
 
-  // Fetch from API
-  const coverUrl = await fetchBookCoverFromGoogle(title, author);
+  // Try Google Books API first (if key is available) - highest quality
+  let coverUrl = await fetchBookCoverFromGoogle(title, author);
+  
+  // If Google Books fails or no API key, try OpenLibrary as fallback
+  if (!coverUrl) {
+    coverUrl = await fetchBookCoverFromOpenLibrary(title, author);
+  }
+  
+  // If both fail, try generic service (future enhancement)
+  if (!coverUrl) {
+    coverUrl = await fetchBookCoverFromGeneric(title, author);
+  }
   
   // Cache the result (even if null to avoid repeated failed requests)
   bookCoverCache.set(cacheKey, coverUrl || '');
