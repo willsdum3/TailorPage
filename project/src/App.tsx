@@ -29,6 +29,7 @@ import {
   isBookFavorited,
   normalizeFavoriteFromDatabase 
 } from './utils/favoritesUtils';
+import { preloadBookCovers } from './utils/bookCoverPreloader';
 
 // Book questions for the quiz
 const bookQuestions: BookQuestion[] = [
@@ -537,6 +538,17 @@ function App() {
     const recs = getBookRecommendations(profile, favoritedBookIds);
     setRecommendations(recs);
     setAllRecommendedIds(recs.map(book => book.id));
+    
+    // Preload covers for the initial recommendations
+    console.log('🚀 Preloading covers for initial recommendations...');
+    preloadBookCovers(recs).then(results => {
+      const successful = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+      console.log(`✅ Preloaded ${successful} covers successfully, ${failed} failed`);
+    }).catch(error => {
+      console.error('❌ Error preloading covers:', error);
+    });
+    
     setCurrentPage('results');
   };
 
@@ -636,6 +648,17 @@ function App() {
     
     setRecommendations(newRecs);
     setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+    
+    // Preload covers for the new recommendations
+    console.log('🚀 Preloading covers for new recommendations...');
+    preloadBookCovers(newRecs).then(results => {
+      const successful = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+      console.log(`✅ Preloaded ${successful} covers successfully, ${failed} failed`);
+    }).catch(error => {
+      console.error('❌ Error preloading covers:', error);
+    });
+    
     setCurrentPage('generated');
   };
 
@@ -792,6 +815,17 @@ function App() {
                   
                   setRecommendations(newRecs);
                   setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+                  
+                  // Preload covers for the new recommendations
+                  console.log('🚀 Preloading covers for new recommendations...');
+                  preloadBookCovers(newRecs).then(results => {
+                    const successful = results.filter(r => r.success).length;
+                    const failed = results.filter(r => !r.success).length;
+                    console.log(`✅ Preloaded ${successful} covers successfully, ${failed} failed`);
+                  }).catch(error => {
+                    console.error('❌ Error preloading covers:', error);
+                  });
+                  
                   setCurrentPage('generated');
                 }}
               />
@@ -870,6 +904,17 @@ function App() {
                   
                   setRecommendations(newRecs);
                   setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+                  
+                  // Preload covers for the new recommendations
+                  console.log('🚀 Preloading covers for new recommendations...');
+                  preloadBookCovers(newRecs).then(results => {
+                    const successful = results.filter(r => r.success).length;
+                    const failed = results.filter(r => !r.success).length;
+                    console.log(`✅ Preloaded ${successful} covers successfully, ${failed} failed`);
+                  }).catch(error => {
+                    console.error('❌ Error preloading covers:', error);
+                  });
+                  
                   setCurrentPage('generated');
                 }}
               />

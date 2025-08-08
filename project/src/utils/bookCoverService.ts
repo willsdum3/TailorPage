@@ -6,12 +6,12 @@ const bookCoverCache = new Map<string, string>();
 
 // Manual overrides for specific books to ensure correct covers
 const manualCoverOverrides: Record<string, string> = {
-  // Local book covers from public folder
-  'mans-search-for-meaning': '/book-covers/MansSearchForMeaning.jpg',
-  'stillness-is-the-key': '/book-covers/StillnessIsTheKey.jpg',
-  'wonder': '/book-covers/Wonder.jpg',
-  'where-the-crawdads-sing': '/book-covers/WhereTheCrawdadsSing.jpg',
-  'invisible-cities': '/book-covers/InvisibleCities.jpg',
+  // High-quality external covers for books that frequently fail
+  'mans-search-for-meaning': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/4069.jpg',
+  'stillness-is-the-key': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1552071228i/40534532.jpg',
+  'wonder': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1317793965i/11387515.jpg',
+  'where-the-crawdads-sing': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1582133854i/36809135.jpg',
+  'invisible-cities': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/37435.jpg',
   
   // High-quality external covers for popular books that often fail
   'steve-jobs': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1511288482i/11084145.jpg',
