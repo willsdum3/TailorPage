@@ -28,6 +28,13 @@ const manualCoverOverrides: Record<string, string> = {
   'song-of-achilles': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1331154660i/11250317.jpg',
   'little-fires-everywhere': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1494197999i/34273236.jpg',
   
+  // Additional covers for books that are still failing
+  'kitchen-confidential': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/33313.jpg',
+  'secret-history': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/29044.jpg',
+  'big-magic': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1440559032i/24453082.jpg',
+  'evelyn-hugo': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
+  'seven-husbands': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
+  
   // Add more as needed when you find other mismatched covers
   // 'book-id': 'https://example.com/correct-cover.jpg',
 };
@@ -297,22 +304,28 @@ export const getBookCover = async (bookId: string, title: string, author: string
     return overrideUrl;
   }
 
-  // Try Google Books API first (if key is available) - highest quality
-  let coverUrl = await fetchBookCoverFromGoogle(title, author);
+  // Try multiple fallback strategies
+  const strategies = [
+    () => fetchBookCoverFromGoogle(title, author),
+    () => fetchBookCoverFromOpenLibrary(title, author),
+    () => fetchAlternativeCover(title, author),
+    () => fetchBookCoverFromGeneric(title, author),
+    () => generateFallbackCover(title, author), // New fallback
+  ];
+
+  let coverUrl: string | null = null;
   
-  // If Google Books fails or no API key, try OpenLibrary as fallback
-  if (!coverUrl) {
-    coverUrl = await fetchBookCoverFromOpenLibrary(title, author);
-  }
-  
-  // If OpenLibrary fails, try alternative search strategies
-  if (!coverUrl) {
-    coverUrl = await fetchAlternativeCover(title, author);
-  }
-  
-  // If all else fails, try generic service (future enhancement)
-  if (!coverUrl) {
-    coverUrl = await fetchBookCoverFromGeneric(title, author);
+  for (const strategy of strategies) {
+    try {
+      coverUrl = await strategy();
+      if (coverUrl) {
+        console.log(`Found cover for: ${title} by ${author} using strategy`);
+        break;
+      }
+    } catch (error) {
+      console.warn(`Strategy failed for ${title} by ${author}:`, error);
+      continue;
+    }
   }
   
   // Cache the result (even if null to avoid repeated failed requests)
@@ -325,6 +338,22 @@ export const getBookCover = async (bookId: string, title: string, author: string
   }
   
   return coverUrl;
+};
+
+/**
+ * Generate a fallback cover using a placeholder service
+ */
+const generateFallbackCover = async (title: string, author: string): Promise<string | null> => {
+  try {
+    // Use a placeholder service that generates covers based on title/author
+    const cleanTitle = encodeURIComponent(title.replace(/[^a-zA-Z0-9\s]/g, ''));
+    const cleanAuthor = encodeURIComponent(author.replace(/[^a-zA-Z0-9\s]/g, ''));
+    
+    return `https://via.placeholder.com/300x400/1f2937/ffffff?text=${cleanTitle}+by+${cleanAuthor}`;
+  } catch (error) {
+    console.warn('Fallback cover generation failed:', error);
+    return null;
+  }
 };
 
 /**

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Book } from 'lucide-react';
 import { getBookCover } from '../utils/bookCoverService';
+import { getGuaranteedCover } from '../utils/bookCoverFallback';
 
 interface BookCoverProps {
   bookId: string;
@@ -66,8 +67,8 @@ const BookCover: React.FC<BookCoverProps> = ({
           setApiKeyMissing(true);
         }
         
-        // Otherwise, fetch from service
-        const url = await getBookCover(bookId, title, author);
+        // Otherwise, fetch from service with guaranteed fallback
+        const url = await getGuaranteedCover(bookId, title, author, getBookCover);
         
         if (isMounted) {
           setCoverUrl(url);
@@ -183,6 +184,11 @@ const BookCover: React.FC<BookCoverProps> = ({
             {!apiKeyMissing && hasError && (
               <div className="text-xs text-red-400/80 mt-1">
                 Cover Not Found
+              </div>
+            )}
+            {!apiKeyMissing && !hasError && !coverUrl && (
+              <div className="text-xs text-blue-400/80 mt-1">
+                Loading...
               </div>
             )}
           </div>
