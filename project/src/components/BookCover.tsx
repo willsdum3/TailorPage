@@ -39,6 +39,7 @@ const BookCover: React.FC<BookCoverProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [apiKeyMissing, setApiKeyMissing] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -94,11 +95,24 @@ const BookCover: React.FC<BookCoverProps> = ({
     setHasError(false);
     setApiKeyMissing(false);
     setIsLoading(true);
+    setRetryCount(0); // Reset retry count for new book
   }, [bookId]);
 
   const handleImageError = () => {
+    console.warn(`Image failed to load for: ${title} by ${author}`);
     setHasError(true);
     setCoverUrl(null);
+    
+    // Retry logic for failed images
+    if (retryCount < 2) {
+      setTimeout(() => {
+        setRetryCount(prev => prev + 1);
+        setHasError(false);
+        setIsLoading(true);
+        // Trigger a re-fetch by clearing the URL
+        setCoverUrl(null);
+      }, 1000 * (retryCount + 1)); // Exponential backoff
+    }
   };
 
   const handleImageLoad = () => {

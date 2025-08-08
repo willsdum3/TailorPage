@@ -13,6 +13,21 @@ const manualCoverOverrides: Record<string, string> = {
   'where-the-crawdads-sing': '/book-covers/WhereTheCrawdadsSing.jpg',
   'invisible-cities': '/book-covers/InvisibleCities.jpg',
   
+  // High-quality external covers for popular books that often fail
+  'steve-jobs': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1511288482i/11084145.jpg',
+  'atonement': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/6867.jpg',
+  'the-goldfinch': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1378714833i/17333223.jpg',
+  'beloved': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327959502i/6149.jpg',
+  'wild': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/12262741.jpg',
+  'midnight-library': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/52578297.jpg',
+  'seven-husbands-evelyn-hugo': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
+  'alchemist': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1483412266i/865.jpg',
+  'normal-people': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1578028274i/41057294.jpg',
+  'klara-and-sun': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/54120408.jpg',
+  'circe': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1529033999i/35959740.jpg',
+  'song-of-achilles': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1331154660i/11250317.jpg',
+  'little-fires-everywhere': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1494197999i/34273236.jpg',
+  
   // Add more as needed when you find other mismatched covers
   // 'book-id': 'https://example.com/correct-cover.jpg',
 };
@@ -224,6 +239,43 @@ const fetchBookCoverFromGeneric = async (title: string, author: string): Promise
 };
 
 /**
+ * Fetch alternative cover using different search strategies
+ */
+const fetchAlternativeCover = async (title: string, author: string): Promise<string | null> => {
+  try {
+    // Try different title variations
+    const titleVariations = [
+      title,
+      title.replace(/['"]/g, ''), // Remove quotes
+      title.split(' ').slice(0, 3).join(' '), // First 3 words
+      title.split(' ').slice(0, 2).join(' '), // First 2 words
+    ];
+
+    for (const titleVar of titleVariations) {
+      // Try OpenLibrary with different title variations
+      const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(titleVar)}&author=${encodeURIComponent(author)}&limit=5`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.docs && data.docs.length > 0) {
+          for (const book of data.docs) {
+            if (book.cover_i) {
+              return `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`;
+            }
+          }
+        }
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('Alternative cover search failed:', error);
+    return null;
+  }
+};
+
+/**
  * Get cached book cover or fetch from API
  */
 export const getBookCover = async (bookId: string, title: string, author: string): Promise<string | null> => {
@@ -232,12 +284,17 @@ export const getBookCover = async (bookId: string, title: string, author: string
   
   // Check cache first
   if (bookCoverCache.has(cacheKey)) {
-    return bookCoverCache.get(cacheKey)!;
+    const cachedUrl = bookCoverCache.get(cacheKey)!;
+    return cachedUrl || null;
   }
   
-  // Check manual overrides
-  if (manualCoverOverrides[bookId]) {
-    return manualCoverOverrides[bookId];
+  // Check manual overrides first (most reliable)
+  const overrideKey = bookId.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  if (manualCoverOverrides[overrideKey]) {
+    const overrideUrl = manualCoverOverrides[overrideKey];
+    bookCoverCache.set(cacheKey, overrideUrl);
+    console.log(`Using manual override for: ${title} by ${author}`);
+    return overrideUrl;
   }
 
   // Try Google Books API first (if key is available) - highest quality
@@ -248,13 +305,24 @@ export const getBookCover = async (bookId: string, title: string, author: string
     coverUrl = await fetchBookCoverFromOpenLibrary(title, author);
   }
   
-  // If both fail, try generic service (future enhancement)
+  // If OpenLibrary fails, try alternative search strategies
+  if (!coverUrl) {
+    coverUrl = await fetchAlternativeCover(title, author);
+  }
+  
+  // If all else fails, try generic service (future enhancement)
   if (!coverUrl) {
     coverUrl = await fetchBookCoverFromGeneric(title, author);
   }
   
   // Cache the result (even if null to avoid repeated failed requests)
   bookCoverCache.set(cacheKey, coverUrl || '');
+  
+  if (coverUrl) {
+    console.log(`Found cover for: ${title} by ${author}`);
+  } else {
+    console.warn(`No cover found for: ${title} by ${author} (ID: ${bookId})`);
+  }
   
   return coverUrl;
 };
