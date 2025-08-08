@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Book } from 'lucide-react';
 import { getBookCover } from '../utils/bookCoverService';
-import { getCachedBookCover, isBookCoverLoading } from '../utils/bookCoverPreloader';
 
 interface BookCoverProps {
   bookId: string;
@@ -67,32 +66,15 @@ const BookCover: React.FC<BookCoverProps> = ({
           setApiKeyMissing(true);
         }
         
-        // Check if we have a cached cover first (instant loading)
-        let url = getCachedBookCover(title, author);
+        // Fetch cover from service with simple fallback
+        let url = await getBookCover(bookId, title, author);
         
-        if (url) {
-          console.log(`Using cached cover for: ${title} by ${author}`);
-        } else {
-          // Check if this cover is currently being loaded
-          if (isBookCoverLoading(title, author)) {
-            console.log(`Cover already loading for: ${title} by ${author}`);
-            // Wait a bit and check cache again
-            await new Promise(resolve => setTimeout(resolve, 100));
-            url = getCachedBookCover(title, author);
-          }
-          
-          // If still no cached cover, fetch it
-          if (!url) {
-            url = await getBookCover(bookId, title, author);
-            
-            // If no cover found, use a simple fallback
-            if (!url) {
-              const cleanTitle = title.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-              const cleanAuthor = author.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-              url = `https://via.placeholder.com/300x400/1f2937/ffffff?text=${encodeURIComponent(cleanTitle)}+by+${encodeURIComponent(cleanAuthor)}`;
-              console.log(`Using fallback cover for: ${title} by ${author}`);
-            }
-          }
+        // If no cover found, use a simple fallback
+        if (!url) {
+          const cleanTitle = title.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+          const cleanAuthor = author.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+          url = `https://via.placeholder.com/300x400/1f2937/ffffff?text=${encodeURIComponent(cleanTitle)}+by+${encodeURIComponent(cleanAuthor)}`;
+          console.log(`Using fallback cover for: ${title} by ${author}`);
         }
         
         if (isMounted) {
