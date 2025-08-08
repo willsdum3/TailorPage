@@ -797,16 +797,6 @@ function App() {
                   setRecommendations(newRecs);
                   setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
                   
-                  // Preload covers for the new recommendations
-                  console.log('🚀 Preloading covers for new recommendations...');
-                  preloadBookCovers(newRecs).then(results => {
-                    const successful = results.filter(r => r.success).length;
-                    const failed = results.filter(r => !r.success).length;
-                    console.log(`✅ Preloaded ${successful} covers successfully, ${failed} failed`);
-                  }).catch(error => {
-                    console.error('❌ Error preloading covers:', error);
-                  });
-                  
                   setCurrentPage('generated');
                 }}
               />
@@ -885,16 +875,6 @@ function App() {
                   
                   setRecommendations(newRecs);
                   setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
-                  
-                  // Preload covers for the new recommendations
-                  console.log('🚀 Preloading covers for new recommendations...');
-                  preloadBookCovers(newRecs).then(results => {
-                    const successful = results.filter(r => r.success).length;
-                    const failed = results.filter(r => !r.success).length;
-                    console.log(`✅ Preloaded ${successful} covers successfully, ${failed} failed`);
-                  }).catch(error => {
-                    console.error('❌ Error preloading covers:', error);
-                  });
                   
                   setCurrentPage('generated');
                 }}

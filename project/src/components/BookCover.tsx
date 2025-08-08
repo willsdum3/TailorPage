@@ -39,7 +39,6 @@ const BookCover: React.FC<BookCoverProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [apiKeyMissing, setApiKeyMissing] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -66,16 +65,8 @@ const BookCover: React.FC<BookCoverProps> = ({
           setApiKeyMissing(true);
         }
         
-        // Fetch cover from service with simple fallback
-        let url = await getBookCover(bookId, title, author);
-        
-        // If no cover found, use a simple fallback
-        if (!url) {
-          const cleanTitle = title.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-          const cleanAuthor = author.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-          url = `https://via.placeholder.com/300x400/1f2937/ffffff?text=${encodeURIComponent(cleanTitle)}+by+${encodeURIComponent(cleanAuthor)}`;
-          console.log(`Using fallback cover for: ${title} by ${author}`);
-        }
+        // Fetch cover from service
+        const url = await getBookCover(bookId, title, author);
         
         if (isMounted) {
           setCoverUrl(url);
@@ -103,24 +94,12 @@ const BookCover: React.FC<BookCoverProps> = ({
     setHasError(false);
     setApiKeyMissing(false);
     setIsLoading(true);
-    setRetryCount(0); // Reset retry count for new book
   }, [bookId]);
 
   const handleImageError = () => {
     console.warn(`Image failed to load for: ${title} by ${author}`);
     setHasError(true);
     setCoverUrl(null);
-    
-    // Retry logic for failed images
-    if (retryCount < 2) {
-      setTimeout(() => {
-        setRetryCount(prev => prev + 1);
-        setHasError(false);
-        setIsLoading(true);
-        // Trigger a re-fetch by clearing the URL
-        setCoverUrl(null);
-      }, 1000 * (retryCount + 1)); // Exponential backoff
-    }
   };
 
   const handleImageLoad = () => {
@@ -191,11 +170,6 @@ const BookCover: React.FC<BookCoverProps> = ({
             {!apiKeyMissing && hasError && (
               <div className="text-xs text-red-400/80 mt-1">
                 Cover Not Found
-              </div>
-            )}
-            {!apiKeyMissing && !hasError && !coverUrl && (
-              <div className="text-xs text-blue-400/80 mt-1">
-                Loading...
               </div>
             )}
           </div>
