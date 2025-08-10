@@ -1,30 +1,11 @@
-import React, { useState } from 'react';
-import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
-
-interface BookClub {
-  id: string;
-  name: string;
-  description: string;
-  currentBook: string;
-  memberCount: number;
-  maxMembers: number;
-  personalityTraits: string[];
-  meetingTime: string;
-  nextMeeting: string;
-  isPrivate: boolean;
-  tags: string[];
-}
-
-interface Discussion {
-  id: string;
-  bookTitle: string;
-  author: string;
-  topic: string;
-  participants: number;
-  lastActivity: string;
-  tags: string[];
-}
+import { TailorMatesService } from '../services/tailorMatesService';
+import { BookClub, Discussion, FriendConnection, FriendRecommendation } from '../types';
+import CreateBookClubModal from './CreateBookClubModal';
+import CreateDiscussionModal from './CreateDiscussionModal';
+import DiscussionDetailPage from './DiscussionDetailPage';
 
 interface TailorMatesPageProps {
   onBack: () => void;
@@ -36,111 +17,133 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [activeTab, setActiveTab] = useState<'clubs' | 'discussions' | 'friends'>('clubs');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
-
+  
+  // Data states
+  const [bookClubs, setBookClubs] = useState<BookClub[]>([]);
+  const [discussions, setDiscussions] = useState<Discussion[]>([]);
+  const [friendConnections, setFriendConnections] = useState<FriendConnection[]>([]);
+  const [friendRecommendations, setFriendRecommendations] = useState<FriendRecommendation[]>([]);
+  
+  // UI states
+  const [isLoading, setIsLoading] = useState(true);
+  const [showCreateClubModal, setShowCreateClubModal] = useState(false);
+  const [showCreateDiscussionModal, setShowCreateDiscussionModal] = useState(false);
+  const [selectedDiscussionId, setSelectedDiscussionId] = useState<string | null>(null);
+  
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
 
-  // Mock data for book clubs
-  const bookClubs: BookClub[] = [
-    {
-      id: '1',
-      name: 'Fantasy Enthusiasts',
-      description: 'A club for lovers of fantasy and magical realism. We explore worlds beyond imagination.',
-      currentBook: 'Fourth Wing',
-      memberCount: 12,
-      maxMembers: 20,
-      personalityTraits: ['Openness', 'Extraversion'],
-      meetingTime: 'Every Tuesday 7 PM',
-      nextMeeting: 'Tomorrow',
-      isPrivate: false,
-      tags: ['Fantasy', 'Romance', 'Adventure']
-    },
-    {
-      id: '2',
-      name: 'Thriller Seekers',
-      description: 'For those who love psychological thrillers and suspense. We dive deep into the human psyche.',
-      currentBook: 'The Silent Patient',
-      memberCount: 8,
-      maxMembers: 15,
-      personalityTraits: ['Conscientiousness', 'Emotional Stability'],
-      meetingTime: 'Every Thursday 8 PM',
-      nextMeeting: 'This Thursday',
-      isPrivate: false,
-      tags: ['Thriller', 'Psychological', 'Mystery']
-    },
-    {
-      id: '3',
-      name: 'Self-Development Circle',
-      description: 'Focused on personal growth and self-improvement books. Let\'s grow together!',
-      currentBook: 'Atomic Habits',
-      memberCount: 15,
-      maxMembers: 25,
-      personalityTraits: ['Conscientiousness', 'Agreeableness'],
-      meetingTime: 'Every Sunday 6 PM',
-      nextMeeting: 'Next Sunday',
-      isPrivate: false,
-      tags: ['Self-Help', 'Personal Growth', 'Psychology']
-    },
-    {
-      id: '4',
-      name: 'Romance Readers',
-      description: 'A warm community for romance lovers. We celebrate love in all its forms.',
-      currentBook: 'It Ends with Us',
-      memberCount: 18,
-      maxMembers: 20,
-      personalityTraits: ['Agreeableness', 'Extraversion'],
-      meetingTime: 'Every Friday 7:30 PM',
-      nextMeeting: 'This Friday',
-      isPrivate: false,
-      tags: ['Romance', 'Contemporary', 'Drama']
-    }
-  ];
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  // Mock data for discussions
-  const discussions: Discussion[] = [
-    {
-      id: '1',
-      bookTitle: 'Fourth Wing',
-      author: 'Rebecca Yarros',
-      topic: 'Dragon riding scenes - what did you think?',
-      participants: 24,
-      lastActivity: '2 hours ago',
-      tags: ['Fantasy', 'Dragons', 'Action']
-    },
-    {
-      id: '2',
-      bookTitle: 'The Silent Patient',
-      author: 'Alex Michaelides',
-      topic: 'The ending twist - did anyone see it coming?',
-      participants: 31,
-      lastActivity: '1 hour ago',
-      tags: ['Thriller', 'Twist', 'Psychology']
-    },
-    {
-      id: '3',
-      bookTitle: 'Atomic Habits',
-      author: 'James Clear',
-      topic: 'Which habit formation technique worked best for you?',
-      participants: 19,
-      lastActivity: '3 hours ago',
-      tags: ['Self-Help', 'Habits', 'Productivity']
-    },
-    {
-      id: '4',
-      bookTitle: 'Lessons in Chemistry',
-      author: 'Bonnie Garmus',
-      topic: 'Elizabeth Zott\'s character development',
-      participants: 15,
-      lastActivity: '5 hours ago',
-      tags: ['Historical Fiction', 'Feminism', 'Science']
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      
+      if (activeTab === 'clubs') {
+        const clubs = await TailorMatesService.getBookClubs();
+        setBookClubs(clubs);
+      } else if (activeTab === 'discussions') {
+        const discussionsData = await TailorMatesService.getDiscussions();
+        setDiscussions(discussionsData);
+      } else if (activeTab === 'friends') {
+        const [connections, recommendations] = await Promise.all([
+          TailorMatesService.getFriendConnections(),
+          TailorMatesService.getFriendRecommendations()
+        ]);
+        setFriendConnections(connections);
+        setFriendRecommendations(recommendations);
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const handleTabChange = (tab: 'clubs' | 'discussions' | 'friends') => {
+    setActiveTab(tab);
+    setSearchTerm('');
+    setSelectedFilter('All');
+    loadData();
+  };
+
+  const handleCreateClub = async (clubData: any) => {
+    try {
+      await TailorMatesService.createBookClub(clubData);
+      await loadData(); // Refresh the list
+    } catch (error) {
+      console.error('Error creating club:', error);
+      throw error;
+    }
+  };
+
+  const handleCreateDiscussion = async (discussionData: any) => {
+    try {
+      await TailorMatesService.createDiscussion(discussionData);
+      await loadData(); // Refresh the list
+    } catch (error) {
+      console.error('Error creating discussion:', error);
+      throw error;
+    }
+  };
+
+  const handleJoinClub = async (clubId: string) => {
+    try {
+      await TailorMatesService.joinBookClub(clubId);
+      await loadData(); // Refresh the list
+    } catch (error) {
+      console.error('Error joining club:', error);
+      alert('Failed to join club. Please try again.');
+    }
+  };
+
+  const handleLeaveClub = async (clubId: string) => {
+    try {
+      await TailorMatesService.leaveBookClub(clubId);
+      await loadData(); // Refresh the list
+    } catch (error) {
+      console.error('Error leaving club:', error);
+      alert('Failed to leave club. Please try again.');
+    }
+  };
+
+  const handleSendFriendRequest = async (friendClerkId: string) => {
+    try {
+      await TailorMatesService.sendFriendRequest(friendClerkId);
+      await loadData(); // Refresh the list
+    } catch (error) {
+      console.error('Error sending friend request:', error);
+      alert('Failed to send friend request. Please try again.');
+    }
+  };
+
+  const handleAcceptFriendRequest = async (friendClerkId: string) => {
+    try {
+      await TailorMatesService.acceptFriendRequest(friendClerkId);
+      await loadData(); // Refresh the list
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+      alert('Failed to accept friend request. Please try again.');
+    }
+  };
+
+  const handleGenerateRecommendations = async () => {
+    try {
+      await TailorMatesService.generateFriendRecommendations();
+      await loadData(); // Refresh the list
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+      alert('Failed to generate recommendations. Please try again.');
+    }
+  };
 
   const renderPersonalityTags = (traits: string[]) => {
     return traits.map((trait, index) => (
       <span
         key={index}
-        className="inline-block bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 px-2 py-1 rounded-lg text-xs font-medium mr-2 mb-1"
+        className={`inline-block bg-gradient-to-r ${TailorMatesService.getPersonalityTraitColor(trait)} px-2 py-1 rounded-lg text-xs font-medium mr-2 mb-1`}
       >
         {trait}
       </span>
@@ -157,6 +160,16 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       </span>
     ));
   };
+
+  // Show discussion detail page if a discussion is selected
+  if (selectedDiscussionId) {
+    return (
+      <DiscussionDetailPage
+        discussionId={selectedDiscussionId}
+        onBack={() => setSelectedDiscussionId(null)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen py-8 px-4 relative overflow-hidden">
@@ -216,7 +229,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-2">
             <div className="flex space-x-2">
               <button
-                onClick={() => setActiveTab('clubs')}
+                onClick={() => handleTabChange('clubs')}
                 className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
                   activeTab === 'clubs'
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
@@ -229,7 +242,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab('discussions')}
+                onClick={() => handleTabChange('discussions')}
                 className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
                   activeTab === 'discussions'
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
@@ -242,7 +255,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab('friends')}
+                onClick={() => handleTabChange('friends')}
                 className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
                   activeTab === 'friends'
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
@@ -287,166 +300,418 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         {/* Content based on active tab */}
         {activeTab === 'clubs' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bookClubs.map((club) => (
-              <div
-                key={club.id}
-                className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group cursor-pointer"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <BookOpen className="w-5 h-5 text-pink-400" />
-                    <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors">
-                      {club.name}
-                    </h3>
-                  </div>
-                  <div className="flex items-center space-x-1 text-white/60 text-sm">
-                    <Users className="w-4 h-4" />
-                    <span>{club.memberCount}/{club.maxMembers}</span>
-                  </div>
-                </div>
-                
-                <p className="text-white/70 text-sm mb-4 line-clamp-2">
-                  {club.description}
-                </p>
-                
-                <div className="mb-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Book className="w-4 h-4 text-amber-400" />
-                    <span className="text-white/80 text-sm font-medium">Currently Reading:</span>
-                  </div>
-                  <p className="text-white font-medium">{club.currentBook}</p>
-                </div>
-                
-                <div className="mb-4">
-                  <p className="text-white/60 text-sm mb-2">Personality Traits:</p>
-                  <div className="flex flex-wrap">
-                    {renderPersonalityTags(club.personalityTraits)}
-                  </div>
-                </div>
-                
-                <div className="mb-4">
-                  <p className="text-white/60 text-sm mb-2">Tags:</p>
-                  <div className="flex flex-wrap">
-                    {renderTags(club.tags)}
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between text-white/60 text-sm mb-4">
-                  <span>Next Meeting: {club.nextMeeting}</span>
-                  <span>{club.meetingTime}</span>
-                </div>
-                
-                <button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105">
-                  Join Club
+            {isLoading ? (
+              <div className="col-span-full text-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
+                <p className="text-white/70 mt-4">Loading book clubs...</p>
+              </div>
+            ) : bookClubs.length === 0 ? (
+              <div className="col-span-full text-center py-20">
+                <BookOpen className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-white mb-2">No Book Clubs Yet</h3>
+                <p className="text-white/70 mb-6">Be the first to create a book club!</p>
+                <button
+                  onClick={() => setShowCreateClubModal(true)}
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                >
+                  Create First Club
                 </button>
               </div>
-            ))}
-            
-            {/* Create New Club Card */}
-            <div className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-6 hover:bg-pink-500/30 transition-all duration-300 group cursor-pointer">
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Plus className="w-8 h-8 text-white" />
+            ) : (
+              <>
+                {bookClubs.map((club) => (
+                  <div
+                    key={club.id}
+                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <BookOpen className="w-5 h-5 text-pink-400" />
+                        <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors">
+                          {club.name}
+                        </h3>
+                      </div>
+                      <div className="flex items-center space-x-1 text-white/60 text-sm">
+                        <Users className="w-4 h-4" />
+                        <span>{club.memberCount}/{club.maxMembers}</span>
+                      </div>
+                    </div>
+                    
+                    <p className="text-white/70 text-sm mb-4 line-clamp-2">
+                      {club.description}
+                    </p>
+                    
+                    {club.currentBookTitle && (
+                      <div className="mb-4">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Book className="w-4 h-4 text-amber-400" />
+                          <span className="text-white/80 text-sm font-medium">Currently Reading:</span>
+                        </div>
+                        <p className="text-white font-medium">{club.currentBookTitle}</p>
+                        {club.currentBookAuthor && (
+                          <p className="text-white/60 text-sm">by {club.currentBookAuthor}</p>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="mb-4">
+                      <p className="text-white/60 text-sm mb-2">Personality Traits:</p>
+                      <div className="flex flex-wrap">
+                        {renderPersonalityTags(club.personalityTraits)}
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <p className="text-white/60 text-sm mb-2">Tags:</p>
+                      <div className="flex flex-wrap">
+                        {renderTags(club.tags)}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-white/60 text-sm mb-4">
+                      {club.nextMeetingDate && (
+                        <span>Next Meeting: {new Date(club.nextMeetingDate).toLocaleDateString()}</span>
+                      )}
+                      {club.meetingTime && <span>{club.meetingTime}</span>}
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-white/60 text-sm mb-4">
+                      <span>Created by {club.creatorName}</span>
+                      <span>{TailorMatesService.formatDate(club.createdAt)}</span>
+                    </div>
+                    
+                    {club.isMember ? (
+                      <button 
+                        onClick={() => handleLeaveClub(club.id)}
+                        className="w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-medium transition-all duration-300"
+                      >
+                        Leave Club
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleJoinClub(club.id)}
+                        disabled={club.memberCount >= club.maxMembers}
+                        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {club.memberCount >= club.maxMembers ? 'Club Full' : 'Join Club'}
+                      </button>
+                    )}
+                  </div>
+                ))}
+                
+                {/* Create New Club Card */}
+                <div 
+                  onClick={() => setShowCreateClubModal(true)}
+                  className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-6 hover:bg-pink-500/30 transition-all duration-300 group cursor-pointer"
+                >
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Plus className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Create Your Own Club</h3>
+                    <p className="text-white/70 text-sm mb-4">
+                      Start a book club and invite readers who share your interests
+                    </p>
+                    <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
+                      Create Club
+                    </button>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Create Your Own Club</h3>
-                <p className="text-white/70 text-sm mb-4">
-                  Start a book club and invite readers who share your interests
-                </p>
-                <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
-                  Create Club
-                </button>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         )}
 
         {activeTab === 'discussions' && (
           <div className="space-y-6">
-            {discussions.map((discussion) => (
-              <div
-                key={discussion.id}
-                className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <MessageCircle className="w-5 h-5 text-pink-400" />
-                      <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors">
-                        {discussion.topic}
-                      </h3>
-                    </div>
-                    <p className="text-white/70 text-sm mb-3">
-                      Discussing: <span className="text-white font-medium">{discussion.bookTitle}</span> by {discussion.author}
-                    </p>
-                    <div className="flex flex-wrap mb-4">
-                      {renderTags(discussion.tags)}
-                    </div>
-                  </div>
-                  <div className="text-right text-white/60 text-sm">
-                    <div className="flex items-center space-x-1 mb-1">
-                      <Users className="w-4 h-4" />
-                      <span>{discussion.participants} participants</span>
-                    </div>
-                    <span>{discussion.lastActivity}</span>
-                  </div>
-                </div>
-                
-                <button className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105">
-                  Join Discussion
+            {isLoading ? (
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
+                <p className="text-white/70 mt-4">Loading discussions...</p>
+              </div>
+            ) : discussions.length === 0 ? (
+              <div className="text-center py-20">
+                <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-white mb-2">No Discussions Yet</h3>
+                <p className="text-white/70 mb-6">Be the first to start a discussion!</p>
+                <button
+                  onClick={() => setShowCreateDiscussionModal(true)}
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                >
+                  Start First Discussion
                 </button>
               </div>
-            ))}
-            
-            {/* Start New Discussion Card */}
-            <div className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-6 hover:bg-pink-500/30 transition-all duration-300 group cursor-pointer">
-              <div className="flex items-center justify-center text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                  <Plus className="w-8 h-8 text-white" />
+            ) : (
+              <>
+                {discussions.map((discussion) => (
+                  <div
+                    key={discussion.id}
+                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group cursor-pointer"
+                    onClick={() => setSelectedDiscussionId(discussion.id)}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <MessageCircle className="w-5 h-5 text-pink-400" />
+                          <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors">
+                            {discussion.title}
+                          </h3>
+                        </div>
+                        {discussion.bookTitle && (
+                          <p className="text-white/70 text-sm mb-3">
+                            Discussing: <span className="text-white font-medium">{discussion.bookTitle}</span>
+                            {discussion.bookAuthor && ` by ${discussion.bookAuthor}`}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap mb-4">
+                          {renderTags(discussion.tags)}
+                        </div>
+                      </div>
+                      <div className="text-right text-white/60 text-sm">
+                        <div className="flex items-center space-x-1 mb-1">
+                          <Users className="w-4 h-4" />
+                          <span>{discussion.participantCount} participants</span>
+                        </div>
+                        <span>{TailorMatesService.formatDate(discussion.lastActivity)}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 mb-4">
+                      <p className="text-white/90 leading-relaxed line-clamp-2">{discussion.content}</p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-white/60 text-sm">
+                      <span>Started by {discussion.creatorName}</span>
+                      <span>{TailorMatesService.formatDate(discussion.createdAt)}</span>
+                    </div>
+                    
+                    <button className="w-full mt-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105">
+                      {discussion.isParticipant ? 'View Discussion' : 'Join Discussion'}
+                    </button>
+                  </div>
+                ))}
+                
+                {/* Start New Discussion Card */}
+                <div 
+                  onClick={() => setShowCreateDiscussionModal(true)}
+                  className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-6 hover:bg-pink-500/30 transition-all duration-300 group cursor-pointer"
+                >
+                  <div className="flex items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                      <Plus className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-2">Start a New Discussion</h3>
+                      <p className="text-white/70 text-sm mb-4">
+                        Share your thoughts and start a conversation about your favorite books
+                      </p>
+                      <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
+                        Create Discussion
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white mb-2">Start a New Discussion</h3>
-                  <p className="text-white/70 text-sm mb-4">
-                    Share your thoughts and start a conversation about your favorite books
-                  </p>
-                  <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
-                    Create Discussion
-                  </button>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         )}
 
         {activeTab === 'friends' && (
-          <div className="text-center py-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl mb-6">
-              <UserPlus className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Find Reading Friends</h3>
-            <p className="text-white/70 mb-8 max-w-md mx-auto">
-              Connect with readers who share your personality traits and reading preferences. 
-              {!hasCompletedQuiz && ' Complete your personality quiz to get started!'}
-            </p>
-            {!hasCompletedQuiz ? (
-              <button
-                onClick={onStartQuiz}
-                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
-              >
-                Take Personality Quiz
-              </button>
-            ) : (
-              <div className="space-y-4">
-                <button className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105">
-                  Browse Readers
-                </button>
-                <p className="text-white/50 text-sm">
-                  Coming soon: Advanced matching based on your personality profile!
-                </p>
+          <div className="space-y-8">
+            {isLoading ? (
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
+                <p className="text-white/70 mt-4">Loading friends...</p>
               </div>
+            ) : (
+              <>
+                {/* Friend Connections */}
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-6 flex items-center space-x-2">
+                    <UserCheck className="w-6 h-6 text-green-400" />
+                    <span>Your Friends ({friendConnections.filter(f => f.status === 'accepted').length})</span>
+                  </h3>
+                  
+                  {friendConnections.filter(f => f.status === 'accepted').length === 0 ? (
+                    <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                      <UserCheck className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                      <p className="text-white/70 mb-4">You haven't connected with any friends yet.</p>
+                      <p className="text-white/50 text-sm">Check out the recommendations below to find reading buddies!</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {friendConnections
+                        .filter(f => f.status === 'accepted')
+                        .map((friend) => (
+                          <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                            <div className="flex items-center space-x-3 mb-3">
+                              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                                <User className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="text-white font-medium">{friend.friendName}</h4>
+                                <p className="text-white/60 text-sm">@{friend.friendUsername}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className={`${TailorMatesService.getMatchScoreColor(friend.personalityMatchScore)} font-medium`}>
+                                {Math.round(friend.personalityMatchScore * 100)}% Match
+                              </span>
+                              <span className="text-white/50">
+                                {TailorMatesService.formatDate(friend.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Pending Friend Requests */}
+                {friendConnections.filter(f => f.status === 'pending').length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                      <Clock className="w-5 h-5 text-yellow-400" />
+                      <span>Pending Requests ({friendConnections.filter(f => f.status === 'pending').length})</span>
+                    </h3>
+                    <div className="space-y-3">
+                      {friendConnections
+                        .filter(f => f.status === 'pending')
+                        .map((friend) => (
+                          <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                                  <User className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                  <h4 className="text-white font-medium">{friend.friendName}</h4>
+                                  <p className="text-white/60 text-sm">@{friend.friendUsername}</p>
+                                </div>
+                              </div>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleAcceptFriendRequest(friend.friendId)}
+                                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                                >
+                                  Accept
+                                </button>
+                                <button className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors">
+                                  Decline
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Friend Recommendations */}
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                      <Sparkles className="w-6 h-6 text-amber-400" />
+                      <span>Recommended Friends ({friendRecommendations.length})</span>
+                    </h3>
+                    <button
+                      onClick={handleGenerateRecommendations}
+                      className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                  
+                  {!hasCompletedQuiz ? (
+                    <div className="text-center py-12 bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-sm border border-pink-500/30 rounded-2xl">
+                      <Sparkles className="w-16 h-16 text-pink-400 mx-auto mb-4" />
+                      <h4 className="text-xl font-bold text-white mb-2">Complete Your Personality Quiz</h4>
+                      <p className="text-white/80 mb-4">
+                        Take our personality quiz to get matched with readers who share your traits!
+                      </p>
+                      <button
+                        onClick={onStartQuiz}
+                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                      >
+                        Take Personality Quiz
+                      </button>
+                    </div>
+                  ) : friendRecommendations.length === 0 ? (
+                    <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                      <Sparkles className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                      <p className="text-white/70 mb-4">No recommendations available.</p>
+                      <button
+                        onClick={handleGenerateRecommendations}
+                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                      >
+                        Generate Recommendations
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {friendRecommendations.map((recommendation) => (
+                        <div key={recommendation.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                              <User className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-white font-medium">{recommendation.recommendedUserName}</h4>
+                              <p className="text-white/60 text-sm">@{recommendation.recommendedUserUsername}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between text-sm mb-2">
+                              <span className={`${TailorMatesService.getMatchScoreColor(recommendation.matchScore)} font-medium`}>
+                                {Math.round(recommendation.matchScore * 100)}% Match
+                              </span>
+                              <span className="text-white/50">
+                                {TailorMatesService.getMatchScoreLabel(recommendation.matchScore)}
+                              </span>
+                            </div>
+                            
+                            {recommendation.matchReasons.length > 0 && (
+                              <div className="space-y-1">
+                                {recommendation.matchReasons
+                                  .filter(reason => reason)
+                                  .slice(0, 2)
+                                  .map((reason, index) => (
+                                    <p key={index} className="text-white/70 text-xs">• {reason}</p>
+                                  ))}
+                              </div>
+                            )}
+                          </div>
+                          
+                          <button
+                            onClick={() => handleSendFriendRequest(recommendation.recommendedUserId)}
+                            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                          >
+                            Send Friend Request
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <CreateBookClubModal
+        isOpen={showCreateClubModal}
+        onClose={() => setShowCreateClubModal(false)}
+        onSubmit={handleCreateClub}
+      />
+      
+      <CreateDiscussionModal
+        isOpen={showCreateDiscussionModal}
+        onClose={() => setShowCreateDiscussionModal(false)}
+        onSubmit={handleCreateDiscussion}
+      />
     </div>
   );
 };
