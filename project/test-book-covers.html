@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Cover Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .book-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .book-cover {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .book-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .book-author {
+            color: #ccc;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #22c55e;
+            color: white;
+        }
+        .status.error {
+            background: #ef4444;
+            color: white;
+        }
+        .status.loading {
+            background: #f59e0b;
+            color: white;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Book Cover System Test</h1>
+    
+    <div class="controls">
+        <button onclick="testAllBooks()">Test All Books</button>
+        <button onclick="clearCache()">Clear Cache</button>
+        <button onclick="testSpecificBook()">Test Specific Book</button>
+    </div>
+
+    <div id="results" class="test-grid"></div>
+
+    <script type="module">
+        // Test books that should have covers
+        const testBooks = [
+            { id: 'midnight-library', title: 'The Midnight Library', author: 'Matt Haig' },
+            { id: 'klara-and-sun', title: 'Klara and the Sun', author: 'Kazuo Ishiguro' },
+            { id: 'seven-husbands-evelyn-hugo', title: 'The Seven Husbands of Evelyn Hugo', author: 'Taylor Jenkins Reid' },
+            { id: 'normal-people', title: 'Normal People', author: 'Sally Rooney' },
+            { id: 'becoming', title: 'Becoming', author: 'Michelle Obama' },
+            { id: 'long-walk-freedom', title: 'Long Walk to Freedom', author: 'Nelson Mandela' },
+            { id: 'martian', title: 'The Martian', author: 'Andy Weir' },
+            { id: 'yes-please', title: 'Yes Please', author: 'Amy Poehler' },
+            { id: 'never-let-me-go', title: 'Never Let Me Go', author: 'Kazuo Ishiguro' },
+            { id: 'tao-physics', title: 'The Tao of Physics', author: 'Fritjof Capra' },
+            { id: 'siddhartha', title: 'Siddhartha', author: 'Hermann Hesse' },
+            { id: 'book-joy', title: 'The Book of Joy', author: 'Dalai Lama & Desmond Tutu' },
+            { id: 'mans-search-meaning', title: "Man's Search for Meaning", author: 'Viktor Frankl' },
+            { id: 'atomic-habits', title: 'Atomic Habits', author: 'James Clear' },
+            { id: 'sapiens', title: 'Sapiens', author: 'Yuval Noah Harari' },
+            { id: 'educated', title: 'Educated', author: 'Tara Westover' },
+            { id: 'born-a-crime', title: 'Born a Crime', author: 'Trevor Noah' },
+            { id: 'steve-jobs', title: 'Steve Jobs', author: 'Walter Isaacson' },
+            { id: 'long-walk-freedom', title: 'Long Walk to Freedom', author: 'Nelson Mandela' },
+            { id: 'wild', title: 'Wild', author: 'Cheryl Strayed' },
+            { id: 'kitchen-confidential', title: 'Kitchen Confidential', author: 'Anthony Bourdain' },
+            { id: 'secret-history', title: 'The Secret History', author: 'Donna Tartt' },
+            { id: 'big-magic', title: 'Big Magic', author: 'Elizabeth Gilbert' },
+            { id: 'evelyn-hugo', title: 'The Seven Husbands of Evelyn Hugo', author: 'Taylor Jenkins Reid' },
+            { id: 'seven-husbands', title: 'The Seven Husbands of Evelyn Hugo', author: 'Taylor Jenkins Reid' },
+            { id: 'lean-startup', title: 'The Lean Startup', author: 'Eric Ries' },
+            { id: 'color-purple', title: 'The Color Purple', author: 'Alice Walker' },
+            { id: 'foundation-series', title: 'The Foundation Series', author: 'Isaac Asimov' },
+            { id: 'dune', title: 'Dune', author: 'Frank Herbert' },
+            { id: '1984', title: '1984', author: 'George Orwell' },
+            { id: 'pride-prejudice', title: 'Pride and Prejudice', author: 'Jane Austen' },
+            { id: 'great-gatsby', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald' },
+            { id: 'to-kill-mockingbird', title: 'To Kill a Mockingbird', author: 'Harper Lee' },
+            { id: 'lord-rings', title: 'The Lord of the Rings', author: 'J.R.R. Tolkien' },
+            { id: 'harry-potter', title: 'Harry Potter and the Philosopher\'s Stone', author: 'J.K. Rowling' },
+            { id: 'hobbit', title: 'The Hobbit', author: 'J.R.R. Tolkien' },
+            { id: 'catcher-rye', title: 'The Catcher in the Rye', author: 'J.D. Salinger' },
+            { id: 'animal-farm', title: 'Animal Farm', author: 'George Orwell' },
+            { id: 'brave-new-world', title: 'Brave New World', author: 'Aldous Huxley' },
+            { id: 'fahrenheit-451', title: 'Fahrenheit 451', author: 'Ray Bradbury' },
+            { id: 'slaughterhouse-five', title: 'Slaughterhouse-Five', author: 'Kurt Vonnegut' },
+            { id: 'catch-22', title: 'Catch-22', author: 'Joseph Heller' },
+            { id: 'one-hundred-years-solitude', title: 'One Hundred Years of Solitude', author: 'Gabriel García Márquez' },
+            { id: 'love-time-cholera', title: 'Love in the Time of Cholera', author: 'Gabriel García Márquez' },
+            { id: 'hundred-years-solitude', title: 'One Hundred Years of Solitude', author: 'Gabriel García Márquez' },
+            { id: 'gabriel-garcia-marquez', title: 'One Hundred Years of Solitude', author: 'Gabriel García Márquez' },
+        ];
+
+        // Mock book cover service for testing
+        const manualCoverOverrides = {
+            'mans-search-for-meaning': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/4069.jpg',
+            'mans-search-meaning': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/4069.jpg',
+            'midnight-library': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/52578297.jpg',
+            'klara-and-sun': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/54120408.jpg',
+            'klara-and-the-sun': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/54120408.jpg',
+            'seven-husbands-evelyn-hugo': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
+            'normal-people': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1578028274i/41057294.jpg',
+            'becoming': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1528206996i/38746485.jpg',
+            'long-walk-freedom': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/318431.jpg',
+            'martian': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1416057064i/18007564.jpg',
+            'yes-please': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1401941765i/20821385.jpg',
+            'never-let-me-go': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/6334.jpg',
+            'tao-physics': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/18423.jpg',
+            'the-tao-of-physics': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/18423.jpg',
+            'siddhartha': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/52036.jpg',
+            'book-joy': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1451442486i/27209414.jpg',
+            'the-book-of-joy': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1451442486i/27209414.jpg',
+            'atomic-habits': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1655988385i/40121378.jpg',
+            'sapiens': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1420595954i/23692271.jpg',
+            'educated': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1506026635i/35133922.jpg',
+            'born-a-crime': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1473867911i/29780253.jpg',
+            'steve-jobs': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1511288482i/11084145.jpg',
+            'wild': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/12262741.jpg',
+            'kitchen-confidential': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/33313.jpg',
+            'secret-history': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/29044.jpg',
+            'big-magic': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1440559032i/24453082.jpg',
+            'evelyn-hugo': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
+            'seven-husbands': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
+            'lean-startup': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/10127019.jpg',
+            'the-lean-startup': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/10127019.jpg',
+            'color-purple': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/37435.jpg',
+            'the-color-purple': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/37435.jpg',
+            'foundation-series': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/29579.jpg',
+            'the-foundation-series': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/29579.jpg',
+            'dune': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1555447414i/44767458.jpg',
+            '1984': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/5470.jpg',
+            'pride-prejudice': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/1885.jpg',
+            'great-gatsby': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/4671.jpg',
+            'to-kill-mockingbird': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/2657.jpg',
+            'lord-rings': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/33.jpg',
+            'harry-potter': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/72193.jpg',
+            'hobbit': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/5907.jpg',
+            'catcher-rye': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/5107.jpg',
+            'catcher-in-the-rye': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/5107.jpg',
+            'animal-farm': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/7613.jpg',
+            'brave-new-world': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/5129.jpg',
+            'fahrenheit-451': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/13079982.jpg',
+            'slaughterhouse-five': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/4981.jpg',
+            'catch-22': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/168668.jpg',
+            'one-hundred-years-solitude': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/320.jpg',
+            'love-time-cholera': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/9712.jpg',
+            'hundred-years-solitude': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/320.jpg',
+            'gabriel-garcia-marquez': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/320.jpg',
+        };
+
+        function getBookCover(bookId, title, author) {
+            // Try manual overrides first
+            const possibleOverrideKeys = [
+                bookId.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+                title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+                `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${author.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+                title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/\s+/g, '-'),
+                title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/\s+/g, ''),
+                title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/the-/g, ''),
+                title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/a-/g, ''),
+                title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/an-/g, ''),
+            ];
+            
+            for (const overrideKey of possibleOverrideKeys) {
+                if (manualCoverOverrides[overrideKey]) {
+                    return manualCoverOverrides[overrideKey];
+                }
+            }
+            
+            // Fallback to placeholder
+            const cleanTitle = title.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+            const cleanAuthor = author.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+            return `https://via.placeholder.com/300x400/1f2937/ffffff?text=${encodeURIComponent(cleanTitle)}+by+${encodeURIComponent(cleanAuthor)}`;
+        }
+
+        function createBookCard(book) {
+            const coverUrl = getBookCover(book.id, book.title, book.author);
+            const isPlaceholder = coverUrl.includes('placeholder.com');
+            
+            return `
+                <div class="book-card">
+                    <img src="${coverUrl}" alt="${book.title}" class="book-cover" onerror="this.src='https://via.placeholder.com/300x400/1f2937/ffffff?text=Error'">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-author">by ${book.author}</div>
+                    <div class="status ${isPlaceholder ? 'error' : 'success'}">
+                        ${isPlaceholder ? 'Placeholder' : 'Cover Found'}
+                    </div>
+                    <div style="font-size: 0.8em; color: #888; margin-top: 5px;">
+                        ID: ${book.id}
+                    </div>
+                </div>
+            `;
+        }
+
+        function testAllBooks() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            
+            testBooks.forEach(book => {
+                const card = createBookCard(book);
+                resultsDiv.innerHTML += card;
+            });
+            
+            const successCount = testBooks.filter(book => {
+                const coverUrl = getBookCover(book.id, book.title, book.author);
+                return !coverUrl.includes('placeholder.com');
+            }).length;
+            
+            console.log(`Test Results: ${successCount}/${testBooks.length} books have covers (${Math.round(successCount/testBooks.length*100)}%)`);
+        }
+
+        function clearCache() {
+            console.log('Cache cleared (this is just a test page)');
+            alert('Cache cleared!');
+        }
+
+        function testSpecificBook() {
+            const title = prompt('Enter book title:');
+            const author = prompt('Enter author:');
+            const id = prompt('Enter book ID (optional):') || title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            
+            if (title && author) {
+                const book = { id, title, author };
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = createBookCard(book);
+                
+                const coverUrl = getBookCover(id, title, author);
+                console.log(`Cover URL for "${title}": ${coverUrl}`);
+            }
+        }
+
+        // Make functions global
+        window.testAllBooks = testAllBooks;
+        window.clearCache = clearCache;
+        window.testSpecificBook = testSpecificBook;
+
+        // Auto-test on load
+        testAllBooks();
+    </script>
+</body>
+</html>

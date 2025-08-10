@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Home, ArrowLeft, Book, ShoppingCart, ExternalLink, Star, Search, Filter, TrendingUp, Sparkles } from 'lucide-react';
 import { trendingBooks, TrendingBook } from '../data/trendingBooks';
-import BookCover from './BookCover';
+import { BookCover } from './BookCover';
 import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 

@@ -7,7 +7,7 @@ import { analyzePersonality } from '../utils/personalityAnalysis';
 import StrengthsDetailPage from './StrengthsDetailPage';
 import GrowthAreasDetailPage from './GrowthAreasDetailPage';
 import FavoritesPage from './FavoritesPage';
-import BookCover from './BookCover';
+import { BookCover } from './BookCover';
 
 interface PlaceholderPageProps {
   title: string;

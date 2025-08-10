@@ -1,202 +1,175 @@
-// Book Cover Enhancer
-// Provides advanced book cover loading, validation, and fallback strategies
+// Book Cover Enhancer - Utility to help identify and add missing book covers
 
 import { getBookCover, clearBookCoverFromCache } from './bookCoverService';
 
-export interface BookCoverInfo {
+interface BookCoverDebugInfo {
   bookId: string;
   title: string;
   author: string;
-  coverUrl: string | null;
-  isValid: boolean;
-  source: 'manual' | 'google' | 'openlibrary' | 'alternative' | 'generic' | 'none';
-  loadTime: number;
+  success: boolean;
+  coverUrl?: string;
   error?: string;
+  source?: string;
 }
 
 /**
- * Validate if a book cover URL is accessible
+ * Debug function to test book cover loading for a specific book
  */
-export const validateBookCover = async (url: string): Promise<boolean> => {
-  try {
-    const response = await fetch(url, { method: 'HEAD' });
-    return response.ok && response.headers.get('content-type')?.includes('image');
-  } catch (error) {
-    console.warn(`Failed to validate book cover: ${url}`, error);
-    return false;
-  }
-};
-
-/**
- * Enhanced book cover fetching with validation and multiple fallbacks
- */
-export const getEnhancedBookCover = async (
+export const debugBookCover = async (
   bookId: string, 
   title: string, 
   author: string
-): Promise<BookCoverInfo> => {
-  const startTime = Date.now();
-  
+): Promise<BookCoverDebugInfo> => {
   try {
-    // Try to get cover from the main service
+    console.log(`🔍 Debugging cover for: ${title} by ${author}`);
+    
+    // Clear any cached version first
+    clearBookCoverFromCache(bookId, title, author);
+    
+    // Try to get the cover
     const coverUrl = await getBookCover(bookId, title, author);
     
-    if (coverUrl) {
-      // Validate the cover URL
-      const isValid = await validateBookCover(coverUrl);
-      
+    if (coverUrl && !coverUrl.includes('placeholder.com')) {
       return {
         bookId,
         title,
         author,
-        coverUrl: isValid ? coverUrl : null,
-        isValid,
-        source: isValid ? 'google' : 'none', // Simplified for now
-        loadTime: Date.now() - startTime,
-        error: isValid ? undefined : 'Cover URL validation failed'
+        success: true,
+        coverUrl,
+        source: 'API or Manual Override'
+      };
+    } else {
+      return {
+        bookId,
+        title,
+        author,
+        success: false,
+        coverUrl,
+        error: 'Only placeholder cover found',
+        source: 'Fallback'
       };
     }
-    
-    return {
-      bookId,
-      title,
-      author,
-      coverUrl: null,
-      isValid: false,
-      source: 'none',
-      loadTime: Date.now() - startTime,
-      error: 'No cover found'
-    };
-    
   } catch (error) {
     return {
       bookId,
       title,
       author,
-      coverUrl: null,
-      isValid: false,
-      source: 'none',
-      loadTime: Date.now() - startTime,
+      success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 };
 
 /**
- * Batch load and validate book covers
+ * Batch debug multiple books to identify which ones need manual overrides
  */
-export const batchLoadBookCovers = async (
-  books: Array<{ bookId: string; title: string; author: string }>
-): Promise<BookCoverInfo[]> => {
-  console.log(`Starting batch load of ${books.length} book covers...`);
-  
-  const results: BookCoverInfo[] = [];
-  
-  // Process books in batches to avoid overwhelming the APIs
-  const batchSize = 5;
-  for (let i = 0; i < books.length; i += batchSize) {
-    const batch = books.slice(i, i + batchSize);
-    
-    const batchPromises = batch.map(book => 
-      getEnhancedBookCover(book.bookId, book.title, book.author)
-    );
-    
-    const batchResults = await Promise.allSettled(batchPromises);
-    
-    batchResults.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
-        results.push(result.value);
-      } else {
-        const book = batch[index];
-        results.push({
-          bookId: book.bookId,
-          title: book.title,
-          author: book.author,
-          coverUrl: null,
-          isValid: false,
-          source: 'none',
-          loadTime: 0,
-          error: result.reason?.message || 'Failed to load cover'
-        });
-      }
-    });
-    
-    // Small delay between batches to be respectful to APIs
-    if (i + batchSize < books.length) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
-  
-  const successCount = results.filter(r => r.isValid).length;
-  console.log(`Batch load complete: ${successCount}/${books.length} covers loaded successfully`);
-  
-  return results;
-};
-
-/**
- * Generate a fallback cover URL using a placeholder service
- */
-export const generateFallbackCover = (title: string, author: string): string => {
-  // Use a placeholder service that generates covers based on title/author
-  const cleanTitle = encodeURIComponent(title.replace(/[^a-zA-Z0-9\s]/g, ''));
-  const cleanAuthor = encodeURIComponent(author.replace(/[^a-zA-Z0-9\s]/g, ''));
-  
-  return `https://via.placeholder.com/300x400/1f2937/ffffff?text=${cleanTitle}+by+${cleanAuthor}`;
-};
-
-/**
- * Get cover loading statistics
- */
-export const getCoverLoadingStats = (coverInfos: BookCoverInfo[]) => {
-  const total = coverInfos.length;
-  const successful = coverInfos.filter(info => info.isValid).length;
-  const failed = total - successful;
-  const avgLoadTime = coverInfos.reduce((sum, info) => sum + info.loadTime, 0) / total;
-  
-  const sourceBreakdown = coverInfos.reduce((acc, info) => {
-    acc[info.source] = (acc[info.source] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
-  return {
-    total,
-    successful,
-    failed,
-    successRate: (successful / total) * 100,
-    avgLoadTime,
-    sourceBreakdown
+export const debugBookCovers = async (
+  books: Array<{ id: string; title: string; author: string }>
+): Promise<{
+  successful: BookCoverDebugInfo[];
+  failed: BookCoverDebugInfo[];
+  summary: {
+    total: number;
+    successful: number;
+    failed: number;
+    successRate: number;
   };
+}> => {
+  console.log(`🔍 Starting batch debug for ${books.length} books...`);
+  
+  const results = await Promise.all(
+    books.map(book => debugBookCover(book.id, book.title, book.author))
+  );
+  
+  const successful = results.filter(r => r.success);
+  const failed = results.filter(r => !r.success);
+  
+  const summary = {
+    total: books.length,
+    successful: successful.length,
+    failed: failed.length,
+    successRate: Math.round((successful.length / books.length) * 100)
+  };
+  
+  console.log(`📊 Debug Summary:`, summary);
+  console.log(`✅ Successful: ${successful.length}`);
+  console.log(`❌ Failed: ${failed.length}`);
+  
+  if (failed.length > 0) {
+    console.log(`📝 Failed books that need manual overrides:`);
+    failed.forEach(book => {
+      console.log(`  - "${book.title}" by ${book.author} (ID: ${book.bookId})`);
+    });
+  }
+  
+  return { successful, failed, summary };
 };
 
 /**
- * Retry failed book covers with different strategies
+ * Generate manual override entries for failed books
  */
-export const retryFailedCovers = async (
-  failedCovers: BookCoverInfo[]
-): Promise<BookCoverInfo[]> => {
-  console.log(`Retrying ${failedCovers.length} failed covers...`);
+export const generateManualOverrides = (
+  failedBooks: BookCoverDebugInfo[]
+): string => {
+  let overrideCode = '\n// Manual overrides for books that failed to load covers\n';
   
-  const retryResults: BookCoverInfo[] = [];
+  failedBooks.forEach(book => {
+    const key = book.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    overrideCode += `  '${key}': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/[GOODREADS_ID].jpg',\n`;
+  });
   
-  for (const failedCover of failedCovers) {
-    // Clear from cache to force re-fetch
-    clearBookCoverFromCache(failedCover.bookId, failedCover.title, failedCover.author);
-    
-    // Wait a bit before retrying
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Try again
-    const retryResult = await getEnhancedBookCover(
-      failedCover.bookId,
-      failedCover.title,
-      failedCover.author
-    );
-    
-    retryResults.push(retryResult);
+  return overrideCode;
+};
+
+/**
+ * Test a specific book cover and provide debugging info
+ */
+export const testBookCover = async (
+  title: string,
+  author: string,
+  bookId?: string
+): Promise<void> => {
+  const id = bookId || title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  
+  console.log(`🧪 Testing book cover for: "${title}" by ${author}`);
+  console.log(`📋 Book ID: ${id}`);
+  
+  const result = await debugBookCover(id, title, author);
+  
+  if (result.success) {
+    console.log(`✅ SUCCESS: Cover found at ${result.coverUrl}`);
+    console.log(`📊 Source: ${result.source}`);
+  } else {
+    console.log(`❌ FAILED: ${result.error}`);
+    console.log(`🔧 Suggested manual override key: '${id}'`);
+    console.log(`🔗 You'll need to find a Goodreads cover URL for this book`);
   }
   
-  const retrySuccessCount = retryResults.filter(r => r.isValid).length;
-  console.log(`Retry complete: ${retrySuccessCount}/${failedCovers.length} covers now successful`);
+  return;
+};
+
+/**
+ * Preload and validate all book covers in your app
+ */
+export const validateAllBookCovers = async (): Promise<void> => {
+  // This would need to be called with your actual book data
+  // You can import your book data from various sources and pass it here
   
-  return retryResults;
+  console.log(`🔍 Starting comprehensive book cover validation...`);
+  
+  // Example usage - you would replace this with your actual book data
+  const sampleBooks = [
+    { id: 'test-1', title: 'The Midnight Library', author: 'Matt Haig' },
+    { id: 'test-2', title: 'Klara and the Sun', author: 'Kazuo Ishiguro' },
+    // Add more books from your app here
+  ];
+  
+  const results = await debugBookCovers(sampleBooks);
+  
+  if (results.failed.length > 0) {
+    console.log(`\n🔧 To fix missing covers, add these manual overrides to bookCoverService.ts:`);
+    console.log(generateManualOverrides(results.failed));
+  }
+  
+  return;
 };

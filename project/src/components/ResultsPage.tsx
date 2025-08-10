@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
 import Logo from './Logo';
-import BookCover from './BookCover';
+import { BookCover } from './BookCover';
 import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { isBookFavorited } from '../utils/favoritesUtils';

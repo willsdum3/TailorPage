@@ -1,7 +1,7 @@
 import React from 'react';
 import { Book, ShoppingCart, ExternalLink, Trash2, ArrowLeft, Heart, Sparkles, Home } from 'lucide-react';
 import { FavoriteBook, User } from '../types';
-import BookCover from './BookCover';
+import { BookCover } from './BookCover';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
 interface FavoritesPageProps {

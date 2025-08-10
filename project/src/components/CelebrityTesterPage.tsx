@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { celebrities } from '../data/celebrities';
 import { CelebrityProfile } from '../data/celebrities';
-import BookCover from './BookCover';
+import { BookCover } from './BookCover';
 import { useScrollToTop } from '../hooks/useScrollToTop';
 import { analyzePersonality, TraitAnalysis } from '../utils/personalityAnalysis';
 

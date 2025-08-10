@@ -1,207 +1,214 @@
-// Book Cover Debugger
-// Helps identify and fix book cover loading issues
+// Book Cover Debugger - Interactive debugging tool for missing book covers
 
 import { getBookCover, clearBookCoverFromCache, getCacheStats } from './bookCoverService';
 
-export interface BookCoverDebugInfo {
+interface DebugResult {
   bookId: string;
   title: string;
   author: string;
-  coverUrl: string | null;
-  cacheKey: string;
-  overrideKey: string;
-  hasOverride: boolean;
-  cacheHit: boolean;
-  loadTime: number;
+  success: boolean;
+  coverUrl?: string;
   error?: string;
+  needsManualOverride: boolean;
 }
 
 /**
- * Debug a specific book's cover loading process
+ * Interactive debugger for book covers
+ * Run this in your browser console to debug missing covers
  */
-export const debugBookCover = async (
-  bookId: string, 
-  title: string, 
-  author: string
-): Promise<BookCoverDebugInfo> => {
-  const startTime = Date.now();
+export const debugBookCoverInteractive = async (
+  title: string,
+  author: string,
+  bookId?: string
+): Promise<DebugResult> => {
+  const id = bookId || title.toLowerCase().replace(/[^a-z0-9]/g, '-');
   
-  // Generate keys
-  const cacheKey = `${title.toLowerCase()}-${author.toLowerCase()}`;
-  const overrideKey = bookId.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  console.log(`🔍 Debugging: "${title}" by ${author}`);
+  console.log(`📋 Book ID: ${id}`);
   
-  // Check cache
-  const cacheStats = getCacheStats();
-  const cacheHit = cacheStats.entries.includes(cacheKey);
-  
-  // Check manual overrides
-  const manualOverrides = {
-    'mans-search-for-meaning': '/book-covers/MansSearchForMeaning.jpg',
-    'stillness-is-the-key': '/book-covers/StillnessIsTheKey.jpg',
-    'wonder': '/book-covers/Wonder.jpg',
-    'where-the-crawdads-sing': '/book-covers/WhereTheCrawdadsSing.jpg',
-    'invisible-cities': '/book-covers/InvisibleCities.jpg',
-    'steve-jobs': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1511288482i/11084145.jpg',
-    'atonement': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/6867.jpg',
-    'the-goldfinch': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1378714833i/17333223.jpg',
-    'beloved': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327959502i/6149.jpg',
-    'wild': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/12262741.jpg',
-    'midnight-library': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/52578297.jpg',
-    'seven-husbands-evelyn-hugo': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
-    'alchemist': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1483412266i/865.jpg',
-    'normal-people': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1578028274i/41057294.jpg',
-    'klara-and-sun': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190253i/54120408.jpg',
-    'circe': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1529033999i/35959740.jpg',
-    'song-of-achilles': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1331154660i/11250317.jpg',
-    'little-fires-everywhere': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1494197999i/34273236.jpg',
-    'kitchen-confidential': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/33313.jpg',
-    'secret-history': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/29044.jpg',
-    'big-magic': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1440559032i/24453082.jpg',
-    'evelyn-hugo': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
-    'seven-husbands': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1674739970i/32620332.jpg',
-  };
-  
-  const hasOverride = overrideKey in manualOverrides;
+  // Clear any cached version
+  clearBookCoverFromCache(id, title, author);
   
   try {
-    // Clear cache to force fresh fetch
-    clearBookCoverFromCache(bookId, title, author);
+    const coverUrl = await getBookCover(id, title, author);
     
-    // Fetch cover
-    const coverUrl = await getBookCover(bookId, title, author);
+    const isPlaceholder = coverUrl?.includes('placeholder.com');
+    const success = !isPlaceholder;
     
-    return {
-      bookId,
+    const result: DebugResult = {
+      bookId: id,
       title,
       author,
+      success,
       coverUrl,
-      cacheKey,
-      overrideKey,
-      hasOverride,
-      cacheHit,
-      loadTime: Date.now() - startTime,
+      needsManualOverride: isPlaceholder || false
     };
-  } catch (error) {
-    return {
-      bookId,
-      title,
-      author,
-      coverUrl: null,
-      cacheKey,
-      overrideKey,
-      hasOverride,
-      cacheHit,
-      loadTime: Date.now() - startTime,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
-};
-
-/**
- * Debug multiple books at once
- */
-export const debugMultipleBookCovers = async (
-  books: Array<{ bookId: string; title: string; author: string }>
-): Promise<BookCoverDebugInfo[]> => {
-  console.log(`🔍 Debugging ${books.length} book covers...`);
-  
-  const results: BookCoverDebugInfo[] = [];
-  
-  for (const book of books) {
-    const debugInfo = await debugBookCover(book.bookId, book.title, book.author);
-    results.push(debugInfo);
     
-    // Log results
-    if (debugInfo.coverUrl) {
-      console.log(`✅ ${book.title} by ${book.author}: Found cover`);
+    if (success) {
+      console.log(`✅ SUCCESS: Cover found!`);
+      console.log(`🔗 URL: ${coverUrl}`);
     } else {
-      console.log(`❌ ${book.title} by ${book.author}: No cover found`);
-      if (debugInfo.hasOverride) {
-        console.log(`   ⚠️  Has manual override but still failed`);
-      }
+      console.log(`❌ FAILED: Only placeholder cover found`);
+      console.log(`🔧 Needs manual override`);
+      console.log(`📝 Suggested override key: '${id}'`);
     }
     
-    // Small delay to avoid overwhelming APIs
-    await new Promise(resolve => setTimeout(resolve, 100));
+    return result;
+  } catch (error) {
+    const result: DebugResult = {
+      bookId: id,
+      title,
+      author,
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      needsManualOverride: true
+    };
+    
+    console.log(`💥 ERROR: ${result.error}`);
+    console.log(`🔧 Needs manual override`);
+    
+    return result;
   }
-  
-  // Summary
-  const successful = results.filter(r => r.coverUrl).length;
-  const failed = results.length - successful;
-  
-  console.log(`\n📊 Debug Summary:`);
-  console.log(`   Total: ${results.length}`);
-  console.log(`   Successful: ${successful}`);
-  console.log(`   Failed: ${failed}`);
-  console.log(`   Success Rate: ${((successful / results.length) * 100).toFixed(1)}%`);
-  
-  // Show failed books
-  if (failed > 0) {
-    console.log(`\n❌ Failed Books:`);
-    results.filter(r => !r.coverUrl).forEach(r => {
-      console.log(`   - ${r.title} by ${r.author} (ID: ${r.bookId})`);
-      if (r.error) {
-        console.log(`     Error: ${r.error}`);
-      }
-    });
-  }
-  
-  return results;
 };
 
 /**
- * Generate a report of all book cover issues
+ * Batch debug all books in your app
+ * This will help you identify which books need manual overrides
  */
-export const generateBookCoverReport = (debugInfos: BookCoverDebugInfo[]): string => {
-  const successful = debugInfos.filter(r => r.coverUrl).length;
-  const failed = debugInfos.length - successful;
-  const successRate = ((successful / debugInfos.length) * 100).toFixed(1);
+export const debugAllBookCovers = async (): Promise<{
+  successful: DebugResult[];
+  failed: DebugResult[];
+  summary: {
+    total: number;
+    successful: number;
+    failed: number;
+    successRate: number;
+  };
+}> => {
+  console.log(`🔍 Starting comprehensive book cover audit...`);
   
-  let report = `# Book Cover Loading Report\n\n`;
-  report += `## Summary\n`;
-  report += `- **Total Books**: ${debugInfos.length}\n`;
-  report += `- **Successful**: ${successful}\n`;
-  report += `- **Failed**: ${failed}\n`;
-  report += `- **Success Rate**: ${successRate}%\n\n`;
-  
-  if (failed > 0) {
-    report += `## Failed Books\n\n`;
-    debugInfos.filter(r => !r.coverUrl).forEach(r => {
-      report += `### ${r.title} by ${r.author}\n`;
-      report += `- **Book ID**: ${r.bookId}\n`;
-      report += `- **Cache Key**: ${r.cacheKey}\n`;
-      report += `- **Override Key**: ${r.overrideKey}\n`;
-      report += `- **Has Override**: ${r.hasOverride}\n`;
-      report += `- **Load Time**: ${r.loadTime}ms\n`;
-      if (r.error) {
-        report += `- **Error**: ${r.error}\n`;
-      }
-      report += `\n`;
-    });
-  }
-  
-  return report;
-};
-
-/**
- * Test specific books that are known to fail
- */
-export const testKnownProblemBooks = async (): Promise<void> => {
-  const problemBooks = [
-    { bookId: 'where-crawdads-sing', title: 'Where the Crawdads Sing', author: 'Delia Owens' },
-    { bookId: 'wild', title: 'Wild', author: 'Cheryl Strayed' },
-    { bookId: 'song-of-achilles', title: 'The Song of Achilles', author: 'Madeline Miller' },
-    { bookId: 'seven-husbands-evelyn-hugo', title: 'The Seven Husbands of Evelyn Hugo', author: 'Taylor Jenkins Reid' },
-    { bookId: 'kitchen-confidential', title: 'Kitchen Confidential', author: 'Anthony Bourdain' },
-    { bookId: 'secret-history', title: 'The Secret History', author: 'Donna Tartt' },
-    { bookId: 'big-magic', title: 'Big Magic', author: 'Elizabeth Gilbert' },
+  // Import your book data here
+  // You'll need to replace this with your actual book data
+  const allBooks = [
+    // Add your books here, for example:
+    { id: 'midnight-library', title: 'The Midnight Library', author: 'Matt Haig' },
+    { id: 'klara-sun', title: 'Klara and the Sun', author: 'Kazuo Ishiguro' },
+    { id: 'evelyn-hugo', title: 'The Seven Husbands of Evelyn Hugo', author: 'Taylor Jenkins Reid' },
+    { id: 'normal-people', title: 'Normal People', author: 'Sally Rooney' },
+    { id: 'circe', title: 'Circe', author: 'Madeline Miller' },
+    { id: 'song-achilles', title: 'The Song of Achilles', author: 'Madeline Miller' },
+    { id: 'little-fires', title: 'Little Fires Everywhere', author: 'Celeste Ng' },
+    { id: 'becoming', title: 'Becoming', author: 'Michelle Obama' },
+    { id: 'long-walk-freedom', title: 'Long Walk to Freedom', author: 'Nelson Mandela' },
+    { id: 'martian', title: 'The Martian', author: 'Andy Weir' },
+    { id: 'yes-please', title: 'Yes Please', author: 'Amy Poehler' },
+    { id: 'never-let-me-go', title: 'Never Let Me Go', author: 'Kazuo Ishiguro' },
+    { id: 'tao-physics', title: 'The Tao of Physics', author: 'Fritjof Capra' },
+    { id: 'siddhartha', title: 'Siddhartha', author: 'Hermann Hesse' },
+    { id: 'book-joy', title: 'The Book of Joy', author: 'Dalai Lama & Desmond Tutu' },
+    // Add more books from your app here...
   ];
   
-  console.log('🧪 Testing known problem books...');
-  const results = await debugMultipleBookCovers(problemBooks);
+  console.log(`📚 Testing ${allBooks.length} books...`);
   
-  // Generate report
-  const report = generateBookCoverReport(results);
-  console.log('\n📄 Report:');
-  console.log(report);
+  const results = await Promise.all(
+    allBooks.map(book => debugBookCoverInteractive(book.title, book.author, book.id))
+  );
+  
+  const successful = results.filter(r => r.success);
+  const failed = results.filter(r => !r.success);
+  
+  const summary = {
+    total: allBooks.length,
+    successful: successful.length,
+    failed: failed.length,
+    successRate: Math.round((successful.length / allBooks.length) * 100)
+  };
+  
+  console.log(`\n📊 AUDIT SUMMARY:`);
+  console.log(`📚 Total books: ${summary.total}`);
+  console.log(`✅ Successful: ${summary.successful}`);
+  console.log(`❌ Failed: ${summary.failed}`);
+  console.log(`📈 Success rate: ${summary.successRate}%`);
+  
+  if (failed.length > 0) {
+    console.log(`\n🔧 BOOKS NEEDING MANUAL OVERRIDES:`);
+    failed.forEach(book => {
+      console.log(`  - "${book.title}" by ${book.author}`);
+      console.log(`    Key: '${book.bookId}'`);
+      console.log(`    Error: ${book.error || 'Placeholder only'}`);
+    });
+    
+    console.log(`\n📝 MANUAL OVERRIDE CODE:`);
+    console.log(`Add these to src/utils/bookCoverService.ts:`);
+    console.log(`\nconst manualCoverOverrides: Record<string, string> = {`);
+    failed.forEach(book => {
+      const key = book.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      console.log(`  '${key}': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/[GOODREADS_ID].jpg',`);
+    });
+    console.log(`};`);
+  }
+  
+  return { successful, failed, summary };
 };
+
+/**
+ * Quick test for a specific book
+ * Use this in browser console to test individual books
+ */
+export const quickTest = async (title: string, author: string): Promise<void> => {
+  console.log(`🧪 Quick test for: "${title}" by ${author}`);
+  
+  const result = await debugBookCoverInteractive(title, author);
+  
+  if (result.success) {
+    console.log(`✅ Book cover is working correctly!`);
+  } else {
+    console.log(`❌ Book needs manual override`);
+    console.log(`🔧 Add this to manualCoverOverrides:`);
+    const key = title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    console.log(`'${key}': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/[GOODREADS_ID].jpg',`);
+  }
+};
+
+/**
+ * Check cache status
+ */
+export const checkCacheStatus = (): void => {
+  const stats = getCacheStats();
+  console.log(`📊 Cache Status:`);
+  console.log(`📦 Cached covers: ${stats.size}`);
+  console.log(`📋 Cached books:`, stats.entries);
+};
+
+/**
+ * Clear cache and retest
+ */
+export const clearCacheAndRetest = async (title: string, author: string): Promise<void> => {
+  console.log(`🧹 Clearing cache and retesting: "${title}" by ${author}`);
+  
+  clearBookCoverFromCache('', title, author);
+  
+  // Wait a moment for cache to clear
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  await quickTest(title, author);
+};
+
+// Export for browser console usage
+if (typeof window !== 'undefined') {
+  (window as any).bookCoverDebugger = {
+    debugBookCoverInteractive,
+    debugAllBookCovers,
+    quickTest,
+    checkCacheStatus,
+    clearCacheAndRetest
+  };
+  
+  console.log(`🔧 Book Cover Debugger loaded!`);
+  console.log(`📝 Available commands:`);
+  console.log(`  - bookCoverDebugger.quickTest('Book Title', 'Author Name')`);
+  console.log(`  - bookCoverDebugger.debugAllBookCovers()`);
+  console.log(`  - bookCoverDebugger.checkCacheStatus()`);
+  console.log(`  - bookCoverDebugger.clearCacheAndRetest('Book Title', 'Author Name')`);
+}

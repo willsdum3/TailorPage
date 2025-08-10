@@ -1,7 +1,7 @@
 import React from 'react';
 import { Book, ShoppingCart, ExternalLink, Star, Home, ArrowLeft } from 'lucide-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
-import BookCover from './BookCover';
+import { BookCover } from './BookCover';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
 interface GeneratedRecommendationsPageProps {
