@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send } from 'lucide-react';
+import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send, User as UserIcon } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub, Discussion, FriendConnection, FriendRecommendation, User } from '../types';
@@ -588,7 +588,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                           <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
                             <div className="flex items-center space-x-3 mb-3">
                               <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                                <User className="w-6 h-6 text-white" />
+                                <UserIcon className="w-6 h-6 text-white" />
                               </div>
                               <div className="flex-1">
                                 <h4 className="text-white font-medium">{friend.friendName}</h4>
@@ -624,7 +624,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
                                 <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                                  <User className="w-5 h-5 text-white" />
+                                  <UserIcon className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
                                   <h4 className="text-white font-medium">{friend.friendName}</h4>
@@ -695,7 +695,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         <div key={recommendation.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
                           <div className="flex items-center space-x-3 mb-3">
                             <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                              <User className="w-6 h-6 text-white" />
+                              <UserIcon className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex-1">
                               <h4 className="text-white font-medium">{recommendation.recommendedUserName}</h4>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User } from 'lucide-react';
+import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as UserIcon } from 'lucide-react';
 import { Discussion, DiscussionMessage, User as UserType } from '../types';
 import { TailorMatesService } from '../services/tailorMatesService';
 
@@ -242,9 +242,9 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
               messages.map((message) => (
                 <div key={message.id} className="flex space-x-3">
                   <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
+                                         <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                       <UserIcon className="w-4 h-4 text-white" />
+                     </div>
                   </div>
                   <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
