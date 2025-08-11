@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
-import { BookClub, Discussion, FriendConnection, FriendRecommendation } from '../types';
+import { BookClub, Discussion, FriendConnection, FriendRecommendation, User } from '../types';
 import CreateBookClubModal from './CreateBookClubModal';
 import CreateDiscussionModal from './CreateDiscussionModal';
 import DiscussionDetailPage from './DiscussionDetailPage';
@@ -11,9 +11,10 @@ interface TailorMatesPageProps {
   onBack: () => void;
   hasCompletedQuiz: boolean;
   onStartQuiz?: () => void;
+  user: User | null;
 }
 
-const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz }) => {
+const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz, user }) => {
   const [activeTab, setActiveTab] = useState<'clubs' | 'discussions' | 'friends'>('clubs');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -38,19 +39,24 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   }, []);
 
   const loadData = async () => {
+    if (!user) {
+      console.log('No user available for loading data');
+      return;
+    }
+
     try {
       setIsLoading(true);
       
       if (activeTab === 'clubs') {
-        const clubs = await TailorMatesService.getBookClubs();
+        const clubs = await TailorMatesService.getBookClubs(user.id);
         setBookClubs(clubs);
       } else if (activeTab === 'discussions') {
-        const discussionsData = await TailorMatesService.getDiscussions();
+        const discussionsData = await TailorMatesService.getDiscussions(user.id);
         setDiscussions(discussionsData);
       } else if (activeTab === 'friends') {
         const [connections, recommendations] = await Promise.all([
-          TailorMatesService.getFriendConnections(),
-          TailorMatesService.getFriendRecommendations()
+          TailorMatesService.getFriendConnections(user.id),
+          TailorMatesService.getFriendRecommendations(user.id)
         ]);
         setFriendConnections(connections);
         setFriendRecommendations(recommendations);
@@ -70,8 +76,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   };
 
   const handleCreateClub = async (clubData: any) => {
+    if (!user) {
+      alert('Please log in to create a book club.');
+      return;
+    }
+
     try {
-      await TailorMatesService.createBookClub(clubData);
+      await TailorMatesService.createBookClub(clubData, user.id);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error creating club:', error);
@@ -80,8 +91,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   };
 
   const handleCreateDiscussion = async (discussionData: any) => {
+    if (!user) {
+      alert('Please log in to create a discussion.');
+      return;
+    }
+
     try {
-      await TailorMatesService.createDiscussion(discussionData);
+      await TailorMatesService.createDiscussion(discussionData, user.id);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error creating discussion:', error);
@@ -90,8 +106,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   };
 
   const handleJoinClub = async (clubId: string) => {
+    if (!user) {
+      alert('Please log in to join a book club.');
+      return;
+    }
+
     try {
-      await TailorMatesService.joinBookClub(clubId);
+      await TailorMatesService.joinBookClub(clubId, user.id);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error joining club:', error);
@@ -100,8 +121,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   };
 
   const handleLeaveClub = async (clubId: string) => {
+    if (!user) {
+      alert('Please log in to leave a book club.');
+      return;
+    }
+
     try {
-      await TailorMatesService.leaveBookClub(clubId);
+      await TailorMatesService.leaveBookClub(clubId, user.id);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error leaving club:', error);
@@ -110,8 +136,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   };
 
   const handleSendFriendRequest = async (friendClerkId: string) => {
+    if (!user) {
+      alert('Please log in to send friend requests.');
+      return;
+    }
+
     try {
-      await TailorMatesService.sendFriendRequest(friendClerkId);
+      await TailorMatesService.sendFriendRequest(friendClerkId, user.id);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error sending friend request:', error);
@@ -120,8 +151,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   };
 
   const handleAcceptFriendRequest = async (friendClerkId: string) => {
+    if (!user) {
+      alert('Please log in to accept friend requests.');
+      return;
+    }
+
     try {
-      await TailorMatesService.acceptFriendRequest(friendClerkId);
+      await TailorMatesService.acceptFriendRequest(friendClerkId, user.id);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error accepting friend request:', error);
@@ -130,8 +166,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   };
 
   const handleGenerateRecommendations = async () => {
+    if (!user) {
+      alert('Please log in to generate friend recommendations.');
+      return;
+    }
+
     try {
-      await TailorMatesService.generateFriendRecommendations();
+      await TailorMatesService.generateFriendRecommendations(user.id);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error generating recommendations:', error);
@@ -167,6 +208,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       <DiscussionDetailPage
         discussionId={selectedDiscussionId}
         onBack={() => setSelectedDiscussionId(null)}
+        user={user}
       />
     );
   }

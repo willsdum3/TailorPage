@@ -11,9 +11,9 @@ import {
 
 export class TailorMatesService {
   // Book Club Functions
-  static async getBookClubs(): Promise<BookClub[]> {
+  static async getBookClubs(clerkUserId: string): Promise<BookClub[]> {
     const { data, error } = await supabase.rpc('get_book_clubs', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || ''
+      user_clerk_id: clerkUserId
     });
 
     if (error) {
@@ -24,9 +24,9 @@ export class TailorMatesService {
     return data || [];
   }
 
-  static async createBookClub(clubData: CreateBookClubData): Promise<string> {
+  static async createBookClub(clubData: CreateBookClubData, clerkUserId: string): Promise<string> {
     const { data, error } = await supabase.rpc('create_book_club', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || '',
+      user_clerk_id: clerkUserId,
       club_name: clubData.name,
       club_description: clubData.description,
       current_book_title: clubData.currentBookTitle || null,
@@ -47,9 +47,9 @@ export class TailorMatesService {
     return data;
   }
 
-  static async joinBookClub(clubId: string): Promise<boolean> {
+  static async joinBookClub(clubId: string, clerkUserId: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('join_book_club', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || '',
+      user_clerk_id: clerkUserId,
       club_id: clubId
     });
 
@@ -61,9 +61,9 @@ export class TailorMatesService {
     return data;
   }
 
-  static async leaveBookClub(clubId: string): Promise<boolean> {
+  static async leaveBookClub(clubId: string, clerkUserId: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('leave_book_club', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || '',
+      user_clerk_id: clerkUserId,
       club_id: clubId
     });
 
@@ -76,9 +76,9 @@ export class TailorMatesService {
   }
 
   // Discussion Functions
-  static async getDiscussions(): Promise<Discussion[]> {
+  static async getDiscussions(clerkUserId: string): Promise<Discussion[]> {
     const { data, error } = await supabase.rpc('get_discussions', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || ''
+      user_clerk_id: clerkUserId
     });
 
     if (error) {
@@ -89,9 +89,9 @@ export class TailorMatesService {
     return data || [];
   }
 
-  static async createDiscussion(discussionData: CreateDiscussionData): Promise<string> {
+  static async createDiscussion(discussionData: CreateDiscussionData, clerkUserId: string): Promise<string> {
     const { data, error } = await supabase.rpc('create_discussion', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || '',
+      user_clerk_id: clerkUserId,
       title: discussionData.title,
       content: discussionData.content,
       book_title: discussionData.bookTitle || null,
@@ -107,9 +107,9 @@ export class TailorMatesService {
     return data;
   }
 
-  static async joinDiscussion(discussionId: string): Promise<boolean> {
+  static async joinDiscussion(discussionId: string, clerkUserId: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('join_discussion', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || '',
+      user_clerk_id: clerkUserId,
       discussion_id: discussionId
     });
 
@@ -134,9 +134,9 @@ export class TailorMatesService {
     return data || [];
   }
 
-  static async addDiscussionMessage(discussionId: string, content: string): Promise<string> {
+  static async addDiscussionMessage(discussionId: string, content: string, clerkUserId: string): Promise<string> {
     const { data, error } = await supabase.rpc('add_discussion_message', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || '',
+      user_clerk_id: clerkUserId,
       discussion_id: discussionId,
       message_content: content
     });
@@ -150,9 +150,9 @@ export class TailorMatesService {
   }
 
   // Friend Functions
-  static async getFriendConnections(): Promise<FriendConnection[]> {
+  static async getFriendConnections(clerkUserId: string): Promise<FriendConnection[]> {
     const { data, error } = await supabase.rpc('get_friend_connections', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || ''
+      user_clerk_id: clerkUserId
     });
 
     if (error) {
@@ -163,9 +163,9 @@ export class TailorMatesService {
     return data || [];
   }
 
-  static async sendFriendRequest(friendClerkId: string): Promise<boolean> {
+  static async sendFriendRequest(friendClerkId: string, clerkUserId: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('send_friend_request', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || '',
+      user_clerk_id: clerkUserId,
       friend_clerk_id: friendClerkId
     });
 
@@ -177,9 +177,9 @@ export class TailorMatesService {
     return data;
   }
 
-  static async acceptFriendRequest(friendClerkId: string): Promise<boolean> {
+  static async acceptFriendRequest(friendClerkId: string, clerkUserId: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('accept_friend_request', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || '',
+      user_clerk_id: clerkUserId,
       friend_clerk_id: friendClerkId
     });
 
@@ -191,9 +191,9 @@ export class TailorMatesService {
     return data;
   }
 
-  static async getFriendRecommendations(): Promise<FriendRecommendation[]> {
+  static async getFriendRecommendations(clerkUserId: string): Promise<FriendRecommendation[]> {
     const { data, error } = await supabase.rpc('get_friend_recommendations', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || ''
+      user_clerk_id: clerkUserId
     });
 
     if (error) {
@@ -204,9 +204,9 @@ export class TailorMatesService {
     return data || [];
   }
 
-  static async generateFriendRecommendations(): Promise<boolean> {
+  static async generateFriendRecommendations(clerkUserId: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('generate_friend_recommendations', {
-      user_clerk_id: (await supabase.auth.getUser()).data.user?.id || ''
+      user_clerk_id: clerkUserId
     });
 
     if (error) {

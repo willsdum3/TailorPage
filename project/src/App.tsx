@@ -898,7 +898,7 @@ function App() {
           )}
           {currentPage === 'tailor-mates' && (
             <>
-              <TailorMatesPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
+              <TailorMatesPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} user={user} />
             </>
           )}
           {currentPage === 'celebrity-books' && (

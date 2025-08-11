@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User } from 'lucide-react';
-import { Discussion, DiscussionMessage } from '../types';
+import { Discussion, DiscussionMessage, User as UserType } from '../types';
 import { TailorMatesService } from '../services/tailorMatesService';
 
 interface DiscussionDetailPageProps {
   discussionId: string;
   onBack: () => void;
+  user: UserType | null;
 }
 
-const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionId, onBack }) => {
+const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionId, onBack, user }) => {
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [messages, setMessages] = useState<DiscussionMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -30,12 +31,17 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
   };
 
   const loadDiscussion = async () => {
+    if (!user) {
+      console.log('No user available for loading discussion');
+      return;
+    }
+
     try {
       setIsLoading(true);
       
       // Get discussion details and messages
       const [discussions, discussionMessages] = await Promise.all([
-        TailorMatesService.getDiscussions(),
+        TailorMatesService.getDiscussions(user.id),
         TailorMatesService.getDiscussionMessages(discussionId)
       ]);
 
@@ -54,8 +60,13 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
   };
 
   const handleJoinDiscussion = async () => {
+    if (!user) {
+      alert('Please log in to join the discussion.');
+      return;
+    }
+
     try {
-      await TailorMatesService.joinDiscussion(discussionId);
+      await TailorMatesService.joinDiscussion(discussionId, user.id);
       setIsParticipant(true);
       await loadDiscussion(); // Refresh to update participant count
     } catch (error) {
@@ -67,11 +78,11 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || !isParticipant) return;
+    if (!newMessage.trim() || !isParticipant || !user) return;
 
     try {
       setIsSending(true);
-      await TailorMatesService.addDiscussionMessage(discussionId, newMessage.trim());
+      await TailorMatesService.addDiscussionMessage(discussionId, newMessage.trim(), user.id);
       setNewMessage('');
       await loadDiscussion(); // Refresh messages
     } catch (error) {
