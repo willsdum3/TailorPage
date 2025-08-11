@@ -52,7 +52,6 @@ export interface BookRecommendation {
   amazonLink: string;
   reason: string;
   id: string;
-  coverImageUrl?: string;
 }
 
 export interface FavoriteBook extends BookRecommendation {

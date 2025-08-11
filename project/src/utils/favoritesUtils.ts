@@ -77,7 +77,7 @@ export const normalizeFavoriteFromDatabase = (dbFavorite: any): FavoriteBook => 
     genre: dbFavorite.genre,
     description: dbFavorite.description,
     amazonLink: dbFavorite.amazon_link,
-    coverImageUrl: dbFavorite.cover_image_url,
+
     dateAdded: dbFavorite.date_added,
     reason: dbFavorite.reason || 'Added to favorites'
   };

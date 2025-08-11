@@ -1,7 +1,7 @@
 import React from 'react';
 import { Book, ShoppingCart, ExternalLink, Trash2, ArrowLeft, Heart, Sparkles, Home } from 'lucide-react';
 import { FavoriteBook, User } from '../types';
-import { BookCover } from './BookCover';
+
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
 interface FavoritesPageProps {
@@ -17,6 +17,23 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
   
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
+
+  // Simple book cover component for favorites page
+  const FavoriteBookCover: React.FC<{ title: string; author: string }> = ({ title, author }) => {
+    return (
+      <div className="w-32 h-48 bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex flex-col items-center justify-center border border-white/10 p-3 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+        <Book className="w-10 h-10 text-white/50 mb-3" />
+        <div className="text-sm text-white/70 font-medium leading-tight mb-1">
+          {title.length > 16 ? title.substring(0, 16) + '...' : title}
+        </div>
+        <div className="text-xs text-white/50 leading-tight">
+          by {author.length > 14 ? author.substring(0, 14) + '...' : author}
+        </div>
+      </div>
+    );
+  };
+
+
 
   if (favorites.length === 0) {
     return (
@@ -99,7 +116,7 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 relative overflow-hidden">
+    <div className="min-h-screen p-4 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
       <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
@@ -107,28 +124,17 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-      {/* Home Button - Top Left */}
-      <button
-        onClick={onBack}
-        className="fixed top-6 left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
-        aria-label="Go to Home"
-      >
-        <Home className="w-6 h-6" />
-      </button>
-
-        <div className="text-center mb-16">
-
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
-            <Heart className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-medium text-white/80">Your Collection</span>
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl mr-4">
+              <Heart className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+              Your <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Favourites</span>
+            </h1>
           </div>
-          
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Your <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Favourites</span>
-          </h1>
-          
-          <p className="text-xl text-white/70 mb-8">
-            {favorites.length} book{favorites.length !== 1 ? 's' : ''} saved to your personal collection
+          <p className="text-xl text-white/70 max-w-2xl mx-auto">
+            Your personalized collection of books that match your personality and reading preferences.
           </p>
         </div>
 
@@ -136,6 +142,11 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
         <div className="grid gap-12 md:grid-cols-2 xl:grid-cols-3 mb-16">
           {favorites.map((book, index) => (
             <div key={`${book.id}-${book.title}-${book.author}`} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
+              {/* Book Cover */}
+              <div className="flex justify-center mb-4">
+                <FavoriteBookCover title={book.title} author={book.author} />
+              </div>
+
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-3">
@@ -159,16 +170,6 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
                   </h3>
                   <p className="text-white/70 font-medium mb-3">by {book.author}</p>
                 </div>
-                <BookCover 
-                  bookId={book.id}
-                  title={book.title}
-                  author={book.author}
-                  size="md"
-                  className="flex-shrink-0 ml-4"
-                  genre={book.genre}
-                  description={book.description}
-                  amazonLink={book.amazonLink}
-                />
               </div>
               
               <p className="text-white/70 mb-4 leading-relaxed">

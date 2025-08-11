@@ -11,10 +11,11 @@ import {
 } from 'lucide-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
 import Logo from './Logo';
-import { BookCover } from './BookCover';
+
 import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { isBookFavorited } from '../utils/favoritesUtils';
+import { BookCover } from './BookCover';
 
 interface ResultsPageProps {
   profile: PersonalityProfile;
@@ -136,6 +137,17 @@ const ResultsPage = ({
         <div className="grid gap-12 md:grid-cols-2 xl:grid-cols-3 mb-16">
           {recommendations.map((book) => (
             <div key={book.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
+              {/* Book Cover */}
+              <div className="flex justify-center mb-4">
+                <BookCover
+                  title={book.title}
+                  author={book.author}
+                  size="lg"
+                  priority="high"
+                  lazy={false}
+                />
+              </div>
+
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-3">
@@ -168,16 +180,6 @@ const ResultsPage = ({
                   </h3>
                   <p className="text-white/70 font-medium mb-3">by {book.author}</p>
                 </div>
-                <BookCover
-                  bookId={book.id}
-                  title={book.title}
-                  author={book.author}
-                  size="md"
-                  className="flex-shrink-0 ml-4"
-                  genre={book.genre}
-                  description={book.description}
-                  amazonLink={book.amazonLink}
-                />
               </div>
               
               <p className="text-white/70 mb-4 leading-relaxed">

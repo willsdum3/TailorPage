@@ -241,7 +241,7 @@ export const addBookToFavorites = async (
     genre: string;
     description: string;
     amazon_link: string;
-    cover_image_url?: string;
+
   }
 ) => {
   const { data, error } = await supabaseAdmin
@@ -252,7 +252,7 @@ export const addBookToFavorites = async (
       book_genre: bookData.genre,
       book_description: bookData.description,
       book_amazon_link: bookData.amazon_link,
-      book_cover_image_url: bookData.cover_image_url,
+
     });
 
   if (error) {

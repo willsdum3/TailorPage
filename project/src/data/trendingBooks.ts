@@ -9,7 +9,7 @@ export interface TrendingBook {
   price: string;
   rating: number;
   reviewCount: number;
-  coverImage?: string;
+
 }
 
 export const trendingBooks: TrendingBook[] = [

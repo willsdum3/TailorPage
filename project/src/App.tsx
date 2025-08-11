@@ -12,16 +12,17 @@ import TrendingBooksPage from './components/TrendingBooksPage';
 import TrendingAuthorsPage from './components/TrendingAuthorsPage';
 import CelebrityTesterPage from './components/CelebrityTesterPage';
 import TailorMatesPage from './components/TailorMatesPage';
+import BookCoverTestPage from './components/BookCoverTestPage';
 import AuthModal from './components/AuthModal';
 import AuthButton from './components/AuthButton';
 import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, BookQuestion, BookResponse } from './types';
 import { User } from './types';
-import { getBookRecommendations, getBookRecommendationsWithExpandedMatching } from './utils/bookRecommendations';
+import { getBookRecommendations, getBookRecommendationsWithExpandedMatching } from './utils/bookRecommendationsOptimized';
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 import { useUserSync } from './hooks/useUserSync';
 import { saveUserPersonalityProfile, getUserPersonalityProfile, addBookToFavorites, removeBookFromFavorites, getUserFavorites } from './lib/supabase';
-import { clearBookCoverFromCache } from './utils/bookCoverService';
+
 import { 
   createFavoriteBook, 
   findFavoriteByTitleAuthor, 
@@ -38,40 +39,35 @@ const bookQuestions: BookQuestion[] = [
     title: "Invisible Cities",
     author: "Italo Calvino",
     description: "An experimental, poetic work in which Marco Polo describes fantastical cities to Kublai Khan.",
-    trait: "openness",
-    coverImageUrl: "/book-covers/InvisibleCities.jpg"
+    trait: "openness"
   },
   {
     id: 102,
     title: "Man's Search for Meaning",
     author: "Viktor E. Frankl",
     description: "A powerful memoir and philosophical reflection on purpose, responsibility, and resilience in the face of suffering.",
-    trait: "conscientiousness",
-    coverImageUrl: "/book-covers/MansSearchForMeaning.jpg"
+    trait: "conscientiousness"
   },
   {
     id: 103,
     title: "Where the Crawdads Sing",
     author: "Delia Owens",
     description: "It includes themes of solitude, it offers rich emotional relationships, courtroom drama, and a strong female lead.",
-    trait: "extraversion",
-    coverImageUrl: "/book-covers/WhereTheCrawdadsSing.jpg"
+    trait: "extraversion"
   },
   {
     id: 104,
     title: "Wonder",
     author: "R.J. Palacio",
     description: "A moving middle-grade novel about a boy with a facial difference navigating school and relationships.",
-    trait: "agreeableness",
-    coverImageUrl: "/book-covers/Wonder.jpg"
+    trait: "agreeableness"
   },
   {
     id: 105,
     title: "Stillness Is the Key",
     author: "Ryan Holiday",
     description: "A modern take on ancient wisdom promoting inner calm, clarity, and balance in a busy world.",
-    trait: "emotionalStability",
-    coverImageUrl: "/book-covers/StillnessIsTheKey.jpg"
+    trait: "emotionalStability"
   }
 ];
 
@@ -263,7 +259,7 @@ const questions: Question[] = [
   }
 ];
 
-type AppPage = 'intro' | 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'trending-books' | 'trending-authors' | 'celebrity-books' | 'learn-more' | 'generated' | 'tailor-mates';
+type AppPage = 'intro' | 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'trending-books' | 'trending-authors' | 'celebrity-books' | 'learn-more' | 'generated' | 'tailor-mates' | 'book-cover-test';
 
 // No Supabase or external auth logic present
 
@@ -389,8 +385,7 @@ function App() {
       setFavorites(prev => [...prev, favoriteBook]);
       console.log('Book added to favorites (UI updated)');
       
-      // Clear the book cover cache for this book to ensure fresh cover
-      clearBookCoverFromCache(book.id, book.title, book.author);
+
     }
     
     // Then try to sync with database in the background
@@ -408,7 +403,7 @@ function App() {
           genre: book.genre,
           description: book.description,
           amazon_link: book.amazonLink,
-          cover_image_url: book.coverImageUrl
+
         });
         console.log('Database add result:', result);
       }
@@ -433,8 +428,7 @@ function App() {
     // Update UI immediately for better user experience using utility function
     setFavorites(prev => removeFavoriteByTitleAuthor(prev, favorite.title, favorite.author));
 
-    // Clear the book cover cache for this book to prevent stale covers
-    clearBookCoverFromCache(bookId, favorite.title, favorite.author);
+
 
     try {
       const success = await removeBookFromFavorites(user.id, favorite.title, favorite.author);
@@ -660,7 +654,7 @@ function App() {
             genre: fav.genre,
             description: fav.description,
             amazonLink: fav.amazon_link,
-            coverImageUrl: fav.cover_image_url,
+
             dateAdded: fav.date_added
           }));
           setFavorites(formattedFavorites);
@@ -670,6 +664,9 @@ function App() {
         }
       };
       loadFavorites();
+      setCurrentPage(page as AppPage);
+    } else if (page === 'book-cover-test') {
+      // Don't clear quiz progress for book cover test page
       setCurrentPage(page as AppPage);
     } else {
       // Clear quiz progress when navigating to any page other than quiz or results
@@ -706,6 +703,11 @@ function App() {
         return {
           title: 'Celebrity Tester',
           description: 'Test your knowledge about celebrities and their reading preferences'
+        };
+      case 'book-cover-test':
+        return {
+          title: 'Book Cover Test',
+          description: 'Test and demonstrate the book cover system'
         };
       default:
         return {
@@ -904,6 +906,11 @@ function App() {
           {currentPage === 'celebrity-books' && (
             <>
               <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
+            </>
+          )}
+          {currentPage === 'book-cover-test' && (
+            <>
+              <BookCoverTestPage onBack={() => setCurrentPage('welcome')} />
             </>
           )}
           {currentPage === 'profile' && (

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Home, ArrowLeft, Book, ShoppingCart, ExternalLink, Star, Search, Filter, TrendingUp, Sparkles } from 'lucide-react';
 import { trendingBooks, TrendingBook } from '../data/trendingBooks';
-import { BookCover } from './BookCover';
+
 import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
+import { BookCover } from './BookCover';
 
 interface TrendingBooksPageProps {
   onBack: () => void;
@@ -168,23 +169,23 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
                 </div>
               </div>
 
+              {/* Book Cover */}
+              <div className="flex justify-center mb-4">
+                <BookCover
+                  title={book.title}
+                  author={book.author}
+                  size="lg"
+                  priority="high"
+                  lazy={false}
+                />
+              </div>
+
               {/* Book Info */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="inline-block bg-white/10 text-white/80 px-2 py-1 rounded-lg text-xs font-medium">
                     {book.genre}
                   </span>
-                  <BookCover 
-                    bookId={book.id}
-                    title={book.title}
-                    author={book.author}
-                    size="sm"
-                    className="flex-shrink-0"
-                    genre={book.genre}
-                    description={book.description}
-                    amazonLink={book.amazonLink}
-                    coverImage={book.coverImage}
-                  />
                 </div>
                 
                 <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300 line-clamp-2">

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Books API Key Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        .container {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+        }
+        h1, h2 {
+            color: #60a5fa;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 8px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .log {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .book-card {
+            background: #374151;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .book-cover {
+            width: 120px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .book-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .book-author {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        .status {
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.loading { background: #1d4ed8; color: white; }
+        .status.success { background: #065f46; color: white; }
+        .status.error { background: #991b1b; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Google Books API Key Test</h1>
+        <p>This page will help us diagnose why book covers are failing to load.</p>
+        
+        <div class="test-section">
+            <h2>🧪 API Key Test</h2>
+            <button onclick="testAPIKey()">Test Google Books API Key</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📚 Book Cover Test</h2>
+            <button onclick="testBookCovers()">Test Book Covers</button>
+            <button onclick="testSpecificBooks()">Test Problem Books</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Debug Log</h2>
+            <div class="log" id="debugLog">Click "Test Google Books API Key" to start...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>🖼️ Book Cover Results</h2>
+            <div class="book-grid" id="bookGrid">
+                <!-- Book covers will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const debugLog = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : 
+                            type === 'error' ? 'error' : 
+                            type === 'warning' ? 'warning' : 'info';
+            debugLog.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('debugLog').innerHTML = '';
+            document.getElementById('bookGrid').innerHTML = '';
+        }
+
+        async function testAPIKey() {
+            log('🧪 Starting Google Books API key test...', 'info');
+            
+            try {
+                // Test with a simple query
+                const testUrl = 'https://www.googleapis.com/books/v1/volumes?q=harry+potter&maxResults=1';
+                log(`🌐 Making test request to: ${testUrl}`, 'info');
+                
+                const response = await fetch(testUrl);
+                log(`📡 Response status: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ API is working! Found ${data.totalItems || 0} books`, 'success');
+                    if (data.items && data.items.length > 0) {
+                        const book = data.items[0];
+                        log(`📚 Sample book: "${book.volumeInfo?.title}" by ${book.volumeInfo?.authors?.join(', ')}`, 'success');
+                        if (book.volumeInfo?.imageLinks) {
+                            log(`🖼️ Book has image links: ${JSON.stringify(book.volumeInfo.imageLinks)}`, 'success');
+                        } else {
+                            log(`⚠️ Book has no image links`, 'warning');
+                        }
+                    }
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ API error: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBookCovers() {
+            log('📚 Testing book cover loading...', 'info');
+            
+            const testBooks = [
+                { title: 'Harry Potter and the Sorcerer\'s Stone', author: 'J.K. Rowling' },
+                { title: 'The Great Gatsby', author: 'F. Scott Fitzgerald' },
+                { title: '1984', author: 'George Orwell' },
+                { title: 'Where the Crawdads Sing', author: 'Delia Owens' },
+                { title: 'The Power of Now', author: 'Eckhart Tolle' }
+            ];
+
+            const bookGrid = document.getElementById('bookGrid');
+            bookGrid.innerHTML = '';
+
+            for (const book of testBooks) {
+                const bookCard = createBookCard(book);
+                bookGrid.appendChild(bookCard);
+                
+                try {
+                    await loadBookCover(book, bookCard);
+                } catch (error) {
+                    log(`❌ Error loading cover for "${book.title}": ${error.message}`, 'error');
+                    updateBookStatus(bookCard, 'error', 'Failed to load');
+                }
+            }
+        }
+
+        async function testSpecificBooks() {
+            log('🚨 Testing specific problem books...', 'info');
+            
+            const problemBooks = [
+                { title: 'Where the Crawdads Sing', author: 'Delia Owens' },
+                { title: 'The Power of Now', author: 'Eckhart Tolle' },
+                { title: 'Beloved', author: 'Toni Morrison' }
+            ];
+
+            const bookGrid = document.getElementById('bookGrid');
+            bookGrid.innerHTML = '';
+
+            for (const book of problemBooks) {
+                const bookCard = createBookCard(book);
+                bookGrid.appendChild(bookCard);
+                
+                try {
+                    await loadBookCover(book, bookCard);
+                } catch (error) {
+                    log(`❌ Error loading cover for "${book.title}": ${error.message}`, 'error');
+                    updateBookStatus(bookCard, 'error', 'Failed to load');
+                }
+            }
+        }
+
+        function createBookCard(book) {
+            const card = document.createElement('div');
+            card.className = 'book-card';
+            card.innerHTML = `
+                <img class="book-cover" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDEyMCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTgwIiBmaWxsPSIjMzc0MTUxIi8+Cjx0ZXh0IHg9IjYwIiB5PSI5MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TG9hZGluZy4uLjwvdGV4dD4KPC9zdmc+" alt="Loading...">
+                <div class="book-title">${book.title}</div>
+                <div class="book-author">${book.author}</div>
+                <div class="status loading">Loading...</div>
+            `;
+            return card;
+        }
+
+        function updateBookStatus(card, status, message) {
+            const statusEl = card.querySelector('.status');
+            statusEl.className = `status ${status}`;
+            statusEl.textContent = message;
+        }
+
+        async function loadBookCover(book, card) {
+            log(`🔄 Loading cover for "${book.title}" by "${book.author}"`, 'info');
+            
+            try {
+                // Try Google Books API first
+                const query = encodeURIComponent(`${book.title} ${book.author}`);
+                const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=3`;
+                
+                log(`🌐 Fetching from: ${url}`, 'info');
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log(`📊 Found ${data.totalItems || 0} books for "${book.title}"`, 'info');
+                
+                if (data.items && data.items.length > 0) {
+                    const bestMatch = data.items[0];
+                    const imageLinks = bestMatch.volumeInfo?.imageLinks;
+                    
+                    if (imageLinks) {
+                        const imageUrl = imageLinks.extraLarge || 
+                                       imageLinks.large || 
+                                       imageLinks.medium || 
+                                       imageLinks.small || 
+                                       imageLinks.thumbnail;
+                        
+                        if (imageUrl) {
+                            log(`✅ Found image URL: ${imageUrl}`, 'success');
+                            
+                            // Test if the image loads
+                            const img = card.querySelector('.book-cover');
+                            img.onload = () => {
+                                log(`🖼️ Image loaded successfully for "${book.title}"`, 'success');
+                                updateBookStatus(card, 'success', 'Loaded');
+                            };
+                            img.onerror = () => {
+                                log(`❌ Image failed to load: ${imageUrl}`, 'error');
+                                updateBookStatus(card, 'error', 'Image failed');
+                            };
+                            img.src = imageUrl;
+                            return;
+                        }
+                    }
+                }
+                
+                log(`⚠️ No suitable image found for "${book.title}"`, 'warning');
+                updateBookStatus(card, 'error', 'No image found');
+                
+            } catch (error) {
+                log(`❌ Error fetching cover for "${book.title}": ${error.message}`, 'error');
+                updateBookStatus(card, 'error', 'Fetch failed');
+            }
+        }
+
+        // Auto-run API key test on page load
+        window.addEventListener('load', () => {
+            log('🚀 Page loaded. Ready to test Google Books API.', 'info');
+        });
+    </script>
+</body>
+</html>

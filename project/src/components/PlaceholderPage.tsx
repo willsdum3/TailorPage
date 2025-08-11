@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Home, ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight, Star, Check, X, Upload, Camera } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook } from '../types';
-import { getBookRecommendations } from '../utils/bookRecommendations';
+import { getBookRecommendations } from '../utils/bookRecommendationsOptimized';
 import { analyzePersonality } from '../utils/personalityAnalysis';
 import StrengthsDetailPage from './StrengthsDetailPage';
 import GrowthAreasDetailPage from './GrowthAreasDetailPage';
 import FavoritesPage from './FavoritesPage';
 import { BookCover } from './BookCover';
+
 
 interface PlaceholderPageProps {
   title: string;
@@ -566,6 +567,17 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                      {favorites.map((book) => (
                        <div key={book.id} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+                         {/* Book Cover */}
+                         <div className="flex justify-center mb-4">
+                           <BookCover
+                             title={book.title}
+                             author={book.author}
+                             size="lg"
+                             priority="high"
+                             lazy={false}
+                           />
+                         </div>
+                         
                          <div className="flex items-start justify-between mb-4">
                            <div className="flex-1">
                              <h3 className="font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300">
@@ -580,15 +592,6 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                            >
                              <Star className="w-5 h-5 fill-current" />
                            </button>
-                         </div>
-                         
-                         <div className="mb-4">
-                           <BookCover 
-                             bookId={book.id}
-                             title={book.title}
-                             author={book.author}
-                             coverImage={book.coverImageUrl}
-                           />
                          </div>
                          
                          <p className="text-white/60 text-sm mb-4 line-clamp-3">
@@ -654,19 +657,47 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                   </div>
                   
                   <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Tailor Mates Feature</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">1</div>
+                        <div>
+                          <p className="text-white/80 font-medium">Connect with Fellow Readers</p>
+                          <p className="text-white/60 text-sm">Join book clubs and connect with readers who share your personality traits and reading preferences.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">2</div>
+                        <div>
+                          <p className="text-white/80 font-medium">Create or Join Book Clubs</p>
+                          <p className="text-white/60 text-sm">Start your own book club or join existing ones based on your personality type and interests.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">3</div>
+                        <div>
+                          <p className="text-white/80 font-medium">Engage in Discussions</p>
+                          <p className="text-white/60 text-sm">Participate in meaningful book discussions with like-minded readers who understand your perspective.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">4</div>
+                        <div>
+                          <p className="text-white/80 font-medium">Discover New Perspectives</p>
+                          <p className="text-white/60 text-sm">Gain fresh insights on books through discussions with readers who have different but complementary personality traits.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
                     <h3 className="text-xl font-semibold text-white mb-4">Need More Help?</h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-white/80">Contact Support</span>
-                        <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
-                          Get Help
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/80">FAQ</span>
-                        <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300">
-                          View FAQ
-                        </button>
+                        <div>
+                          <span className="text-white/80">Contact Support</span>
+                          <div className="text-white font-bold text-lg mt-2">thetailorpage@gmail.com</div>
+                        </div>
                       </div>
                     </div>
                   </div>

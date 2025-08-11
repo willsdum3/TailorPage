@@ -25,6 +25,7 @@ import {
 import { celebrities } from '../data/celebrities';
 import { CelebrityProfile } from '../data/celebrities';
 import { BookCover } from './BookCover';
+
 import { useScrollToTop } from '../hooks/useScrollToTop';
 import { analyzePersonality, TraitAnalysis } from '../utils/personalityAnalysis';
 
@@ -275,6 +276,17 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
             <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
               {selectedCelebrity.bookRecommendations.map((book, index) => (
                 <div key={index} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
+                  {/* Book Cover */}
+                  <div className="flex justify-center mb-4">
+                    <BookCover
+                      title={book.title}
+                      author={book.author}
+                      size="lg"
+                      priority="high"
+                      lazy={false}
+                    />
+                  </div>
+                  
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <span className="inline-block bg-gradient-to-r from-amber-500 to-orange-600 text-white px-3 py-1 rounded-full text-sm font-medium mb-3">
@@ -286,16 +298,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                       </h3>
                       <p className="text-white/70 font-medium mb-3">by {book.author}</p>
                     </div>
-                    <BookCover
-                      bookId={`${selectedCelebrity.id}-${index}`}
-                      title={book.title}
-                      author={book.author}
-                      size="md"
-                      className="flex-shrink-0 ml-4"
-                      genre={book.genre}
-                      description={book.description}
-                      amazonLink={book.amazonLink}
-                    />
+
                   </div>
                   
                   <p className="text-white/70 mb-4 leading-relaxed text-sm">

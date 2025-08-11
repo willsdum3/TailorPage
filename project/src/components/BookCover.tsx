@@ -1,204 +1,298 @@
-import React, { useState, useEffect } from 'react';
-import { Book } from 'lucide-react';
-import { getBookCover, getBulletproofFallbacks } from '../utils/bookCoverService';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { BookCoverData, bookCoverService } from '../services/bookCoverService';
+import { Loader2, BookOpen, AlertCircle } from 'lucide-react';
 
-interface BookCoverProps {
-  bookId: string;
+export interface BookCoverProps {
   title: string;
   author: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
-  genre?: string;
-  description?: string;
-  amazonLink?: string;
-  coverImage?: string;
-  hoverable?: boolean;
+  showTitle?: boolean;
+  showAuthor?: boolean;
+  priority?: 'high' | 'low';
+  onLoad?: (coverData: BookCoverData) => void;
+  onError?: (error: string) => void;
+  fallbackCover?: string;
+  lazy?: boolean;
 }
 
 const sizeClasses = {
   sm: 'w-16 h-24',
-  md: 'w-20 h-32',
+  md: 'w-24 h-36',
   lg: 'w-32 h-48',
   xl: 'w-40 h-60'
 };
 
+const textSizes = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+  xl: 'text-lg'
+};
+
 export const BookCover: React.FC<BookCoverProps> = ({
-  bookId,
   title,
   author,
   size = 'md',
   className = '',
-  genre,
-  description,
-  amazonLink,
-  coverImage,
-  hoverable = false
+  showTitle = false,
+  showAuthor = false,
+  priority = 'low',
+  onLoad,
+  onError,
+  fallbackCover,
+  lazy = true
 }) => {
-  const [coverUrl, setCoverUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const [apiKeyMissing, setApiKeyMissing] = useState(false);
-  const [fallbackIndex, setFallbackIndex] = useState(0);
-  const [fallbackUrls, setFallbackUrls] = useState<string[]>([]);
 
-  useEffect(() => {
-    let isMounted = true;
+  const [coverData, setCoverData] = useState<BookCoverData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [showPlaceholder, setShowPlaceholder] = useState(false);
+  
+  const imgRef = useRef<HTMLImageElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-    const loadCover = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(false);
-        setApiKeyMissing(false);
-        setFallbackIndex(0);
+  const loadCover = useCallback(async () => {
+    if (!title || !author) return;
 
-        // If coverImage is provided, use it directly
-        if (coverImage) {
-          if (isMounted) {
-            setCoverUrl(coverImage);
-            setIsLoading(false);
-          }
-          return;
-        }
+    setLoading(true);
+    setError(null);
 
-        // Check if Google Books API key is configured
-        const googleBooksApiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
-        if (!googleBooksApiKey) {
-          setApiKeyMissing(true);
-        }
-
-        // Fetch cover from service (guaranteed to return a URL)
-        const url = await getBookCover(bookId, title, author);
-
-        if (isMounted) {
-          setCoverUrl(url);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Error loading book cover:', error);
-        if (isMounted) {
-          setHasError(true);
-          setIsLoading(false);
-        }
+    try {
+      const result = await bookCoverService.getBookCover(title, author);
+      
+      if (result.success && result.data) {
+        setCoverData(result.data);
+        onLoad?.(result.data);
+      } else {
+        throw new Error(result.error || 'Failed to load cover');
       }
-    };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.log('BookCover error for:', title, 'by', author, ':', errorMessage);
+      setError(errorMessage);
+      onError?.(errorMessage);
+      setShowPlaceholder(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [title, author, onLoad, onError]);
 
-    loadCover();
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    if (!lazy || priority === 'high') {
+      loadCover();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            loadCover();
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        rootMargin: '50px',
+        threshold: 0.1
+      }
+    );
+
+    observerRef.current = observer;
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
 
     return () => {
-      isMounted = false;
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
     };
-  }, [bookId, title, author, coverImage]);
-
-  // Clear cover URL when bookId changes
-  useEffect(() => {
-    setCoverUrl(null);
-    setHasError(false);
-    setApiKeyMissing(false);
-    setFallbackIndex(0);
-    setFallbackUrls([]);
-    setIsLoading(true);
-  }, [bookId]);
-
-  const handleImageError = () => {
-    // Generate bulletproof fallback URLs if not already generated
-    if (fallbackUrls.length === 0) {
-      const urls = getBulletproofFallbacks(title, author);
-      setFallbackUrls(urls);
-    }
-
-    // Try next bulletproof fallback URL
-    if (fallbackIndex < fallbackUrls.length) {
-      const nextUrl = fallbackUrls[fallbackIndex];
-      setCoverUrl(nextUrl);
-      setFallbackIndex(prev => prev + 1);
-      setHasError(false);
-    } else {
-      // All bulletproof fallbacks failed (should never happen)
-      setHasError(true);
-    }
-  };
+  }, [loadCover, lazy, priority]);
 
   const handleImageLoad = () => {
-    setIsLoading(false);
-    setHasError(false);
+    setImageLoaded(true);
+    setShowPlaceholder(false);
   };
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className={`${className} relative group`}>
-        <div
-          className={`${sizeClasses[size]} rounded-md overflow-hidden shadow-lg bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-white/20 flex items-center justify-center animate-pulse`}
-        >
-          <div className="text-center p-2">
-            <Book className="w-6 h-8 text-amber-400 mx-auto mb-1 animate-pulse" />
-            <div className="text-xs text-white/80 font-medium leading-tight">
-              Loading...
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleImageError = () => {
+    console.log('Image failed to load for:', title, 'by', author);
+    setError('Failed to load image (CORS or network issue)');
+    setShowPlaceholder(true);
+    setImageLoaded(false);
+  };
 
-  // Show cover image
-  if (coverUrl && !hasError) {
-    return (
-      <div className={`${className} relative group`}>
-        <div
-          className={`${sizeClasses[size]} rounded-md overflow-hidden shadow-lg bg-white ${hoverable ? 'cursor-pointer transition-all duration-300' : ''}`}
-        >
-          <img
-            src={coverUrl}
-            alt={`${title} cover`}
-            className="w-full h-full object-cover"
-            onError={handleImageError}
-            onLoad={handleImageLoad}
-            loading="lazy"
-            crossOrigin="anonymous"
-          />
-        </div>
-        {/* Expanded Cover on Hover */}
-        {hoverable && (
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50 scale-0 group-hover:scale-100 origin-bottom">
-            <div className="w-48 h-60 rounded-xl overflow-hidden shadow-2xl bg-white border-2 border-white/20">
-              <img
-                src={coverUrl}
-                alt={`${title} cover`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            {/* Arrow */}
-            <div className="w-0 h-0 border-l-6 border-r-6 border-t-6 border-transparent border-t-white/20 mx-auto mt-1"></div>
-          </div>
-        )}
+  const renderPlaceholder = () => (
+    <div className={`${sizeClasses[size]} bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex flex-col items-center justify-center border border-white/10 p-2 text-center shadow-lg`}>
+      <BookOpen className="w-8 h-8 text-white/50 mb-3" />
+      <div className="text-sm text-white/70 font-medium leading-tight mb-1">
+        {title.length > 18 ? title.substring(0, 18) + '...' : title}
       </div>
-    );
-  }
-
-  // Show bulletproof fallback when image fails to load
-  return (
-    <div className={`${className} relative group`}>
-      <div
-        className={`${sizeClasses[size]} rounded-md overflow-hidden shadow-lg bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-white/20 flex items-center justify-center ${hoverable ? 'cursor-pointer transition-all duration-300' : ''}`}
-      >
-        <div className="text-center p-2">
-          <Book className="w-6 h-8 text-amber-400 mx-auto mb-1" />
-          <div className="text-xs text-white/80 font-medium leading-tight">
-            {title.split(' ').slice(0, 2).join(' ')}
-          </div>
-          {apiKeyMissing && (
-            <div className="text-xs text-amber-400/80 mt-1">
-              Using Bulletproof Fallbacks
-            </div>
-          )}
-          {!apiKeyMissing && hasError && (
-            <div className="text-xs text-red-400/80 mt-1">
-              {fallbackIndex > 0 ? `Fallback ${fallbackIndex} Failed` : 'Image Load Error'}
-            </div>
-          )}
-        </div>
+      <div className="text-xs text-white/50 leading-tight">
+        by {author.length > 15 ? author.substring(0, 15) + '...' : author}
       </div>
     </div>
   );
-}; 
+
+  const renderError = () => (
+    <div className={`${sizeClasses[size]} bg-gradient-to-br from-red-900/20 to-red-800/20 rounded-lg flex flex-col items-center justify-center border border-red-500/20 p-2 text-center`}>
+      <AlertCircle className="w-4 h-4 text-red-400 mb-1" />
+      <div className="text-xs text-red-300 font-medium leading-tight">
+        {title.length > 18 ? title.substring(0, 18) + '...' : title}
+      </div>
+      <div className="text-xs text-red-400 leading-tight">
+        Cover unavailable
+      </div>
+    </div>
+  );
+
+  const renderSkeleton = () => (
+    <div className={`${sizeClasses[size]} bg-gradient-to-br from-slate-600 to-slate-700 rounded-lg animate-pulse flex items-center justify-center`}>
+      <Loader2 className="w-6 h-6 text-white/50 animate-spin" />
+    </div>
+  );
+
+  const renderCover = () => {
+    if (loading && !coverData) {
+      return renderSkeleton();
+    }
+
+    if (error && !coverData) {
+      return renderError();
+    }
+
+    if (!coverData) {
+      return renderPlaceholder();
+    }
+
+    return (
+      <div className={`${sizeClasses[size]} relative group overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl`}>
+        {/* Progressive loading: Show low-quality placeholder first */}
+        {showPlaceholder && (
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+            <BookOpen className="w-6 h-6 text-white/50" />
+          </div>
+        )}
+        
+        {/* Main cover image */}
+        <img
+          ref={imgRef}
+          src={coverData.coverUrl}
+          alt={`Cover of ${title} by ${author}`}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            imageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          loading={lazy ? 'lazy' : 'eager'}
+          decoding="async"
+        />
+        
+        {/* Loading overlay */}
+        {loading && (
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+            <Loader2 className="w-4 h-4 text-white animate-spin" />
+          </div>
+        )}
+        
+        {/* Quality indicator */}
+        {coverData.quality === 'high' && (
+          <div className="absolute top-1 right-1 bg-green-500 text-white text-xs px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            HD
+          </div>
+        )}
+        
+        {/* Source indicator */}
+        <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {coverData.source}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className={`flex flex-col ${className}`}>
+      {renderCover()}
+      
+      {/* Title and Author */}
+      {(showTitle || showAuthor) && (
+        <div className="mt-2 text-center">
+          {showTitle && (
+            <h3 className={`font-semibold text-white line-clamp-2 ${textSizes[size]}`}>
+              {title}
+            </h3>
+          )}
+          {showAuthor && (
+            <p className={`text-white/70 mt-1 line-clamp-1 ${textSizes[size]}`}>
+              by {author}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Book Cover Grid Component for displaying multiple covers efficiently
+export interface BookCoverGridProps {
+  books: Array<{ title: string; author: string; id?: string }>;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  columns?: number;
+  className?: string;
+  showTitles?: boolean;
+  showAuthors?: boolean;
+  onCoverLoad?: (bookId: string, coverData: BookCoverData) => void;
+  onCoverError?: (bookId: string, error: string) => void;
+}
+
+export const BookCoverGrid: React.FC<BookCoverGridProps> = ({
+  books,
+  size = 'md',
+  columns = 4,
+  className = '',
+  showTitles = false,
+  showAuthors = false,
+  onCoverLoad,
+  onCoverError
+}) => {
+  const gridCols = {
+    2: 'grid-cols-2',
+    3: 'grid-cols-3',
+    4: 'grid-cols-4',
+    5: 'grid-cols-5',
+    6: 'grid-cols-6'
+  };
+
+  // Preload covers for visible books
+  useEffect(() => {
+    if (books.length > 0) {
+      const bookData = books.map(book => ({ title: book.title, author: book.author }));
+      bookCoverService.preloadCovers(bookData).catch(console.warn);
+    }
+  }, [books]);
+
+  return (
+    <div className={`grid gap-4 ${gridCols[columns as keyof typeof gridCols] || 'grid-cols-4'} ${className}`}>
+      {books.map((book, index) => (
+        <BookCover
+          key={book.id || `${book.title}-${book.author}-${index}`}
+          title={book.title}
+          author={book.author}
+          size={size}
+          showTitle={showTitles}
+          showAuthor={showAuthors}
+          priority={index < 8 ? 'high' : 'low'} // Prioritize first 8 covers
+          onLoad={(coverData) => onCoverLoad?.(book.id || book.title, coverData)}
+          onError={(error) => onCoverError?.(book.id || book.title, error)}
+          lazy={index >= 4} // Lazy load after first 4
+        />
+      ))}
+    </div>
+  );
+};
+
+export default BookCover;
