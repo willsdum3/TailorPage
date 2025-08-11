@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send, User as UserIcon } from 'lucide-react';
+import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send, User as UserIcon, Clock } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub, Discussion, FriendConnection, FriendRecommendation, User } from '../types';
@@ -82,10 +82,14 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
+      console.log('Attempting to create book club for user:', user.id);
       await TailorMatesService.createBookClub(clubData, user.id);
       await loadData(); // Refresh the list
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating club:', error);
+      // Show more specific error message
+      const errorMessage = error.message || 'Failed to create book club. Please try again.';
+      alert(errorMessage);
       throw error;
     }
   };

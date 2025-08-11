@@ -10,6 +10,43 @@ import {
 } from '../types';
 
 export class TailorMatesService {
+  // Helper function to check if user exists
+  static async checkUserExists(clerkUserId: string): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id')
+      .eq('clerk_id', clerkUserId)
+      .single();
+
+    if (error) {
+      console.error('Error checking user existence:', error);
+      return false;
+    }
+
+    return !!data;
+  }
+
+  // Helper function to check if Tailor Mates tables exist
+  static async checkTablesExist(): Promise<boolean> {
+    try {
+      // Try to query the book_clubs table
+      const { data, error } = await supabase
+        .from('book_clubs')
+        .select('id')
+        .limit(1);
+
+      if (error) {
+        console.error('Error checking book_clubs table:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error checking tables:', error);
+      return false;
+    }
+  }
+
   // Book Club Functions
   static async getBookClubs(clerkUserId: string): Promise<BookClub[]> {
     const { data, error } = await supabase.rpc('get_book_clubs', {
@@ -25,6 +62,34 @@ export class TailorMatesService {
   }
 
   static async createBookClub(clubData: CreateBookClubData, clerkUserId: string): Promise<string> {
+    // Check if tables exist first
+    const tablesExist = await this.checkTablesExist();
+    if (!tablesExist) {
+      console.error('Tailor Mates tables do not exist');
+      throw new Error('Database tables not found. Please contact support.');
+    }
+
+    // Check if user exists first
+    const userExists = await this.checkUserExists(clerkUserId);
+    if (!userExists) {
+      console.error('User not found in database:', clerkUserId);
+      throw new Error('User not found in database. Please try logging out and back in.');
+    }
+
+    console.log('Creating book club with data:', {
+      user_clerk_id: clerkUserId,
+      club_name: clubData.name,
+      club_description: clubData.description,
+      current_book_title: clubData.currentBookTitle || null,
+      current_book_author: clubData.currentBookAuthor || null,
+      max_members: clubData.maxMembers,
+      personality_traits: clubData.personalityTraits,
+      meeting_time: clubData.meetingTime || null,
+      next_meeting_date: clubData.nextMeetingDate || null,
+      is_private: clubData.isPrivate,
+      tags: clubData.tags
+    });
+
     const { data, error } = await supabase.rpc('create_book_club', {
       user_clerk_id: clerkUserId,
       club_name: clubData.name,
@@ -41,9 +106,16 @@ export class TailorMatesService {
 
     if (error) {
       console.error('Error creating book club:', error);
-      throw new Error('Failed to create book club');
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw new Error(`Failed to create book club: ${error.message}`);
     }
 
+    console.log('Book club created successfully:', data);
     return data;
   }
 
