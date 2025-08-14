@@ -10,20 +10,31 @@ import {
 } from '../types';
 
 export class TailorMatesService {
-  // Helper function to check if user exists
-  static async checkUserExists(clerkUserId: string): Promise<boolean> {
-    const { data, error } = await supabase
-      .from('users')
-      .select('id')
-      .eq('clerk_id', clerkUserId)
-      .single();
+  // Enhanced helper function to check if user exists and sync if needed
+  static async ensureUserExists(clerkUserId: string): Promise<boolean> {
+    try {
+      // First, check if user exists
+      const { data: existingUser, error: checkError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('clerk_id', clerkUserId)
+        .single();
 
-    if (error) {
-      console.error('Error checking user existence:', error);
-      return false;
+      if (existingUser) {
+        console.log('User found in database:', clerkUserId);
+        return true;
+      }
+
+      // If user doesn't exist, try to sync them
+      console.log('User not found, attempting to sync from Clerk...');
+      
+      // Get user data from Clerk (this would need to be passed from the component)
+      // For now, we'll throw a more helpful error
+      throw new Error('User not found in database. Please try logging out and back in to sync your account.');
+    } catch (error) {
+      console.error('Error ensuring user exists:', error);
+      throw error;
     }
-
-    return !!data;
   }
 
   // Helper function to check if Tailor Mates tables exist
@@ -47,104 +58,198 @@ export class TailorMatesService {
     }
   }
 
-  // Book Club Functions
-  static async getBookClubs(clerkUserId: string): Promise<BookClub[]> {
-    const { data, error } = await supabase.rpc('get_book_clubs', {
-      user_clerk_id: clerkUserId
-    });
+  // Enhanced function to create user if they don't exist
+  static async createUserIfNotExists(clerkUserId: string, userData: {
+    name: string;
+    username: string;
+    email: string;
+    image_url?: string;
+  }): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .upsert({
+          clerk_id: clerkUserId,
+          name: userData.name,
+          username: userData.username,
+          email: userData.email,
+          image_url: userData.image_url
+        }, {
+          onConflict: 'clerk_id',
+          ignoreDuplicates: false,
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error fetching book clubs:', error);
-      throw new Error('Failed to fetch book clubs');
+      if (error) {
+        console.error('Error creating user:', error);
+        return false;
+      }
+
+      console.log('User created/updated successfully:', data);
+      return true;
+    } catch (error) {
+      console.error('Error in createUserIfNotExists:', error);
+      return false;
     }
-
-    return data || [];
   }
 
-  static async createBookClub(clubData: CreateBookClubData, clerkUserId: string): Promise<string> {
-    // Check if tables exist first
-    const tablesExist = await this.checkTablesExist();
-    if (!tablesExist) {
-      console.error('Tailor Mates tables do not exist');
-      throw new Error('Database tables not found. Please contact support.');
-    }
+  // Book Club Functions
+  static async getBookClubs(clerkUserId: string): Promise<BookClub[]> {
+    try {
+      // Ensure user exists first
+      await this.ensureUserExists(clerkUserId);
 
-    // Check if user exists first
-    const userExists = await this.checkUserExists(clerkUserId);
-    if (!userExists) {
-      console.error('User not found in database:', clerkUserId);
-      throw new Error('User not found in database. Please try logging out and back in.');
-    }
-
-    console.log('Creating book club with data:', {
-      user_clerk_id: clerkUserId,
-      club_name: clubData.name,
-      club_description: clubData.description,
-      current_book_title: clubData.currentBookTitle || null,
-      current_book_author: clubData.currentBookAuthor || null,
-      max_members: clubData.maxMembers,
-      personality_traits: clubData.personalityTraits,
-      meeting_time: clubData.meetingTime || null,
-      next_meeting_date: clubData.nextMeetingDate || null,
-      is_private: clubData.isPrivate,
-      tags: clubData.tags
-    });
-
-    const { data, error } = await supabase.rpc('create_book_club', {
-      user_clerk_id: clerkUserId,
-      club_name: clubData.name,
-      club_description: clubData.description,
-      current_book_title: clubData.currentBookTitle || null,
-      current_book_author: clubData.currentBookAuthor || null,
-      max_members: clubData.maxMembers,
-      personality_traits: clubData.personalityTraits,
-      meeting_time: clubData.meetingTime || null,
-      next_meeting_date: clubData.nextMeetingDate || null,
-      is_private: clubData.isPrivate,
-      tags: clubData.tags
-    });
-
-    if (error) {
-      console.error('Error creating book club:', error);
-      console.error('Error details:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
+      const { data, error } = await supabase.rpc('get_book_clubs', {
+        user_clerk_id: clerkUserId
       });
-      throw new Error(`Failed to create book club: ${error.message}`);
-    }
 
-    console.log('Book club created successfully:', data);
-    return data;
+      if (error) {
+        console.error('Error fetching book clubs:', error);
+        throw new Error('Failed to fetch book clubs');
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getBookClubs:', error);
+      throw error;
+    }
+  }
+
+  static async createBookClub(clubData: CreateBookClubData, clerkUserId: string, userData?: {
+    name: string;
+    username: string;
+    email: string;
+    image_url?: string;
+  }): Promise<string> {
+    try {
+      // Check if tables exist first
+      const tablesExist = await this.checkTablesExist();
+      if (!tablesExist) {
+        console.error('Tailor Mates tables do not exist');
+        throw new Error('Database tables not found. Please contact support.');
+      }
+
+      // Check if user exists first
+      let userExists = false;
+      try {
+        userExists = await this.ensureUserExists(clerkUserId);
+      } catch (error) {
+        // If user doesn't exist and we have user data, try to create them
+        if (userData) {
+          console.log('Attempting to create user with provided data...');
+          const created = await this.createUserIfNotExists(clerkUserId, userData);
+          if (created) {
+            userExists = true;
+          } else {
+            throw new Error('Failed to create user account. Please try logging out and back in.');
+          }
+        } else {
+          throw error;
+        }
+      }
+
+      if (!userExists) {
+        throw new Error('User not found in database. Please try logging out and back in.');
+      }
+
+      console.log('Creating book club with data:', {
+        user_clerk_id: clerkUserId,
+        club_name: clubData.name,
+        club_description: clubData.description,
+        current_book_title: clubData.currentBookTitle || null,
+        current_book_author: clubData.currentBookAuthor || null,
+        max_members: clubData.maxMembers,
+        personality_traits: clubData.personalityTraits,
+        meeting_time: clubData.meetingTime || null,
+        next_meeting_date: clubData.nextMeetingDate || null,
+        is_private: clubData.isPrivate,
+        tags: clubData.tags
+      });
+
+      const { data, error } = await supabase.rpc('create_book_club', {
+        user_clerk_id: clerkUserId,
+        club_name: clubData.name,
+        club_description: clubData.description,
+        current_book_title: clubData.currentBookTitle || null,
+        current_book_author: clubData.currentBookAuthor || null,
+        max_members: clubData.maxMembers,
+        personality_traits: clubData.personalityTraits,
+        meeting_time: clubData.meetingTime || null,
+        next_meeting_date: clubData.nextMeetingDate || null,
+        is_private: clubData.isPrivate,
+        tags: clubData.tags
+      });
+
+      if (error) {
+        console.error('Error creating book club:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        
+        // Provide more specific error messages
+        if (error.message?.includes('duplicate key')) {
+          throw new Error('A book club with this name already exists. Please choose a different name.');
+        } else if (error.message?.includes('permission')) {
+          throw new Error('You do not have permission to create book clubs. Please contact support.');
+        } else {
+          throw new Error(`Failed to create book club: ${error.message}`);
+        }
+      }
+
+      console.log('Book club created successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Error in createBookClub:', error);
+      throw error;
+    }
   }
 
   static async joinBookClub(clubId: string, clerkUserId: string): Promise<boolean> {
-    const { data, error } = await supabase.rpc('join_book_club', {
-      user_clerk_id: clerkUserId,
-      club_id: clubId
-    });
+    try {
+      // Ensure user exists first
+      await this.ensureUserExists(clerkUserId);
 
-    if (error) {
-      console.error('Error joining book club:', error);
-      throw new Error('Failed to join book club');
+      const { data, error } = await supabase.rpc('join_book_club', {
+        user_clerk_id: clerkUserId,
+        club_id: clubId
+      });
+
+      if (error) {
+        console.error('Error joining book club:', error);
+        throw new Error('Failed to join book club');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in joinBookClub:', error);
+      throw error;
     }
-
-    return data;
   }
 
   static async leaveBookClub(clubId: string, clerkUserId: string): Promise<boolean> {
-    const { data, error } = await supabase.rpc('leave_book_club', {
-      user_clerk_id: clerkUserId,
-      club_id: clubId
-    });
+    try {
+      // Ensure user exists first
+      await this.ensureUserExists(clerkUserId);
 
-    if (error) {
-      console.error('Error leaving book club:', error);
-      throw new Error('Failed to leave book club');
+      const { data, error } = await supabase.rpc('leave_book_club', {
+        user_clerk_id: clerkUserId,
+        club_id: clubId
+      });
+
+      if (error) {
+        console.error('Error leaving book club:', error);
+        throw new Error('Failed to leave book club');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in leaveBookClub:', error);
+      throw error;
     }
-
-    return data;
   }
 
   // Discussion Functions

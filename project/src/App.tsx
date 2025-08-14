@@ -22,6 +22,7 @@ import GeneratedRecommendationsPage from './components/GeneratedRecommendationsP
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 import { useUserSync } from './hooks/useUserSync';
 import BookCoverPerformanceMonitor from './components/BookCoverPerformanceMonitor';
+import UserSyncStatus from './components/UserSyncStatus';
 import { saveUserPersonalityProfile, getUserPersonalityProfile, addBookToFavorites, removeBookFromFavorites, getUserFavorites } from './lib/supabase';
 
 import { 
@@ -40,35 +41,40 @@ const bookQuestions: BookQuestion[] = [
     title: "Invisible Cities",
     author: "Italo Calvino",
     description: "An experimental, poetic work in which Marco Polo describes fantastical cities to Kublai Khan.",
-    trait: "openness"
+    trait: "openness",
+    coverImageUrl: "/book-covers/InvisibleCities.jpg"
   },
   {
     id: 102,
     title: "Man's Search for Meaning",
     author: "Viktor E. Frankl",
     description: "A powerful memoir and philosophical reflection on purpose, responsibility, and resilience in the face of suffering.",
-    trait: "conscientiousness"
+    trait: "conscientiousness",
+    coverImageUrl: "/book-covers/MansSearchForMeaning.jpg"
   },
   {
     id: 103,
     title: "Where the Crawdads Sing",
     author: "Delia Owens",
     description: "It includes themes of solitude, it offers rich emotional relationships, courtroom drama, and a strong female lead.",
-    trait: "extraversion"
+    trait: "extraversion",
+    coverImageUrl: "/book-covers/WhereTheCrawdadsSing.jpg"
   },
   {
     id: 104,
     title: "Wonder",
     author: "R.J. Palacio",
     description: "A moving middle-grade novel about a boy with a facial difference navigating school and relationships.",
-    trait: "agreeableness"
+    trait: "agreeableness",
+    coverImageUrl: "/book-covers/Wonder.jpg"
   },
   {
     id: 105,
     title: "Stillness Is the Key",
     author: "Ryan Holiday",
     description: "A modern take on ancient wisdom promoting inner calm, clarity, and balance in a busy world.",
-    trait: "emotionalStability"
+    trait: "emotionalStability",
+    coverImageUrl: "/book-covers/StillnessIsTheKey.jpg"
   }
 ];
 
@@ -266,7 +272,7 @@ type AppPage = 'intro' | 'welcome' | 'quiz' | 'results' | 'profile' | 'favourite
 
 function App() {
   // Use user sync hook to automatically sync Clerk user to Supabase
-  const { user: clerkUser, isLoaded } = useUserSync();
+  const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced } = useUserSync();
   const { signOut } = useClerk();
   const [currentPage, setCurrentPage] = useState<AppPage>('intro');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
@@ -516,34 +522,98 @@ function App() {
       }
     });
 
-    setPersonalityProfile(profile);
+    console.log('🎯 Quiz completed! Calculated profile:', profile);
 
     // Save personality profile to database
     if (user) {
       try {
+        console.log('💾 Saving personality profile to database...');
         await saveUserPersonalityProfile(user.id, profile);
-        console.log('Personality profile saved successfully');
+        console.log('✅ Personality profile saved successfully');
+        
+        // Force reload user data to ensure UI reflects the updated profile
+        console.log('🔄 Force reloading user data after quiz completion...');
+        
+        // Add a small delay to ensure database write is complete
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const updatedProfile = await getUserPersonalityProfile(user.id);
+        if (updatedProfile) {
+          console.log('✅ Updated personality profile loaded from database:', updatedProfile);
+          setPersonalityProfile(updatedProfile);
+        } else {
+          console.log('⚠️ No updated profile found, using calculated profile');
+          setPersonalityProfile(profile);
+        }
+        
+        // Also reload favorites to ensure they're up to date
+        console.log('🔄 Reloading favorites...');
+        const dbFavorites = await getUserFavorites(user.id);
+        const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => 
+          normalizeFavoriteFromDatabase(fav)
+        );
+        setFavorites(formattedFavorites);
+        console.log('✅ Favorites reloaded:', formattedFavorites.length, 'books');
       } catch (error) {
-        console.error('Error saving personality profile:', error);
+        console.error('❌ Error saving/reloading personality profile:', error);
+        // Fallback to using the calculated profile
+        setPersonalityProfile(profile);
       }
+    } else {
+      // No user, just use the calculated profile
+      setPersonalityProfile(profile);
     }
 
     // Generate and store recommendations ONCE per quiz completion, excluding favorited books
-    const favoritedBookIds = favorites.map(fav => fav.id);
-    const recs = getBookRecommendations(profile, favoritedBookIds);
+    console.log('📚 Generating initial recommendations after quiz completion...');
+    
+    // Create a set of favorited book title/author combinations for robust exclusion
+    // Note: We can't rely on book IDs since database uses UUIDs and recommendations use string IDs
+    const favoritedBookSignatures = new Set(
+      favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
+    );
+    
+    console.log('📝 Favorited book signatures:', Array.from(favoritedBookSignatures));
+    console.log('📚 Favorited books count:', favorites.length);
+    
+    // Use the same robust exclusion logic as handleNewRecommendations
+    let recs = getBookRecommendationsWithExpandedMatching(profile, [], false, favoritedBookSignatures);
+    
+    // MANUAL FILTERING AS A BACKUP - Remove any favorited books that might have slipped through
+    const removedFavorites: string[] = [];
+    recs = recs.filter(book => {
+      const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
+      const isFavorited = favoritedBookSignatures.has(bookSignature);
+      
+      if (isFavorited) {
+        console.log(`🚫 MANUAL FILTER: Removing favorited book "${book.title}" by ${book.author}`);
+        removedFavorites.push(`${book.title} by ${book.author}`);
+      }
+      
+      return !isFavorited;
+    });
+    
+    // Log if any favorited books were removed
+    if (removedFavorites.length > 0) {
+      console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from initial recommendations:`, removedFavorites);
+    } else {
+      console.log('✅ No favorited books found in initial recommendations - filtering working correctly');
+    }
+    
     setRecommendations(recs);
     setAllRecommendedIds(recs.map(book => book.id));
     
-
-    
+    console.log('📚 Generated recommendations:', recs.length, 'books');
+    console.log('📖 Sample recommendations:', recs.slice(0, 3).map(book => `${book.title} by ${book.author}`));
     setCurrentPage('results');
   };
 
   const handleRetakeQuiz = () => {
+    console.log('🔄 User clicked "Retake Quiz" - clearing all quiz state');
     setAnswers({});
     setBookAnswers({});
     setCurrentQuestionIndex(0);
-    setPersonalityProfile(null);
+    // Don't clear personalityProfile here - let it be updated after quiz completion
     setCurrentPage('quiz');
   };
 
@@ -950,6 +1020,14 @@ function App() {
       
       {/* Performance Monitor - Only show in development or when explicitly enabled */}
       {process.env.NODE_ENV === 'development' && <BookCoverPerformanceMonitor />}
+      
+      {/* User Sync Status - Show when there are sync issues */}
+      <UserSyncStatus
+        syncStatus={syncStatus}
+        syncError={syncError}
+        onRetry={retrySync}
+        isVisible={isLoaded && (syncStatus === 'error' || syncStatus === 'syncing')}
+      />
     </div>
   );
 }

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Quiz Book Covers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .book-cover {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .book-cover img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .download-link {
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .download-link:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Download Quiz Book Covers</h1>
+    <p>This page will help you download the book cover images for the quiz. Right-click on each image and select "Save image as..." to save it to your project's <code>public/book-covers/</code> folder.</p>
+    
+    <div id="book-covers-container">
+        <div class="book-cover">
+            <h3>1. Invisible Cities by Italo Calvino</h3>
+            <div id="invisible-cities-status" class="status loading">Loading...</div>
+            <div id="invisible-cities-image"></div>
+            <div id="invisible-cities-links"></div>
+        </div>
+
+        <div class="book-cover">
+            <h3>2. Man's Search for Meaning by Viktor E. Frankl</h3>
+            <div id="mans-search-status" class="status loading">Loading...</div>
+            <div id="mans-search-image"></div>
+            <div id="mans-search-links"></div>
+        </div>
+
+        <div class="book-cover">
+            <h3>3. Where the Crawdads Sing by Delia Owens</h3>
+            <div id="crawdads-status" class="status loading">Loading...</div>
+            <div id="crawdads-image"></div>
+            <div id="crawdads-links"></div>
+        </div>
+
+        <div class="book-cover">
+            <h3>4. Wonder by R.J. Palacio</h3>
+            <div id="wonder-status" class="status loading">Loading...</div>
+            <div id="wonder-image"></div>
+            <div id="wonder-links"></div>
+        </div>
+
+        <div class="book-cover">
+            <h3>5. Stillness Is the Key by Ryan Holiday</h3>
+            <div id="stillness-status" class="status loading">Loading...</div>
+            <div id="stillness-image"></div>
+            <div id="stillness-links"></div>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; padding: 20px; background: #e9ecef; border-radius: 8px;">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Wait for all images to load</li>
+            <li>Right-click on each image and select "Save image as..."</li>
+            <li>Save each image to your project's <code>public/book-covers/</code> folder with the correct filename:
+                <ul>
+                    <li><code>InvisibleCities.jpg</code></li>
+                    <li><code>MansSearchForMeaning.jpg</code></li>
+                    <li><code>WhereTheCrawdadsSing.jpg</code></li>
+                    <li><code>Wonder.jpg</code></li>
+                    <li><code>StillnessIsTheKey.jpg</code></li>
+                </ul>
+            </li>
+            <li>After saving all images, restart your development server</li>
+        </ol>
+    </div>
+
+    <script>
+        // Book cover URLs from various sources
+        const bookCovers = {
+            'invisible-cities': {
+                title: 'Invisible Cities',
+                author: 'Italo Calvino',
+                urls: [
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/37442.jpg',
+                    'https://covers.openlibrary.org/b/id/8231456-L.jpg',
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/37442.jpg'
+                ]
+            },
+            'mans-search': {
+                title: "Man's Search for Meaning",
+                author: 'Viktor E. Frankl',
+                urls: [
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/4069.jpg',
+                    'https://covers.openlibrary.org/b/id/8231457-L.jpg',
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/4069.jpg'
+                ]
+            },
+            'crawdads': {
+                title: 'Where the Crawdads Sing',
+                author: 'Delia Owens',
+                urls: [
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1582133854i/36809135.jpg',
+                    'https://covers.openlibrary.org/b/id/8231458-L.jpg',
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1582133854i/36809135.jpg'
+                ]
+            },
+            'wonder': {
+                title: 'Wonder',
+                author: 'R.J. Palacio',
+                urls: [
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/11387514.jpg',
+                    'https://covers.openlibrary.org/b/id/8231459-L.jpg',
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327942880i/11387514.jpg'
+                ]
+            },
+            'stillness': {
+                title: 'Stillness Is the Key',
+                author: 'Ryan Holiday',
+                urls: [
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1555447414i/44767458.jpg',
+                    'https://covers.openlibrary.org/b/id/8231460-L.jpg',
+                    'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1555447414i/44767458.jpg'
+                ]
+            }
+        };
+
+        function loadBookCover(bookId, bookData) {
+            const statusEl = document.getElementById(`${bookId}-status`);
+            const imageEl = document.getElementById(`${bookId}-image`);
+            const linksEl = document.getElementById(`${bookId}-links`);
+
+            let loadedCount = 0;
+            const totalUrls = bookData.urls.length;
+
+            bookData.urls.forEach((url, index) => {
+                const img = new Image();
+                img.onload = function() {
+                    loadedCount++;
+                    if (loadedCount === 1) {
+                        // First successful image
+                        statusEl.className = 'status success';
+                        statusEl.textContent = '✓ Image loaded successfully';
+                        imageEl.innerHTML = `<img src="${url}" alt="${bookData.title}" />`;
+                    }
+                    
+                    // Add download link
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.className = 'download-link';
+                    link.download = `${bookData.title.replace(/\s+/g, '')}.jpg`;
+                    link.textContent = `Download ${index + 1}`;
+                    link.target = '_blank';
+                    linksEl.appendChild(link);
+                };
+                img.onerror = function() {
+                    loadedCount++;
+                    if (loadedCount === totalUrls) {
+                        statusEl.className = 'status error';
+                        statusEl.textContent = '✗ Failed to load image';
+                    }
+                };
+                img.src = url;
+            });
+        }
+
+        // Load all book covers
+        Object.keys(bookCovers).forEach(bookId => {
+            loadBookCover(bookId, bookCovers[bookId]);
+        });
+    </script>
+</body>
+</html>

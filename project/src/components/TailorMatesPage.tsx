@@ -6,6 +6,7 @@ import { BookClub, Discussion, FriendConnection, FriendRecommendation, User } fr
 import CreateBookClubModal from './CreateBookClubModal';
 import CreateDiscussionModal from './CreateDiscussionModal';
 import DiscussionDetailPage from './DiscussionDetailPage';
+import TailorMatesDebug from './TailorMatesDebug';
 
 interface TailorMatesPageProps {
   onBack: () => void;
@@ -83,7 +84,16 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
 
     try {
       console.log('Attempting to create book club for user:', user.id);
-      await TailorMatesService.createBookClub(clubData, user.id);
+      
+      // Prepare user data for potential user creation
+      const userData = {
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        image_url: user.imageUrl
+      };
+      
+      await TailorMatesService.createBookClub(clubData, user.id, userData);
       await loadData(); // Refresh the list
     } catch (error: any) {
       console.error('Error creating club:', error);
@@ -758,6 +768,9 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         onClose={() => setShowCreateDiscussionModal(false)}
         onSubmit={handleCreateDiscussion}
       />
+
+      {/* Debug Component - Always show for now */}
+      <TailorMatesDebug user={user} />
     </div>
   );
 };
