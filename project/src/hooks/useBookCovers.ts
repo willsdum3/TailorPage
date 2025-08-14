@@ -291,3 +291,4 @@ export const useBookCover = (
     clear: () => clearCover(title, author)
   };
 };
+

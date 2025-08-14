@@ -409,3 +409,4 @@ npm run test:performance
 ## License
 
 This book cover system is part of the Tailor Page app and follows the same licensing terms. The system respects all third-party API terms of service and implements fair use guidelines for book cover images.
+

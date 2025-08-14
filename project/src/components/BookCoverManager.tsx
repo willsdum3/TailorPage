@@ -318,3 +318,4 @@ export const BookCoverManager: React.FC<BookCoverManagerProps> = ({
 };
 
 export default BookCoverManager;
+

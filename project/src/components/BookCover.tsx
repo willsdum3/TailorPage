@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BookCoverData, bookCoverService } from '../services/bookCoverService';
 import { Loader2, BookOpen, AlertCircle } from 'lucide-react';
 
@@ -14,6 +14,7 @@ export interface BookCoverProps {
   onError?: (error: string) => void;
   fallbackCover?: string;
   lazy?: boolean;
+  preload?: boolean;
 }
 
 const sizeClasses = {
@@ -30,7 +31,46 @@ const textSizes = {
   xl: 'text-lg'
 };
 
-export const BookCover: React.FC<BookCoverProps> = ({
+// Performance optimization: Memoized placeholder component
+const PlaceholderCover = React.memo<{ title: string; author: string; size: keyof typeof sizeClasses }>(
+  ({ title, author, size }) => (
+    <div className={`${sizeClasses[size]} bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex flex-col items-center justify-center border border-white/10 p-2 text-center shadow-lg`}>
+      <BookOpen className="w-8 h-8 text-white/50 mb-3" />
+      <div className="text-sm text-white/70 font-medium leading-tight mb-1">
+        {title.length > 18 ? title.substring(0, 18) + '...' : title}
+      </div>
+      <div className="text-xs text-white/50 leading-tight">
+        by {author.length > 15 ? author.substring(0, 15) + '...' : author}
+      </div>
+    </div>
+  )
+);
+
+// Performance optimization: Memoized error component
+const ErrorCover = React.memo<{ title: string; size: keyof typeof sizeClasses }>(
+  ({ title, size }) => (
+    <div className={`${sizeClasses[size]} bg-gradient-to-br from-red-900/20 to-red-800/20 rounded-lg flex flex-col items-center justify-center border border-red-500/20 p-2 text-center`}>
+      <AlertCircle className="w-4 h-4 text-red-400 mb-1" />
+      <div className="text-xs text-red-300 font-medium leading-tight">
+        {title.length > 18 ? title.substring(0, 18) + '...' : title}
+      </div>
+      <div className="text-xs text-red-400 leading-tight">
+        Cover unavailable
+      </div>
+    </div>
+  )
+);
+
+// Performance optimization: Memoized skeleton component
+const SkeletonCover = React.memo<{ size: keyof typeof sizeClasses }>(
+  ({ size }) => (
+    <div className={`${sizeClasses[size]} bg-gradient-to-br from-slate-600 to-slate-700 rounded-lg animate-pulse flex items-center justify-center`}>
+      <Loader2 className="w-6 h-6 text-white/50 animate-spin" />
+    </div>
+  )
+);
+
+export const BookCover: React.FC<BookCoverProps> = React.memo(({
   title,
   author,
   size = 'md',
@@ -41,17 +81,22 @@ export const BookCover: React.FC<BookCoverProps> = ({
   onLoad,
   onError,
   fallbackCover,
-  lazy = true
+  lazy = true,
+  preload = false
 }) => {
-
   const [coverData, setCoverData] = useState<BookCoverData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   
   const imgRef = useRef<HTMLImageElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Memoize cache key to prevent unnecessary re-renders
+  const cacheKey = useMemo(() => `${title}-${author}`, [title, author]);
 
   const loadCover = useCallback(async () => {
     if (!title || !author) return;
@@ -60,7 +105,20 @@ export const BookCover: React.FC<BookCoverProps> = ({
     setError(null);
 
     try {
-      const result = await bookCoverService.getBookCover(title, author);
+      // Add timeout for better UX
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        loadTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 15000);
+      });
+
+      const result = await Promise.race([
+        bookCoverService.getBookCover(title, author),
+        timeoutPromise
+      ]);
+      
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
       
       if (result.success && result.data) {
         setCoverData(result.data);
@@ -74,14 +132,27 @@ export const BookCover: React.FC<BookCoverProps> = ({
       setError(errorMessage);
       onError?.(errorMessage);
       setShowPlaceholder(true);
+      
+      // Retry logic for transient errors
+      if (retryCount < 2 && (errorMessage.includes('timeout') || errorMessage.includes('network'))) {
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => loadCover(), 1000 * (retryCount + 1));
+      }
     } finally {
       setLoading(false);
     }
-  }, [title, author, onLoad, onError]);
+  }, [title, author, onLoad, onError, retryCount]);
 
-  // Intersection Observer for lazy loading
+  // Preload logic
   useEffect(() => {
-    if (!lazy || priority === 'high') {
+    if (preload && priority === 'high') {
+      loadCover();
+    }
+  }, [preload, priority, loadCover]);
+
+  // Intersection Observer for lazy loading with improved performance
+  useEffect(() => {
+    if (!lazy || priority === 'high' || preload) {
       loadCover();
       return;
     }
@@ -96,7 +167,7 @@ export const BookCover: React.FC<BookCoverProps> = ({
         });
       },
       {
-        rootMargin: '50px',
+        rootMargin: '100px', // Increased margin for better preloading
         threshold: 0.1
       }
     );
@@ -111,62 +182,36 @@ export const BookCover: React.FC<BookCoverProps> = ({
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+      }
     };
-  }, [loadCover, lazy, priority]);
+  }, [loadCover, lazy, priority, preload]);
 
-  const handleImageLoad = () => {
+  const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
     setShowPlaceholder(false);
-  };
+  }, []);
 
-  const handleImageError = () => {
+  const handleImageError = useCallback(() => {
     console.log('Image failed to load for:', title, 'by', author);
     setError('Failed to load image (CORS or network issue)');
     setShowPlaceholder(true);
     setImageLoaded(false);
-  };
+  }, [title, author]);
 
-  const renderPlaceholder = () => (
-    <div className={`${sizeClasses[size]} bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex flex-col items-center justify-center border border-white/10 p-2 text-center shadow-lg`}>
-      <BookOpen className="w-8 h-8 text-white/50 mb-3" />
-      <div className="text-sm text-white/70 font-medium leading-tight mb-1">
-        {title.length > 18 ? title.substring(0, 18) + '...' : title}
-      </div>
-      <div className="text-xs text-white/50 leading-tight">
-        by {author.length > 15 ? author.substring(0, 15) + '...' : author}
-      </div>
-    </div>
-  );
-
-  const renderError = () => (
-    <div className={`${sizeClasses[size]} bg-gradient-to-br from-red-900/20 to-red-800/20 rounded-lg flex flex-col items-center justify-center border border-red-500/20 p-2 text-center`}>
-      <AlertCircle className="w-4 h-4 text-red-400 mb-1" />
-      <div className="text-xs text-red-300 font-medium leading-tight">
-        {title.length > 18 ? title.substring(0, 18) + '...' : title}
-      </div>
-      <div className="text-xs text-red-400 leading-tight">
-        Cover unavailable
-      </div>
-    </div>
-  );
-
-  const renderSkeleton = () => (
-    <div className={`${sizeClasses[size]} bg-gradient-to-br from-slate-600 to-slate-700 rounded-lg animate-pulse flex items-center justify-center`}>
-      <Loader2 className="w-6 h-6 text-white/50 animate-spin" />
-    </div>
-  );
-
-  const renderCover = () => {
+  // Memoized render functions for better performance
+  const renderCover = useMemo(() => {
     if (loading && !coverData) {
-      return renderSkeleton();
+      return <SkeletonCover size={size} />;
     }
 
     if (error && !coverData) {
-      return renderError();
+      return <ErrorCover title={title} size={size} />;
     }
 
     if (!coverData) {
-      return renderPlaceholder();
+      return <PlaceholderCover title={title} author={author} size={size} />;
     }
 
     return (
@@ -178,7 +223,7 @@ export const BookCover: React.FC<BookCoverProps> = ({
           </div>
         )}
         
-        {/* Main cover image */}
+        {/* Main cover image with optimized loading */}
         <img
           ref={imgRef}
           src={coverData.coverUrl}
@@ -190,6 +235,7 @@ export const BookCover: React.FC<BookCoverProps> = ({
           onError={handleImageError}
           loading={lazy ? 'lazy' : 'eager'}
           decoding="async"
+          fetchPriority={priority === 'high' ? 'high' : 'auto'}
         />
         
         {/* Loading overlay */}
@@ -212,11 +258,11 @@ export const BookCover: React.FC<BookCoverProps> = ({
         </div>
       </div>
     );
-  };
+  }, [loading, coverData, error, title, author, size, showPlaceholder, imageLoaded, lazy, priority, handleImageLoad, handleImageError]);
 
   return (
     <div className={`flex flex-col ${className}`}>
-      {renderCover()}
+      {renderCover}
       
       {/* Title and Author */}
       {(showTitle || showAuthor) && (
@@ -235,9 +281,11 @@ export const BookCover: React.FC<BookCoverProps> = ({
       )}
     </div>
   );
-};
+});
 
-// Book Cover Grid Component for displaying multiple covers efficiently
+BookCover.displayName = 'BookCover';
+
+// Enhanced Book Cover Grid Component with virtual scrolling support
 export interface BookCoverGridProps {
   books: Array<{ title: string; author: string; id?: string }>;
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -247,9 +295,11 @@ export interface BookCoverGridProps {
   showAuthors?: boolean;
   onCoverLoad?: (bookId: string, coverData: BookCoverData) => void;
   onCoverError?: (bookId: string, error: string) => void;
+  virtualScroll?: boolean;
+  pageSize?: number;
 }
 
-export const BookCoverGrid: React.FC<BookCoverGridProps> = ({
+export const BookCoverGrid: React.FC<BookCoverGridProps> = React.memo(({
   books,
   size = 'md',
   columns = 4,
@@ -257,8 +307,13 @@ export const BookCoverGrid: React.FC<BookCoverGridProps> = ({
   showTitles = false,
   showAuthors = false,
   onCoverLoad,
-  onCoverError
+  onCoverError,
+  virtualScroll = false,
+  pageSize = 20
 }) => {
+  const [visibleBooks, setVisibleBooks] = useState(books.slice(0, pageSize));
+  const [currentPage, setCurrentPage] = useState(1);
+
   const gridCols = {
     2: 'grid-cols-2',
     3: 'grid-cols-3',
@@ -267,32 +322,67 @@ export const BookCoverGrid: React.FC<BookCoverGridProps> = ({
     6: 'grid-cols-6'
   };
 
-  // Preload covers for visible books
+  // Optimized preloading with batching
   useEffect(() => {
     if (books.length > 0) {
-      const bookData = books.map(book => ({ title: book.title, author: book.author }));
+      const bookData = books.slice(0, 12).map(book => ({ title: book.title, author: book.author }));
       bookCoverService.preloadCovers(bookData).catch(console.warn);
     }
   }, [books]);
 
+  // Virtual scrolling implementation
+  useEffect(() => {
+    if (!virtualScroll) {
+      setVisibleBooks(books);
+      return;
+    }
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    setVisibleBooks(books.slice(startIndex, endIndex));
+  }, [books, currentPage, pageSize, virtualScroll]);
+
+  const loadMoreBooks = useCallback(() => {
+    if (virtualScroll && currentPage * pageSize < books.length) {
+      setCurrentPage(prev => prev + 1);
+    }
+  }, [virtualScroll, currentPage, pageSize, books.length]);
+
   return (
-    <div className={`grid gap-4 ${gridCols[columns as keyof typeof gridCols] || 'grid-cols-4'} ${className}`}>
-      {books.map((book, index) => (
-        <BookCover
-          key={book.id || `${book.title}-${book.author}-${index}`}
-          title={book.title}
-          author={book.author}
-          size={size}
-          showTitle={showTitles}
-          showAuthor={showAuthors}
-          priority={index < 8 ? 'high' : 'low'} // Prioritize first 8 covers
-          onLoad={(coverData) => onCoverLoad?.(book.id || book.title, coverData)}
-          onError={(error) => onCoverError?.(book.id || book.title, error)}
-          lazy={index >= 4} // Lazy load after first 4
-        />
-      ))}
+    <div className="space-y-4">
+      <div className={`grid gap-4 ${gridCols[columns as keyof typeof gridCols] || 'grid-cols-4'} ${className}`}>
+        {visibleBooks.map((book, index) => (
+          <BookCover
+            key={book.id || `${book.title}-${book.author}-${index}`}
+            title={book.title}
+            author={book.author}
+            size={size}
+            showTitle={showTitles}
+            showAuthor={showAuthors}
+            priority={index < 8 ? 'high' : 'low'} // Prioritize first 8 covers
+            onLoad={(coverData) => onCoverLoad?.(book.id || book.title, coverData)}
+            onError={(error) => onCoverError?.(book.id || book.title, error)}
+            lazy={index >= 4} // Lazy load after first 4
+            preload={index < 4} // Preload first 4
+          />
+        ))}
+      </div>
+      
+      {/* Load more button for virtual scrolling */}
+      {virtualScroll && currentPage * pageSize < books.length && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={loadMoreBooks}
+            className="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-300"
+          >
+            Load More Books
+          </button>
+        </div>
+      )}
     </div>
   );
-};
+});
+
+BookCoverGrid.displayName = 'BookCoverGrid';
 
 export default BookCover;

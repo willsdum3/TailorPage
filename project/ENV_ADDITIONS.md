@@ -17,3 +17,5 @@ VITE_AMAZON_ASSOCIATE_TAG=your_amazon_associate_tag_here
 
 # Optional: Goodreads API (deprecated but included for future use)
 VITE_GOODREADS_API_KEY=your_goodreads_api_key_here
+
+

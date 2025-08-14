@@ -21,6 +21,7 @@ import { getBookRecommendations, getBookRecommendationsWithExpandedMatching } fr
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 import { useUserSync } from './hooks/useUserSync';
+import BookCoverPerformanceMonitor from './components/BookCoverPerformanceMonitor';
 import { saveUserPersonalityProfile, getUserPersonalityProfile, addBookToFavorites, removeBookFromFavorites, getUserFavorites } from './lib/supabase';
 
 import { 
@@ -946,6 +947,9 @@ function App() {
           )}
         </>
       )}
+      
+      {/* Performance Monitor - Only show in development or when explicitly enabled */}
+      {process.env.NODE_ENV === 'development' && <BookCoverPerformanceMonitor />}
     </div>
   );
 }
