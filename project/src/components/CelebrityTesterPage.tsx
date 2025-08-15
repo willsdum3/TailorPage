@@ -25,6 +25,8 @@ import {
 import { celebrities } from '../data/celebrities';
 import { CelebrityProfile } from '../data/celebrities';
 import { BookCover } from './BookCover';
+import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
+import { bookInfoService } from '../services/bookInfoService';
 
 import { useScrollToTop } from '../hooks/useScrollToTop';
 import { analyzePersonality, TraitAnalysis } from '../utils/personalityAnalysis';
@@ -38,9 +40,41 @@ interface CelebrityTesterPageProps {
 const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz }) => {
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
+  
+  // Book summary modal state
+  const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(false);
 
   // Scroll to top when selected celebrity changes
   useScrollToTop([selectedCelebrity?.id]);
+
+  const handleBookCoverClick = async (book: any) => {
+    setIsLoadingBookInfo(true);
+    setIsModalOpen(true);
+    
+    try {
+      const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
+      setSelectedBook(bookInfo);
+    } catch (error) {
+      console.error('Error fetching book info:', error);
+      // Set basic book info as fallback
+      setSelectedBook({
+        title: book.title,
+        author: book.author,
+        description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
+        genre: book.genre,
+        amazonLink: book.amazonLink
+      });
+    } finally {
+      setIsLoadingBookInfo(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
+  };
 
   const getTraitIcon = (traitName: string) => {
     switch (traitName) {
@@ -284,6 +318,8 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                       size="lg"
                       priority="high"
                       lazy={false}
+                      clickable={true}
+                      onClick={() => handleBookCoverClick(book)}
                     />
                   </div>
                   
@@ -487,6 +523,15 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
           )}
         </div>
       </div>
+      
+      {/* Book Summary Modal */}
+      {selectedBook && (
+        <BookSummaryModal
+          book={selectedBook}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };
