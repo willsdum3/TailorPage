@@ -525,13 +525,16 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
       </div>
       
       {/* Book Summary Modal */}
-      {selectedBook && isModalOpen && (
-        <BookSummaryModal
-          book={selectedBook}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
+      {(() => {
+        console.log('🔍 CelebrityTester: Modal rendering check - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
+        return selectedBook && isModalOpen && (
+          <BookSummaryModal
+            book={selectedBook}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+          />
+        );
+      })()}
     </div>
   );
 };

@@ -110,23 +110,28 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
   const handleBookCoverClick = async (book: FavoriteBook) => {
     console.log('🎯 PlaceholderPage: Book cover clicked for:', book.title, 'by', book.author);
+    console.log('🔍 PlaceholderPage: Setting modal state...');
     setIsLoadingBookInfo(true);
     setIsModalOpen(true);
+    console.log('🔍 PlaceholderPage: Modal should be open now');
     
     try {
       const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
       setSelectedBook(bookInfo);
-      console.log('✅ PlaceholderPage: Book info loaded successfully');
+      console.log('✅ PlaceholderPage: Book info loaded successfully:', bookInfo);
+      console.log('🔍 PlaceholderPage: selectedBook set, modal should be visible');
     } catch (error) {
       console.error('❌ PlaceholderPage: Error fetching book info:', error);
       // Set basic book info as fallback
-      setSelectedBook({
+      const fallbackBook = {
         title: book.title,
         author: book.author,
         description: `A book by ${book.author} that you've added to your favorites.`,
         genre: book.genre,
         amazonLink: book.amazonLink
-      });
+      };
+      setSelectedBook(fallbackBook);
+      console.log('🔍 PlaceholderPage: Fallback book set:', fallbackBook);
     } finally {
       setIsLoadingBookInfo(false);
     }
@@ -1232,13 +1237,16 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
       </div>
       
       {/* Book Summary Modal */}
-      {selectedBook && isModalOpen && (
-        <BookSummaryModal
-          book={selectedBook}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
+      {(() => {
+        console.log('🔍 PlaceholderPage: Modal rendering check - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
+        return selectedBook && isModalOpen && (
+          <BookSummaryModal
+            book={selectedBook}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+          />
+        );
+      })()}
     </div>
   );
 };
