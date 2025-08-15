@@ -610,18 +610,26 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                        <div key={book.id} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
                          {/* Book Cover */}
                          <div className="flex justify-center mb-4">
-                           <BookCover
-                             title={book.title}
-                             author={book.author}
-                             size="lg"
-                             priority="high"
-                             lazy={false}
-                             clickable={true}
+                           <div 
                              onClick={() => {
-                               console.log('🎯 PlaceholderPage: Direct click detected for:', book.title);
+                               console.log('🎯 PlaceholderPage: DIV click detected for:', book.title);
                                handleBookCoverClick(book);
                              }}
-                           />
+                             className="cursor-pointer"
+                           >
+                             <BookCover
+                               title={book.title}
+                               author={book.author}
+                               size="lg"
+                               priority="high"
+                               lazy={false}
+                               clickable={true}
+                               onClick={() => {
+                                 console.log('🎯 PlaceholderPage: Direct click detected for:', book.title);
+                                 handleBookCoverClick(book);
+                               }}
+                             />
+                           </div>
                          </div>
                          
                          <div className="flex items-start justify-between mb-4">

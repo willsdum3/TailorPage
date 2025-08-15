@@ -102,7 +102,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
 
   if (selectedCelebrity) {
     return (
-      <div className="min-h-screen py-8 px-4 relative overflow-hidden">
+      <div className="min-h-screen py-8 px-4 relative">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
         <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
