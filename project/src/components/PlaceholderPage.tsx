@@ -8,6 +8,8 @@ import StrengthsDetailPage from './StrengthsDetailPage';
 import GrowthAreasDetailPage from './GrowthAreasDetailPage';
 import FavoritesPage from './FavoritesPage';
 import { BookCover } from './BookCover';
+import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
+import { bookInfoService } from '../services/bookInfoService';
 
 
 interface PlaceholderPageProps {
@@ -29,6 +31,11 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPage, setCurrentPage] = useState<'profile' | 'strengths' | 'growth'>('profile');
   const [activeTab, setActiveTab] = useState<'personality' | 'favourites' | 'profile-settings' | 'help'>('personality');
+  
+  // Book summary modal state
+  const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(false);
   
   // Profile Settings State
   const [profileSettings, setProfileSettings] = useState({
@@ -99,6 +106,35 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
   const handleBackToProfile = () => {
     setCurrentPage('profile');
+  };
+
+  const handleBookCoverClick = async (book: FavoriteBook) => {
+    console.log('🎯 PlaceholderPage: Book cover clicked for:', book.title, 'by', book.author);
+    setIsLoadingBookInfo(true);
+    setIsModalOpen(true);
+    
+    try {
+      const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
+      setSelectedBook(bookInfo);
+      console.log('✅ PlaceholderPage: Book info loaded successfully');
+    } catch (error) {
+      console.error('❌ PlaceholderPage: Error fetching book info:', error);
+      // Set basic book info as fallback
+      setSelectedBook({
+        title: book.title,
+        author: book.author,
+        description: `A book by ${book.author} that you've added to your favorites.`,
+        genre: book.genre,
+        amazonLink: book.amazonLink
+      });
+    } finally {
+      setIsLoadingBookInfo(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
   };
 
   const handleNavigateToFavourites = () => {
@@ -575,6 +611,8 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                              size="lg"
                              priority="high"
                              lazy={false}
+                             clickable={true}
+                             onClick={() => handleBookCoverClick(book)}
                            />
                          </div>
                          
@@ -1192,6 +1230,15 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
           </button>
         </div>
       </div>
+      
+      {/* Book Summary Modal */}
+      {selectedBook && isModalOpen && (
+        <BookSummaryModal
+          book={selectedBook}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };
