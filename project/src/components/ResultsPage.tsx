@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   RotateCcw, 
   Star, 
@@ -42,6 +42,13 @@ const ResultsPage = ({
 }: ResultsPageProps) => {
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
+  
+  // Debug logging
+  console.log('🔍 ResultsPage render - Debug info:');
+  console.log('📊 Profile:', profile);
+  console.log('📚 Recommendations count:', recommendations?.length || 0);
+  console.log('❤️ Favorites count:', favorites?.length || 0);
+  console.log('👤 User:', user);
   
   // Book summary modal state
   const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
@@ -115,6 +122,37 @@ const ResultsPage = ({
     
     onToggleFavorite(bookRecommendation);
   };
+
+  // Check if we have the required data to render
+  if (!profile) {
+    console.error('❌ ResultsPage: No personality profile provided');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        <div className="text-center text-white">
+          <h1 className="text-2xl font-bold mb-4">Loading Results...</h1>
+          <p>Please wait while we process your quiz results.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!recommendations || recommendations.length === 0) {
+    console.error('❌ ResultsPage: No recommendations provided');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        <div className="text-center text-white">
+          <h1 className="text-2xl font-bold mb-4">No Recommendations Found</h1>
+          <p>We couldn't generate recommendations based on your quiz results.</p>
+          <button
+            onClick={onRetakeQuiz}
+            className="mt-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-3 rounded-xl font-medium"
+          >
+            Retake Quiz
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Create a simple personality description
   const getPersonalityDescription = () => {
