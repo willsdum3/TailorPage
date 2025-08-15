@@ -525,7 +525,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
       </div>
       
       {/* Book Summary Modal */}
-      {selectedBook && (
+      {selectedBook && isModalOpen && (
         <BookSummaryModal
           book={selectedBook}
           isOpen={isModalOpen}

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Book, ShoppingCart, ExternalLink, Star, Home, ArrowLeft } from 'lucide-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
 import { BookCover } from './BookCover';
+import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
+import { bookInfoService } from '../services/bookInfoService';
 
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
@@ -24,6 +26,11 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
   user,
   onLoginRequired
 }) => {
+  // Book summary modal state
+  const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(false);
+
   const isBookFavorited = (bookId: string) => {
     // Find the book in recommendations to get title and author
     const book = recommendations.find(rec => rec.id === bookId);
@@ -41,6 +48,33 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
 
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
+
+  const handleBookCoverClick = async (book: BookRecommendation) => {
+    setIsLoadingBookInfo(true);
+    setIsModalOpen(true);
+    
+    try {
+      const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
+      setSelectedBook(bookInfo);
+    } catch (error) {
+      console.error('Error fetching book info:', error);
+      // Set basic book info as fallback
+      setSelectedBook({
+        title: book.title,
+        author: book.author,
+        description: book.description,
+        genre: book.genre,
+        amazonLink: book.amazonLink
+      });
+    } finally {
+      setIsLoadingBookInfo(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
+  };
 
   const handleToggleFavorite = (book: BookRecommendation) => {
     if (!user) {
@@ -91,6 +125,8 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
                   size="lg"
                   priority="high"
                   lazy={false}
+                  clickable={true}
+                  onClick={() => handleBookCoverClick(book)}
                 />
               </div>
               
@@ -149,6 +185,15 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
           ))}
         </div>
       </div>
+      
+      {/* Book Summary Modal */}
+      {selectedBook && isModalOpen && (
+        <BookSummaryModal
+          book={selectedBook}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };

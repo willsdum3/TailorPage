@@ -29,14 +29,16 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
 
 
   const handleBookCoverClick = async (book: FavoriteBook) => {
+    console.log('🎯 FavoritesPage: Book cover clicked for:', book.title, 'by', book.author);
     setIsLoadingBookInfo(true);
     setIsModalOpen(true);
     
     try {
       const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
       setSelectedBook(bookInfo);
+      console.log('✅ FavoritesPage: Book info loaded successfully');
     } catch (error) {
-      console.error('Error fetching book info:', error);
+      console.error('❌ FavoritesPage: Error fetching book info:', error);
       // Set basic book info as fallback
       setSelectedBook({
         title: book.title,
