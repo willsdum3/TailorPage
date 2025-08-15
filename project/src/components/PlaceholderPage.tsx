@@ -617,7 +617,10 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                              priority="high"
                              lazy={false}
                              clickable={true}
-                             onClick={() => handleBookCoverClick(book)}
+                             onClick={() => {
+                               console.log('🎯 PlaceholderPage: Direct click detected for:', book.title);
+                               handleBookCoverClick(book);
+                             }}
                            />
                          </div>
                          

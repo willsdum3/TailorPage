@@ -50,22 +50,29 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
   useScrollToTop([selectedCelebrity?.id]);
 
   const handleBookCoverClick = async (book: any) => {
+    console.log('🎯 CelebrityTester: Book cover clicked for:', book.title, 'by', book.author);
+    console.log('🔍 CelebrityTester: Setting modal state...');
     setIsLoadingBookInfo(true);
     setIsModalOpen(true);
+    console.log('🔍 CelebrityTester: Modal should be open now');
     
     try {
       const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
       setSelectedBook(bookInfo);
+      console.log('✅ CelebrityTester: Book info loaded successfully:', bookInfo);
+      console.log('🔍 CelebrityTester: selectedBook set, modal should be visible');
     } catch (error) {
-      console.error('Error fetching book info:', error);
+      console.error('❌ CelebrityTester: Error fetching book info:', error);
       // Set basic book info as fallback
-      setSelectedBook({
+      const fallbackBook = {
         title: book.title,
         author: book.author,
         description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
         genre: book.genre,
         amazonLink: book.amazonLink
-      });
+      };
+      setSelectedBook(fallbackBook);
+      console.log('🔍 CelebrityTester: Fallback book set:', fallbackBook);
     } finally {
       setIsLoadingBookInfo(false);
     }
@@ -319,7 +326,10 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                       priority="high"
                       lazy={false}
                       clickable={true}
-                      onClick={() => handleBookCoverClick(book)}
+                      onClick={() => {
+                        console.log('🎯 CelebrityTester: Direct click detected for:', book.title);
+                        handleBookCoverClick(book);
+                      }}
                     />
                   </div>
                   
