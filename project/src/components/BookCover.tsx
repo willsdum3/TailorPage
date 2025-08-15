@@ -15,6 +15,8 @@ export interface BookCoverProps {
   fallbackCover?: string;
   lazy?: boolean;
   preload?: boolean;
+  onClick?: () => void;
+  clickable?: boolean;
 }
 
 const sizeClasses = {
@@ -82,7 +84,9 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
   onError,
   fallbackCover,
   lazy = true,
-  preload = false
+  preload = false,
+  onClick,
+  clickable = false
 }) => {
   const [coverData, setCoverData] = useState<BookCoverData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -215,7 +219,20 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
     }
 
     return (
-      <div className={`${sizeClasses[size]} relative group overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl`}>
+      <div 
+        className={`${sizeClasses[size]} relative group overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl ${
+          clickable ? 'cursor-pointer hover:scale-105' : ''
+        }`}
+        onClick={clickable && onClick ? onClick : undefined}
+        role={clickable ? 'button' : undefined}
+        tabIndex={clickable ? 0 : undefined}
+        onKeyDown={clickable && onClick ? (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        } : undefined}
+      >
         {/* Progressive loading: Show low-quality placeholder first */}
         {showPlaceholder && (
           <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
@@ -256,6 +273,15 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
         <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           {coverData.source}
         </div>
+        
+        {/* Click indicator for clickable covers */}
+        {clickable && (
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/20 backdrop-blur-sm rounded-full p-2">
+              <BookOpen className="w-4 h-4 text-white" />
+            </div>
+          </div>
+        )}
       </div>
     );
   }, [loading, coverData, error, title, author, size, showPlaceholder, imageLoaded, lazy, priority, handleImageLoad, handleImageError]);

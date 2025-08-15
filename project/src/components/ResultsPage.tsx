@@ -16,6 +16,8 @@ import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { isBookFavorited } from '../utils/favoritesUtils';
 import { BookCover } from './BookCover';
+import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
+import { bookInfoService } from '../services/bookInfoService';
 
 interface ResultsPageProps {
   profile: PersonalityProfile;
@@ -40,6 +42,11 @@ const ResultsPage = ({
 }: ResultsPageProps) => {
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
+  
+  // Book summary modal state
+  const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(false);
 
   const checkIfBookFavorited = (bookId: string) => {
     // Find the book in recommendations to get title and author
@@ -65,6 +72,48 @@ const ResultsPage = ({
     
     console.log('Calling onToggleFavorite with book:', book);
     onToggleFavorite(book);
+  };
+
+  const handleBookCoverClick = async (book: BookRecommendation) => {
+    setIsLoadingBookInfo(true);
+    setIsModalOpen(true);
+    
+    try {
+      const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
+      setSelectedBook(bookInfo);
+    } catch (error) {
+      console.error('Error fetching book info:', error);
+      // Set basic book info as fallback
+      setSelectedBook({
+        title: book.title,
+        author: book.author,
+        description: book.description,
+        genre: book.genre,
+        amazonLink: book.amazonLink
+      });
+    } finally {
+      setIsLoadingBookInfo(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
+  };
+
+  const handleAddToFavoritesFromModal = (book: BookSummaryData) => {
+    // Convert BookSummaryData to BookRecommendation format
+    const bookRecommendation: BookRecommendation = {
+      id: `${book.title}-${book.author}`,
+      title: book.title,
+      author: book.author,
+      description: book.description || '',
+      genre: book.genre || 'Fiction',
+      reason: 'Added from book summary',
+      amazonLink: book.amazonLink || ''
+    };
+    
+    onToggleFavorite(bookRecommendation);
   };
 
   // Create a simple personality description
@@ -145,6 +194,8 @@ const ResultsPage = ({
                   size="lg"
                   priority="high"
                   lazy={false}
+                  clickable={true}
+                  onClick={() => handleBookCoverClick(book)}
                 />
               </div>
 
@@ -253,6 +304,19 @@ const ResultsPage = ({
           </div>
         </div>
       </div>
+
+      {/* Book Summary Modal */}
+      {selectedBook && (
+        <BookSummaryModal
+          book={selectedBook}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onAddToFavorites={handleAddToFavoritesFromModal}
+          isFavorited={checkIfBookFavorited(`${selectedBook.title}-${selectedBook.author}`)}
+          user={user}
+          onLoginRequired={onLoginRequired}
+        />
+      )}
     </div>
   );
 };

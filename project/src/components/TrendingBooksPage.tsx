@@ -5,6 +5,8 @@ import { trendingBooks, TrendingBook } from '../data/trendingBooks';
 import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { BookCover } from './BookCover';
+import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
+import { bookInfoService } from '../services/bookInfoService';
 
 interface TrendingBooksPageProps {
   onBack: () => void;
@@ -16,6 +18,11 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('All');
   const [sortBy, setSortBy] = useState('rank');
+  
+  // Book summary modal state
+  const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(false);
 
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
@@ -63,6 +70,35 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
         }`}
       />
     ));
+  };
+
+  const handleBookCoverClick = async (book: TrendingBook) => {
+    setIsLoadingBookInfo(true);
+    setIsModalOpen(true);
+    
+    try {
+      const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
+      setSelectedBook(bookInfo);
+    } catch (error) {
+      console.error('Error fetching book info:', error);
+      // Set basic book info as fallback
+      setSelectedBook({
+        title: book.title,
+        author: book.author,
+        description: `A bestselling book by ${book.author}. Currently ranked #${book.rank} on Amazon UK.`,
+        genre: book.genre,
+        rating: book.rating,
+        reviewCount: book.reviewCount,
+        amazonLink: book.amazonLink
+      });
+    } finally {
+      setIsLoadingBookInfo(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
   };
 
   return (
@@ -177,6 +213,8 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
                   size="lg"
                   priority="high"
                   lazy={false}
+                  clickable={true}
+                  onClick={() => handleBookCoverClick(book)}
                 />
               </div>
 
@@ -303,6 +341,15 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
           )}
         </div>
       </div>
+
+      {/* Book Summary Modal */}
+      {selectedBook && (
+        <BookSummaryModal
+          book={selectedBook}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };

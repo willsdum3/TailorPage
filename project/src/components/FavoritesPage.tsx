@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Book, ShoppingCart, ExternalLink, Trash2, ArrowLeft, Heart, Sparkles, Home } from 'lucide-react';
 import { FavoriteBook, User } from '../types';
 
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
+import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
+import { bookInfoService } from '../services/bookInfoService';
+import { BookCover } from './BookCover';
 
 interface FavoritesPageProps {
   favorites: FavoriteBook[];
@@ -17,23 +20,40 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
   
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
+  
+  // Book summary modal state
+  const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(false);
 
-  // Simple book cover component for favorites page
-  const FavoriteBookCover: React.FC<{ title: string; author: string }> = ({ title, author }) => {
-    return (
-      <div className="w-32 h-48 bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex flex-col items-center justify-center border border-white/10 p-3 text-center shadow-lg hover:shadow-xl transition-all duration-300">
-        <Book className="w-10 h-10 text-white/50 mb-3" />
-        <div className="text-sm text-white/70 font-medium leading-tight mb-1">
-          {title.length > 16 ? title.substring(0, 16) + '...' : title}
-        </div>
-        <div className="text-xs text-white/50 leading-tight">
-          by {author.length > 14 ? author.substring(0, 14) + '...' : author}
-        </div>
-      </div>
-    );
+
+
+  const handleBookCoverClick = async (book: FavoriteBook) => {
+    setIsLoadingBookInfo(true);
+    setIsModalOpen(true);
+    
+    try {
+      const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
+      setSelectedBook(bookInfo);
+    } catch (error) {
+      console.error('Error fetching book info:', error);
+      // Set basic book info as fallback
+      setSelectedBook({
+        title: book.title,
+        author: book.author,
+        description: `A book by ${book.author} that you've added to your favorites.`,
+        genre: book.genre,
+        amazonLink: book.amazonLink
+      });
+    } finally {
+      setIsLoadingBookInfo(false);
+    }
   };
 
-
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
+  };
 
   if (favorites.length === 0) {
     return (
@@ -144,7 +164,15 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
             <div key={`${book.id}-${book.title}-${book.author}`} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
               {/* Book Cover */}
               <div className="flex justify-center mb-4">
-                <FavoriteBookCover title={book.title} author={book.author} />
+                <BookCover
+                  title={book.title}
+                  author={book.author}
+                  size="lg"
+                  priority="high"
+                  lazy={false}
+                  clickable={true}
+                  onClick={() => handleBookCoverClick(book)}
+                />
               </div>
 
               <div className="flex items-start justify-between mb-4">
@@ -233,6 +261,15 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ favorites, onRemoveFavori
           )}
         </div>
       </div>
+
+      {/* Book Summary Modal */}
+      {selectedBook && (
+        <BookSummaryModal
+          book={selectedBook}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };
