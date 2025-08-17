@@ -224,6 +224,7 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
         className={`${sizeClasses[size]} relative group overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl ${
           clickable ? 'cursor-pointer hover:scale-105' : ''
         }`}
+        style={{ zIndex: clickable ? 10 : 1 }}
         onClick={clickable && onClick ? (e) => {
           console.log('🎯 BookCover: Click detected for:', title, 'by', author);
           e.preventDefault();
@@ -231,6 +232,12 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
           onClick();
         } : (e) => {
           console.log('🎯 BookCover: Click detected but not clickable for:', title, 'clickable:', clickable, 'onClick:', !!onClick);
+        }}
+        onMouseDown={(e) => {
+          console.log('🎯 BookCover: MouseDown detected for:', title, 'by', author);
+        }}
+        onMouseUp={(e) => {
+          console.log('🎯 BookCover: MouseUp detected for:', title, 'by', author);
         }}
         role={clickable ? 'button' : undefined}
         tabIndex={clickable ? 0 : undefined}
@@ -253,7 +260,7 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
           ref={imgRef}
           src={coverData.coverUrl}
           alt={`Cover of ${title} by ${author}`}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
+          className={`w-full h-full object-cover transition-opacity duration-300 pointer-events-none ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={handleImageLoad}

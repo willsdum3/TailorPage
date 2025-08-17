@@ -619,6 +619,10 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                              onMouseDown={(e) => {
                                console.log('🎯 PlaceholderPage: DIV wrapper mousedown detected for:', book.title);
                              }}
+                             onMouseUp={(e) => {
+                               console.log('🎯 PlaceholderPage: DIV wrapper mouseup detected for:', book.title);
+                             }}
+                             style={{ zIndex: 5, position: 'relative' }}
                              className="cursor-pointer"
                            >
                              <BookCover
