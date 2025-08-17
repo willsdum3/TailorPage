@@ -111,13 +111,14 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
         <div className="max-w-6xl mx-auto relative z-10">
           {/* Header */}
           <div className="text-center mb-12">
-            <button
+            {/* Back to Celebrities button - REMOVED FOR TESTING */}
+            {/* <button
               onClick={() => setSelectedCelebrity(null)}
               className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Celebrities</span>
-            </button>
+            </button> */}
             
             <div className="flex items-center justify-center space-x-6 mb-8">
               <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-amber-400/50 shadow-xl bg-white/5">
@@ -371,8 +372,8 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
             </div>
           </div>
 
-          {/* Back to List */}
-          <div className="text-center">
+          {/* Back to List - REMOVED FOR TESTING */}
+          {/* <div className="text-center">
             <button
               onClick={() => setSelectedCelebrity(null)}
               className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
@@ -380,7 +381,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
               <ArrowLeft className="w-5 h-5" />
               <span>Explore More Celebrities</span>
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     );
