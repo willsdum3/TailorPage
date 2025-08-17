@@ -625,6 +625,27 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                              style={{ zIndex: 5, position: 'relative' }}
                              className="cursor-pointer"
                            >
+                             {/* Test button to see if clicks work at all */}
+                             <button
+                               onClick={(e) => {
+                                 console.log('🎯 TEST BUTTON CLICKED for:', book.title);
+                                 e.stopPropagation();
+                               }}
+                               style={{ 
+                                 position: 'absolute', 
+                                 top: 0, 
+                                 left: 0, 
+                                 zIndex: 999, 
+                                 background: 'red', 
+                                 color: 'white', 
+                                 padding: '2px 4px', 
+                                 fontSize: '10px',
+                                 border: 'none',
+                                 borderRadius: '2px'
+                               }}
+                             >
+                               TEST
+                             </button>
                              <BookCover
                                title={book.title}
                                author={book.author}

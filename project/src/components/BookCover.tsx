@@ -89,6 +89,16 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
   clickable = false
 }) => {
   console.log('🎯 BookCover: Component rendered for:', title, 'clickable:', clickable, 'onClick:', !!onClick);
+  
+  // Add a simple test to see if ANY clicks work
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      console.log('🎯 GLOBAL CLICK DETECTED at:', e.clientX, e.clientY);
+    };
+    
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, []);
   const [coverData, setCoverData] = useState<BookCoverData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
