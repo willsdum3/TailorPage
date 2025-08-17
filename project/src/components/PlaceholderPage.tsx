@@ -616,6 +616,9 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                                e.stopPropagation();
                                handleBookCoverClick(book);
                              }}
+                             onMouseDown={(e) => {
+                               console.log('🎯 PlaceholderPage: DIV wrapper mousedown detected for:', book.title);
+                             }}
                              className="cursor-pointer"
                            >
                              <BookCover

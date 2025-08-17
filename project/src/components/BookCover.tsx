@@ -88,6 +88,7 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
   onClick,
   clickable = false
 }) => {
+  console.log('🎯 BookCover: Component rendered for:', title, 'clickable:', clickable, 'onClick:', !!onClick);
   const [coverData, setCoverData] = useState<BookCoverData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -225,8 +226,12 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
         }`}
         onClick={clickable && onClick ? (e) => {
           console.log('🎯 BookCover: Click detected for:', title, 'by', author);
+          e.preventDefault();
+          e.stopPropagation();
           onClick();
-        } : undefined}
+        } : (e) => {
+          console.log('🎯 BookCover: Click detected but not clickable for:', title, 'clickable:', clickable, 'onClick:', !!onClick);
+        }}
         role={clickable ? 'button' : undefined}
         tabIndex={clickable ? 0 : undefined}
         onKeyDown={clickable && onClick ? (e) => {
