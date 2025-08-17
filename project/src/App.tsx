@@ -282,26 +282,33 @@ function App() {
   useEffect(() => {
     console.log('🎯 APP USE_EFFECT RUNNING');
     
-    const handleGlobalClick = (e: MouseEvent) => {
-      console.log('🎯 APP GLOBAL CLICK at:', e.clientX, e.clientY, 'target:', e.target);
-    };
-    
-    // Test if we can add event listeners at all
+    // Test if we can even log in useEffect
     try {
-      document.addEventListener('click', handleGlobalClick, true); // Use capture phase
-      console.log('🎯 APP EVENT LISTENER ADDED SUCCESSFULLY');
-    } catch (error) {
-      console.error('🎯 APP ERROR ADDING EVENT LISTENER:', error);
-    }
-    
-    return () => {
+      console.log('🎯 APP USE_EFFECT TRY BLOCK STARTED');
+      
+      const handleGlobalClick = (e: MouseEvent) => {
+        console.log('🎯 APP GLOBAL CLICK at:', e.clientX, e.clientY, 'target:', e.target);
+      };
+      
+      // Test if we can add event listeners at all
       try {
-        document.removeEventListener('click', handleGlobalClick, true);
-        console.log('🎯 APP EVENT LISTENER REMOVED');
+        document.addEventListener('click', handleGlobalClick, true); // Use capture phase
+        console.log('🎯 APP EVENT LISTENER ADDED SUCCESSFULLY');
       } catch (error) {
-        console.error('🎯 APP ERROR REMOVING EVENT LISTENER:', error);
+        console.error('🎯 APP ERROR ADDING EVENT LISTENER:', error);
       }
-    };
+      
+      return () => {
+        try {
+          document.removeEventListener('click', handleGlobalClick, true);
+          console.log('🎯 APP EVENT LISTENER REMOVED');
+        } catch (error) {
+          console.error('🎯 APP ERROR REMOVING EVENT LISTENER:', error);
+        }
+      };
+    } catch (error) {
+      console.error('🎯 APP USE_EFFECT ERROR:', error);
+    }
   }, []);
   // Use user sync hook to automatically sync Clerk user to Supabase
   const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced } = useUserSync();
