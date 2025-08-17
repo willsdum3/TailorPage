@@ -310,6 +310,11 @@ function App() {
       console.error('🎯 APP USE_EFFECT ERROR:', error);
     }
   }, []);
+
+  // Add a simple useEffect to test if ANY useEffect works
+  useEffect(() => {
+    console.log('🎯 APP SIMPLE USE_EFFECT TEST');
+  }, []);
   // Use user sync hook to automatically sync Clerk user to Supabase
   const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced } = useUserSync();
   const { signOut } = useClerk();

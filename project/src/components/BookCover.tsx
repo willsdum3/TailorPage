@@ -244,10 +244,10 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
           console.log('🎯 BookCover: Click detected but not clickable for:', title, 'clickable:', clickable, 'onClick:', !!onClick);
         }}
         onMouseDown={(e) => {
-          console.log('🎯 BookCover: MouseDown detected for:', title, 'by', author);
+          console.log('🎯 BookCover: MouseDown detected for:', title, 'by', author, 'clickable:', clickable, 'onClick:', !!onClick);
         }}
         onMouseUp={(e) => {
-          console.log('🎯 BookCover: MouseUp detected for:', title, 'by', author);
+          console.log('🎯 BookCover: MouseUp detected for:', title, 'by', author, 'clickable:', clickable, 'onClick:', !!onClick);
         }}
         role={clickable ? 'button' : undefined}
         tabIndex={clickable ? 0 : undefined}
