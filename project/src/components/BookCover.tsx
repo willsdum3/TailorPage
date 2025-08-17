@@ -235,10 +235,15 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
           clickable ? 'cursor-pointer hover:scale-105' : ''
         }`}
         style={{ zIndex: clickable ? 10 : 1 }}
-        onClick={clickable && onClick ? (e) => {
-          console.log('🎯 BookCover: Click detected for:', title, 'by', author);
-          onClick();
-        } : undefined}
+        onClick={(e) => {
+          console.log('🎯 BookCover: Click detected for:', title, 'by', author, 'clickable:', clickable, 'onClick exists:', !!onClick);
+          if (clickable && onClick) {
+            console.log('🎯 BookCover: Executing onClick for:', title);
+            onClick();
+          } else {
+            console.log('🎯 BookCover: Click ignored - clickable:', clickable, 'onClick exists:', !!onClick);
+          }
+        }}
         onMouseDown={(e) => {
           console.log('🎯 BookCover: MouseDown detected for:', title, 'by', author);
         }}
