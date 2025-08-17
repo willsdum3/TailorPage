@@ -619,56 +619,18 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                        <div key={book.id} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
                          {/* Book Cover */}
                          <div className="flex justify-center mb-4">
-                           <div 
-                             onClick={(e) => {
-                               console.log('🎯 PlaceholderPage: DIV wrapper click detected for:', book.title);
-                               e.stopPropagation();
+                           <BookCover
+                             title={book.title}
+                             author={book.author}
+                             size="lg"
+                             priority="high"
+                             lazy={false}
+                             clickable={true}
+                             onClick={() => {
+                               console.log('🎯 PlaceholderPage: BookCover click detected for:', book.title);
                                handleBookCoverClick(book);
                              }}
-                             onMouseDown={(e) => {
-                               console.log('🎯 PlaceholderPage: DIV wrapper mousedown detected for:', book.title);
-                             }}
-                             onMouseUp={(e) => {
-                               console.log('🎯 PlaceholderPage: DIV wrapper mouseup detected for:', book.title);
-                             }}
-                             style={{ zIndex: 5, position: 'relative' }}
-                             className="cursor-pointer"
-                           >
-                             {/* Test button to see if clicks work at all */}
-                             <button
-                               onClick={(e) => {
-                                 console.log('🎯 TEST BUTTON CLICKED for:', book.title);
-                                 e.stopPropagation();
-                               }}
-                               style={{ 
-                                 position: 'absolute', 
-                                 top: 0, 
-                                 left: 0, 
-                                 zIndex: 999, 
-                                 background: 'red', 
-                                 color: 'white', 
-                                 padding: '2px 4px', 
-                                 fontSize: '10px',
-                                 border: 'none',
-                                 borderRadius: '2px'
-                               }}
-                             >
-                               TEST
-                             </button>
-                             <BookCover
-                               title={book.title}
-                               author={book.author}
-                               size="lg"
-                               priority="high"
-                               lazy={false}
-                               clickable={true}
-                               onClick={(e) => {
-                                 console.log('🎯 PlaceholderPage: BookCover click detected for:', book.title);
-                                 e.stopPropagation();
-                                 handleBookCoverClick(book);
-                               }}
-                             />
-                           </div>
+                           />
                          </div>
                          
                          <div className="flex items-start justify-between mb-4">
