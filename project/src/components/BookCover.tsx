@@ -223,7 +223,10 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
         className={`${sizeClasses[size]} relative group overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl ${
           clickable ? 'cursor-pointer hover:scale-105' : ''
         }`}
-        onClick={clickable && onClick ? onClick : undefined}
+        onClick={clickable && onClick ? (e) => {
+          console.log('🎯 BookCover: Click detected for:', title, 'by', author);
+          onClick();
+        } : undefined}
         role={clickable ? 'button' : undefined}
         tabIndex={clickable ? 0 : undefined}
         onKeyDown={clickable && onClick ? (e) => {
@@ -284,7 +287,7 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
         )}
       </div>
     );
-  }, [loading, coverData, error, title, author, size, showPlaceholder, imageLoaded, lazy, priority, handleImageLoad, handleImageError]);
+  }, [loading, coverData, error, title, author, size, showPlaceholder, imageLoaded, lazy, priority, handleImageLoad, handleImageError, clickable, onClick]);
 
   return (
     <div className={`flex flex-col ${className}`}>
