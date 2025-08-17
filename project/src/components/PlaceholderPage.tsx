@@ -624,7 +624,11 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                                console.log('🎯 PlaceholderPage: DIV click detected for:', book.title);
                                handleBookCoverClick(book);
                              }}
+                             onMouseDown={() => {
+                               console.log('🎯 PlaceholderPage: DIV mousedown detected for:', book.title);
+                             }}
                              className="cursor-pointer"
+                             style={{ position: 'relative', zIndex: 10 }}
                            >
                              <BookCover
                                title={book.title}
