@@ -334,7 +334,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
               {selectedCelebrity.bookRecommendations.map((book, index) => (
                 <div key={index} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
                   {/* Book Cover */}
-                  <div className="flex justify-center mb-4">
+                  <div className="flex justify-center mb-4 relative">
                     {/* Test button to force modal */}
                     <button
                       onClick={() => {
