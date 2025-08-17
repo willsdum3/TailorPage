@@ -52,14 +52,23 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
   const handleBookCoverClick = async (book: any) => {
     console.log('🎯 CelebrityTester: Book cover clicked for:', book.title, 'by', book.author);
     console.log('🔍 CelebrityTester: Setting modal state...');
+    console.log('🔍 CelebrityTester: Current state - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
+    
     setIsLoadingBookInfo(true);
     
     try {
       const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
+      console.log('🔍 CelebrityTester: About to set selectedBook and isModalOpen');
       setSelectedBook(bookInfo);
       setIsModalOpen(true);
       console.log('✅ CelebrityTester: Book info loaded successfully:', bookInfo);
-      console.log('🔍 CelebrityTester: selectedBook set, modal should be visible');
+      console.log('🔍 CelebrityTester: selectedBook and isModalOpen set, modal should be visible');
+      
+      // Force a re-render check
+      setTimeout(() => {
+        console.log('🔍 CelebrityTester: After timeout - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
+      }, 100);
+      
     } catch (error) {
       console.error('❌ CelebrityTester: Error fetching book info:', error);
       // Set basic book info as fallback
@@ -70,9 +79,15 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
         genre: book.genre,
         amazonLink: book.amazonLink
       };
+      console.log('🔍 CelebrityTester: About to set fallback book');
       setSelectedBook(fallbackBook);
       setIsModalOpen(true);
       console.log('🔍 CelebrityTester: Fallback book set:', fallbackBook);
+      
+      // Force a re-render check
+      setTimeout(() => {
+        console.log('🔍 CelebrityTester: After timeout (fallback) - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
+      }, 100);
     } finally {
       setIsLoadingBookInfo(false);
     }
@@ -320,6 +335,29 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                 <div key={index} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
                   {/* Book Cover */}
                   <div className="flex justify-center mb-4">
+                    {/* Test button to force modal */}
+                    <button
+                      onClick={() => {
+                        console.log('🎯 TEST BUTTON: Force modal for:', book.title);
+                        setSelectedBook(book);
+                        setIsModalOpen(true);
+                        alert('Test button clicked - modal should appear for: ' + book.title);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        zIndex: 999,
+                        background: 'red',
+                        color: 'white',
+                        padding: '2px 4px',
+                        fontSize: '10px',
+                        border: 'none',
+                        borderRadius: '2px'
+                      }}
+                    >
+                      FORCE MODAL
+                    </button>
                     <BookCover
                       title={book.title}
                       author={book.author}
