@@ -871,7 +871,7 @@ function App() {
         style={{
           position: 'fixed',
           top: '10px',
-          right: '10px',
+          left: '10px',
           zIndex: 9999,
           background: 'red',
           color: 'white',
@@ -890,7 +890,7 @@ function App() {
         style={{
           position: 'fixed',
           top: '50px',
-          right: '10px',
+          left: '10px',
           zIndex: 9999,
           background: 'green',
           color: 'white',
