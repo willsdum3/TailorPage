@@ -271,6 +271,15 @@ type AppPage = 'intro' | 'welcome' | 'quiz' | 'results' | 'profile' | 'favourite
 // No Supabase or external auth logic present
 
 function App() {
+  // Add global click test to see if React app is blocking clicks
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      console.log('🎯 APP GLOBAL CLICK at:', e.clientX, e.clientY, 'target:', e.target);
+    };
+    
+    document.addEventListener('click', handleGlobalClick, true); // Use capture phase
+    return () => document.removeEventListener('click', handleGlobalClick, true);
+  }, []);
   // Use user sync hook to automatically sync Clerk user to Supabase
   const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced } = useUserSync();
   const { signOut } = useClerk();
@@ -802,6 +811,24 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+      {/* Test button to see if clicks work at all */}
+      <button
+        onClick={() => console.log('🎯 APP TEST BUTTON CLICKED')}
+        style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          zIndex: 9999,
+          background: 'red',
+          color: 'white',
+          padding: '10px',
+          border: 'none',
+          borderRadius: '5px',
+          fontSize: '12px'
+        }}
+      >
+        APP TEST
+      </button>
       {/* AuthModal - available for both authenticated and unauthenticated users */}
       <AuthModal
         isOpen={isAuthModalOpen}

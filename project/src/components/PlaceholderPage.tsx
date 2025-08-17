@@ -26,6 +26,15 @@ interface PlaceholderPageProps {
 }
 
 const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations, onNavigate, favorites = [], onRemoveFavorite, onLogout }) => {
+  // Add global click test
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      console.log('🎯 PLACEHOLDER PAGE GLOBAL CLICK at:', e.clientX, e.clientY, 'target:', e.target);
+    };
+    
+    document.addEventListener('click', handleGlobalClick, true); // Use capture phase
+    return () => document.removeEventListener('click', handleGlobalClick, true);
+  }, []);
   const { user } = useUser();
   const [expandedPersonality, setExpandedPersonality] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
