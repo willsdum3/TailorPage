@@ -274,6 +274,24 @@ function App() {
   // Test if React app is working at all
   try {
     console.log('🎯 APP COMPONENT LOADED');
+    
+    // Test if we can even log at all
+    console.log('🎯 APP BASIC LOGGING TEST');
+    
+    // Test if we can access document
+    if (typeof document !== 'undefined') {
+      console.log('🎯 APP DOCUMENT AVAILABLE');
+    } else {
+      console.log('🎯 APP DOCUMENT NOT AVAILABLE');
+    }
+    
+    // Test if we can access window
+    if (typeof window !== 'undefined') {
+      console.log('🎯 APP WINDOW AVAILABLE');
+    } else {
+      console.log('🎯 APP WINDOW NOT AVAILABLE');
+    }
+    
   } catch (error) {
     console.error('🎯 APP COMPONENT LOAD ERROR:', error);
   }
@@ -870,6 +888,29 @@ function App() {
       >
         APP TEST
       </button>
+      
+      {/* Simple test to see if basic HTML works */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '50px',
+          right: '10px',
+          zIndex: 9999,
+          background: 'green',
+          color: 'white',
+          padding: '10px',
+          border: 'none',
+          borderRadius: '5px',
+          fontSize: '12px',
+          cursor: 'pointer'
+        }}
+        onClick={() => {
+          console.log('🎯 HTML DIV CLICKED');
+          alert('HTML DIV CLICKED!');
+        }}
+      >
+        HTML TEST
+      </div>
       {/* AuthModal - available for both authenticated and unauthenticated users */}
       <AuthModal
         isOpen={isAuthModalOpen}
