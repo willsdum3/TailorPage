@@ -537,13 +537,19 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
       {/* Book Summary Modal */}
       {(() => {
         console.log('🔍 CelebrityTester: Modal rendering check - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
-        return selectedBook && isModalOpen && (
-          <BookSummaryModal
-            book={selectedBook}
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-          />
-        );
+        if (selectedBook && isModalOpen) {
+          console.log('🎯 CelebrityTester: RENDERING MODAL with book:', selectedBook.title);
+          return (
+            <BookSummaryModal
+              book={selectedBook}
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+            />
+          );
+        } else {
+          console.log('❌ CelebrityTester: NOT rendering modal - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
+          return null;
+        }
       })()}
     </div>
   );
