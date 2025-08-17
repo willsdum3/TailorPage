@@ -247,6 +247,9 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
         onMouseDown={(e) => {
           console.log('🎯 BookCover: MouseDown detected for:', title, 'by', author);
         }}
+        onMouseUp={(e) => {
+          console.log('🎯 BookCover: MouseUp detected for:', title, 'by', author);
+        }}
         role={clickable ? 'button' : undefined}
         tabIndex={clickable ? 0 : undefined}
         onKeyDown={clickable && onClick ? (e) => {
@@ -268,9 +271,10 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
           ref={imgRef}
           src={coverData.coverUrl}
           alt={`Cover of ${title} by ${author}`}
-          className={`w-full h-full object-cover transition-opacity duration-300 pointer-events-none ${
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
+          style={{ pointerEvents: 'none' }}
           onLoad={handleImageLoad}
           onError={handleImageError}
           loading={lazy ? 'lazy' : 'eager'}
