@@ -329,24 +329,7 @@ function App() {
     }
   }, []);
 
-  // Add a simple useEffect to test if ANY useEffect works
-  useEffect(() => {
-    console.log('🎯 APP SIMPLE USE_EFFECT TEST');
-  }, []);
-
-  // Add a useEffect with a dependency to see if that works
-  useEffect(() => {
-    console.log('🎯 APP USE_EFFECT WITH DEPENDENCY TEST');
-  }, [clerkUser]);
-
-  // Add a useEffect that runs on every render
-  useEffect(() => {
-    console.log('🎯 APP USE_EFFECT NO DEPENDENCIES TEST');
-  });
-      // Test if we can use hooks at all
-    const [testState, setTestState] = useState('test');
-    
-    // Use user sync hook to automatically sync Clerk user to Supabase
+      // Use user sync hook to automatically sync Clerk user to Supabase
     const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced } = useUserSync();
   const { signOut } = useClerk();
   const [currentPage, setCurrentPage] = useState<AppPage>('intro');
