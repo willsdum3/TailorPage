@@ -271,14 +271,37 @@ type AppPage = 'intro' | 'welcome' | 'quiz' | 'results' | 'profile' | 'favourite
 // No Supabase or external auth logic present
 
 function App() {
+  // Test if React app is working at all
+  try {
+    console.log('🎯 APP COMPONENT LOADED');
+  } catch (error) {
+    console.error('🎯 APP COMPONENT LOAD ERROR:', error);
+  }
+  
   // Add global click test to see if React app is blocking clicks
   useEffect(() => {
+    console.log('🎯 APP USE_EFFECT RUNNING');
+    
     const handleGlobalClick = (e: MouseEvent) => {
       console.log('🎯 APP GLOBAL CLICK at:', e.clientX, e.clientY, 'target:', e.target);
     };
     
-    document.addEventListener('click', handleGlobalClick, true); // Use capture phase
-    return () => document.removeEventListener('click', handleGlobalClick, true);
+    // Test if we can add event listeners at all
+    try {
+      document.addEventListener('click', handleGlobalClick, true); // Use capture phase
+      console.log('🎯 APP EVENT LISTENER ADDED SUCCESSFULLY');
+    } catch (error) {
+      console.error('🎯 APP ERROR ADDING EVENT LISTENER:', error);
+    }
+    
+    return () => {
+      try {
+        document.removeEventListener('click', handleGlobalClick, true);
+        console.log('🎯 APP EVENT LISTENER REMOVED');
+      } catch (error) {
+        console.error('🎯 APP ERROR REMOVING EVENT LISTENER:', error);
+      }
+    };
   }, []);
   // Use user sync hook to automatically sync Clerk user to Supabase
   const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced } = useUserSync();
@@ -813,7 +836,12 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       {/* Test button to see if clicks work at all */}
       <button
-        onClick={() => console.log('🎯 APP TEST BUTTON CLICKED')}
+        onClick={() => {
+          console.log('🎯 APP TEST BUTTON CLICKED');
+          alert('APP TEST BUTTON CLICKED!');
+        }}
+        onMouseDown={() => console.log('🎯 APP TEST BUTTON MOUSEDOWN')}
+        onMouseUp={() => console.log('🎯 APP TEST BUTTON MOUSEUP')}
         style={{
           position: 'fixed',
           top: '10px',
@@ -824,7 +852,8 @@ function App() {
           padding: '10px',
           border: 'none',
           borderRadius: '5px',
-          fontSize: '12px'
+          fontSize: '12px',
+          cursor: 'pointer'
         }}
       >
         APP TEST
