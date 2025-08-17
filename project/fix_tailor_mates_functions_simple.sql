@@ -179,3 +179,4 @@ ORDER BY routine_name;
 -- Step 5: Test with a sample user (if any exist)
 SELECT 'Testing functions with existing users...' as status;
 SELECT clerk_id, name FROM users LIMIT 1;
+

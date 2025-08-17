@@ -31,11 +31,11 @@ chmod +x deploy.sh
 
 2. **Run the container:**
    ```bash
-   docker run -d -p 3001:80 --name tailorpage-container tailorpage
+   docker run -d -p 3000:80 --name tailorpage-container tailorpage
    ```
 
 3. **Access the application:**
-   Open your browser and go to `http://localhost:3001`
+   Open your browser and go to `http://localhost:3000`
 
 ## Environment Variables
 

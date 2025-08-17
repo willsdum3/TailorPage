@@ -53,12 +53,11 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
     console.log('🎯 CelebrityTester: Book cover clicked for:', book.title, 'by', book.author);
     console.log('🔍 CelebrityTester: Setting modal state...');
     setIsLoadingBookInfo(true);
-    setIsModalOpen(true);
-    console.log('🔍 CelebrityTester: Modal should be open now');
     
     try {
       const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
       setSelectedBook(bookInfo);
+      setIsModalOpen(true);
       console.log('✅ CelebrityTester: Book info loaded successfully:', bookInfo);
       console.log('🔍 CelebrityTester: selectedBook set, modal should be visible');
     } catch (error) {
@@ -72,6 +71,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
         amazonLink: book.amazonLink
       };
       setSelectedBook(fallbackBook);
+      setIsModalOpen(true);
       console.log('🔍 CelebrityTester: Fallback book set:', fallbackBook);
     } finally {
       setIsLoadingBookInfo(false);

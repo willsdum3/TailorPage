@@ -27,3 +27,4 @@ VALUES (
 
 -- Success message
 SELECT 'User sync script ready. Check the comments above for instructions.' as status;
+

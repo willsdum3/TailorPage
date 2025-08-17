@@ -39,3 +39,4 @@ SELECT 'Testing with first user found...' as test_step;
 
 -- Step 5: Show any recent errors in the logs (if available)
 SELECT 'Function test completed. Check the results above.' as status;
+

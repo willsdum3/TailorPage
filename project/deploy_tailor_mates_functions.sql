@@ -165,3 +165,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Success message
 SELECT 'Essential Tailor Mates functions deployed successfully!' as status;
+

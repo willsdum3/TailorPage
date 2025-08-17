@@ -192,3 +192,4 @@ export class BookInfoService {
 }
 
 export const bookInfoService = BookInfoService.getInstance();
+

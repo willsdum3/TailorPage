@@ -24,3 +24,4 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- Step 5: Test if user sync will work by checking the policy
 SELECT 'Users table RLS policy updated successfully!' as status;
+

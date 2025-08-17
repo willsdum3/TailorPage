@@ -240,3 +240,4 @@ export const BookCoverPerformanceMonitor: React.FC = () => {
 };
 
 export default BookCoverPerformanceMonitor;
+
