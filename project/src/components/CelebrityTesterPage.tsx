@@ -546,17 +546,26 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
               left: 0, 
               right: 0, 
               bottom: 0, 
-              zIndex: 99999,
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              zIndex: 999999,
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              pointerEvents: 'auto'
             }}>
-              <BookSummaryModal
-                book={selectedBook}
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-              />
+              <div style={{
+                position: 'relative',
+                zIndex: 1000000,
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                overflow: 'auto'
+              }}>
+                <BookSummaryModal
+                  book={selectedBook}
+                  isOpen={true}
+                  onClose={handleCloseModal}
+                />
+              </div>
             </div>
           );
         } else {
