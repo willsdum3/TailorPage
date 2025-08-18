@@ -370,18 +370,23 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                     >
                       FORCE MODAL
                     </button>
-                    <BookCover
-                      title={book.title}
-                      author={book.author}
-                      size="lg"
-                      priority="high"
-                      lazy={false}
-                      clickable={true}
+                    <div 
                       onClick={() => {
-                        console.log('🎯 CelebrityTester: Direct click detected for:', book.title);
-                        handleBookCoverClick(book);
+                        console.log('🎯 DIRECT CLICK: Book cover clicked for:', book.title);
+                        setSelectedBook(book);
+                        setIsModalOpen(true);
                       }}
-                    />
+                      className="cursor-pointer"
+                    >
+                      <BookCover
+                        title={book.title}
+                        author={book.author}
+                        size="lg"
+                        priority="high"
+                        lazy={false}
+                        clickable={false}
+                      />
+                    </div>
                   </div>
                   
                   <div className="flex items-start justify-between mb-4">
