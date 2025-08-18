@@ -139,10 +139,10 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
         <div className="absolute top-4 right-4 z-20">
           <button
             onClick={() => setSelectedCelebrity(null)}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+            className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
+            title="Back to Celebrities"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Celebrities</span>
+            <ArrowLeft className="w-5 h-5" />
           </button>
         </div>
         
@@ -367,7 +367,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                       console.log('🎯 CONTAINER MOUSEDOWN: Detected for:', book.title);
                     }}
                     onMouseUp={(e) => {
-                      console.log('🎯 CONTAINER MOUSEUP: Detected for:', book.title);
+                      console.log('�� CONTAINER MOUSEUP: Detected for:', book.title);
                     }}
                   >
 
