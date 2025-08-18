@@ -34,9 +34,22 @@ const textSizes = {
 };
 
 // Performance optimization: Memoized placeholder component
-const PlaceholderCover = React.memo<{ title: string; author: string; size: keyof typeof sizeClasses }>(
-  ({ title, author, size }) => (
-    <div className={`${sizeClasses[size]} bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex flex-col items-center justify-center border border-white/10 p-2 text-center shadow-lg`}>
+const PlaceholderCover = React.memo<{ 
+  title: string; 
+  author: string; 
+  size: keyof typeof sizeClasses;
+  clickable?: boolean;
+  onClick?: () => void;
+}>(
+  ({ title, author, size, clickable = false, onClick }) => (
+    <div 
+      className={`${sizeClasses[size]} bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex flex-col items-center justify-center border border-white/10 p-2 text-center shadow-lg ${
+        clickable ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : ''
+      }`}
+      onClick={clickable && onClick ? onClick : undefined}
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+    >
       <BookOpen className="w-8 h-8 text-white/50 mb-3" />
       <div className="text-sm text-white/70 font-medium leading-tight mb-1">
         {title.length > 18 ? title.substring(0, 18) + '...' : title}
@@ -49,9 +62,21 @@ const PlaceholderCover = React.memo<{ title: string; author: string; size: keyof
 );
 
 // Performance optimization: Memoized error component
-const ErrorCover = React.memo<{ title: string; size: keyof typeof sizeClasses }>(
-  ({ title, size }) => (
-    <div className={`${sizeClasses[size]} bg-gradient-to-br from-red-900/20 to-red-800/20 rounded-lg flex flex-col items-center justify-center border border-red-500/20 p-2 text-center`}>
+const ErrorCover = React.memo<{ 
+  title: string; 
+  size: keyof typeof sizeClasses;
+  clickable?: boolean;
+  onClick?: () => void;
+}>(
+  ({ title, size, clickable = false, onClick }) => (
+    <div 
+      className={`${sizeClasses[size]} bg-gradient-to-br from-red-900/20 to-red-800/20 rounded-lg flex flex-col items-center justify-center border border-red-500/20 p-2 text-center ${
+        clickable ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : ''
+      }`}
+      onClick={clickable && onClick ? onClick : undefined}
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+    >
       <AlertCircle className="w-4 h-4 text-red-400 mb-1" />
       <div className="text-xs text-red-300 font-medium leading-tight">
         {title.length > 18 ? title.substring(0, 18) + '...' : title}
@@ -222,11 +247,11 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
     }
 
     if (error && !coverData) {
-      return <ErrorCover title={title} size={size} />;
+      return <ErrorCover title={title} size={size} clickable={clickable} onClick={onClick} />;
     }
 
     if (!coverData) {
-      return <PlaceholderCover title={title} author={author} size={size} />;
+      return <PlaceholderCover title={title} author={author} size={size} clickable={clickable} onClick={onClick} />;
     }
 
     return (
