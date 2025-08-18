@@ -100,6 +100,13 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
     setSelectedBook(null);
   };
 
+  const handleBackToCelebrities = () => {
+    // Reset modal state before navigating back
+    setIsModalOpen(false);
+    setSelectedBook(null);
+    setSelectedCelebrity(null);
+  };
+
   const getTraitIcon = (traitName: string) => {
     switch (traitName) {
       case 'Openness to Experience':
@@ -135,7 +142,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
             <Home className="w-5 h-5" />
           </button>
           <button
-            onClick={() => setSelectedCelebrity(null)}
+            onClick={handleBackToCelebrities}
             className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
             title="Back to Celebrities"
           >
