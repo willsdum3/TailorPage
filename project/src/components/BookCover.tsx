@@ -113,17 +113,6 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
   onClick,
   clickable = false
 }) => {
-  console.log('🎯 BookCover: Component rendered for:', title, 'clickable:', clickable, 'onClick:', !!onClick);
-  
-  // Add a simple test to see if ANY clicks work
-  useEffect(() => {
-    const handleGlobalClick = (e: MouseEvent) => {
-      console.log('🎯 GLOBAL CLICK DETECTED at:', e.clientX, e.clientY);
-    };
-    
-    document.addEventListener('click', handleGlobalClick);
-    return () => document.removeEventListener('click', handleGlobalClick);
-  }, []);
   const [coverData, setCoverData] = useState<BookCoverData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -145,9 +134,9 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
     setError(null);
 
     try {
-      // Add timeout for better UX
+      // Reduced timeout for faster fallback
       const timeoutPromise = new Promise<never>((_, reject) => {
-        loadTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 15000);
+        loadTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 8000);
       });
 
       const result = await Promise.race([
@@ -168,15 +157,14 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.log('BookCover error for:', title, 'by', author, ':', errorMessage);
       setError(errorMessage);
       onError?.(errorMessage);
       setShowPlaceholder(true);
       
-      // Retry logic for transient errors
-      if (retryCount < 2 && (errorMessage.includes('timeout') || errorMessage.includes('network'))) {
+      // Retry logic for transient errors - reduced retry attempts
+      if (retryCount < 1 && (errorMessage.includes('timeout') || errorMessage.includes('network'))) {
         setRetryCount(prev => prev + 1);
-        setTimeout(() => loadCover(), 1000 * (retryCount + 1));
+        setTimeout(() => loadCover(), 500 * (retryCount + 1));
       }
     } finally {
       setLoading(false);
@@ -202,163 +190,124 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             loadCover();
-            observer.unobserve(entry.target);
+            observer.disconnect();
           }
         });
       },
       {
-        rootMargin: '100px', // Increased margin for better preloading
+        rootMargin: '50px', // Start loading 50px before the element is visible
         threshold: 0.1
       }
     );
 
-    observerRef.current = observer;
-
     if (imgRef.current) {
       observer.observe(imgRef.current);
+      observerRef.current = observer;
     }
 
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
+    };
+  }, [lazy, priority, preload, loadCover]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
       if (loadTimeoutRef.current) {
         clearTimeout(loadTimeoutRef.current);
       }
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
     };
-  }, [loadCover, lazy, priority, preload]);
+  }, []);
 
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
-    setShowPlaceholder(false);
+    setLoading(false);
   }, []);
 
   const handleImageError = useCallback(() => {
-    console.log('Image failed to load for:', title, 'by', author);
-    setError('Failed to load image (CORS or network issue)');
+    setError('Image failed to load');
     setShowPlaceholder(true);
-    setImageLoaded(false);
-  }, [title, author]);
+    setLoading(false);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    if (clickable && onClick) {
+      onClick();
+    }
+  }, [clickable, onClick]);
 
   // Memoized render functions for better performance
-  const renderCover = useMemo(() => {
-    if (loading && !coverData) {
+  const renderCover = useCallback(() => {
+    if (loading && !showPlaceholder) {
       return <SkeletonCover size={size} />;
     }
 
-    if (error && !coverData) {
-      return <ErrorCover title={title} size={size} clickable={clickable} onClick={onClick} />;
+    if (error || showPlaceholder) {
+      return (
+        <ErrorCover 
+          title={title} 
+          size={size} 
+          clickable={clickable}
+          onClick={handleClick}
+        />
+      );
     }
 
     if (!coverData) {
-      return <PlaceholderCover title={title} author={author} size={size} clickable={clickable} onClick={onClick} />;
+      return (
+        <PlaceholderCover 
+          title={title} 
+          author={author} 
+          size={size}
+          clickable={clickable}
+          onClick={handleClick}
+        />
+      );
     }
 
     return (
       <div 
-        className={`${sizeClasses[size]} relative group overflow-hidden rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl ${
-          clickable ? 'cursor-pointer hover:scale-105' : ''
-        }`}
+        className={`${sizeClasses[size]} relative overflow-hidden rounded-lg shadow-lg ${
+          clickable ? 'cursor-pointer hover:scale-105 transition-transform duration-200' : ''
+        } ${className}`}
+        onClick={handleClick}
         style={{ zIndex: clickable ? 10 : 1 }}
-        onClick={(e) => {
-          console.log('🎯 BookCover: Click detected for:', title, 'by', author, 'clickable:', clickable, 'onClick exists:', !!onClick);
-          if (clickable && onClick) {
-            console.log('🎯 BookCover: Executing onClick for:', title);
-            onClick();
-          } else {
-            console.log('🎯 BookCover: Click ignored - clickable:', clickable, 'onClick exists:', !!onClick);
-          }
-        }}
-        onMouseDown={(e) => {
-          console.log('🎯 BookCover: MouseDown detected for:', title, 'by', author);
-        }}
-        onMouseUp={(e) => {
-          console.log('🎯 BookCover: MouseUp detected for:', title, 'by', author);
-        }}
-        role={clickable ? 'button' : undefined}
-        tabIndex={clickable ? 0 : undefined}
-        onKeyDown={clickable && onClick ? (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick();
-          }
-        } : undefined}
       >
-        {/* Progressive loading: Show low-quality placeholder first */}
-        {showPlaceholder && (
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
-            <BookOpen className="w-6 h-6 text-white/50" />
-          </div>
-        )}
-        
-        {/* Main cover image with optimized loading */}
         <img
           ref={imgRef}
           src={coverData.coverUrl}
-          alt={`Cover of ${title} by ${author}`}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{ pointerEvents: 'none' }}
+          alt={`Cover for ${title} by ${author}`}
+          className={`w-full h-full object-cover ${imageLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
           onLoad={handleImageLoad}
           onError={handleImageError}
-          loading={lazy ? 'lazy' : 'eager'}
-          decoding="async"
-          fetchPriority={priority === 'high' ? 'high' : 'auto'}
+          style={{ pointerEvents: 'none' }}
+          loading="lazy"
         />
         
-        {/* Loading overlay */}
-        {loading && (
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-            <Loader2 className="w-4 h-4 text-white animate-spin" />
+        {!imageLoaded && !loading && (
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center">
+            <Loader2 className="w-6 h-6 text-white/50 animate-spin" />
           </div>
         )}
-        
-        {/* Quality indicator */}
-        {coverData.quality === 'high' && (
-          <div className="absolute top-1 right-1 bg-green-500 text-white text-xs px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            HD
-          </div>
-        )}
-        
-        {/* Source indicator */}
-        <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          {coverData.source}
-        </div>
-        
-        {/* Click indicator for clickable covers */}
-        {clickable && (
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/20 backdrop-blur-sm rounded-full p-2">
-              <BookOpen className="w-4 h-4 text-white" />
-            </div>
+
+        {showTitle && (
+          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2">
+            <div className={`${textSizes[size]} font-medium truncate`}>{title}</div>
+            {showAuthor && (
+              <div className={`${textSizes[size]} text-white/80 truncate`}>by {author}</div>
+            )}
           </div>
         )}
       </div>
     );
-  }, [loading, coverData, error, title, author, size, showPlaceholder, imageLoaded, lazy, priority, handleImageLoad, handleImageError, clickable, onClick]);
+  }, [loading, showPlaceholder, error, coverData, title, author, size, clickable, className, imageLoaded, showTitle, showAuthor, handleClick, handleImageLoad, handleImageError]);
 
-  return (
-    <div className={`flex flex-col ${className}`}>
-      {renderCover}
-      
-      {/* Title and Author */}
-      {(showTitle || showAuthor) && (
-        <div className="mt-2 text-center">
-          {showTitle && (
-            <h3 className={`font-semibold text-white line-clamp-2 ${textSizes[size]}`}>
-              {title}
-            </h3>
-          )}
-          {showAuthor && (
-            <p className={`text-white/70 mt-1 line-clamp-1 ${textSizes[size]}`}>
-              by {author}
-            </p>
-          )}
-        </div>
-      )}
-    </div>
-  );
+  return renderCover();
 });
 
 BookCover.displayName = 'BookCover';

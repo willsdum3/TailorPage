@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, ArrowLeft, Book, ShoppingCart, ExternalLink, Star, Search, Filter, TrendingUp, Sparkles } from 'lucide-react';
 import { trendingBooks, TrendingBook } from '../data/trendingBooks';
 
@@ -7,6 +7,7 @@ import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { BookCover } from './BookCover';
 import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
 import { bookInfoService } from '../services/bookInfoService';
+import { bookCoverService } from '../services/bookCoverService';
 
 interface TrendingBooksPageProps {
   onBack: () => void;
@@ -26,6 +27,16 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
 
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
+
+  // Preload book covers for better performance
+  useEffect(() => {
+    const preloadCovers = async () => {
+      const booksToPreload = trendingBooks.slice(0, 20); // Preload first 20 books
+      await bookCoverService.preloadCovers(booksToPreload);
+    };
+    
+    preloadCovers();
+  }, []);
 
   // Get unique genres
   const genres = ['All', ...Array.from(new Set(trendingBooks.map(book => book.genre)))].sort();

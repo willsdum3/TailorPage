@@ -36,6 +36,7 @@ class BookCoverService {
   private pendingRequests: Map<string, Promise<CoverSearchResult>> = new Map(); // Prevent duplicate requests
   private requestQueue: Array<{ title: string; author: string; resolve: (result: CoverSearchResult) => void; reject: (error: Error) => void }> = [];
   private isProcessingQueue = false;
+  private batchProcessor: NodeJS.Timeout | null = null;
   
   private config: CoverCacheConfig = {
     maxMemorySize: 100, // Increased to 100MB
@@ -43,9 +44,9 @@ class BookCoverService {
     cacheExpiry: 48, // Increased to 48 hours
     enableProgressiveLoading: true,
     enableOfflineSupport: true,
-    batchSize: 5, // Process 5 requests concurrently
-    retryAttempts: 3,
-    retryDelay: 1000
+    batchSize: 8, // Increased to 8 concurrent requests for better performance
+    retryAttempts: 2, // Reduced from 3 to 2 for faster fallback
+    retryDelay: 500 // Reduced from 1000ms to 500ms
   };
 
   private readonly GOOGLE_BOOKS_API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
@@ -98,14 +99,14 @@ class BookCoverService {
       { title: 'A Court of Thorns and Roses', author: 'Sarah J. Maas' }
     ];
 
-    // Batch preload for better performance
-    const batches = this.chunkArray(frequentBooks, 3);
+    // Batch preload for better performance - increased batch size
+    const batches = this.chunkArray(frequentBooks, 4);
     for (const batch of batches) {
       await Promise.allSettled(
         batch.map(book => this.getBookCover(book.title, book.author))
       );
-      // Small delay between batches to avoid overwhelming APIs
-      await this.delay(200);
+      // Reduced delay between batches for faster loading
+      await this.delay(100);
     }
   }
 
@@ -150,23 +151,17 @@ class BookCoverService {
     const startTime = performance.now();
     this.performanceMetrics.totalRequests++;
     
-    console.log(`Getting book cover for: "${title}" by "${author}"`);
-    console.log('🔍 BookCoverService: Environment check - GOOGLE_BOOKS_API_KEY:', !!this.GOOGLE_BOOKS_API_KEY);
-    console.log('🔍 BookCoverService: Environment check - AMAZON_API_KEY:', !!this.AMAZON_API_KEY);
-    
     const cacheKey = this.generateCacheKey(title, author);
     
     // Check memory cache first
     const cached = this.memoryCache.get(cacheKey);
     if (cached && !this.isExpired(cached.lastUpdated)) {
       this.performanceMetrics.cacheHits++;
-      console.log(`Found cached cover for: ${title}`);
       return { success: true, data: cached, source: 'memory-cache' };
     }
 
     // Check if there's already a pending request for this book
     if (this.pendingRequests.has(cacheKey)) {
-      console.log(`Waiting for pending request for: ${title}`);
       return this.pendingRequests.get(cacheKey)!;
     }
 
@@ -185,7 +180,7 @@ class BookCoverService {
   }
 
   private async executeBookCoverRequest(title: string, author: string, cacheKey: string): Promise<CoverSearchResult> {
-    // Try multiple sources with intelligent fallback
+    // Optimized source priority - Open Library first for faster response
     const sources = [
       { name: 'Open Library', fn: () => this.searchOpenLibrary(title, author), priority: 1 },
       ...(this.GOOGLE_BOOKS_API_KEY ? [{ name: 'Google Books', fn: () => this.searchGoogleBooks(title, author), priority: 2 }] : []),
@@ -196,25 +191,21 @@ class BookCoverService {
     sources.sort((a, b) => a.priority - b.priority);
 
     for (const source of sources) {
-              try {
-          console.log(`🔍 BookCoverService: Trying ${source.name} for: ${title}`);
-          const result = await this.retryWithBackoff(() => source.fn(), this.config.retryAttempts);
-        
+      try {
+        const result = await this.retryWithBackoff(() => source.fn(), this.config.retryAttempts);
+      
         if (result.success && result.data) {
-          console.log(`Successfully got cover from ${source.name} for: ${title}`);
           // Cache the result
           this.cacheCover(cacheKey, result.data);
           return result;
         }
       } catch (error) {
-        console.warn(`Failed to fetch cover from ${source.name}:`, error);
         this.performanceMetrics.errors++;
         continue;
       }
     }
 
     // Fallback to placeholder
-    console.log(`Using placeholder for: ${title}`);
     const placeholder = await this.generatePlaceholder(title, author);
     this.cacheCover(cacheKey, placeholder.data!);
     return placeholder;
@@ -227,8 +218,7 @@ class BookCoverService {
       } catch (error) {
         if (i === attempts - 1) throw error;
         
-        const delay = this.config.retryDelay * Math.pow(2, i); // Exponential backoff
-        console.log(`Retry ${i + 1}/${attempts} after ${delay}ms`);
+        const delay = this.config.retryDelay * Math.pow(1.5, i); // Reduced exponential backoff
         await this.delay(delay);
       }
     }
@@ -251,10 +241,8 @@ class BookCoverService {
       const query = encodeURIComponent(`${title} ${author}`);
       const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${this.GOOGLE_BOOKS_API_KEY}&maxResults=1`;
 
-      console.log(`Fetching from Google Books: ${url}`);
-      
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced timeout to 5 seconds
       
       const response = await fetch(url, { 
         signal: controller.signal,
@@ -274,7 +262,6 @@ class BookCoverService {
       }
       
       const data = await response.json();
-      console.log('Google Books response:', data);
 
       if (data.items && data.items[0]?.volumeInfo?.imageLinks) {
         const book = data.items[0];
@@ -290,7 +277,6 @@ class BookCoverService {
         if (coverUrl) {
           // Ensure HTTPS
           const finalUrl = coverUrl.replace('http://', 'https://');
-          console.log(`Found cover URL: ${finalUrl}`);
           
           return {
             success: true,
@@ -314,41 +300,33 @@ class BookCoverService {
 
       throw new Error('No cover found in Google Books');
     } catch (error) {
-      console.error('Google Books API error:', error);
       throw error;
     }
   }
 
   private async searchOpenLibrary(title: string, author: string): Promise<CoverSearchResult> {
-    console.log('🔍 BookCoverService: Starting Open Library search for:', title, 'by', author);
-    
     // Check rate limiting
     if (this.isRateLimited('openlibrary')) {
-      console.warn('🔍 BookCoverService: Open Library API rate limit reached');
       throw new Error('Open Library API rate limit reached');
     }
 
     this.performanceMetrics.apiCalls++;
 
     try {
-      // Try different search strategies with better matching
+      // Optimized search strategy - try most likely matches first
       const searchQueries = [
-        `${title} ${author}`,
-        title,
-        `${title} author:${author}`,
-        `${title} by ${author}`,
-        `${title} ${author.split(' ')[0]}` // Try with first name only
+        `${title} ${author}`, // Most specific first
+        title, // Title only
+        `${title} author:${author}`, // Open Library specific format
       ];
 
       for (const query of searchQueries) {
         try {
           const encodedQuery = encodeURIComponent(query);
-          const url = `https://openlibrary.org/search.json?q=${encodedQuery}&limit=5&fields=key,title,author_name,cover_i`;
+          const url = `https://openlibrary.org/search.json?q=${encodedQuery}&limit=3&fields=key,title,author_name,cover_i`; // Reduced limit to 3
 
-          console.log(`Fetching from Open Library: ${url}`);
-          
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+          const timeoutId = setTimeout(() => controller.abort(), 4000); // Reduced timeout to 4 seconds
           
           const response = await fetch(url, { 
             signal: controller.signal,
@@ -361,12 +339,10 @@ class BookCoverService {
           clearTimeout(timeoutId);
           
           if (!response.ok) {
-            console.warn(`Open Library API error for query "${query}": ${response.status} ${response.statusText}`);
             continue;
           }
           
           const data = await response.json();
-          console.log(`Open Library response for "${query}":`, data);
 
           if (data.docs && data.docs.length > 0) {
             // Find the best match using improved matching logic
@@ -376,8 +352,6 @@ class BookCoverService {
               const book = bestMatch;
               const coverId = book.cover_i;
               const coverUrl = `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
-
-              console.log(`Found Open Library cover URL: ${coverUrl}`);
 
               return {
                 success: true,
@@ -399,20 +373,18 @@ class BookCoverService {
             }
           }
         } catch (error) {
-          console.warn(`Open Library search failed for query "${query}":`, error);
           continue;
         }
       }
 
       throw new Error('No cover found in Open Library');
     } catch (error) {
-      console.error('Open Library API error:', error);
       throw error;
     }
   }
 
   private findBestOpenLibraryMatch(docs: any[], title: string, author: string): any {
-    // Improved matching algorithm
+    // Optimized matching algorithm
     const titleLower = title.toLowerCase();
     const authorLower = author.toLowerCase();
     
@@ -583,14 +555,38 @@ class BookCoverService {
     }
   }
 
-  public async preloadCovers(books: Array<{ title: string; author: string }>): Promise<void> {
-    const promises = books.map(book => 
-      this.getBookCover(book.title, book.author).catch(() => {
-        // Silently fail for preloading
-      })
-    );
+  // New method for batch processing multiple covers efficiently
+  public async getBookCoversBatch(books: Array<{ title: string; author: string }>): Promise<Map<string, CoverSearchResult>> {
+    const results = new Map<string, CoverSearchResult>();
+    const batches = this.chunkArray(books, this.config.batchSize);
     
-    await Promise.allSettled(promises);
+    for (const batch of batches) {
+      const batchPromises = batch.map(async (book) => {
+        const result = await this.getBookCover(book.title, book.author);
+        const key = this.generateCacheKey(book.title, book.author);
+        return { key, result };
+      });
+      
+      const batchResults = await Promise.allSettled(batchPromises);
+      
+      batchResults.forEach((promiseResult) => {
+        if (promiseResult.status === 'fulfilled') {
+          results.set(promiseResult.value.key, promiseResult.value.result);
+        }
+      });
+      
+      // Small delay between batches to avoid overwhelming APIs
+      if (batches.length > 1) {
+        await this.delay(200);
+      }
+    }
+    
+    return results;
+  }
+
+  public async preloadCovers(books: Array<{ title: string; author: string }>): Promise<void> {
+    // Use batch processing for better performance
+    await this.getBookCoversBatch(books);
   }
 
   public clearCache(): void {
@@ -630,7 +626,7 @@ class BookCoverService {
       if (this.performanceMetrics.totalRequests > 0) {
         console.log('Performance Metrics:', this.performanceMetrics);
       }
-    }, 30000); // Log every 30 seconds instead of every second
+    }, 60000); // Log every minute instead of every 30 seconds
   }
 
   private updatePerformanceMetrics(responseTime: number): void {
