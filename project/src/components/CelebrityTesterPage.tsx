@@ -41,10 +41,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
   
-  // Reset celebrity selection when component mounts (for navigation from burger menu)
-  useEffect(() => {
-    setSelectedCelebrity(null);
-  }, []);
+
   
   // Book summary modal state
   const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);

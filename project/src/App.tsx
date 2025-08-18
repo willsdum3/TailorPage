@@ -342,6 +342,7 @@ function App() {
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [recommendations, setRecommendations] = useState<BookRecommendation[]>([]);
   const [allRecommendedIds, setAllRecommendedIds] = useState<string[]>([]);
+  const [celebrityNavigationCount, setCelebrityNavigationCount] = useState(0);
 
   // Scroll to top when page changes
   useScrollToTopInstant([currentPage]);
@@ -770,6 +771,10 @@ function App() {
     console.log('App navigation handler received:', page); // Debug log
     if (page === 'home') {
       setCurrentPage('welcome');
+    } else if (page === 'celebrity-books') {
+      // Increment navigation counter to force CelebrityTesterPage to reset
+      setCelebrityNavigationCount(prev => prev + 1);
+      setCurrentPage(page as AppPage);
     } else if (page === 'favourites' && user) {
       // Load favorites when navigating to favorites page
       console.log('Navigating to favorites, loading favorites for user:', user.id);
@@ -1081,7 +1086,12 @@ function App() {
           )}
           {currentPage === 'celebrity-books' && (
             <>
-              <CelebrityTesterPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
+              <CelebrityTesterPage 
+                key={`celebrity-tester-${celebrityNavigationCount}`}
+                onBack={() => setCurrentPage('welcome')} 
+                hasCompletedQuiz={!!personalityProfile} 
+                onStartQuiz={handleStartQuiz} 
+              />
             </>
           )}
           {currentPage === 'book-cover-test' && (
