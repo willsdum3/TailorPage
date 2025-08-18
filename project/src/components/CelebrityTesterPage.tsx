@@ -136,7 +136,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
           </button>
         </div>
         
-        <div className="absolute top-4 right-4 z-20">
+        <div className="absolute top-4 right-4 z-20 flex items-center space-x-2">
           <button
             onClick={() => setSelectedCelebrity(null)}
             className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
