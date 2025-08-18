@@ -865,53 +865,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      {/* Test button to see if clicks work at all */}
-      <button
-        onClick={() => {
-          console.log('🎯 APP TEST BUTTON CLICKED');
-          alert('APP TEST BUTTON CLICKED!');
-        }}
-        onMouseDown={() => console.log('🎯 APP TEST BUTTON MOUSEDOWN')}
-        onMouseUp={() => console.log('🎯 APP TEST BUTTON MOUSEUP')}
-        style={{
-          position: 'fixed',
-          top: '10px',
-          left: '10px',
-          zIndex: 9999,
-          background: 'red',
-          color: 'white',
-          padding: '10px',
-          border: 'none',
-          borderRadius: '5px',
-          fontSize: '12px',
-          cursor: 'pointer'
-        }}
-      >
-        APP TEST
-      </button>
-      
-      {/* Simple test to see if basic HTML works */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '50px',
-          left: '10px',
-          zIndex: 9999,
-          background: 'green',
-          color: 'white',
-          padding: '10px',
-          border: 'none',
-          borderRadius: '5px',
-          fontSize: '12px',
-          cursor: 'pointer'
-        }}
-        onClick={() => {
-          console.log('🎯 HTML DIV CLICKED');
-          alert('HTML DIV CLICKED!');
-        }}
-      >
-        HTML TEST
-      </div>
       {/* AuthModal - available for both authenticated and unauthenticated users */}
       <AuthModal
         isOpen={isAuthModalOpen}
