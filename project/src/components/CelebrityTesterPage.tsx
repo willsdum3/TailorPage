@@ -349,45 +349,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                       console.log('🎯 CONTAINER MOUSEUP: Detected for:', book.title);
                     }}
                   >
-                    {/* Test button to force modal */}
-                    <button
-                      onClick={() => {
-                        console.log('🎯 TEST BUTTON: Force modal for:', book.title);
-                        
-                        // Create book summary data directly from the book object
-                        const bookSummaryData = {
-                          title: book.title,
-                          author: book.author,
-                          description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
-                          genre: book.genre,
-                          amazonLink: book.amazonLink,
-                          rating: 4.5,
-                          reviewCount: 1,
-                          publicationYear: 2020,
-                          publisher: 'Unknown Publisher',
-                          pageCount: 300,
-                          language: 'en'
-                        };
-                        
-                        setSelectedBook(bookSummaryData);
-                        setIsModalOpen(true);
-                        alert('Test button clicked - modal should appear for: ' + book.title);
-                      }}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 0,
-                        zIndex: 999,
-                        background: 'red',
-                        color: 'white',
-                        padding: '2px 4px',
-                        fontSize: '10px',
-                        border: 'none',
-                        borderRadius: '2px'
-                      }}
-                    >
-                      FORCE MODAL
-                    </button>
+
                     <div 
                       onClick={(e) => {
                         console.log('🎯 DIRECT CLICK: Book cover clicked for:', book.title);

@@ -639,29 +639,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                              className="cursor-pointer"
                              style={{ position: 'relative', zIndex: 10 }}
                            >
-                             {/* Test button to verify clicks work */}
-                             <button
-                               onClick={(e) => {
-                                 console.log('🎯 TEST BUTTON CLICKED for:', book.title);
-                                 e.preventDefault();
-                                 e.stopPropagation();
-                                 alert('Test button clicked for: ' + book.title);
-                               }}
-                               style={{
-                                 position: 'absolute',
-                                 top: 0,
-                                 left: 0,
-                                 zIndex: 999,
-                                 background: 'red',
-                                 color: 'white',
-                                 padding: '2px 4px',
-                                 fontSize: '10px',
-                                 border: 'none',
-                                 borderRadius: '2px'
-                               }}
-                             >
-                               TEST
-                             </button>
+
                              <BookCover
                                title={book.title}
                                author={book.author}

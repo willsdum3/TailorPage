@@ -340,29 +340,6 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
 
   return (
     <div className={`flex flex-col ${className}`}>
-      {/* Test button for BookCover */}
-      {clickable && (
-        <button
-          onClick={() => {
-            console.log('🎯 BOOKCOVER TEST BUTTON CLICKED for:', title);
-            alert(`BookCover test button clicked for: ${title}`);
-          }}
-          style={{
-            position: 'absolute',
-            top: '-20px',
-            right: '0px',
-            zIndex: 9999,
-            background: 'blue',
-            color: 'white',
-            padding: '2px 4px',
-            fontSize: '8px',
-            border: 'none',
-            borderRadius: '2px'
-          }}
-        >
-          TEST
-        </button>
-      )}
       {renderCover}
       
       {/* Title and Author */}
