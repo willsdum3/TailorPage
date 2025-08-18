@@ -429,7 +429,30 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                         size="lg"
                         priority="high"
                         lazy={false}
-                        clickable={false}
+                        clickable={true}
+                        onClick={() => {
+                          console.log('🎯 BookCover CLICK: Book cover clicked for:', book.title);
+                          
+                          // Create book summary data directly from the book object
+                          const bookSummaryData = {
+                            title: book.title,
+                            author: book.author,
+                            description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
+                            genre: book.genre,
+                            amazonLink: book.amazonLink,
+                            rating: 4.5,
+                            reviewCount: 1,
+                            publicationYear: 2020,
+                            publisher: 'Unknown Publisher',
+                            pageCount: 300,
+                            language: 'en'
+                          };
+                          
+                          console.log('🎯 Setting book summary data:', bookSummaryData);
+                          setSelectedBook(bookSummaryData);
+                          setIsModalOpen(true);
+                          console.log('🎯 Modal should now be open');
+                        }}
                       />
                     </div>
                   </div>
