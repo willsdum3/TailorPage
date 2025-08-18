@@ -633,6 +633,37 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
             </>
           )}
         </div>
+        
+        {/* Book Summary Modal - Inside Celebrity View */}
+        {selectedBook && isModalOpen && (
+          <div style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            zIndex: 999999,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'auto'
+          }}>
+            <div style={{
+              position: 'relative',
+              zIndex: 1000000,
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              overflow: 'auto'
+            }}>
+              <BookSummaryModal
+                book={selectedBook}
+                isOpen={true}
+                onClose={handleCloseModal}
+              />
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Book Summary Modal */}
