@@ -34,8 +34,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
     { id: 'tailor-mates', label: 'Tailor Mates', icon: MessageCircle, requiresAuth: false },
     { id: 'trending-books', label: 'Trending Books', icon: TrendingUp, requiresAuth: false },
     { id: 'trending-authors', label: 'Trending Authors', icon: Users, requiresAuth: false },
-    { id: 'celebrity-books', label: 'Celebrity Tester', icon: Star, requiresAuth: false },
-    { id: 'book-cover-test', label: 'Book Cover Test', icon: BookOpen, requiresAuth: false }
+    { id: 'celebrity-books', label: 'Celebrity Tester', icon: Star, requiresAuth: false }
   ];
 
   return (
