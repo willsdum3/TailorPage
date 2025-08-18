@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home,
   ArrowLeft, 
@@ -40,6 +40,11 @@ interface CelebrityTesterPageProps {
 const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz }) => {
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
+  
+  // Reset celebrity selection when component mounts (for navigation from burger menu)
+  useEffect(() => {
+    setSelectedCelebrity(null);
+  }, []);
   
   // Book summary modal state
   const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
@@ -371,12 +376,21 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                       FORCE MODAL
                     </button>
                     <div 
-                      onClick={() => {
+                      onClick={(e) => {
                         console.log('🎯 DIRECT CLICK: Book cover clicked for:', book.title);
+                        e.preventDefault();
+                        e.stopPropagation();
                         setSelectedBook(book);
                         setIsModalOpen(true);
                       }}
+                      onMouseDown={(e) => {
+                        console.log('🎯 DIRECT MOUSEDOWN: Book cover for:', book.title);
+                      }}
+                      onMouseUp={(e) => {
+                        console.log('🎯 DIRECT MOUSEUP: Book cover for:', book.title);
+                      }}
                       className="cursor-pointer"
+                      style={{ position: 'relative', zIndex: 10 }}
                     >
                       <BookCover
                         title={book.title}
