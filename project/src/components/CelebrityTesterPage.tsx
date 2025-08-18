@@ -353,7 +353,23 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                     <button
                       onClick={() => {
                         console.log('🎯 TEST BUTTON: Force modal for:', book.title);
-                        setSelectedBook(book);
+                        
+                        // Create book summary data directly from the book object
+                        const bookSummaryData = {
+                          title: book.title,
+                          author: book.author,
+                          description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
+                          genre: book.genre,
+                          amazonLink: book.amazonLink,
+                          rating: 4.5,
+                          reviewCount: 1,
+                          publicationYear: 2020,
+                          publisher: 'Unknown Publisher',
+                          pageCount: 300,
+                          language: 'en'
+                        };
+                        
+                        setSelectedBook(bookSummaryData);
                         setIsModalOpen(true);
                         alert('Test button clicked - modal should appear for: ' + book.title);
                       }}
@@ -377,8 +393,26 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                         console.log('🎯 DIRECT CLICK: Book cover clicked for:', book.title);
                         e.preventDefault();
                         e.stopPropagation();
-                        setSelectedBook(book);
+                        
+                        // Create book summary data directly from the book object
+                        const bookSummaryData = {
+                          title: book.title,
+                          author: book.author,
+                          description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
+                          genre: book.genre,
+                          amazonLink: book.amazonLink,
+                          rating: 4.5,
+                          reviewCount: 1,
+                          publicationYear: 2020,
+                          publisher: 'Unknown Publisher',
+                          pageCount: 300,
+                          language: 'en'
+                        };
+                        
+                        console.log('🎯 Setting book summary data:', bookSummaryData);
+                        setSelectedBook(bookSummaryData);
                         setIsModalOpen(true);
+                        console.log('🎯 Modal should now be open');
                       }}
                       onMouseDown={(e) => {
                         console.log('🎯 DIRECT MOUSEDOWN: Book cover for:', book.title);
