@@ -151,6 +151,8 @@ class BookCoverService {
     this.performanceMetrics.totalRequests++;
     
     console.log(`Getting book cover for: "${title}" by "${author}"`);
+    console.log('🔍 BookCoverService: Environment check - GOOGLE_BOOKS_API_KEY:', !!this.GOOGLE_BOOKS_API_KEY);
+    console.log('🔍 BookCoverService: Environment check - AMAZON_API_KEY:', !!this.AMAZON_API_KEY);
     
     const cacheKey = this.generateCacheKey(title, author);
     
@@ -186,7 +188,7 @@ class BookCoverService {
     // Try multiple sources with intelligent fallback
     const sources = [
       { name: 'Open Library', fn: () => this.searchOpenLibrary(title, author), priority: 1 },
-      { name: 'Google Books', fn: () => this.searchGoogleBooks(title, author), priority: 2 },
+      ...(this.GOOGLE_BOOKS_API_KEY ? [{ name: 'Google Books', fn: () => this.searchGoogleBooks(title, author), priority: 2 }] : []),
       { name: 'Placeholder', fn: () => this.generatePlaceholder(title, author), priority: 3 }
     ];
 
@@ -194,9 +196,9 @@ class BookCoverService {
     sources.sort((a, b) => a.priority - b.priority);
 
     for (const source of sources) {
-      try {
-        console.log(`Trying ${source.name} for: ${title}`);
-        const result = await this.retryWithBackoff(() => source.fn(), this.config.retryAttempts);
+              try {
+          console.log(`🔍 BookCoverService: Trying ${source.name} for: ${title}`);
+          const result = await this.retryWithBackoff(() => source.fn(), this.config.retryAttempts);
         
         if (result.success && result.data) {
           console.log(`Successfully got cover from ${source.name} for: ${title}`);
@@ -318,8 +320,11 @@ class BookCoverService {
   }
 
   private async searchOpenLibrary(title: string, author: string): Promise<CoverSearchResult> {
+    console.log('🔍 BookCoverService: Starting Open Library search for:', title, 'by', author);
+    
     // Check rate limiting
     if (this.isRateLimited('openlibrary')) {
+      console.warn('🔍 BookCoverService: Open Library API rate limit reached');
       throw new Error('Open Library API rate limit reached');
     }
 
