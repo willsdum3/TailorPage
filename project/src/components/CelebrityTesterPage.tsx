@@ -126,7 +126,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
         
         {/* Navigation Buttons */}
-        <div className="absolute top-4 left-4 z-20">
+        <div className="absolute top-4 left-4 z-20 flex items-center space-x-3">
           <button
             onClick={onBack}
             className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
@@ -134,9 +134,6 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
           >
             <Home className="w-5 h-5" />
           </button>
-        </div>
-        
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
           <button
             onClick={() => setSelectedCelebrity(null)}
             className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
@@ -146,18 +143,9 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
           </button>
         </div>
         
-        <div className="max-w-6xl mx-auto relative z-10">
+        <div className="max-w-6xl mx-auto relative z-10 pt-16">
           {/* Header */}
           <div className="text-center mb-12">
-            {/* Back to Celebrities button - REMOVED FOR TESTING */}
-            {/* <button
-              onClick={() => setSelectedCelebrity(null)}
-              className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Celebrities</span>
-            </button> */}
-            
             <div className="flex items-center justify-center space-x-6 mb-8">
               <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-amber-400/50 shadow-xl bg-white/5">
                 <img
