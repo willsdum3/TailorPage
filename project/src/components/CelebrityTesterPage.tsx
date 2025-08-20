@@ -474,7 +474,25 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
                       </h3>
                       <p className="text-white/70 font-medium mb-3">by {book.author}</p>
                     </div>
-
+                    
+                    {/* Favorites Star Button */}
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          onLoginRequired?.();
+                          return;
+                        }
+                        onToggleFavorite?.(book);
+                      }}
+                      className={`ml-3 p-2 rounded-full transition-all duration-300 transform hover:scale-110 ${
+                        isBookFavorited(book)
+                          ? 'text-amber-400 bg-amber-400/20 hover:bg-amber-400/30'
+                          : 'text-white/40 hover:text-amber-400 hover:bg-white/10'
+                      }`}
+                      title={isBookFavorited(book) ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      <Star className={`w-5 h-5 ${isBookFavorited(book) ? 'fill-current' : ''}`} />
+                    </button>
                   </div>
                   
                   <p className="text-white/70 mb-4 leading-relaxed text-sm">
