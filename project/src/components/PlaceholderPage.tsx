@@ -8,8 +8,6 @@ import StrengthsDetailPage from './StrengthsDetailPage';
 import GrowthAreasDetailPage from './GrowthAreasDetailPage';
 import FavoritesPage from './FavoritesPage';
 import { BookCover } from './BookCover';
-import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
-import { bookInfoService } from '../services/bookInfoService';
 
 
 interface PlaceholderPageProps {
@@ -40,11 +38,6 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPage, setCurrentPage] = useState<'profile' | 'strengths' | 'growth'>('profile');
   const [activeTab, setActiveTab] = useState<'personality' | 'favourites' | 'profile-settings' | 'help'>('personality');
-  
-  // Book summary modal state
-  const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(false);
   
   // Profile Settings State
   const [profileSettings, setProfileSettings] = useState({
@@ -115,40 +108,6 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
   const handleBackToProfile = () => {
     setCurrentPage('profile');
-  };
-
-  const handleBookCoverClick = async (book: FavoriteBook) => {
-    console.log('🎯 PlaceholderPage: Book cover clicked for:', book.title, 'by', book.author);
-    console.log('🔍 PlaceholderPage: Setting modal state...');
-    setIsLoadingBookInfo(true);
-    setIsModalOpen(true);
-    console.log('🔍 PlaceholderPage: Modal should be open now');
-    
-    try {
-      const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
-      setSelectedBook(bookInfo);
-      console.log('✅ PlaceholderPage: Book info loaded successfully:', bookInfo);
-      console.log('🔍 PlaceholderPage: selectedBook set, modal should be visible');
-    } catch (error) {
-      console.error('❌ PlaceholderPage: Error fetching book info:', error);
-      // Set basic book info as fallback
-      const fallbackBook = {
-        title: book.title,
-        author: book.author,
-        description: `A book by ${book.author} that you've added to your favorites.`,
-        genre: book.genre,
-        amazonLink: book.amazonLink
-      };
-      setSelectedBook(fallbackBook);
-      console.log('🔍 PlaceholderPage: Fallback book set:', fallbackBook);
-    } finally {
-      setIsLoadingBookInfo(false);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedBook(null);
   };
 
   const handleNavigateToFavourites = () => {
@@ -619,42 +578,14 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                        <div key={book.id} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
                          {/* Book Cover */}
                          <div className="flex justify-center mb-4">
-                           <div 
-                             onClick={(e) => {
-                               console.log('🎯 PlaceholderPage: DIV click detected for:', book.title);
-                               e.preventDefault();
-                               e.stopPropagation();
-                               handleBookCoverClick(book);
-                             }}
-                             onMouseDown={(e) => {
-                               console.log('🎯 PlaceholderPage: DIV mousedown detected for:', book.title);
-                               e.preventDefault();
-                               e.stopPropagation();
-                             }}
-                             onMouseUp={(e) => {
-                               console.log('🎯 PlaceholderPage: DIV mouseup detected for:', book.title);
-                               e.preventDefault();
-                               e.stopPropagation();
-                             }}
-                             className="cursor-pointer"
-                             style={{ position: 'relative', zIndex: 10 }}
-                           >
-
-                             <BookCover
-                               title={book.title}
-                               author={book.author}
-                               size="lg"
-                               priority="high"
-                               lazy={false}
-                               clickable={true}
-                               onClick={(e) => {
-                                 console.log('🎯 PlaceholderPage: BookCover click detected for:', book.title);
-                                 e.preventDefault();
-                                 e.stopPropagation();
-                                 handleBookCoverClick(book);
-                               }}
-                             />
-                           </div>
+                           <BookCover
+                             title={book.title}
+                             author={book.author}
+                             size="lg"
+                             priority="high"
+                             lazy={false}
+                             clickable={false}
+                           />
                          </div>
                          
                          <div className="flex items-start justify-between mb-4">
@@ -1273,16 +1204,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
       </div>
       
       {/* Book Summary Modal */}
-      {(() => {
-        console.log('🔍 PlaceholderPage: Modal rendering check - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
-        return selectedBook && isModalOpen && (
-          <BookSummaryModal
-            book={selectedBook}
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-          />
-        );
-      })()}
+      {/* This block is removed as per the edit hint */}
     </div>
   );
 };
