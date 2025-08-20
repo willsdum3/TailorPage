@@ -2,23 +2,27 @@
 -- This script addresses RLS policies, functions, and ensures proper user creation
 
 -- 1. Fix RLS policies for all tables
--- Drop restrictive policies that require auth.uid() to match clerk_id
+-- Drop ALL existing policies first to avoid conflicts
 DROP POLICY IF EXISTS "Users can view their own profile" ON users;
 DROP POLICY IF EXISTS "Users can update their own profile" ON users;
 DROP POLICY IF EXISTS "Users can insert their own profile" ON users;
+DROP POLICY IF EXISTS "Enable all access for authenticated users" ON users;
 
 DROP POLICY IF EXISTS "Users can view their own favorites" ON user_favorites;
 DROP POLICY IF EXISTS "Users can insert their own favorites" ON user_favorites;
 DROP POLICY IF EXISTS "Users can update their own favorites" ON user_favorites;
 DROP POLICY IF EXISTS "Users can delete their own favorites" ON user_favorites;
+DROP POLICY IF EXISTS "Enable all access for authenticated users" ON user_favorites;
 
 DROP POLICY IF EXISTS "Users can view their own personality profile" ON user_personality_profiles;
 DROP POLICY IF EXISTS "Users can insert their own personality profile" ON user_personality_profiles;
 DROP POLICY IF EXISTS "Users can update their own personality profile" ON user_personality_profiles;
+DROP POLICY IF EXISTS "Enable all access for authenticated users" ON user_personality_profiles;
 
 DROP POLICY IF EXISTS "Users can view their own recommendations" ON book_recommendations;
 DROP POLICY IF EXISTS "Users can insert their own recommendations" ON book_recommendations;
 DROP POLICY IF EXISTS "Users can delete their own recommendations" ON book_recommendations;
+DROP POLICY IF EXISTS "Enable all access for authenticated users" ON book_recommendations;
 
 -- Create permissive policies for authenticated users
 CREATE POLICY "Enable all access for authenticated users" ON users FOR ALL USING (true);
@@ -26,7 +30,14 @@ CREATE POLICY "Enable all access for authenticated users" ON user_favorites FOR 
 CREATE POLICY "Enable all access for authenticated users" ON user_personality_profiles FOR ALL USING (true);
 CREATE POLICY "Enable all access for authenticated users" ON book_recommendations FOR ALL USING (true);
 
--- 2. Ensure proper functions exist
+-- 2. Drop existing functions first to avoid return type conflicts
+DROP FUNCTION IF EXISTS save_book_to_favorites(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS remove_book_from_favorites(TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS get_user_favorites(TEXT);
+DROP FUNCTION IF EXISTS save_user_personality_profile(TEXT, DECIMAL, DECIMAL, DECIMAL, DECIMAL, DECIMAL, DECIMAL, DECIMAL, DECIMAL, DECIMAL, DECIMAL);
+DROP FUNCTION IF EXISTS get_user_personality_profile(TEXT);
+
+-- 3. Create functions with proper signatures
 -- Function to save book to favorites
 CREATE OR REPLACE FUNCTION save_book_to_favorites(
     user_clerk_id TEXT,
@@ -235,7 +246,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 3. Verify the setup
+-- 4. Verify the setup
 SELECT 'RLS policies and functions updated successfully' as status;
 
 -- Check current policies

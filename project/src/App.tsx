@@ -1107,7 +1107,7 @@ function App() {
         syncStatus={syncStatus}
         syncError={syncError}
         onRetry={retrySync}
-        isVisible={isLoaded && syncStatus === 'error'}
+        isVisible={isLoaded && syncStatus !== 'idle'}
         syncAttempts={syncAttempts}
       />
     </div>

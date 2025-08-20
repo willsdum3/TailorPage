@@ -9,10 +9,18 @@ export const useUserSync = () => {
   const [syncAttempts, setSyncAttempts] = useState(0);
 
   useEffect(() => {
-    console.log('useUserSync: isLoaded =', isLoaded, 'user =', user);
+    console.log('🔍 useUserSync: isLoaded =', isLoaded, 'user =', user ? 'exists' : 'null');
     
     if (isLoaded && user) {
-      console.log('useUserSync: User detected, syncing to Supabase...');
+      console.log('🚀 useUserSync: User detected, starting sync to Supabase...');
+      console.log('📋 User details:', {
+        id: user.id,
+        name: user.fullName || user.firstName || user.username || 'User',
+        username: user.username || user.emailAddresses[0]?.emailAddress?.split('@')[0] || 'user',
+        email: user.emailAddresses[0]?.emailAddress || '',
+        imageUrl: user.imageUrl || undefined,
+      });
+      
       setSyncStatus('syncing');
       setSyncError(null);
       
@@ -27,7 +35,7 @@ export const useUserSync = () => {
             image_url: user.imageUrl || undefined,
           };
 
-          console.log('useUserSync: User data to sync:', userData);
+          console.log('📤 useUserSync: Sending user data to Supabase:', userData);
           
           // Optimized retry logic with shorter timeouts
           let retryCount = 0;
@@ -35,6 +43,8 @@ export const useUserSync = () => {
           
           while (retryCount < maxRetries) {
             try {
+              console.log(`🔄 useUserSync: Attempt ${retryCount + 1}/${maxRetries}`);
+              
               // Add timeout to prevent hanging
               const timeoutPromise = new Promise((_, reject) => 
                 setTimeout(() => reject(new Error('Sync timeout')), 5000)
@@ -43,19 +53,19 @@ export const useUserSync = () => {
               const syncPromise = upsertUser(userData);
               const result = await Promise.race([syncPromise, timeoutPromise]);
               
-              console.log('useUserSync: Upsert result:', result);
+              console.log('✅ useUserSync: Upsert result:', result);
               
               if (result) {
                 setSyncStatus('success');
                 setSyncAttempts(0);
-                console.log('User synced successfully to Supabase');
+                console.log('🎉 User synced successfully to Supabase');
                 return;
               } else {
                 throw new Error('Upsert returned null');
               }
             } catch (error) {
               retryCount++;
-              console.error(`useUserSync: Attempt ${retryCount} failed:`, error);
+              console.error(`❌ useUserSync: Attempt ${retryCount} failed:`, error);
               
               if (retryCount >= maxRetries) {
                 throw error;
@@ -66,7 +76,7 @@ export const useUserSync = () => {
             }
           }
         } catch (error) {
-          console.error('Error syncing user to Supabase:', error);
+          console.error('💥 Error syncing user to Supabase:', error);
           setSyncStatus('error');
           setSyncError(error instanceof Error ? error.message : 'Unknown error occurred');
           setSyncAttempts(prev => prev + 1);
@@ -75,7 +85,7 @@ export const useUserSync = () => {
           if (syncAttempts === 0) {
             setTimeout(() => {
               if (user) {
-                console.log('Auto-retrying sync...');
+                console.log('🔄 Auto-retrying sync...');
                 setSyncStatus('syncing');
                 setSyncError(null);
                 syncUser();
@@ -89,6 +99,7 @@ export const useUserSync = () => {
       syncUser();
     } else if (isLoaded && !user) {
       // User is not authenticated
+      console.log('👤 useUserSync: No user authenticated, setting idle');
       setSyncStatus('idle');
       setSyncError(null);
       setSyncAttempts(0);
@@ -99,6 +110,7 @@ export const useUserSync = () => {
   const retrySync = async () => {
     if (!user) return;
     
+    console.log('🔄 Manual sync retry initiated');
     setSyncStatus('syncing');
     setSyncError(null);
     
@@ -111,6 +123,8 @@ export const useUserSync = () => {
         image_url: user.imageUrl || undefined,
       };
 
+      console.log('📤 Manual retry: Sending user data:', userData);
+
       // Add timeout to manual retry
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Sync timeout')), 5000)
@@ -122,12 +136,12 @@ export const useUserSync = () => {
       if (result) {
         setSyncStatus('success');
         setSyncAttempts(0);
-        console.log('Manual sync successful');
+        console.log('✅ Manual sync successful');
       } else {
         throw new Error('Upsert returned null');
       }
     } catch (error) {
-      console.error('Manual sync failed:', error);
+      console.error('❌ Manual sync failed:', error);
       setSyncStatus('error');
       setSyncError(error instanceof Error ? error.message : 'Unknown error occurred');
       setSyncAttempts(prev => prev + 1);
