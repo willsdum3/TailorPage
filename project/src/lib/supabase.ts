@@ -205,6 +205,20 @@ export const upsertUser = async (userData: {
   console.log('upsertUser: Starting upsert with data:', userData);
   
   try {
+    // First, check if user exists with this email
+    const { data: existingUser } = await supabaseAdmin
+      .from('users')
+      .select('clerk_id, email')
+      .eq('email', userData.email)
+      .single();
+
+    if (existingUser && existingUser.clerk_id !== userData.clerk_id) {
+      console.log('upsertUser: Email conflict detected. Existing user:', existingUser);
+      // Email exists but with different clerk_id - this is a conflict
+      throw new Error(`Email ${userData.email} is already registered with a different account`);
+    }
+
+    // Proceed with upsert using clerk_id as conflict resolution
     const { data, error } = await supabaseAdmin
       .from('users')
       .upsert(userData, {
