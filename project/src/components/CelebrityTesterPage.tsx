@@ -25,8 +25,6 @@ import {
 import { celebrities } from '../data/celebrities';
 import { CelebrityProfile } from '../data/celebrities';
 import { BookCover } from './BookCover';
-import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
-import { bookInfoService } from '../services/bookInfoService';
 import { FavoriteBook } from '../types';
 
 import { useScrollToTop } from '../hooks/useScrollToTop';
@@ -53,70 +51,11 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
 }) => {
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
-  
-
-  
-  // Book summary modal state
-  const [selectedBook, setSelectedBook] = useState<BookSummaryData | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(false);
 
   // Scroll to top when selected celebrity changes
   useScrollToTop([selectedCelebrity?.id]);
 
-  const handleBookCoverClick = async (book: any) => {
-    console.log('🎯 CelebrityTester: Book cover clicked for:', book.title, 'by', book.author);
-    console.log('🔍 CelebrityTester: Setting modal state...');
-    console.log('🔍 CelebrityTester: Current state - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
-    
-    setIsLoadingBookInfo(true);
-    
-    try {
-      const bookInfo = await bookInfoService.getBookInfo(book.title, book.author);
-      console.log('🔍 CelebrityTester: About to set selectedBook and isModalOpen');
-      setSelectedBook(bookInfo);
-      setIsModalOpen(true);
-      console.log('✅ CelebrityTester: Book info loaded successfully:', bookInfo);
-      console.log('🔍 CelebrityTester: selectedBook and isModalOpen set, modal should be visible');
-      
-      // Force a re-render check
-      setTimeout(() => {
-        console.log('🔍 CelebrityTester: After timeout - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
-      }, 100);
-      
-    } catch (error) {
-      console.error('❌ CelebrityTester: Error fetching book info:', error);
-      // Set basic book info as fallback
-      const fallbackBook = {
-        title: book.title,
-        author: book.author,
-        description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
-        genre: book.genre,
-        amazonLink: book.amazonLink
-      };
-      console.log('🔍 CelebrityTester: About to set fallback book');
-      setSelectedBook(fallbackBook);
-      setIsModalOpen(true);
-      console.log('🔍 CelebrityTester: Fallback book set:', fallbackBook);
-      
-      // Force a re-render check
-      setTimeout(() => {
-        console.log('🔍 CelebrityTester: After timeout (fallback) - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
-      }, 100);
-    } finally {
-      setIsLoadingBookInfo(false);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedBook(null);
-  };
-
   const handleBackToCelebrities = () => {
-    // Reset modal state before navigating back
-    setIsModalOpen(false);
-    setSelectedBook(null);
     setSelectedCelebrity(null);
   };
 
@@ -127,7 +66,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
     );
   };
 
-  const handleAddToFavorites = (book: BookSummaryData) => {
+  const handleAddToFavorites = (book: any) => {
     if (!user) {
       onLoginRequired?.();
       return;
@@ -380,87 +319,15 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
               {selectedCelebrity.bookRecommendations.map((book, index) => (
                 <div key={index} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
                   {/* Book Cover */}
-                  <div 
-                    className="flex justify-center mb-4 relative"
-                    onClick={(e) => {
-                      console.log('🎯 CONTAINER CLICK: Detected for:', book.title);
-                      e.stopPropagation();
-                    }}
-                    onMouseDown={(e) => {
-                      console.log('🎯 CONTAINER MOUSEDOWN: Detected for:', book.title);
-                    }}
-                    onMouseUp={(e) => {
-                      console.log('�� CONTAINER MOUSEUP: Detected for:', book.title);
-                    }}
-                  >
-
-                    <div 
-                      onClick={(e) => {
-                        console.log('🎯 DIRECT CLICK: Book cover clicked for:', book.title);
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Create book summary data directly from the book object
-                        const bookSummaryData = {
-                          title: book.title,
-                          author: book.author,
-                          description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
-                          genre: book.genre,
-                          amazonLink: book.amazonLink,
-                          rating: 4.5,
-                          reviewCount: 1,
-                          publicationYear: 2020,
-                          publisher: 'Unknown Publisher',
-                          pageCount: 300,
-                          language: 'en'
-                        };
-                        
-                        console.log('🎯 Setting book summary data:', bookSummaryData);
-                        setSelectedBook(bookSummaryData);
-                        setIsModalOpen(true);
-                        console.log('🎯 Modal should now be open');
-                      }}
-                      onMouseDown={(e) => {
-                        console.log('🎯 DIRECT MOUSEDOWN: Book cover for:', book.title);
-                      }}
-                      onMouseUp={(e) => {
-                        console.log('🎯 DIRECT MOUSEUP: Book cover for:', book.title);
-                      }}
-                      className="cursor-pointer"
-                      style={{ position: 'relative', zIndex: 10 }}
-                    >
-                      <BookCover
-                        title={book.title}
-                        author={book.author}
-                        size="lg"
-                        priority="high"
-                        lazy={false}
-                        clickable={true}
-                        onClick={() => {
-                          console.log('🎯 BookCover CLICK: Book cover clicked for:', book.title);
-                          
-                          // Create book summary data directly from the book object
-                          const bookSummaryData = {
-                            title: book.title,
-                            author: book.author,
-                            description: book.description || `A book by ${book.author} that matches this celebrity's personality.`,
-                            genre: book.genre,
-                            amazonLink: book.amazonLink,
-                            rating: 4.5,
-                            reviewCount: 1,
-                            publicationYear: 2020,
-                            publisher: 'Unknown Publisher',
-                            pageCount: 300,
-                            language: 'en'
-                          };
-                          
-                          console.log('🎯 Setting book summary data:', bookSummaryData);
-                          setSelectedBook(bookSummaryData);
-                          setIsModalOpen(true);
-                          console.log('🎯 Modal should now be open');
-                        }}
-                      />
-                    </div>
+                  <div className="flex justify-center mb-4">
+                    <BookCover
+                      title={book.title}
+                      author={book.author}
+                      size="lg"
+                      priority="high"
+                      lazy={false}
+                      clickable={false}
+                    />
                   </div>
                   
                   <div className="flex items-start justify-between mb-4">
@@ -682,82 +549,11 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
         </div>
         
         {/* Book Summary Modal - Inside Celebrity View */}
-        {selectedBook && isModalOpen && (
-          <div style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            zIndex: 999999,
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'auto'
-          }}>
-            <div style={{
-              position: 'relative',
-              zIndex: 1000000,
-              maxWidth: '90vw',
-              maxHeight: '90vh',
-              overflow: 'auto'
-            }}>
-              <BookSummaryModal
-                book={selectedBook}
-                isOpen={true}
-                onClose={handleCloseModal}
-                isFavorited={isBookFavorited(selectedBook)}
-                onAddToFavorites={handleAddToFavorites}
-                user={user}
-                onLoginRequired={onLoginRequired}
-              />
-            </div>
-          </div>
-        )}
+        {/* Removed as per edit hint */}
       </div>
       
       {/* Book Summary Modal */}
-      {(() => {
-        console.log('🔍 CelebrityTester: Modal rendering check - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
-        if (selectedBook && isModalOpen) {
-          console.log('🎯 CelebrityTester: RENDERING MODAL with book:', selectedBook.title);
-          return (
-            <div style={{ 
-              position: 'fixed', 
-              top: 0, 
-              left: 0, 
-              right: 0, 
-              bottom: 0, 
-              zIndex: 999999,
-              backgroundColor: 'rgba(0, 0, 0, 0.9)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              pointerEvents: 'auto'
-            }}>
-              <div style={{
-                position: 'relative',
-                zIndex: 1000000,
-                maxWidth: '90vw',
-                maxHeight: '90vh',
-                overflow: 'auto'
-              }}>
-                <BookSummaryModal
-                  book={selectedBook}
-                  isOpen={true}
-                  onClose={handleCloseModal}
-                  isFavorited={isBookFavorited(selectedBook)}
-                  onAddToFavorites={handleAddToFavorites}
-                />
-              </div>
-            </div>
-          );
-        } else {
-          console.log('❌ CelebrityTester: NOT rendering modal - selectedBook:', !!selectedBook, 'isModalOpen:', isModalOpen);
-          return null;
-        }
-      })()}
+      {/* Removed as per edit hint */}
     </div>
   );
 };
