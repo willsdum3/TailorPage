@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Home, ArrowLeft, Book, ShoppingCart, ExternalLink, Star, Search, Filter, TrendingUp, Sparkles } from 'lucide-react';
 import { trendingBooks, TrendingBook } from '../data/trendingBooks';
+import { FavoriteBook } from '../types';
 
 import AmazonLink from './AmazonLink';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
@@ -13,9 +14,21 @@ interface TrendingBooksPageProps {
   onBack: () => void;
   hasCompletedQuiz: boolean;
   onStartQuiz?: () => void;
+  favorites?: FavoriteBook[];
+  onToggleFavorite?: (book: any) => void;
+  user?: any;
+  onLoginRequired?: () => void;
 }
 
-const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz }) => {
+const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ 
+  onBack, 
+  hasCompletedQuiz, 
+  onStartQuiz, 
+  favorites = [], 
+  onToggleFavorite, 
+  user, 
+  onLoginRequired 
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('All');
   const [sortBy, setSortBy] = useState('rank');
@@ -108,6 +121,21 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedBook(null);
+  };
+
+  const isBookFavorited = (book: TrendingBook) => {
+    return favorites.some(fav => 
+      fav.title.toLowerCase() === book.title.toLowerCase() && 
+      fav.author.toLowerCase() === book.author.toLowerCase()
+    );
+  };
+
+  const handleAddToFavorites = (book: TrendingBook) => {
+    if (!user) {
+      onLoginRequired?.();
+      return;
+    }
+    onToggleFavorite?.(book);
   };
 
   return (
@@ -231,9 +259,25 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
                   </span>
                 </div>
                 
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors duration-300 line-clamp-2">
-                  {book.title}
-                </h3>
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors duration-300 line-clamp-2 flex-1">
+                    {book.title}
+                  </h3>
+                  
+                  {/* Favorites Star Button */}
+                  <button
+                    onClick={() => handleAddToFavorites(book)}
+                    className={`ml-3 p-2 rounded-full transition-all duration-300 transform hover:scale-110 ${
+                      isBookFavorited(book)
+                        ? 'text-amber-400 bg-amber-400/20 hover:bg-amber-400/30'
+                        : 'text-white/40 hover:text-amber-400 hover:bg-white/10'
+                    }`}
+                    title={isBookFavorited(book) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <Star className={`w-5 h-5 ${isBookFavorited(book) ? 'fill-current' : ''}`} />
+                  </button>
+                </div>
+                
                 <p className="text-white/70 font-medium mb-3">by {book.author}</p>
               </div>
               

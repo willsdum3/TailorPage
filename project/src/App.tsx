@@ -1024,7 +1024,15 @@ function App() {
           )}
           {currentPage === 'trending-books' && (
             <>
-              <TrendingBooksPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
+              <TrendingBooksPage 
+                onBack={() => setCurrentPage('welcome')} 
+                hasCompletedQuiz={!!personalityProfile} 
+                onStartQuiz={handleStartQuiz}
+                favorites={favorites}
+                onToggleFavorite={handleToggleFavorite}
+                user={user}
+                onLoginRequired={() => setIsAuthModalOpen(true)}
+              />
             </>
           )}
           {currentPage === 'trending-authors' && (
