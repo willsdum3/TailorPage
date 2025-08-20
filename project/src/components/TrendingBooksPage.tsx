@@ -57,8 +57,6 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
           return b.rating - a.rating;
         case 'reviews':
           return b.reviewCount - a.reviewCount;
-        case 'price':
-          return parseFloat(a.price.replace('£', '')) - parseFloat(b.price.replace('£', ''));
         case 'title':
           return a.title.localeCompare(b.title);
         case 'author':
@@ -187,7 +185,6 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
                 <option value="rank" className="bg-slate-800 text-white">Bestseller Rank</option>
                 <option value="rating" className="bg-slate-800 text-white">Highest Rated</option>
                 <option value="reviews" className="bg-slate-800 text-white">Most Reviews</option>
-                <option value="price" className="bg-slate-800 text-white">Price: Low to High</option>
                 <option value="title" className="bg-slate-800 text-white">Title A-Z</option>
                 <option value="author" className="bg-slate-800 text-white">Author A-Z</option>
               </select>
@@ -210,9 +207,6 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({ onBack, hasComple
               <div className="flex items-center justify-between mb-4">
                 <div className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                   #{book.rank}
-                </div>
-                <div className="text-right">
-                  <div className="text-white font-bold text-lg">{book.price}</div>
                 </div>
               </div>
 
