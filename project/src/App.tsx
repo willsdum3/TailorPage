@@ -1043,7 +1043,11 @@ function App() {
                 key={`celebrity-tester-${celebrityNavigationCount}`}
                 onBack={() => setCurrentPage('welcome')} 
                 hasCompletedQuiz={!!personalityProfile} 
-                onStartQuiz={handleStartQuiz} 
+                onStartQuiz={handleStartQuiz}
+                favorites={favorites}
+                onToggleFavorite={handleToggleFavorite}
+                user={user}
+                onLoginRequired={() => setIsAuthModalOpen(true)}
               />
             </>
           )}

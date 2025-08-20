@@ -27,6 +27,7 @@ import { CelebrityProfile } from '../data/celebrities';
 import { BookCover } from './BookCover';
 import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
 import { bookInfoService } from '../services/bookInfoService';
+import { FavoriteBook } from '../types';
 
 import { useScrollToTop } from '../hooks/useScrollToTop';
 import { analyzePersonality, TraitAnalysis } from '../utils/personalityAnalysis';
@@ -35,9 +36,21 @@ interface CelebrityTesterPageProps {
   onBack: () => void;
   hasCompletedQuiz: boolean;
   onStartQuiz?: () => void;
+  favorites?: FavoriteBook[];
+  onToggleFavorite?: (book: any) => void;
+  user?: any;
+  onLoginRequired?: () => void;
 }
 
-const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz }) => {
+const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ 
+  onBack, 
+  hasCompletedQuiz, 
+  onStartQuiz, 
+  favorites = [], 
+  onToggleFavorite, 
+  user, 
+  onLoginRequired 
+}) => {
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
   
@@ -105,6 +118,21 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
     setIsModalOpen(false);
     setSelectedBook(null);
     setSelectedCelebrity(null);
+  };
+
+  const isBookFavorited = (book: any) => {
+    return favorites.some(fav => 
+      fav.title.toLowerCase() === book.title.toLowerCase() && 
+      fav.author.toLowerCase() === book.author.toLowerCase()
+    );
+  };
+
+  const handleAddToFavorites = (book: BookSummaryData) => {
+    if (!user) {
+      onLoginRequired?.();
+      return;
+    }
+    onToggleFavorite?.(book);
   };
 
   const getTraitIcon = (traitName: string) => {
@@ -661,6 +689,10 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                 book={selectedBook}
                 isOpen={true}
                 onClose={handleCloseModal}
+                isFavorited={isBookFavorited(selectedBook)}
+                onAddToFavorites={handleAddToFavorites}
+                user={user}
+                onLoginRequired={onLoginRequired}
               />
             </div>
           </div>
@@ -697,6 +729,8 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ onBack, hasCo
                   book={selectedBook}
                   isOpen={true}
                   onClose={handleCloseModal}
+                  isFavorited={isBookFavorited(selectedBook)}
+                  onAddToFavorites={handleAddToFavorites}
                 />
               </div>
             </div>
