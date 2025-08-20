@@ -6,6 +6,7 @@ export const useUserSync = () => {
   const { user, isLoaded } = useUser();
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [syncAttempts, setSyncAttempts] = useState(0);
 
   useEffect(() => {
     console.log('useUserSync: isLoaded =', isLoaded, 'user =', user);
@@ -28,17 +29,25 @@ export const useUserSync = () => {
 
           console.log('useUserSync: User data to sync:', userData);
           
-          // Add retry logic for better reliability
+          // Optimized retry logic with shorter timeouts
           let retryCount = 0;
-          const maxRetries = 3;
+          const maxRetries = 2; // Reduced from 3 to 2
           
           while (retryCount < maxRetries) {
             try {
-              const result = await upsertUser(userData);
+              // Add timeout to prevent hanging
+              const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Sync timeout')), 5000)
+              );
+              
+              const syncPromise = upsertUser(userData);
+              const result = await Promise.race([syncPromise, timeoutPromise]);
+              
               console.log('useUserSync: Upsert result:', result);
               
               if (result) {
                 setSyncStatus('success');
+                setSyncAttempts(0);
                 console.log('User synced successfully to Supabase');
                 return;
               } else {
@@ -52,27 +61,39 @@ export const useUserSync = () => {
                 throw error;
               }
               
-              // Wait before retrying (exponential backoff)
-              await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+              // Shorter wait time between retries
+              await new Promise(resolve => setTimeout(resolve, 500 * retryCount));
             }
           }
         } catch (error) {
           console.error('Error syncing user to Supabase:', error);
           setSyncStatus('error');
           setSyncError(error instanceof Error ? error.message : 'Unknown error occurred');
+          setSyncAttempts(prev => prev + 1);
           
-          // Don't throw the error - just log it and continue
-          // The app should still work even if sync fails
+          // Auto-retry after 10 seconds if this is the first error
+          if (syncAttempts === 0) {
+            setTimeout(() => {
+              if (user) {
+                console.log('Auto-retrying sync...');
+                setSyncStatus('syncing');
+                setSyncError(null);
+                syncUser();
+              }
+            }, 10000);
+          }
         }
       };
 
+      // Start sync immediately
       syncUser();
     } else if (isLoaded && !user) {
       // User is not authenticated
       setSyncStatus('idle');
       setSyncError(null);
+      setSyncAttempts(0);
     }
-  }, [isLoaded, user]);
+  }, [isLoaded, user, syncAttempts]);
 
   // Function to manually retry sync
   const retrySync = async () => {
@@ -90,10 +111,17 @@ export const useUserSync = () => {
         image_url: user.imageUrl || undefined,
       };
 
-      const result = await upsertUser(userData);
+      // Add timeout to manual retry
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Sync timeout')), 5000)
+      );
+      
+      const syncPromise = upsertUser(userData);
+      const result = await Promise.race([syncPromise, timeoutPromise]);
       
       if (result) {
         setSyncStatus('success');
+        setSyncAttempts(0);
         console.log('Manual sync successful');
       } else {
         throw new Error('Upsert returned null');
@@ -102,6 +130,7 @@ export const useUserSync = () => {
       console.error('Manual sync failed:', error);
       setSyncStatus('error');
       setSyncError(error instanceof Error ? error.message : 'Unknown error occurred');
+      setSyncAttempts(prev => prev + 1);
     }
   };
 
@@ -111,6 +140,7 @@ export const useUserSync = () => {
     syncStatus, 
     syncError, 
     retrySync,
-    isSynced: syncStatus === 'success'
+    isSynced: syncStatus === 'success',
+    syncAttempts
   };
 }; 

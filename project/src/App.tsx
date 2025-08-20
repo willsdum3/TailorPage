@@ -330,7 +330,7 @@ function App() {
   }, []);
 
       // Use user sync hook to automatically sync Clerk user to Supabase
-    const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced } = useUserSync();
+  const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced, syncAttempts } = useUserSync();
   const { signOut } = useClerk();
   const [currentPage, setCurrentPage] = useState<AppPage>('intro');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
@@ -407,6 +407,7 @@ function App() {
         }
       };
       
+      // Load user data even if sync is still in progress
       loadUserData();
     } else {
       console.log('No user, clearing user data');
@@ -1106,7 +1107,8 @@ function App() {
         syncStatus={syncStatus}
         syncError={syncError}
         onRetry={retrySync}
-        isVisible={isLoaded && (syncStatus === 'error' || syncStatus === 'syncing')}
+        isVisible={isLoaded && syncStatus === 'error'}
+        syncAttempts={syncAttempts}
       />
     </div>
   );
