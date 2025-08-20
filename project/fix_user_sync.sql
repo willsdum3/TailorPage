@@ -1,30 +1,33 @@
--- Fix User Sync for Tailor Mates
--- Run this in your Supabase SQL Editor to manually sync your user account
+-- Fix RLS policies to allow new user creation and sync
+-- This script removes the restrictive policies that require auth.uid() to match clerk_id
+-- Since we're using Clerk for authentication, Supabase's auth.uid() is not set
 
--- First, let's see what users exist
-SELECT id, clerk_id, name, email, created_at FROM users LIMIT 10;
+-- Drop the restrictive policies that are blocking user creation
+DROP POLICY IF EXISTS "Users can view their own profile" ON users;
+DROP POLICY IF EXISTS "Users can update their own profile" ON users;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON users;
 
--- If your user doesn't exist, you'll need to insert them manually
--- Replace 'YOUR_CLERK_USER_ID' with your actual Clerk user ID from the debug panel
--- You can find this in your browser console or from the Clerk dashboard
+-- Create permissive policies for authenticated users
+-- This allows the service role to create and manage users
+CREATE POLICY "Enable all access for authenticated users" ON users FOR ALL USING (true);
 
--- Example manual user insertion (uncomment and modify as needed):
-/*
-INSERT INTO users (clerk_id, name, username, email, image_url, created_at, updated_at)
-VALUES (
-  'YOUR_CLERK_USER_ID_HERE',  -- Replace with your actual Clerk user ID
-  'Your Name',                -- Replace with your actual name
-  'yourusername',             -- Replace with your actual username
-  'your.email@example.com',   -- Replace with your actual email
-  'https://example.com/avatar.jpg', -- Replace with your actual image URL
-  NOW(),
-  NOW()
-);
-*/
+-- Also fix policies for other tables that might be affected
+DROP POLICY IF EXISTS "Users can view their own favorites" ON user_favorites;
+DROP POLICY IF EXISTS "Users can insert their own favorites" ON user_favorites;
+DROP POLICY IF EXISTS "Users can update their own favorites" ON user_favorites;
+DROP POLICY IF EXISTS "Users can delete their own favorites" ON user_favorites;
 
--- Check if the user was created successfully
--- SELECT * FROM users WHERE clerk_id = 'YOUR_CLERK_USER_ID_HERE';
+CREATE POLICY "Enable all access for authenticated users" ON user_favorites FOR ALL USING (true);
 
--- Success message
-SELECT 'User sync script ready. Check the comments above for instructions.' as status;
+DROP POLICY IF EXISTS "Users can view their own personality profile" ON user_personality_profiles;
+DROP POLICY IF EXISTS "Users can insert their own personality profile" ON user_personality_profiles;
+DROP POLICY IF EXISTS "Users can update their own personality profile" ON user_personality_profiles;
+
+CREATE POLICY "Enable all access for authenticated users" ON user_personality_profiles FOR ALL USING (true);
+
+-- Verify the changes
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual 
+FROM pg_policies 
+WHERE tablename IN ('users', 'user_favorites', 'user_personality_profiles')
+ORDER BY tablename, policyname;
 

@@ -202,21 +202,35 @@ export const upsertUser = async (userData: {
   email: string;
   image_url?: string;
 }) => {
-  const { data, error } = await supabaseAdmin
-    .from('users')
-    .upsert(userData, {
-      onConflict: 'clerk_id',
-      ignoreDuplicates: false,
-    })
-    .select()
-    .single();
+  console.log('upsertUser: Starting upsert with data:', userData);
+  
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .upsert(userData, {
+        onConflict: 'clerk_id',
+        ignoreDuplicates: false,
+      })
+      .select()
+      .single();
 
-  if (error) {
-    console.error('Error upserting user:', error);
+    if (error) {
+      console.error('Error upserting user:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
+      return null;
+    }
+
+    console.log('upsertUser: Successfully upserted user:', data);
+    return data;
+  } catch (err) {
+    console.error('Exception in upsertUser:', err);
     return null;
   }
-
-  return data;
 };
 
 // Helper function to get user favorites
