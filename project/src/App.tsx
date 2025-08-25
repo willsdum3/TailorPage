@@ -1,37 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useClerk } from '@clerk/clerk-react';
-import IntroPage from './components/IntroPage';
+import React, { useState, useEffect } from 'react';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import WelcomePage from './components/WelcomePage';
 import QuizPage from './components/QuizPage';
 import ResultsPage from './components/ResultsPage';
-import BurgerMenu from './components/BurgerMenu';
-import FavoritesPage from './components/FavoritesPage';
-import PlaceholderPage from './components/PlaceholderPage';
-import LearnMorePage from './components/LearnMorePage';
+import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
+import CelebrityTesterPage from './components/CelebrityTesterPage';
 import TrendingBooksPage from './components/TrendingBooksPage';
 import TrendingAuthorsPage from './components/TrendingAuthorsPage';
-import CelebrityTesterPage from './components/CelebrityTesterPage';
 import TailorMatesPage from './components/TailorMatesPage';
-import BookCoverTestPage from './components/BookCoverTestPage';
+import PlaceholderPage from './components/PlaceholderPage';
+import BurgerMenu from './components/BurgerMenu';
 import AuthModal from './components/AuthModal';
-import AuthButton from './components/AuthButton';
-import { Question, PersonalityProfile, LikertResponse, FavoriteBook, BookRecommendation, BookQuestion, BookResponse } from './types';
-import { User } from './types';
-import { getBookRecommendations, getBookRecommendationsWithExpandedMatching } from './utils/bookRecommendationsOptimized';
-import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
+import UserSyncStatus from './components/UserSyncStatus';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 import { useUserSync } from './hooks/useUserSync';
-import BookCoverPerformanceMonitor from './components/BookCoverPerformanceMonitor';
-import UserSyncStatus from './components/UserSyncStatus';
-import { saveUserPersonalityProfile, getUserPersonalityProfile, addBookToFavorites, removeBookFromFavorites, getUserFavorites } from './lib/supabase';
-
 import { 
-  createFavoriteBook, 
-  findFavoriteByTitleAuthor, 
-  removeFavoriteByTitleAuthor, 
-  isBookFavorited,
-  normalizeFavoriteFromDatabase 
-} from './utils/favoritesUtils';
+  getUserPersonalityProfile, 
+  saveUserPersonalityProfile, 
+  getUserFavorites, 
+  addBookToFavorites, 
+  removeBookFromFavorites 
+} from './lib/supabase';
+import { 
+  PersonalityProfile, 
+  BookRecommendation, 
+  FavoriteBook, 
+  User,
+  LikertResponse,
+  BookResponse,
+  Question,
+  BookQuestion
+} from './types';
+import { getBookRecommendationsWithExpandedMatching } from './utils/bookRecommendationsOptimized';
+import { normalizeFavoriteFromDatabase, removeFavoriteByTitleAuthor } from './utils/favoritesUtils';
 
 
 // Book questions for the quiz
@@ -266,7 +267,7 @@ const questions: Question[] = [
   }
 ];
 
-type AppPage = 'intro' | 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'trending-books' | 'trending-authors' | 'celebrity-books' | 'learn-more' | 'generated' | 'tailor-mates' | 'book-cover-test';
+type AppPage = 'welcome' | 'quiz' | 'results' | 'profile' | 'favourites' | 'trending-books' | 'trending-authors' | 'celebrity-books' | 'learn-more' | 'generated' | 'tailor-mates' | 'book-cover-test';
 
 // No Supabase or external auth logic present
 
@@ -366,14 +367,14 @@ function App() {
 
   // Ensure currentPage is set to welcome when user becomes authenticated
   useEffect(() => {
-    if (isLoaded && clerkUser && currentPage === 'intro') {
+    if (isLoaded && clerkUser && currentPage === 'welcome') {
       setCurrentPage('welcome');
     }
   }, [isLoaded, clerkUser, currentPage]);
 
   // Set initial page to welcome instead of intro
   useEffect(() => {
-    if (isLoaded && currentPage === 'intro') {
+    if (isLoaded && currentPage === 'welcome') {
       setCurrentPage('welcome');
     }
   }, [isLoaded, currentPage]);
@@ -447,6 +448,24 @@ function App() {
 
   // Check if user is authenticated
   const isAuthenticated = isLoaded && !!clerkUser;
+
+  // Debug logging for app initialization
+  useEffect(() => {
+    console.log('🔍 App initialization debug:');
+    console.log('  - isLoaded:', isLoaded);
+    console.log('  - clerkUser:', clerkUser ? 'exists' : 'null');
+    console.log('  - currentPage:', currentPage);
+    console.log('  - isAuthModalOpen:', isAuthModalOpen);
+    console.log('  - isAuthenticated:', isAuthenticated);
+  }, [isLoaded, clerkUser, currentPage, isAuthModalOpen, isAuthenticated]);
+
+  // Ensure app always starts on welcome page
+  useEffect(() => {
+    if (isLoaded && currentPage !== 'welcome' && currentPage !== 'quiz' && currentPage !== 'results' && currentPage !== 'generated' && currentPage !== 'celebrity-books' && currentPage !== 'trending-books' && currentPage !== 'trending-authors' && currentPage !== 'tailor-mates' && currentPage !== 'favourites') {
+      console.log('🔄 Redirecting to welcome page from:', currentPage);
+      setCurrentPage('welcome');
+    }
+  }, [isLoaded, currentPage]);
 
   const handleToggleFavorite = async (book: BookRecommendation) => {
     if (!isAuthenticated) {
@@ -971,9 +990,16 @@ function App() {
       
       {/* Show IntroPage if user is not authenticated */}
       {!user ? (
-        <IntroPage
-          onLogin={handleIntroLogin}
-          onSignup={handleIntroSignup}
+        <WelcomePage
+          onStartQuiz={handleStartQuiz}
+          onResumeQuiz={handleResumeQuiz}
+          onLearnMore={() => setCurrentPage('learn-more')}
+          hasQuizProgress={Object.keys(answers).length > 0 || Object.keys(bookAnswers).length > 0}
+          isLoggedIn={isAuthenticated}
+          hasCompletedQuiz={!!personalityProfile}
+          onGenerateNewBooks={handleGenerateNewBooks}
+          onSignIn={() => handleAuthPrompt('login', 'access features')}
+          onSignUp={() => handleAuthPrompt('signup', 'access features')}
         />
       ) : (
         <>
@@ -1026,60 +1052,18 @@ function App() {
             />
           )}
           {currentPage === 'favourites' && (
-            <>
-              <FavoritesPage
-                favorites={favorites}
-                onRemoveFavorite={handleRemoveFavorite}
-                onBack={() => setCurrentPage('welcome')}
-                hasCompletedQuiz={!!personalityProfile}
-                onStartQuiz={handleStartQuiz}
-                onGenerateNewBooks={() => {
-                  if (!personalityProfile) return;
-                  
-                  console.log('🎯 FAVORITES PAGE Generate New Books button clicked!');
-                  
-                  // Create a set of favorited book title/author combinations for robust exclusion
-                  const favoritedBookSignatures = new Set(
-                    favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
-                  );
-                  
-                  // Use expanded personality matching for more diverse recommendations
-                  let newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, allRecommendedIds, true, favoritedBookSignatures);
-                  
-                  // MANUAL FILTERING AS A BACKUP - Remove any favorited books that might have slipped through
-                  const removedFavorites: string[] = [];
-                  newRecs = newRecs.filter(book => {
-                    const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
-                    const isFavorited = favoritedBookSignatures.has(bookSignature);
-                    
-                    if (isFavorited) {
-                      console.log(`🚫 MANUAL FILTER: Removing favorited book "${book.title}" by ${book.author}`);
-                      removedFavorites.push(`${book.title} by ${book.author}`);
-                    }
-                    
-                    return !isFavorited;
-                  });
-                  
-                  // Show alert if any favorited books were removed
-                  if (removedFavorites.length > 0) {
-                    console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from recommendations:`, removedFavorites);
-                    alert(`✅ SUCCESS: Removed ${removedFavorites.length} favorited books from new recommendations!\n\nRemoved: ${removedFavorites.join(', ')}`);
-                  } else {
-                    console.log('✅ No favorited books found in recommendations - filtering working correctly');
-                  }
-                  
-                  setRecommendations(newRecs);
-                  setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
-                  
-                  setCurrentPage('generated');
-                }}
-              />
-            </>
+            <PlaceholderPage
+              title="Favourites"
+              description="Your favorite books will appear here."
+              onBack={() => setCurrentPage('welcome')}
+            />
           )}
           {currentPage === 'learn-more' && (
-            <>
-              <LearnMorePage onBack={() => setCurrentPage('welcome')} onStartQuiz={handleStartQuiz} />
-            </>
+            <PlaceholderPage
+              title="Learn More"
+              description="Learn more about our personality-based book recommendations."
+              onBack={() => setCurrentPage('welcome')}
+            />
           )}
           {currentPage === 'trending-books' && (
             <>
@@ -1119,29 +1103,18 @@ function App() {
             </>
           )}
           {currentPage === 'book-cover-test' && (
-            <>
-              <BookCoverTestPage onBack={() => setCurrentPage('welcome')} />
-            </>
+            <PlaceholderPage
+              title="Book Cover Test"
+              description="Testing book cover functionality."
+              onBack={() => setCurrentPage('welcome')}
+            />
           )}
           {currentPage === 'profile' && (
-            <>
-              <AuthButton 
-                user={user}
-                onLogin={() => setIsAuthModalOpen(true)}
-                position="top-left"
-              />
-              <PlaceholderPage
-                {...getPlaceholderContent(currentPage)}
-                onBack={() => setCurrentPage('welcome')}
-                profile={personalityProfile}
-                onStartQuiz={handleStartQuiz}
-                onNewRecommendations={handleNewRecommendations}
-                onNavigate={handleNavigation}
-                favorites={favorites}
-                onRemoveFavorite={handleRemoveFavorite}
-                onLogout={handleLogout}
-              />
-            </>
+            <PlaceholderPage
+              title="Profile"
+              description="Your profile and personality breakdown will appear here."
+              onBack={() => setCurrentPage('welcome')}
+            />
           )}
           {currentPage === 'generated' && personalityProfile && (
             <GeneratedRecommendationsPage
@@ -1157,9 +1130,13 @@ function App() {
         </>
       )}
       
-      {/* Performance Monitor - Only show in development or when explicitly enabled */}
-      {process.env.NODE_ENV === 'development' && <BookCoverPerformanceMonitor />}
-      
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
+      />
+
       {/* User Sync Status - Show when there are sync issues */}
       <UserSyncStatus
         syncStatus={syncStatus}
