@@ -1,5 +1,5 @@
 import React from 'react';
-import { Book, Users, Heart, Brain, Star, ArrowRight, Sparkles, Target, Zap, BookOpen } from 'lucide-react';
+import { Book, Users, Heart, Brain, Star, ArrowRight, Sparkles, Target, Zap, BookOpen, UserCheck } from 'lucide-react';
 import Logo from './Logo';
 
 interface WelcomePageProps {
@@ -12,6 +12,7 @@ interface WelcomePageProps {
   onGenerateNewBooks?: () => void;
   onSignIn?: () => void;
   onSignUp?: () => void;
+  onAuthPrompt?: (mode: 'login' | 'signup', feature?: string) => void;
 }
 
 const WelcomePage: React.FC<WelcomePageProps> = ({ 
@@ -23,7 +24,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   hasCompletedQuiz = false, 
   onGenerateNewBooks,
   onSignIn,
-  onSignUp
+  onSignUp,
+  onAuthPrompt
 }) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -84,6 +86,14 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
                 >
                   <span>Generate New Books</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              ) : hasCompletedQuiz && !isLoggedIn ? (
+                <button
+                  onClick={() => onAuthPrompt?.('login', 'access profile')}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group"
+                >
+                  <UserCheck className="w-5 h-5" />
+                  <span>View Profile</span>
                 </button>
               ) : (
                 <button

@@ -1027,6 +1027,7 @@ function App() {
           onGenerateNewBooks={handleGenerateNewBooks}
           onSignIn={() => handleAuthPrompt('login', 'access features')}
           onSignUp={() => handleAuthPrompt('signup', 'access features')}
+          onAuthPrompt={handleAuthPrompt}
         />
       )}
       {currentPage === 'quiz' && (
