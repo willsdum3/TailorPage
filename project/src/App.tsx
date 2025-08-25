@@ -12,7 +12,6 @@ import PlaceholderPage from './components/PlaceholderPage';
 import LearnMorePage from './components/LearnMorePage';
 import BurgerMenu from './components/BurgerMenu';
 import AuthModal from './components/AuthModal';
-import UserSyncStatus from './components/UserSyncStatus';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 import { useUserSync } from './hooks/useUserSync';
 import { 
@@ -1013,6 +1012,7 @@ function App() {
         user={user}
         onLoginRequired={() => setIsAuthModalOpen(true)}
         onAuthPrompt={handleAuthPrompt}
+        onLogout={handleLogout}
       />
       
       {/* Page Content - Show appropriate page based on currentPage */}
@@ -1140,15 +1140,6 @@ function App() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authModalMode}
-      />
-
-      {/* User Sync Status - Show when there are sync issues */}
-      <UserSyncStatus
-        syncStatus={syncStatus}
-        syncError={syncError}
-        onRetry={retrySync}
-        isVisible={isLoaded && syncStatus !== 'idle'}
-        syncAttempts={syncAttempts}
       />
     </div>
   );

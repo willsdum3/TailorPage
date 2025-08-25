@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, User, Heart, TrendingUp, Users, Star, MessageCircle, BookOpen } from 'lucide-react';
+import { Menu, X, User, Heart, TrendingUp, Users, Star, MessageCircle, BookOpen, LogOut } from 'lucide-react';
 import { User as UserType } from '../types';
 import Logo from './Logo';
 
@@ -8,9 +8,10 @@ interface BurgerMenuProps {
   user: UserType | null;
   onLoginRequired: () => void;
   onAuthPrompt?: (mode: 'login' | 'signup', feature?: string) => void;
+  onLogout?: () => void;
 }
 
-const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequired, onAuthPrompt }) => {
+const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequired, onAuthPrompt, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -85,7 +86,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
             <p className="text-white/70">Explore more features</p>
           </div>
 
-          <nav className="space-y-2">
+          <nav className="space-y-2 flex-1">
             {menuItems.map((item) => {
               const IconComponent = item.icon;
               const isDisabled = item.requiresAuth && !user;
@@ -146,6 +147,26 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
             })}
           </nav>
 
+          {/* Logout Button - Only show when user is logged in */}
+          {user && onLogout && (
+            <div className="mt-auto pt-6 border-t border-white/10">
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  onLogout();
+                }}
+                className="w-full flex items-center space-x-4 px-5 py-4 text-left rounded-2xl transition-all duration-300 group text-red-400 hover:bg-red-500/20 hover:text-red-300 transform hover:scale-105"
+              >
+                <div className="flex items-center justify-center bg-red-500/20 group-hover:bg-red-500/30 w-10 h-10 rounded-lg">
+                  <LogOut className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <span className="font-semibold">Sign Out</span>
+                  <div className="text-xs text-red-300/70 mt-1">Log out of your account</div>
+                </div>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
