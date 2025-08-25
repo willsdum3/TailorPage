@@ -9,6 +9,7 @@ import TrendingBooksPage from './components/TrendingBooksPage';
 import TrendingAuthorsPage from './components/TrendingAuthorsPage';
 import TailorMatesPage from './components/TailorMatesPage';
 import PlaceholderPage from './components/PlaceholderPage';
+import LearnMorePage from './components/LearnMorePage';
 import BurgerMenu from './components/BurgerMenu';
 import AuthModal from './components/AuthModal';
 import UserSyncStatus from './components/UserSyncStatus';
@@ -1045,10 +1046,9 @@ function App() {
         />
       )}
       {currentPage === 'learn-more' && (
-        <PlaceholderPage
-          title="Learn More"
-          description="Learn more about our personality-based book recommendations."
+        <LearnMorePage
           onBack={() => setCurrentPage('welcome')}
+          onStartQuiz={handleStartQuiz}
         />
       )}
       {currentPage === 'trending-books' && (
