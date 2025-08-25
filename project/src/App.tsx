@@ -462,7 +462,7 @@ function App() {
 
   // Ensure app always starts on welcome page
   useEffect(() => {
-    if (isLoaded && currentPage !== 'welcome' && currentPage !== 'quiz' && currentPage !== 'results' && currentPage !== 'generated' && currentPage !== 'celebrity-books' && currentPage !== 'trending-books' && currentPage !== 'trending-authors' && currentPage !== 'tailor-mates' && currentPage !== 'favourites') {
+    if (isLoaded && currentPage !== 'welcome' && currentPage !== 'quiz' && currentPage !== 'results' && currentPage !== 'generated' && currentPage !== 'celebrity-books' && currentPage !== 'trending-books' && currentPage !== 'trending-authors' && currentPage !== 'tailor-mates' && currentPage !== 'favourites' && currentPage !== 'learn-more' && currentPage !== 'profile' && currentPage !== 'book-cover-test') {
       console.log('🔄 Redirecting to welcome page from:', currentPage);
       setCurrentPage('welcome');
     }
@@ -885,7 +885,8 @@ function App() {
   };
 
   const handleNavigation = (page: string) => {
-    console.log('App navigation handler received:', page); // Debug log
+    console.log('🚀 Navigation requested to:', page, 'from current page:', currentPage);
+    
     if (page === 'home') {
       setCurrentPage('welcome');
     } else if (page === 'celebrity-books') {
@@ -905,7 +906,8 @@ function App() {
             genre: fav.genre,
             description: fav.description,
             amazonLink: fav.amazon_link,
-
+            coverImageUrl: fav.cover_image_url,
+            reason: fav.reason,
             dateAdded: fav.date_added
           }));
           setFavorites(formattedFavorites);
@@ -926,6 +928,8 @@ function App() {
       setCurrentQuestionIndex(0);
       setCurrentPage(page as AppPage);
     }
+    
+    console.log('✅ Navigation completed, new currentPage:', page);
   };
 
   const getPlaceholderContent = (page: AppPage) => {
