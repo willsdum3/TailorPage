@@ -32,6 +32,18 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
       <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       
+      {/* Top Center Sign In Button */}
+      {!isLoggedIn && (
+        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+          <button
+            onClick={onSignIn}
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-xl font-semibold text-base transition-all duration-300 transform hover:scale-105"
+          >
+            Sign In
+          </button>
+        </div>
+      )}
+      
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Content */}
@@ -40,8 +52,6 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
               <div className="mb-8">
                 <Logo size="lg" showText={true} />
               </div>
-              
-
               
               <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
                 <span className="block mb-2">Discover Your</span>
@@ -91,25 +101,6 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
                 Learn More
               </button>
             </div>
-
-            {/* Authentication Buttons for non-logged in users */}
-            {!isLoggedIn && (
-              <div className="mt-6 flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={onSignUp}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group"
-                >
-                  <span>Sign Up</span>
-                  <Star className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={onSignIn}
-                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105"
-                >
-                  Sign In
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Right Content - Feature Cards */}

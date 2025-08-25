@@ -232,21 +232,15 @@ const ResultsPage = ({
                   Unlock Your Detailed Personality Breakdown
                 </h3>
                 <p className="text-white/80 mb-6 text-lg leading-relaxed">
-                  Sign up to access your complete personality analysis, save your favorite books, and get personalized recommendations in your profile.
+                  Sign in to access your complete personality analysis, save your favorite books, and get personalized recommendations in your profile.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button
-                    onClick={() => onAuthPrompt?.('signup', 'detailed personality breakdown')}
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2"
-                  >
-                    <span>Sign Up Now</span>
-                    <Star className="w-5 h-5" />
-                  </button>
+                <div className="flex justify-center">
                   <button
                     onClick={() => onAuthPrompt?.('login', 'detailed personality breakdown')}
-                    className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105"
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2"
                   >
-                    Sign In
+                    <span>Sign In</span>
+                    <Star className="w-5 h-5" />
                   </button>
                 </div>
               </div>
