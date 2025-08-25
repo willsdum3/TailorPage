@@ -332,7 +332,7 @@ function App() {
       // Use user sync hook to automatically sync Clerk user to Supabase
   const { user: clerkUser, isLoaded, syncStatus, syncError, retrySync, isSynced, syncAttempts } = useUserSync();
   const { signOut } = useClerk();
-  const [currentPage, setCurrentPage] = useState<AppPage>('intro');
+  const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
   const [bookAnswers, setBookAnswers] = useState<Record<number, BookResponse>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -370,6 +370,13 @@ function App() {
       setCurrentPage('welcome');
     }
   }, [isLoaded, clerkUser, currentPage]);
+
+  // Set initial page to welcome instead of intro
+  useEffect(() => {
+    if (isLoaded && currentPage === 'intro') {
+      setCurrentPage('welcome');
+    }
+  }, [isLoaded, currentPage]);
 
   // Load user data from database when user is authenticated
   useEffect(() => {
@@ -428,55 +435,71 @@ function App() {
     setIsAuthModalOpen(true);
   };
 
-  const handleToggleFavorite = async (book: BookRecommendation) => {
-    console.log('handleToggleFavorite called with book:', book);
-    console.log('Current user:', user);
+  // Handle authentication prompts throughout the app
+  const handleAuthPrompt = (mode: 'login' | 'signup' = 'signup', feature?: string) => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
     
-    if (!user) {
-      console.log('No user found, returning early');
+    if (feature) {
+      console.log(`User prompted to ${mode} for feature: ${feature}`);
+    }
+  };
+
+  // Check if user is authenticated
+  const isAuthenticated = isLoaded && !!clerkUser;
+
+  const handleToggleFavorite = async (book: BookRecommendation) => {
+    if (!isAuthenticated) {
+      handleAuthPrompt('signup', 'favorite books');
       return;
     }
-    
-    // Check if book is already favorited using the utility function
-    const isAlreadyFavorited = isBookFavorited(favorites, book.title, book.author);
-    console.log('Is already favorited:', isAlreadyFavorited);
-    
-    // Update UI immediately for better user experience
-    if (isAlreadyFavorited) {
-      // Remove from favorites immediately using the utility function
-      setFavorites(prev => removeFavoriteByTitleAuthor(prev, book.title, book.author));
-      console.log('Book removed from favorites (UI updated)');
-    } else {
-      // Add to favorites immediately using the utility function
-      const favoriteBook = createFavoriteBook(book);
-      setFavorites(prev => [...prev, favoriteBook]);
-      console.log('Book added to favorites (UI updated)');
-      
 
+    if (!user) {
+      console.error('User not found');
+      return;
     }
-    
-    // Then try to sync with database in the background
+
     try {
-      console.log('Starting database sync...');
-      if (isAlreadyFavorited) {
-        console.log('Removing from database...');
+      const existingFavorite = favorites.find(fav => 
+        fav.title === book.title && fav.author === book.author
+      );
+
+      if (existingFavorite) {
+        // Remove from favorites
         const success = await removeBookFromFavorites(user.id, book.title, book.author);
-        console.log('Database remove result:', success);
+        if (success) {
+          setFavorites(prev => prev.filter(fav => 
+            !(fav.title === book.title && fav.author === book.author)
+          ));
+          console.log('Book removed from favorites');
+        }
       } else {
-        console.log('Adding to database...');
+        // Add to favorites
         const result = await addBookToFavorites(user.id, {
           title: book.title,
           author: book.author,
           genre: book.genre,
-          description: book.description,
-          amazon_link: book.amazonLink,
-
+          description: book.description || '',
+          amazon_link: book.amazonLink || '',
         });
-        console.log('Database add result:', result);
+        
+        if (result) {
+          const newFavorite: FavoriteBook = {
+            id: result,
+            title: book.title,
+            author: book.author,
+            genre: book.genre,
+            description: book.description || '',
+            amazonLink: book.amazonLink || '',
+            reason: book.reason || '',
+            dateAdded: new Date().toISOString()
+          };
+          setFavorites(prev => [...prev, newFavorite]);
+          console.log('Book added to favorites');
+        }
       }
     } catch (error) {
-      console.error('Error syncing with database:', error);
-      // Don't show alert to user since UI already updated
+      console.error('Error toggling favorite:', error);
     }
   };
 
@@ -620,8 +643,9 @@ function App() {
         setPersonalityProfile(profile);
       }
     } else {
-      // No user, just use the calculated profile
+      // No user, just use the calculated profile and show sign-up encouragement
       setPersonalityProfile(profile);
+      console.log('👤 User not signed in - encouraging sign-up for detailed breakdown');
     }
 
     // Generate and store recommendations ONCE per quiz completion, excluding favorited books
@@ -699,6 +723,78 @@ function App() {
   const handleNewRecommendations = () => {
     // Generate new recommendations with expanded personality matching, excluding all previously recommended book IDs and favorited books
     console.log('🎯 handleNewRecommendations FUNCTION CALLED!');
+    
+    if (!personalityProfile) return;
+    
+    // Ensure favorites are loaded
+    if (favorites.length === 0) {
+      console.log('⚠️ WARNING: No favorites loaded, this might cause issues with exclusion');
+    }
+    
+    // Create a set of favorited book title/author combinations for robust exclusion
+    // Note: We can't rely on book IDs since database uses UUIDs and recommendations use string IDs
+    const favoritedBookSignatures = new Set(
+      favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
+    );
+    
+    // Only exclude previously recommended book IDs (not favorited book IDs since they don't match)
+    const excludeIds = [...allRecommendedIds];
+    
+    // Debug logging
+    console.log('🔍 DEBUG: Generating new recommendations');
+    console.log('📚 Favorited books:', favorites);
+    console.log('📝 Favorited book signatures:', Array.from(favoritedBookSignatures));
+    console.log('🚫 Exclude IDs (previously recommended):', excludeIds);
+    
+    // Simple test to verify favorites are loaded
+    if (favorites.length > 0) {
+      console.log(`✅ Favorites loaded successfully: ${favorites.length} books`);
+      console.log('Sample favorites:', favorites.slice(0, 3).map(f => `${f.title} by ${f.author}`));
+    } else {
+      console.log('⚠️ No favorites loaded!');
+    }
+    
+    // Test signature matching for "The Goldfinch"
+    const testSignature = 'the goldfinch-donna tartt';
+    console.log(`🧪 Test: Is "The Goldfinch" in favorites? ${favoritedBookSignatures.has(testSignature)}`);
+    console.log(`🧪 Test: All signatures:`, Array.from(favoritedBookSignatures));
+    
+    // Use expanded personality matching for more diverse recommendations
+    let newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, excludeIds, true, favoritedBookSignatures);
+    
+    // MANUAL FILTERING AS A BACKUP - Remove any favorited books that might have slipped through
+    const removedFavorites: string[] = [];
+    newRecs = newRecs.filter(book => {
+      const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
+      const isFavorited = favoritedBookSignatures.has(bookSignature);
+      
+      if (isFavorited) {
+        console.log(`🚫 MANUAL FILTER: Removing favorited book "${book.title}" by ${book.author}`);
+        removedFavorites.push(`${book.title} by ${book.author}`);
+      }
+      
+      return !isFavorited;
+    });
+    
+    // Show alert if any favorited books were removed
+    if (removedFavorites.length > 0) {
+      console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from recommendations:`, removedFavorites);
+      alert(`✅ SUCCESS: Removed ${removedFavorites.length} favorited books from new recommendations!\n\nRemoved: ${removedFavorites.join(', ')}`);
+    } else {
+      console.log('✅ No favorited books found in recommendations - filtering working correctly');
+    }
+    
+    // Debug logging for results
+    console.log('✅ Final recommendations after manual filtering:', newRecs.map(book => `${book.title} by ${book.author}`));
+    
+    setRecommendations(newRecs);
+    setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+    setCurrentPage('generated');
+  };
+
+  const handleGenerateNewBooks = () => {
+    // Generate new recommendations with expanded personality matching, excluding all previously recommended book IDs and favorited books
+    console.log('🎯 handleGenerateNewBooks FUNCTION CALLED!');
     
     if (!personalityProfile) return;
     
@@ -881,63 +977,26 @@ function App() {
         />
       ) : (
         <>
-          <BurgerMenu 
-            onNavigate={handleNavigation} 
+          {/* Burger Menu */}
+          <BurgerMenu
+            onNavigate={handleNavigation}
             user={user}
             onLoginRequired={() => setIsAuthModalOpen(true)}
+            onAuthPrompt={handleAuthPrompt}
           />
           
           {currentPage === 'welcome' && (
-            <>
-              <WelcomePage
-                onStartQuiz={handleStartQuiz}
-                onResumeQuiz={handleResumeQuiz}
-                hasQuizProgress={Object.keys(answers).length > 0}
-                onLearnMore={() => setCurrentPage('learn-more')}
-                isLoggedIn={!!user}
-                hasCompletedQuiz={!!personalityProfile}
-                onGenerateNewBooks={() => {
-                  if (!personalityProfile) return;
-                  
-                  console.log('🎯 HOME PAGE Generate New Books button clicked!');
-                  
-                  // Create a set of favorited book title/author combinations for robust exclusion
-                  const favoritedBookSignatures = new Set(
-                    favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
-                  );
-                  
-                  // Use expanded personality matching for more diverse recommendations
-                  let newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, allRecommendedIds, true, favoritedBookSignatures);
-                  
-                  // MANUAL FILTERING AS A BACKUP - Remove any favorited books that might have slipped through
-                  const removedFavorites: string[] = [];
-                  newRecs = newRecs.filter(book => {
-                    const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
-                    const isFavorited = favoritedBookSignatures.has(bookSignature);
-                    
-                    if (isFavorited) {
-                      console.log(`🚫 MANUAL FILTER: Removing favorited book "${book.title}" by ${book.author}`);
-                      removedFavorites.push(`${book.title} by ${book.author}`);
-                    }
-                    
-                    return !isFavorited;
-                  });
-                  
-                  // Show alert if any favorited books were removed
-                  if (removedFavorites.length > 0) {
-                    console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from recommendations:`, removedFavorites);
-                    alert(`✅ SUCCESS: Removed ${removedFavorites.length} favorited books from new recommendations!\n\nRemoved: ${removedFavorites.join(', ')}`);
-                  } else {
-                    console.log('✅ No favorited books found in recommendations - filtering working correctly');
-                  }
-                  
-                  setRecommendations(newRecs);
-                  setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
-                  
-                  setCurrentPage('generated');
-                }}
-              />
-            </>
+            <WelcomePage
+              onStartQuiz={handleStartQuiz}
+              onResumeQuiz={handleResumeQuiz}
+              onLearnMore={() => setCurrentPage('learn-more')}
+              hasQuizProgress={Object.keys(answers).length > 0 || Object.keys(bookAnswers).length > 0}
+              isLoggedIn={isAuthenticated}
+              hasCompletedQuiz={!!personalityProfile}
+              onGenerateNewBooks={handleGenerateNewBooks}
+              onSignIn={() => handleAuthPrompt('login', 'access features')}
+              onSignUp={() => handleAuthPrompt('signup', 'access features')}
+            />
           )}
           {currentPage === 'quiz' && (
             <>
@@ -953,19 +1012,18 @@ function App() {
               />
             </>
           )}
-          {currentPage === 'results' && personalityProfile && (
-            <>
-              <ResultsPage 
-                profile={personalityProfile}
-                recommendations={recommendations}
-                onRetakeQuiz={handleRetakeQuiz}
-                onHome={handleHomeFromResults}
-                favorites={favorites}
-                onToggleFavorite={handleToggleFavorite}
-                user={user}
-                onLoginRequired={() => setIsAuthModalOpen(true)}
-              />
-            </>
+          {currentPage === 'results' && (
+            <ResultsPage
+              profile={personalityProfile!}
+              recommendations={recommendations}
+              onRetakeQuiz={handleRetakeQuiz}
+              onHome={() => setCurrentPage('welcome')}
+              favorites={favorites}
+              onToggleFavorite={handleToggleFavorite}
+              user={user}
+              onLoginRequired={() => setIsAuthModalOpen(true)}
+              onAuthPrompt={handleAuthPrompt}
+            />
           )}
           {currentPage === 'favourites' && (
             <>

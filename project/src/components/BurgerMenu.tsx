@@ -7,9 +7,10 @@ interface BurgerMenuProps {
   onNavigate: (page: string) => void;
   user: UserType | null;
   onLoginRequired: () => void;
+  onAuthPrompt?: (mode: 'login' | 'signup', feature?: string) => void;
 }
 
-const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequired }) => {
+const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequired, onAuthPrompt }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -18,10 +19,17 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
 
   const handleNavigation = (page: string) => {
     console.log('Navigation requested to:', page); // Debug log
+    
     // Check if user needs to be logged in for certain pages
-    if ((page === 'profile' || page === 'favourites') && !user) {
+    if (page === 'profile' && !user) {
       setIsOpen(false);
-      onLoginRequired();
+      onAuthPrompt?.('signup', 'access profile');
+      return;
+    }
+    
+    if (page === 'tailor-mates' && !user) {
+      setIsOpen(false);
+      onAuthPrompt?.('signup', 'access Tailor Mates');
       return;
     }
     

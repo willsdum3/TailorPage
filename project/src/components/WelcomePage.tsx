@@ -10,9 +10,21 @@ interface WelcomePageProps {
   isLoggedIn?: boolean;
   hasCompletedQuiz?: boolean;
   onGenerateNewBooks?: () => void;
+  onSignIn?: () => void;
+  onSignUp?: () => void;
 }
 
-const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onResumeQuiz, onLearnMore, hasQuizProgress = false, isLoggedIn = false, hasCompletedQuiz = false, onGenerateNewBooks }) => {
+const WelcomePage: React.FC<WelcomePageProps> = ({ 
+  onStartQuiz, 
+  onResumeQuiz, 
+  onLearnMore, 
+  hasQuizProgress = false, 
+  isLoggedIn = false, 
+  hasCompletedQuiz = false, 
+  onGenerateNewBooks,
+  onSignIn,
+  onSignUp
+}) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Elements */}
@@ -79,6 +91,25 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartQuiz, onResumeQuiz, on
                 Learn More
               </button>
             </div>
+
+            {/* Authentication Buttons for non-logged in users */}
+            {!isLoggedIn && (
+              <div className="mt-6 flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={onSignUp}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group"
+                >
+                  <span>Sign Up</span>
+                  <Star className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={onSignIn}
+                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105"
+                >
+                  Sign In
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right Content - Feature Cards */}
