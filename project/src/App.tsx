@@ -342,6 +342,7 @@ function App() {
   const [favorites, setFavorites] = useState<FavoriteBook[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
+  const [requestedFeature, setRequestedFeature] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<BookRecommendation[]>([]);
   const [allRecommendedIds, setAllRecommendedIds] = useState<string[]>([]);
   const [celebrityNavigationCount, setCelebrityNavigationCount] = useState(0);
@@ -358,13 +359,25 @@ function App() {
     imageUrl: clerkUser.imageUrl || undefined
   } : null;
 
-  // Close auth modal when user becomes authenticated and redirect to welcome
+  // Close auth modal when user becomes authenticated and redirect based on requested feature
   useEffect(() => {
     if (isLoaded && clerkUser && isAuthModalOpen) {
       setIsAuthModalOpen(false);
-      setCurrentPage('welcome');
+      
+      // Redirect based on requested feature
+      if (requestedFeature === 'access profile') {
+        setCurrentPage('profile');
+        setRequestedFeature(null);
+      } else if (requestedFeature === 'access Tailor Mates') {
+        setCurrentPage('tailor-mates');
+        setRequestedFeature(null);
+      } else {
+        // Default redirect to welcome page
+        setCurrentPage('welcome');
+        setRequestedFeature(null);
+      }
     }
-  }, [isLoaded, clerkUser, isAuthModalOpen]);
+  }, [isLoaded, clerkUser, isAuthModalOpen, requestedFeature]);
 
   // Ensure currentPage is set to welcome when user becomes authenticated
   useEffect(() => {
@@ -441,6 +454,7 @@ function App() {
   const handleAuthPrompt = (mode: 'login' | 'signup' = 'signup', feature?: string) => {
     setAuthModalMode(mode);
     setIsAuthModalOpen(true);
+    setRequestedFeature(feature || null);
     
     if (feature) {
       console.log(`User prompted to ${mode} for feature: ${feature}`);

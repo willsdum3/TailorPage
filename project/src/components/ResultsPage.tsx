@@ -7,7 +7,8 @@ import {
   ExternalLink,
   Home,
   Heart,
-  Sparkles
+  Sparkles,
+  UserCheck
 } from 'lucide-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
 import Logo from './Logo';
@@ -210,13 +211,23 @@ const ResultsPage = ({
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <button
-              onClick={onRetakeQuiz}
-              className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
-            >
-              <RotateCcw className="w-5 h-5" />
-              <span>Retake Quiz</span>
-            </button>
+            {user ? (
+              <button
+                onClick={onRetakeQuiz}
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span>Retake Quiz</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => onAuthPrompt?.('login', 'access profile')}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              >
+                <UserCheck className="w-5 h-5" />
+                <span>View Profile</span>
+              </button>
+            )}
           </div>
 
           {/* Sign-up encouragement for non-authenticated users */}
@@ -358,15 +369,28 @@ const ResultsPage = ({
           <div className="border-t border-white/10 pt-8">
             <h3 className="text-2xl font-bold text-white mb-4">Ready for More?</h3>
             <p className="text-white/70 mb-6">
-              Discover even more personalized recommendations by taking the quiz again or exploring different aspects of your reading personality.
+              {user 
+                ? "Discover even more personalized recommendations by taking the quiz again or exploring different aspects of your reading personality."
+                : "Sign in to access your detailed personality breakdown, save your favorite books, and get personalized recommendations in your profile."
+              }
             </p>
-            <button
-              onClick={onRetakeQuiz}
-              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
-            >
-              <RotateCcw className="w-5 h-5" />
-              <span>Take Quiz Again</span>
-            </button>
+            {user ? (
+              <button
+                onClick={onRetakeQuiz}
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span>Take Quiz Again</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => onAuthPrompt?.('login', 'access profile')}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              >
+                <UserCheck className="w-5 h-5" />
+                <span>View Profile</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
