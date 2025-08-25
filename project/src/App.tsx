@@ -988,8 +988,16 @@ function App() {
         initialMode={authModalMode}
       />
       
-      {/* Show IntroPage if user is not authenticated */}
-      {!user ? (
+      {/* Burger Menu - Show for all users */}
+      <BurgerMenu
+        onNavigate={handleNavigation}
+        user={user}
+        onLoginRequired={() => setIsAuthModalOpen(true)}
+        onAuthPrompt={handleAuthPrompt}
+      />
+      
+      {/* Page Content - Show appropriate page based on currentPage */}
+      {currentPage === 'welcome' && (
         <WelcomePage
           onStartQuiz={handleStartQuiz}
           onResumeQuiz={handleResumeQuiz}
@@ -1001,133 +1009,111 @@ function App() {
           onSignIn={() => handleAuthPrompt('login', 'access features')}
           onSignUp={() => handleAuthPrompt('signup', 'access features')}
         />
-      ) : (
+      )}
+      {currentPage === 'quiz' && (
         <>
-          {/* Burger Menu */}
-          <BurgerMenu
-            onNavigate={handleNavigation}
+          <QuizPage 
+            questions={questions} 
+            bookQuestions={bookQuestions}
+            initialAnswers={answers}
+            initialBookAnswers={bookAnswers}
+            initialQuestionIndex={currentQuestionIndex}
+            onComplete={handleQuizComplete}
+            onProgress={handleQuizProgress}
+            onHome={handleHomeFromQuiz}
+          />
+        </>
+      )}
+      {currentPage === 'results' && (
+        <ResultsPage
+          profile={personalityProfile!}
+          recommendations={recommendations}
+          onRetakeQuiz={handleRetakeQuiz}
+          onHome={() => setCurrentPage('welcome')}
+          favorites={favorites}
+          onToggleFavorite={handleToggleFavorite}
+          user={user}
+          onLoginRequired={() => setIsAuthModalOpen(true)}
+          onAuthPrompt={handleAuthPrompt}
+        />
+      )}
+      {currentPage === 'favourites' && (
+        <PlaceholderPage
+          title="Favourites"
+          description="Your favorite books will appear here."
+          onBack={() => setCurrentPage('welcome')}
+        />
+      )}
+      {currentPage === 'learn-more' && (
+        <PlaceholderPage
+          title="Learn More"
+          description="Learn more about our personality-based book recommendations."
+          onBack={() => setCurrentPage('welcome')}
+        />
+      )}
+      {currentPage === 'trending-books' && (
+        <>
+          <TrendingBooksPage 
+            onBack={() => setCurrentPage('welcome')} 
+            hasCompletedQuiz={!!personalityProfile} 
+            onStartQuiz={handleStartQuiz}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
             user={user}
             onLoginRequired={() => setIsAuthModalOpen(true)}
-            onAuthPrompt={handleAuthPrompt}
           />
-          
-          {currentPage === 'welcome' && (
-            <WelcomePage
-              onStartQuiz={handleStartQuiz}
-              onResumeQuiz={handleResumeQuiz}
-              onLearnMore={() => setCurrentPage('learn-more')}
-              hasQuizProgress={Object.keys(answers).length > 0 || Object.keys(bookAnswers).length > 0}
-              isLoggedIn={isAuthenticated}
-              hasCompletedQuiz={!!personalityProfile}
-              onGenerateNewBooks={handleGenerateNewBooks}
-              onSignIn={() => handleAuthPrompt('login', 'access features')}
-              onSignUp={() => handleAuthPrompt('signup', 'access features')}
-            />
-          )}
-          {currentPage === 'quiz' && (
-            <>
-              <QuizPage 
-                questions={questions} 
-                bookQuestions={bookQuestions}
-                initialAnswers={answers}
-                initialBookAnswers={bookAnswers}
-                initialQuestionIndex={currentQuestionIndex}
-                onComplete={handleQuizComplete}
-                onProgress={handleQuizProgress}
-                onHome={handleHomeFromQuiz}
-              />
-            </>
-          )}
-          {currentPage === 'results' && (
-            <ResultsPage
-              profile={personalityProfile!}
-              recommendations={recommendations}
-              onRetakeQuiz={handleRetakeQuiz}
-              onHome={() => setCurrentPage('welcome')}
-              favorites={favorites}
-              onToggleFavorite={handleToggleFavorite}
-              user={user}
-              onLoginRequired={() => setIsAuthModalOpen(true)}
-              onAuthPrompt={handleAuthPrompt}
-            />
-          )}
-          {currentPage === 'favourites' && (
-            <PlaceholderPage
-              title="Favourites"
-              description="Your favorite books will appear here."
-              onBack={() => setCurrentPage('welcome')}
-            />
-          )}
-          {currentPage === 'learn-more' && (
-            <PlaceholderPage
-              title="Learn More"
-              description="Learn more about our personality-based book recommendations."
-              onBack={() => setCurrentPage('welcome')}
-            />
-          )}
-          {currentPage === 'trending-books' && (
-            <>
-              <TrendingBooksPage 
-                onBack={() => setCurrentPage('welcome')} 
-                hasCompletedQuiz={!!personalityProfile} 
-                onStartQuiz={handleStartQuiz}
-                favorites={favorites}
-                onToggleFavorite={handleToggleFavorite}
-                user={user}
-                onLoginRequired={() => setIsAuthModalOpen(true)}
-              />
-            </>
-          )}
-          {currentPage === 'trending-authors' && (
-            <>
-              <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
-            </>
-          )}
-          {currentPage === 'tailor-mates' && (
-            <>
-              <TailorMatesPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} user={user} />
-            </>
-          )}
-          {currentPage === 'celebrity-books' && (
-            <>
-              <CelebrityTesterPage 
-                key={`celebrity-tester-${celebrityNavigationCount}`}
-                onBack={() => setCurrentPage('welcome')} 
-                hasCompletedQuiz={!!personalityProfile} 
-                onStartQuiz={handleStartQuiz}
-                favorites={favorites}
-                onToggleFavorite={handleToggleFavorite}
-                user={user}
-                onLoginRequired={() => setIsAuthModalOpen(true)}
-              />
-            </>
-          )}
-          {currentPage === 'book-cover-test' && (
-            <PlaceholderPage
-              title="Book Cover Test"
-              description="Testing book cover functionality."
-              onBack={() => setCurrentPage('welcome')}
-            />
-          )}
-          {currentPage === 'profile' && (
-            <PlaceholderPage
-              title="Profile"
-              description="Your profile and personality breakdown will appear here."
-              onBack={() => setCurrentPage('welcome')}
-            />
-          )}
-          {currentPage === 'generated' && personalityProfile && (
-            <GeneratedRecommendationsPage
-              profile={personalityProfile}
-              recommendations={recommendations}
-              onHome={() => setCurrentPage('welcome')}
-              favorites={favorites}
-              onToggleFavorite={handleToggleFavorite}
-              user={user}
-              onLoginRequired={() => setIsAuthModalOpen(true)}
-            />
-          )}
         </>
+      )}
+      {currentPage === 'trending-authors' && (
+        <>
+          <TrendingAuthorsPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} />
+        </>
+      )}
+      {currentPage === 'tailor-mates' && (
+        <>
+          <TailorMatesPage onBack={() => setCurrentPage('welcome')} hasCompletedQuiz={!!personalityProfile} onStartQuiz={handleStartQuiz} user={user} />
+        </>
+      )}
+      {currentPage === 'celebrity-books' && (
+        <>
+          <CelebrityTesterPage 
+            key={`celebrity-tester-${celebrityNavigationCount}`}
+            onBack={() => setCurrentPage('welcome')} 
+            hasCompletedQuiz={!!personalityProfile} 
+            onStartQuiz={handleStartQuiz}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
+            user={user}
+            onLoginRequired={() => setIsAuthModalOpen(true)}
+          />
+        </>
+      )}
+      {currentPage === 'generated' && personalityProfile && (
+        <>
+          <GeneratedRecommendationsPage 
+            profile={personalityProfile}
+            recommendations={recommendations}
+            onHome={() => setCurrentPage('welcome')}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
+            user={user}
+            onLoginRequired={() => setIsAuthModalOpen(true)}
+          />
+        </>
+      )}
+      {currentPage === 'book-cover-test' && (
+        <PlaceholderPage
+          title="Book Cover Test"
+          description="Testing book cover functionality."
+          onBack={() => setCurrentPage('welcome')}
+        />
+      )}
+      {currentPage === 'profile' && (
+        <PlaceholderPage
+          title="Profile"
+          description="Your profile and personality breakdown will appear here."
+          onBack={() => setCurrentPage('welcome')}
+        />
       )}
       
       {/* Auth Modal */}
