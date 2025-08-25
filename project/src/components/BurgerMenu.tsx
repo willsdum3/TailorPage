@@ -23,7 +23,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
     // Check if user needs to be logged in for certain pages
     if (page === 'profile' && !user) {
       setIsOpen(false);
-      onAuthPrompt?.('signup', 'access profile');
+      onAuthPrompt?.('login', 'access profile');
       return;
     }
     
