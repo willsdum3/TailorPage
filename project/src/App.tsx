@@ -43,7 +43,7 @@ const bookQuestions: BookQuestion[] = [
     author: "Italo Calvino",
     description: "An experimental, poetic work in which Marco Polo describes fantastical cities to Kublai Khan.",
     trait: "openness",
-    coverImageUrl: "/book-covers/InvisibleCities.jpg"
+    coverImageUrl: "/book-covers/InvisibleCities.svg"
   },
   {
     id: 102,
@@ -51,7 +51,7 @@ const bookQuestions: BookQuestion[] = [
     author: "Viktor E. Frankl",
     description: "A powerful memoir and philosophical reflection on purpose, responsibility, and resilience in the face of suffering.",
     trait: "conscientiousness",
-    coverImageUrl: "/book-covers/MansSearchForMeaning.jpg"
+    coverImageUrl: "/book-covers/MansSearchForMeaning.svg"
   },
   {
     id: 103,
@@ -59,7 +59,7 @@ const bookQuestions: BookQuestion[] = [
     author: "Delia Owens",
     description: "It includes themes of solitude, it offers rich emotional relationships, courtroom drama, and a strong female lead.",
     trait: "extraversion",
-    coverImageUrl: "/book-covers/WhereTheCrawdadsSing.jpg"
+    coverImageUrl: "/book-covers/WhereTheCrawdadsSing.svg"
   },
   {
     id: 104,
@@ -67,7 +67,7 @@ const bookQuestions: BookQuestion[] = [
     author: "R.J. Palacio",
     description: "A moving middle-grade novel about a boy with a facial difference navigating school and relationships.",
     trait: "agreeableness",
-    coverImageUrl: "/book-covers/Wonder.jpg"
+    coverImageUrl: "/book-covers/Wonder.svg"
   },
   {
     id: 105,
@@ -75,7 +75,7 @@ const bookQuestions: BookQuestion[] = [
     author: "Ryan Holiday",
     description: "A modern take on ancient wisdom promoting inner calm, clarity, and balance in a busy world.",
     trait: "emotionalStability",
-    coverImageUrl: "/book-covers/StillnessIsTheKey.jpg"
+    coverImageUrl: "/book-covers/StillnessIsTheKey.svg"
   }
 ];
 

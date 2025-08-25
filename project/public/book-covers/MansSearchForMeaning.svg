@@ -1,0 +1,20 @@
+<svg width="200" height="300" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="300" fill="url(#grad2)"/>
+  <rect x="10" y="10" width="180" height="280" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+  
+  <!-- Abstract meaning/purpose symbols -->
+  <circle cx="100" cy="120" r="30" fill="white" opacity="0.8"/>
+  <path d="M 70 120 L 130 120 M 100 90 L 100 150" stroke="white" stroke-width="3" opacity="0.6"/>
+  <circle cx="100" cy="120" r="8" fill="white" opacity="0.9"/>
+  
+  <!-- Text -->
+  <text x="100" y="200" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">MAN'S SEARCH</text>
+  <text x="100" y="215" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">FOR MEANING</text>
+  <text x="100" y="250" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="white" opacity="0.8">Viktor E. Frankl</text>
+</svg>
