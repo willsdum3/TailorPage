@@ -27,6 +27,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   onSignUp,
   onAuthPrompt
 }) => {
+  // Debug logging to understand the state
+  console.log('WelcomePage render - isLoggedIn:', isLoggedIn, 'hasCompletedQuiz:', hasCompletedQuiz, 'hasQuizProgress:', hasQuizProgress);
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Elements */}

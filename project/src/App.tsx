@@ -433,8 +433,26 @@ function App() {
       setCurrentQuestionIndex(0);
       setRecommendations([]);
       setAllRecommendedIds([]);
+      
+      // Force clear any remaining state that might affect the UI
+      console.log('Cleared quiz state - answers:', {}, 'bookAnswers:', {}, 'personalityProfile:', null);
     }
   }, [user]); // Trigger on any user change
+
+  // Additional effect to ensure immediate state clearing on logout
+  useEffect(() => {
+    if (!isAuthenticated && !authLoading) {
+      console.log('User logged out, ensuring all state is cleared');
+      // Force clear all quiz-related state
+      setPersonalityProfile(null);
+      setAnswers({});
+      setBookAnswers({});
+      setCurrentQuestionIndex(0);
+      setRecommendations([]);
+      setAllRecommendedIds([]);
+      setFavorites([]);
+    }
+  }, [isAuthenticated, authLoading]);
 
   const handleAuthPrompt = (mode: 'login' | 'signup' = 'signup', feature?: string) => {
     setAuthModalMode(mode);
@@ -618,18 +636,21 @@ function App() {
         onLogout={handleLogout}
       />
       {currentPage === 'welcome' && (
-        <WelcomePage
-          onStartQuiz={handleStartQuiz}
-          onResumeQuiz={handleResumeQuiz}
-          onLearnMore={() => setCurrentPage('learn-more')}
-          hasQuizProgress={Object.keys(answers).length > 0 || Object.keys(bookAnswers).length > 0}
-          isLoggedIn={isAuthenticated}
-          hasCompletedQuiz={!!personalityProfile}
-          onGenerateNewBooks={handleGenerateNewBooks}
-          onSignIn={() => handleAuthPrompt('login', 'access features')}
-          onSignUp={() => handleAuthPrompt('signup', 'access features')}
-          onAuthPrompt={handleAuthPrompt}
-        />
+        <>
+          {console.log('Rendering WelcomePage with - isAuthenticated:', isAuthenticated, 'personalityProfile:', personalityProfile, 'hasCompletedQuiz:', !!personalityProfile)}
+          <WelcomePage
+            onStartQuiz={handleStartQuiz}
+            onResumeQuiz={handleResumeQuiz}
+            onLearnMore={() => setCurrentPage('learn-more')}
+            hasQuizProgress={Object.keys(answers).length > 0 || Object.keys(bookAnswers).length > 0}
+            isLoggedIn={isAuthenticated}
+            hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
+            onGenerateNewBooks={handleGenerateNewBooks}
+            onSignIn={() => handleAuthPrompt('login', 'access features')}
+            onSignUp={() => handleAuthPrompt('signup', 'access features')}
+            onAuthPrompt={handleAuthPrompt}
+          />
+        </>
       )}
       {currentPage === 'quiz' && (
         <QuizPage
@@ -683,7 +704,7 @@ function App() {
           user={user}
           onLoginRequired={() => setIsAuthModalOpen(true)}
           onBack={() => setCurrentPage('welcome')}
-          hasCompletedQuiz={!!personalityProfile}
+          hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
         />
       )}
       {currentPage === 'trending-books' && (
@@ -693,19 +714,19 @@ function App() {
           user={user}
           onLoginRequired={() => setIsAuthModalOpen(true)}
           onBack={() => setCurrentPage('welcome')}
-          hasCompletedQuiz={!!personalityProfile}
+          hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
         />
       )}
       {currentPage === 'trending-authors' && (
         <TrendingAuthorsPage
           onBack={() => setCurrentPage('welcome')}
-          hasCompletedQuiz={!!personalityProfile}
+          hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
         />
       )}
       {currentPage === 'tailor-mates' && (
         <TailorMatesPage
           onBack={() => setCurrentPage('welcome')}
-          hasCompletedQuiz={!!personalityProfile}
+          hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
           user={user}
         />
       )}
