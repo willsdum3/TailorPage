@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Home, ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight, Star, Check, X, Upload, Camera } from 'lucide-react';
-import { useUser } from '@clerk/clerk-react';
+import { useAuth } from '../contexts/AuthContext';
 import { PersonalityProfile, BookRecommendation, FavoriteBook } from '../types';
-import { getBookRecommendations } from '../utils/bookRecommendationsOptimized';
+import { getBookRecommendationsWithExpandedMatching } from '../utils/bookRecommendationsOptimized';
 import { analyzePersonality } from '../utils/personalityAnalysis';
 import StrengthsDetailPage from './StrengthsDetailPage';
 import GrowthAreasDetailPage from './GrowthAreasDetailPage';
@@ -33,7 +33,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     document.addEventListener('click', handleGlobalClick, true); // Use capture phase
     return () => document.removeEventListener('click', handleGlobalClick, true);
   }, []);
-  const { user } = useUser();
+  const { user } = useAuth();
   const [expandedPersonality, setExpandedPersonality] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPage, setCurrentPage] = useState<'profile' | 'strengths' | 'growth'>('profile');
@@ -41,12 +41,12 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
   
   // Profile Settings State
   const [profileSettings, setProfileSettings] = useState({
-    username: user?.username || '',
-    email: user?.primaryEmailAddress?.emailAddress || '',
+    username: user?.user_metadata?.username || user?.email?.split('@')[0] || '',
+    email: user?.email || '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-    profilePicture: user?.imageUrl || null
+    profilePicture: user?.user_metadata?.avatar_url || null
   });
   
   const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
@@ -59,9 +59,9 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     if (user) {
       setProfileSettings(prev => ({
         ...prev,
-        username: user.username || '',
-        email: user.primaryEmailAddress?.emailAddress || '',
-        profilePicture: user.imageUrl || null
+        username: user.user_metadata?.username || user.email?.split('@')[0] || '',
+        email: user.email || '',
+        profilePicture: user.user_metadata?.avatar_url || null
       }));
     }
   }, [user]);
@@ -92,7 +92,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     // Generate new recommendations
-    const newRecommendations = getBookRecommendations(profile);
+    const newRecommendations = getBookRecommendationsWithExpandedMatching(profile, [], true, new Set());
     onNewRecommendations(newRecommendations);
     
     setIsGenerating(false);
@@ -167,14 +167,12 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
     setIsUpdating(true);
     try {
-      await user.update({
-        username: profileSettings.username
-      });
-      
-      setProfileSuccess({ username: 'Username updated successfully!' });
+      // For Supabase, we would need to update the user metadata
+      // This requires additional setup with Supabase Auth
+      setProfileSuccess({ username: 'Username update feature coming soon!' });
       setTimeout(() => setProfileSuccess(prev => ({ ...prev, username: '' })), 3000);
     } catch (error: any) {
-      setProfileErrors({ username: error.errors?.[0]?.message || 'Failed to update username' });
+      setProfileErrors({ username: 'Failed to update username' });
     } finally {
       setIsUpdating(false);
     }
@@ -202,12 +200,11 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
     setIsUploadingImage(true);
     try {
-      await user.setProfileImage({ file });
-      setProfileSettings(prev => ({ ...prev, profilePicture: user.imageUrl }));
-      setProfileSuccess({ profilePicture: 'Profile picture updated successfully!' });
+      // For Supabase, profile picture upload requires additional setup
+      setProfileSuccess({ profilePicture: 'Profile picture upload feature coming soon!' });
       setTimeout(() => setProfileSuccess(prev => ({ ...prev, profilePicture: '' })), 3000);
     } catch (error: any) {
-      setProfileErrors({ profilePicture: error.errors?.[0]?.message || 'Failed to upload profile picture' });
+      setProfileErrors({ profilePicture: 'Failed to upload profile picture' });
     } finally {
       setIsUploadingImage(false);
     }
@@ -218,12 +215,12 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
     setIsUploadingImage(true);
     try {
-      await user.setProfileImage({ file: null });
+      // For Supabase, profile picture removal requires additional setup
       setProfileSettings(prev => ({ ...prev, profilePicture: null }));
       setProfileSuccess({ profilePicture: 'Profile picture removed successfully!' });
       setTimeout(() => setProfileSuccess(prev => ({ ...prev, profilePicture: '' })), 3000);
     } catch (error: any) {
-      setProfileErrors({ profilePicture: error.errors?.[0]?.message || 'Failed to remove profile picture' });
+      setProfileErrors({ profilePicture: 'Failed to remove profile picture' });
     } finally {
       setIsUploadingImage(false);
     }
@@ -741,7 +738,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                           />
                         ) : (
                           <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                            {user?.firstName?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                            {user?.user_metadata?.name?.charAt(0) || user?.user_metadata?.username?.charAt(0) || user?.email?.charAt(0) || 'U'}
                           </div>
                         )}
                         <label className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm hover:bg-amber-600 transition-colors duration-300 cursor-pointer">

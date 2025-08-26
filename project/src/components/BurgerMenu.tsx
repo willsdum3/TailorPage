@@ -74,7 +74,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
         <div className="p-6 pt-20 h-full overflow-y-auto">
           <div className="mb-8 pb-6 border-b border-white/10">
             <button 
-              onClick={() => handleNavigation('home')}
+              onClick={() => handleNavigation('welcome')}
               className="w-full text-left hover:opacity-80 transition-opacity duration-300"
             >
               <Logo size="md" showText={true} />

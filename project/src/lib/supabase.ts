@@ -4,7 +4,13 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL!;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY!;
 const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
 // Service role client for admin operations
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
@@ -16,7 +22,7 @@ export interface Database {
       users: {
         Row: {
           id: string;
-          clerk_id: string;
+          auth_user_id: string; // Supabase Auth user ID
           name: string;
           username: string;
           email: string;
@@ -26,7 +32,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          clerk_id: string;
+          auth_user_id: string;
           name: string;
           username: string;
           email: string;
@@ -36,7 +42,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          clerk_id?: string;
+          auth_user_id?: string;
           name?: string;
           username?: string;
           email?: string;
@@ -178,12 +184,24 @@ export interface Database {
   };
 }
 
-// Helper function to get user from Clerk ID
-export const getUserByClerkId = async (clerkId: string) => {
+// Helper function to get current authenticated user
+export const getCurrentUser = async () => {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  
+  if (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+  
+  return user;
+};
+
+// Helper function to get user from Supabase Auth ID
+export const getUserByAuthId = async (authUserId: string) => {
   const { data, error } = await supabase
     .from('users')
     .select('*')
-    .eq('clerk_id', clerkId)
+    .eq('auth_user_id', authUserId)
     .single();
 
   if (error) {
@@ -196,7 +214,7 @@ export const getUserByClerkId = async (clerkId: string) => {
 
 // Helper function to create or update user
 export const upsertUser = async (userData: {
-  clerk_id: string;
+  auth_user_id: string;
   name: string;
   username: string;
   email: string;
@@ -208,21 +226,21 @@ export const upsertUser = async (userData: {
     // First, check if user exists with this email
     const { data: existingUser } = await supabaseAdmin
       .from('users')
-      .select('clerk_id, email')
+      .select('auth_user_id, email')
       .eq('email', userData.email)
       .single();
 
-    if (existingUser && existingUser.clerk_id !== userData.clerk_id) {
+    if (existingUser && existingUser.auth_user_id !== userData.auth_user_id) {
       console.log('upsertUser: Email conflict detected. Existing user:', existingUser);
-      // Email exists but with different clerk_id - this is a conflict
+      // Email exists but with different auth_user_id - this is a conflict
       throw new Error(`Email ${userData.email} is already registered with a different account`);
     }
 
-    // Proceed with upsert using clerk_id as conflict resolution
+    // Proceed with upsert using auth_user_id as conflict resolution
     const { data, error } = await supabaseAdmin
       .from('users')
       .upsert(userData, {
-        onConflict: 'clerk_id',
+        onConflict: 'auth_user_id',
         ignoreDuplicates: false,
       })
       .select()
@@ -248,9 +266,9 @@ export const upsertUser = async (userData: {
 };
 
 // Helper function to get user favorites
-export const getUserFavorites = async (clerkId: string) => {
+export const getUserFavorites = async (authUserId: string) => {
   const { data, error } = await supabaseAdmin
-    .rpc('get_user_favorites', { user_clerk_id: clerkId });
+    .rpc('get_user_favorites', { user_auth_id: authUserId });
 
   if (error) {
     console.error('Error fetching user favorites:', error);
@@ -262,25 +280,25 @@ export const getUserFavorites = async (clerkId: string) => {
 
 // Helper function to add book to favorites
 export const addBookToFavorites = async (
-  clerkId: string,
+  authUserId: string,
   bookData: {
     title: string;
     author: string;
     genre: string;
     description: string;
     amazon_link: string;
-
+    cover_image_url?: string;
   }
 ) => {
   const { data, error } = await supabaseAdmin
     .rpc('save_book_to_favorites', {
-      user_clerk_id: clerkId,
+      user_auth_id: authUserId,
       book_title: bookData.title,
       book_author: bookData.author,
       book_genre: bookData.genre,
       book_description: bookData.description,
       book_amazon_link: bookData.amazon_link,
-
+      book_cover_image_url: bookData.cover_image_url || null,
     });
 
   if (error) {
@@ -293,13 +311,13 @@ export const addBookToFavorites = async (
 
 // Helper function to remove book from favorites
 export const removeBookFromFavorites = async (
-  clerkId: string,
+  authUserId: string,
   bookTitle: string,
   bookAuthor: string
 ) => {
   const { data, error } = await supabaseAdmin
     .rpc('remove_book_from_favorites', {
-      user_clerk_id: clerkId,
+      user_auth_id: authUserId,
       book_title: bookTitle,
       book_author: bookAuthor,
     });
@@ -312,12 +330,10 @@ export const removeBookFromFavorites = async (
   return data;
 };
 
-
-
 // Helper function to get user personality profile
-export const getUserPersonalityProfile = async (clerkId: string) => {
+export const getUserPersonalityProfile = async (authUserId: string) => {
   const { data, error } = await supabaseAdmin
-    .rpc('get_user_personality_profile', { user_clerk_id: clerkId });
+    .rpc('get_user_personality_profile', { user_auth_id: authUserId });
 
   if (error) {
     console.error('Error fetching personality profile:', error);
@@ -329,7 +345,7 @@ export const getUserPersonalityProfile = async (clerkId: string) => {
 
 // Helper function to save user personality profile
 export const saveUserPersonalityProfile = async (
-  clerkId: string,
+  authUserId: string,
   profile: {
     openness: number;
     conscientiousness: number;
@@ -345,7 +361,7 @@ export const saveUserPersonalityProfile = async (
 ) => {
   const { data, error } = await supabaseAdmin
     .rpc('save_user_personality_profile', {
-      user_clerk_id: clerkId,
+      user_auth_id: authUserId,
       openness_val: profile.openness,
       conscientiousness_val: profile.conscientiousness,
       extraversion_val: profile.extraversion,
