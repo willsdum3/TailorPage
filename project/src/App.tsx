@@ -633,9 +633,15 @@ function App() {
 
   const handleLogout = async () => {
     try {
+      console.log('Logout initiated, navigating to welcome page...');
+      // Navigate to welcome page first
+      setCurrentPage('welcome');
+      // Then sign out
       await signOut();
     } catch (error) {
       console.error('Error signing out:', error);
+      // Still navigate to welcome page even if signout fails
+      setCurrentPage('welcome');
     }
   };
 
