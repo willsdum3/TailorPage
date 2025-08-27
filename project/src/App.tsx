@@ -349,6 +349,7 @@ function App() {
   const [recommendations, setRecommendations] = useState<BookRecommendation[]>([]);
   const [allRecommendedIds, setAllRecommendedIds] = useState<string[]>([]);
   const [celebrityNavigationCount, setCelebrityNavigationCount] = useState(0);
+  const [favoriteLoadingStates, setFavoriteLoadingStates] = useState<Set<string>>(new Set());
 
   // Scroll to top when page changes
   useScrollToTopInstant([currentPage]);
@@ -479,6 +480,12 @@ function App() {
       return;
     }
 
+    // Create a unique key for this book to track loading state
+    const bookKey = `${book.title}-${book.author}`;
+    
+    // Set loading state for this specific book
+    setFavoriteLoadingStates(prev => new Set(prev).add(bookKey));
+
     try {
       console.log('🔍 Checking if book is already favorited...');
       const isFavorited = favorites.some(fav => 
@@ -498,7 +505,25 @@ function App() {
         }
       } else {
         console.log('🔍 Adding book to favorites...');
-        // Add to favorites
+        
+        // Update UI immediately for better user experience
+        const newFavorite: FavoriteBook = {
+          id: Date.now().toString(), // Temporary ID
+          title: book.title,
+          author: book.author,
+          genre: book.genre,
+          description: book.description,
+          amazonLink: book.amazonLink || '',
+          coverImageUrl: book.coverImageUrl || '',
+          reason: book.reason || '',
+          dateAdded: new Date().toISOString()
+        };
+        
+        // Add to UI immediately
+        setFavorites(prev => [...prev, newFavorite]);
+        console.log('✅ Book added to UI favorites immediately:', book.title);
+        
+        // Then try to save to database
         const success = await addBookToFavorites(user.id, {
           title: book.title,
           author: book.author,
@@ -518,24 +543,21 @@ function App() {
           cover_image_url: book.coverImageUrl || ''
         });
         
-        if (success) {
-          const newFavorite: FavoriteBook = {
-            id: Date.now().toString(), // Temporary ID
-            title: book.title,
-            author: book.author,
-            genre: book.genre,
-            description: book.description,
-            amazonLink: book.amazonLink || '',
-            coverImageUrl: book.coverImageUrl || '',
-            reason: book.reason || '',
-            dateAdded: new Date().toISOString()
-          };
-          setFavorites(prev => [...prev, newFavorite]);
-          console.log('✅ Book added to favorites:', book.title);
+        if (!success) {
+          console.warn('⚠️ Database save failed, but book remains in UI favorites');
+          // Optionally remove from UI if database save fails
+          // setFavorites(prev => removeFavoriteByTitleAuthor(prev, book.title, book.author));
         }
       }
     } catch (error) {
       console.error('❌ Error toggling favorite:', error);
+    } finally {
+      // Clear loading state for this book
+      setFavoriteLoadingStates(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(bookKey);
+        return newSet;
+      });
     }
   };
 
@@ -714,6 +736,7 @@ function App() {
           onLoginRequired={() => setIsAuthModalOpen(true)}
           onBack={() => setCurrentPage('welcome')}
           hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
+          favoriteLoadingStates={favoriteLoadingStates}
         />
       )}
       {currentPage === 'trending-books' && (

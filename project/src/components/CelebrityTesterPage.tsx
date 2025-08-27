@@ -38,6 +38,7 @@ interface CelebrityTesterPageProps {
   onToggleFavorite?: (book: any) => void;
   user?: any;
   onLoginRequired?: () => void;
+  favoriteLoadingStates?: Set<string>;
 }
 
 const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({ 
@@ -47,7 +48,8 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
   favorites = [], 
   onToggleFavorite, 
   user, 
-  onLoginRequired 
+  onLoginRequired,
+  favoriteLoadingStates = new Set()
 }) => {
   const [selectedCelebrity, setSelectedCelebrity] = useState<CelebrityProfile | null>(null);
   const [expandedPersonality, setExpandedPersonality] = useState(false);
@@ -338,6 +340,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
                     
                     {/* Favorites Star Button */}
                     <button
+                      disabled={favoriteLoadingStates.has(`${book.title}-${book.author}`)}
                       onClick={() => {
                         console.log('⭐ CelebrityTesterPage: Star button clicked for book:', book.title);
                         if (!user) {
@@ -361,9 +364,11 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
                         onToggleFavorite?.(bookRecommendation);
                       }}
                       className={`ml-3 p-2 rounded-full transition-all duration-300 transform hover:scale-110 ${
-                        isBookFavorited(book)
-                          ? 'text-amber-400 bg-amber-400/20 hover:bg-amber-400/30'
-                          : 'text-white/40 hover:text-amber-400 hover:bg-white/10'
+                        favoriteLoadingStates.has(`${book.title}-${book.author}`)
+                          ? 'text-amber-400 bg-amber-400/20 animate-pulse'
+                          : isBookFavorited(book)
+                            ? 'text-amber-400 bg-amber-400/20 hover:bg-amber-400/30'
+                            : 'text-white/40 hover:text-amber-400 hover:bg-white/10'
                       }`}
                       title={isBookFavorited(book) ? 'Remove from favorites' : 'Add to favorites'}
                     >
