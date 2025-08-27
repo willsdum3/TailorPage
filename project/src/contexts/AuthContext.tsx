@@ -206,7 +206,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('Starting signout process...');
       
-      // Sign out from Supabase first
+      // Clear local state first to prevent flickering
+      setUser(null);
+      setSession(null);
+      
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -215,13 +219,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('Signout successful');
       }
       
-      // Clear local state after successful logout
-      setUser(null);
-      setSession(null);
       setLoading(false);
     } catch (err) {
       console.error('Unexpected error during signout:', err);
-      // Force clear everything as fallback
+      // Ensure state is cleared even on error
       setUser(null);
       setSession(null);
       setLoading(false);

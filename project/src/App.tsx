@@ -401,10 +401,6 @@ function App() {
       
       const loadUserData = async () => {
         try {
-          // Clear any stale data first
-          setFavorites([]);
-          setPersonalityProfile(null);
-          
           // Load personality profile
           console.log('Loading personality profile...');
           const profile = await getUserPersonalityProfile(user.id);
@@ -434,18 +430,11 @@ function App() {
           }
         } catch (error) {
           console.error('Error loading user data:', error);
-          // Clear data on error to prevent showing stale data
-          setFavorites([]);
-          setPersonalityProfile(null);
+          // Don't clear data on error - keep existing state
         }
       };
       
-      // Add a small delay to ensure auth state is stable
-      const timeoutId = setTimeout(() => {
-        loadUserData();
-      }, 100);
-      
-      return () => clearTimeout(timeoutId);
+      loadUserData();
     } else {
       console.log('No user or no user.id, clearing user data');
       // Clear user data when user logs out
@@ -461,22 +450,9 @@ function App() {
       // Force clear any remaining state that might affect the UI
       console.log('Cleared quiz state - answers:', {}, 'bookAnswers:', {}, 'personalityProfile:', null);
     }
-  }, [user, authLoading]); // Trigger on user or authLoading changes
+  }, [user]); // Only trigger on user changes, not authLoading
 
-  // Additional effect to ensure immediate state clearing on logout
-  useEffect(() => {
-    if (!isAuthenticated && !authLoading) {
-      console.log('User logged out, ensuring all state is cleared');
-      // Force clear all quiz-related state
-      setPersonalityProfile(null);
-      setAnswers({});
-      setBookAnswers({});
-      setCurrentQuestionIndex(0);
-      setRecommendations([]);
-      setAllRecommendedIds([]);
-      setFavorites([]);
-    }
-  }, [isAuthenticated, authLoading]);
+
 
   const handleAuthPrompt = (mode: 'login' | 'signup' = 'signup', feature?: string) => {
     setAuthModalMode(mode);
