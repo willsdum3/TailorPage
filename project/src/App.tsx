@@ -464,7 +464,7 @@ function App() {
   };
 
   const handleToggleFavorite = async (book: BookRecommendation) => {
-    console.log('🔍 handleToggleFavorite called with book:', book.title);
+    console.log('🔍 handleToggleFavorite called with book:', book);
     console.log('🔍 isAuthenticated:', isAuthenticated);
     console.log('🔍 user:', user);
     

@@ -66,13 +66,7 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
     );
   };
 
-  const handleAddToFavorites = (book: any) => {
-    if (!user) {
-      onLoginRequired?.();
-      return;
-    }
-    onToggleFavorite?.(book);
-  };
+
 
   const getTraitIcon = (traitName: string) => {
     switch (traitName) {
@@ -345,11 +339,26 @@ const CelebrityTesterPage: React.FC<CelebrityTesterPageProps> = ({
                     {/* Favorites Star Button */}
                     <button
                       onClick={() => {
+                        console.log('⭐ CelebrityTesterPage: Star button clicked for book:', book.title);
                         if (!user) {
+                          console.log('⭐ CelebrityTesterPage: No user, calling onLoginRequired');
                           onLoginRequired?.();
                           return;
                         }
-                        onToggleFavorite?.(book);
+                        
+                        // Convert celebrity book to BookRecommendation format
+                        const bookRecommendation = {
+                          id: `celebrity-${selectedCelebrity.name.toLowerCase().replace(/\s+/g, '-')}-${index}`,
+                          title: book.title,
+                          author: book.author,
+                          description: book.description,
+                          genre: book.genre,
+                          reason: book.reason,
+                          amazonLink: book.amazonLink,
+                          coverImageUrl: '' // Will be fetched by BookCover component
+                        };
+                        
+                        onToggleFavorite?.(bookRecommendation);
                       }}
                       className={`ml-3 p-2 rounded-full transition-all duration-300 transform hover:scale-110 ${
                         isBookFavorited(book)

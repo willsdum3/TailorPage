@@ -131,11 +131,26 @@ const TrendingBooksPage: React.FC<TrendingBooksPageProps> = ({
   };
 
   const handleAddToFavorites = (book: TrendingBook) => {
+    console.log('⭐ TrendingBooksPage: Star button clicked for book:', book.title);
     if (!user) {
+      console.log('⭐ TrendingBooksPage: No user, calling onLoginRequired');
       onLoginRequired?.();
       return;
     }
-    onToggleFavorite?.(book);
+    
+    // Convert TrendingBook to BookRecommendation format
+    const bookRecommendation = {
+      id: `trending-${book.rank}`,
+      title: book.title,
+      author: book.author,
+      description: book.description || `A bestselling book by ${book.author}. Currently ranked #${book.rank} on Amazon UK.`,
+      genre: book.genre,
+      reason: 'Trending on Amazon UK',
+      amazonLink: book.amazonLink,
+      coverImageUrl: '' // TrendingBook doesn't have coverImageUrl, will be fetched by BookCover component
+    };
+    
+    onToggleFavorite?.(bookRecommendation);
   };
 
   return (
