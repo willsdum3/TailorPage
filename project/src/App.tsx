@@ -388,13 +388,23 @@ function App() {
 
   // Load user data from database when user is authenticated
   useEffect(() => {
-    console.log('loadUserData useEffect triggered, user:', user);
+    console.log('loadUserData useEffect triggered, user:', user, 'authLoading:', authLoading);
     
-    if (user) {
+    // Don't load data while auth is still loading
+    if (authLoading) {
+      console.log('Auth still loading, skipping user data load');
+      return;
+    }
+    
+    if (user && user.id) {
       console.log('Loading user data for user:', user.id);
       
       const loadUserData = async () => {
         try {
+          // Clear any stale data first
+          setFavorites([]);
+          setPersonalityProfile(null);
+          
           // Load personality profile
           console.log('Loading personality profile...');
           const profile = await getUserPersonalityProfile(user.id);
@@ -403,6 +413,7 @@ function App() {
             setPersonalityProfile(profile);
           } else {
             console.log('No personality profile found for user');
+            setPersonalityProfile(null);
           }
           
           // Load favorites
@@ -410,21 +421,33 @@ function App() {
           const dbFavorites = await getUserFavorites(user.id);
           console.log('getUserFavorites returned:', dbFavorites);
           
-          const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => 
-            normalizeFavoriteFromDatabase(fav)
-          );
-          console.log('Raw database favorites:', dbFavorites);
-          console.log('Formatted favorites:', formattedFavorites);
-          setFavorites(formattedFavorites);
+          if (Array.isArray(dbFavorites) && dbFavorites.length > 0) {
+            const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => 
+              normalizeFavoriteFromDatabase(fav)
+            );
+            console.log('Raw database favorites:', dbFavorites);
+            console.log('Formatted favorites:', formattedFavorites);
+            setFavorites(formattedFavorites);
+          } else {
+            console.log('No favorites found, setting empty array');
+            setFavorites([]);
+          }
         } catch (error) {
           console.error('Error loading user data:', error);
-          // Don't reset data if database fails - keep local state
+          // Clear data on error to prevent showing stale data
+          setFavorites([]);
+          setPersonalityProfile(null);
         }
       };
       
-      loadUserData();
+      // Add a small delay to ensure auth state is stable
+      const timeoutId = setTimeout(() => {
+        loadUserData();
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
     } else {
-      console.log('No user, clearing user data');
+      console.log('No user or no user.id, clearing user data');
       // Clear user data when user logs out
       setFavorites([]);
       setPersonalityProfile(null);
@@ -438,7 +461,7 @@ function App() {
       // Force clear any remaining state that might affect the UI
       console.log('Cleared quiz state - answers:', {}, 'bookAnswers:', {}, 'personalityProfile:', null);
     }
-  }, [user]); // Trigger on any user change
+  }, [user, authLoading]); // Trigger on user or authLoading changes
 
   // Additional effect to ensure immediate state clearing on logout
   useEffect(() => {
@@ -637,6 +660,52 @@ function App() {
       await signOut();
     } catch (error) {
       console.error('Error signing out:', error);
+    }
+  };
+
+  // Manual refresh function for debugging
+  const handleRefreshUserData = async () => {
+    if (user && user.id) {
+      console.log('Manual refresh triggered for user:', user.id);
+      
+      try {
+        // Clear current data
+        setFavorites([]);
+        setPersonalityProfile(null);
+        
+        // Reload personality profile
+        console.log('Manual refresh: Loading personality profile...');
+        const profile = await getUserPersonalityProfile(user.id);
+        if (profile) {
+          console.log('Manual refresh: Personality profile loaded:', profile);
+          setPersonalityProfile(profile);
+        } else {
+          console.log('Manual refresh: No personality profile found');
+          setPersonalityProfile(null);
+        }
+        
+        // Reload favorites
+        console.log('Manual refresh: Loading favorites...');
+        const dbFavorites = await getUserFavorites(user.id);
+        console.log('Manual refresh: getUserFavorites returned:', dbFavorites);
+        
+        if (Array.isArray(dbFavorites) && dbFavorites.length > 0) {
+          const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => 
+            normalizeFavoriteFromDatabase(fav)
+          );
+          console.log('Manual refresh: Formatted favorites:', formattedFavorites);
+          setFavorites(formattedFavorites);
+        } else {
+          console.log('Manual refresh: No favorites found');
+          setFavorites([]);
+        }
+      } catch (error) {
+        console.error('Manual refresh error:', error);
+        setFavorites([]);
+        setPersonalityProfile(null);
+      }
+    } else {
+      console.log('Manual refresh: No user available');
     }
   };
 
