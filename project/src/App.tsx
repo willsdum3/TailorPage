@@ -561,10 +561,16 @@ function App() {
   };
 
   const handleStartQuiz = () => {
+    console.log('🔄 Starting/Restarting quiz - clearing all previous data');
     setCurrentPage('quiz');
     setCurrentQuestionIndex(0);
     setAnswers({});
     setBookAnswers({});
+    // Clear existing personality profile to ensure fresh data
+    setPersonalityProfile(null);
+    // Clear existing recommendations
+    setRecommendations([]);
+    setAllRecommendedIds([]);
   };
 
   const handleResumeQuiz = () => {
@@ -572,6 +578,7 @@ function App() {
   };
 
   const handleQuizComplete = async (profile: PersonalityProfile) => {
+    console.log('🎯 Quiz completed - new profile calculated:', profile);
     setPersonalityProfile(profile);
     
     // Generate initial book recommendations
@@ -583,13 +590,14 @@ function App() {
 
     if (user) {
       try {
+        console.log('💾 Saving new personality profile to database for user:', user.id);
         await saveUserPersonalityProfile(user.id, profile);
-        console.log('✅ Personality profile saved to database');
+        console.log('✅ Personality profile successfully saved to database');
       } catch (error) {
-        console.error('Error saving personality profile:', error);
+        console.error('❌ Error saving personality profile:', error);
       }
     } else {
-      console.log('User not authenticated - encouraging sign up for detailed profile');
+      console.log('ℹ️ User not authenticated - profile will be saved when they sign in');
     }
   };
 
