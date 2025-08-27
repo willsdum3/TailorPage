@@ -508,6 +508,15 @@ function App() {
           cover_image_url: book.coverImageUrl || ''
         });
         console.log('🔍 addBookToFavorites result:', success);
+        console.log('🔍 user.id:', user.id);
+        console.log('🔍 book data being sent:', {
+          title: book.title,
+          author: book.author,
+          genre: book.genre,
+          description: book.description,
+          amazon_link: book.amazonLink || '',
+          cover_image_url: book.coverImageUrl || ''
+        });
         
         if (success) {
           const newFavorite: FavoriteBook = {

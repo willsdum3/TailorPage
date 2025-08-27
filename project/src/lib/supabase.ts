@@ -253,8 +253,15 @@ export const addBookToFavorites = async (
 
   if (error) {
     console.error('Error adding book to favorites:', error);
+    console.error('Error details:', {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code
+    });
     return null;
   }
+  console.log('✅ addBookToFavorites successful, returned data:', data);
   return data;
 };
 
