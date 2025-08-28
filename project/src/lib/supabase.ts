@@ -239,30 +239,38 @@ export const addBookToFavorites = async (
     reason?: string;
   }
 ) => {
-  const { data, error } = await supabaseAdmin
-    .rpc('add_book_to_favorites', {
-      auth_user_id: authUserId,
-      book_title: bookData.title,
-      book_author: bookData.author,
-      book_genre: bookData.genre || null,
-      book_description: bookData.description || null,
-      book_amazon_link: bookData.amazon_link || null,
-      book_cover_image_url: bookData.cover_image_url || null,
-      reason: bookData.reason || null
-    });
+  console.log('🔍 addBookToFavorites called with:', { authUserId, bookData });
+  
+  try {
+    const { data, error } = await supabaseAdmin
+      .rpc('add_book_to_favorites', {
+        auth_user_id: authUserId,
+        book_title: bookData.title,
+        book_author: bookData.author,
+        book_genre: bookData.genre || null,
+        book_description: bookData.description || null,
+        book_amazon_link: bookData.amazon_link || null,
+        book_cover_image_url: bookData.cover_image_url || null,
+        reason: bookData.reason || null
+      });
 
-  if (error) {
-    console.error('Error adding book to favorites:', error);
-    console.error('Error details:', {
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      code: error.code
-    });
+    if (error) {
+      console.error('❌ Error adding book to favorites:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      return null;
+    }
+    
+    console.log('✅ addBookToFavorites successful, returned data:', data);
+    return data;
+  } catch (err) {
+    console.error('❌ Exception in addBookToFavorites:', err);
     return null;
   }
-  console.log('✅ addBookToFavorites successful, returned data:', data);
-  return data;
 };
 
 // Helper function to remove book from favorites
@@ -287,12 +295,27 @@ export const removeBookFromFavorites = async (
 
 // Helper function to get user favorites
 export const getUserFavorites = async (authUserId: string) => {
-  const { data, error } = await supabaseAdmin
-    .rpc('get_user_favorites', { auth_user_id: authUserId });
+  console.log('🔍 getUserFavorites called with authUserId:', authUserId);
+  
+  try {
+    const { data, error } = await supabaseAdmin
+      .rpc('get_user_favorites', { auth_user_id: authUserId });
 
-  if (error) {
-    console.error('Error fetching user favorites:', error);
+    if (error) {
+      console.error('❌ Error fetching user favorites:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      return [];
+    }
+    
+    console.log('✅ getUserFavorites successful, returned data:', data);
+    return data || [];
+  } catch (err) {
+    console.error('❌ Exception in getUserFavorites:', err);
     return [];
   }
-  return data || [];
 }; 
