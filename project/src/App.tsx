@@ -495,17 +495,23 @@ function App() {
 
       if (isFavorited) {
         console.log('🔍 Removing book from favorites...');
-        // Remove from favorites
+        // Remove from UI first for immediate feedback
+        setFavorites(prev => removeFavoriteByTitleAuthor(prev, book.title, book.author));
+        console.log('✅ Book removed from UI favorites immediately:', book.title);
+        
+        // Then try to remove from database
         const success = await removeBookFromFavorites(user.id, book.title, book.author);
         console.log('🔍 removeBookFromFavorites result:', success);
-        if (success) {
-          setFavorites(prev => removeFavoriteByTitleAuthor(prev, book.title, book.author));
-          console.log('✅ Book removed from favorites:', book.title);
+        
+        if (!success) {
+          console.warn('⚠️ Database removal failed, but book remains removed from UI favorites');
+          // Optionally re-add to UI if database removal fails
+          // setFavorites(prev => [...prev, newFavorite]);
         }
       } else {
         console.log('🔍 Adding book to favorites...');
         
-        // Update UI immediately for better user experience
+        // Create new favorite object
         const newFavorite: FavoriteBook = {
           id: Date.now().toString(), // Temporary ID
           title: book.title,
@@ -518,7 +524,7 @@ function App() {
           dateAdded: new Date().toISOString()
         };
         
-        // Add to UI immediately
+        // Add to UI first for immediate feedback
         setFavorites(prev => [...prev, newFavorite]);
         console.log('✅ Book added to UI favorites immediately:', book.title);
         
@@ -543,13 +549,37 @@ function App() {
         });
         
         if (!success) {
-          console.warn('⚠️ Database save failed, but book remains in UI favorites');
-          // Optionally remove from UI if database save fails
-          // setFavorites(prev => removeFavoriteByTitleAuthor(prev, book.title, book.author));
+          console.warn('⚠️ Database save failed, removing from UI favorites');
+          // Remove from UI if database save fails to maintain consistency
+          setFavorites(prev => removeFavoriteByTitleAuthor(prev, book.title, book.author));
         }
       }
     } catch (error) {
       console.error('❌ Error toggling favorite:', error);
+      // On error, revert the UI change to maintain consistency
+      const isFavorited = favorites.some(fav => 
+        fav.title.toLowerCase() === book.title.toLowerCase() && 
+        fav.author.toLowerCase() === book.author.toLowerCase()
+      );
+      
+      if (isFavorited) {
+        // If it was favorited, remove it from UI since database operation failed
+        setFavorites(prev => removeFavoriteByTitleAuthor(prev, book.title, book.author));
+      } else {
+        // If it wasn't favorited, add it back to UI since database operation failed
+        const newFavorite: FavoriteBook = {
+          id: Date.now().toString(),
+          title: book.title,
+          author: book.author,
+          genre: book.genre,
+          description: book.description,
+          amazonLink: book.amazonLink || '',
+          coverImageUrl: book.coverImageUrl || '',
+          reason: book.reason || '',
+          dateAdded: new Date().toISOString()
+        };
+        setFavorites(prev => [...prev, newFavorite]);
+      }
     } finally {
       // Clear loading state for this book
       setFavoriteLoadingStates(prev => {
