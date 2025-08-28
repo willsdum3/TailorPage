@@ -388,7 +388,11 @@ function App() {
 
   // Load user data from database when user is authenticated
   useEffect(() => {
-    console.log('🔄 loadUserData useEffect triggered, user:', user?.id, 'authLoading:', authLoading);
+    console.log('🔄 loadUserData useEffect triggered');
+    console.log('  - user?.id:', user?.id);
+    console.log('  - authLoading:', authLoading);
+    console.log('  - current favorites count:', favorites.length);
+    console.log('  - current personalityProfile:', !!personalityProfile);
     
     // Don't load data while auth is still loading
     if (authLoading) {
@@ -399,12 +403,9 @@ function App() {
     if (user && user.id) {
       console.log('✅ Loading user data for user:', user.id);
       
-      // Only load if we don't already have data for this user
-      const shouldLoadData = !personalityProfile || favorites.length === 0;
-      if (!shouldLoadData) {
-        console.log('ℹ️ User data already loaded, skipping reload');
-        return;
-      }
+      // Always load data when user changes to ensure fresh data
+      // The previous logic was flawed because it would skip loading when favorites existed
+      console.log('🔄 User changed, loading fresh data from database');
       
       const loadUserData = async () => {
         try {
@@ -459,7 +460,7 @@ function App() {
       // Force clear any remaining state that might affect the UI
       console.log('🧹 Cleared all user data and quiz state');
     }
-  }, [user, authLoading]); // Trigger on both user and authLoading changes
+  }, [user?.id, authLoading]); // Only trigger when user ID changes, not the entire user object
 
 
 
