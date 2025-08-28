@@ -262,6 +262,7 @@ export const addBookToFavorites = async (
         hint: error.hint,
         code: error.code
       });
+      console.error('❌ Full error object:', JSON.stringify(error, null, 2));
       return null;
     }
     
@@ -309,6 +310,7 @@ export const getUserFavorites = async (authUserId: string) => {
         hint: error.hint,
         code: error.code
       });
+      console.error('❌ Full error object:', JSON.stringify(error, null, 2));
       return [];
     }
     
