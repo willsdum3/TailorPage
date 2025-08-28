@@ -350,6 +350,7 @@ function App() {
   const [allRecommendedIds, setAllRecommendedIds] = useState<string[]>([]);
   const [celebrityNavigationCount, setCelebrityNavigationCount] = useState(0);
   const [favoriteLoadingStates, setFavoriteLoadingStates] = useState<Set<string>>(new Set());
+  const [lastLoadedUserId, setLastLoadedUserId] = useState<string | null>(null);
 
   // Scroll to top when page changes
   useScrollToTopInstant([currentPage]);
@@ -403,9 +404,13 @@ function App() {
     if (user && user.id) {
       console.log('✅ Loading user data for user:', user.id);
       
-      // Always load data when user changes to ensure fresh data
-      // The previous logic was flawed because it would skip loading when favorites existed
-      console.log('🔄 User changed, loading fresh data from database');
+      // Check if we already loaded data for this specific user
+      if (lastLoadedUserId === user.id && personalityProfile) {
+        console.log('ℹ️ Data already loaded for this user, skipping reload');
+        return;
+      }
+      
+      console.log('🔄 Loading fresh data from database');
       
       const loadUserData = async () => {
         try {
@@ -436,6 +441,10 @@ function App() {
             console.log('ℹ️ No favorites found, setting empty array');
             setFavorites([]);
           }
+          
+          // Track that we've loaded data for this user
+          setLastLoadedUserId(user.id);
+          console.log('✅ Data loading complete for user:', user.id);
         } catch (error) {
           console.error('❌ Error loading user data:', error);
           // Don't clear existing data on error - keep what we have
@@ -450,6 +459,7 @@ function App() {
       // Clear user data when user logs out
       setFavorites([]);
       setPersonalityProfile(null);
+      setLastLoadedUserId(null);
       // Clear quiz state to prevent showing previous user's progress
       setAnswers({});
       setBookAnswers({});
