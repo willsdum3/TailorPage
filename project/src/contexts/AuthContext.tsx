@@ -35,11 +35,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Get initial session
     const getInitialSession = async () => {
       try {
-        console.log('Getting initial session...');
+        console.log('🔄 Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting initial session:', error);
+          console.error('❌ Error getting initial session:', error);
           // Clear any corrupted session data
           await supabase.auth.signOut();
           setSession(null);
@@ -48,12 +48,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return;
         }
         
-        console.log('Initial session:', session?.user?.id);
+        console.log('✅ Initial session loaded:', session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
       } catch (err) {
-        console.error('Unexpected error getting initial session:', err);
+        console.error('❌ Unexpected error getting initial session:', err);
         // Clear session and continue
         await supabase.auth.signOut();
         setSession(null);
@@ -64,9 +64,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Add timeout protection
     const timeoutId = setTimeout(() => {
-      console.warn('Session loading timeout - forcing continue');
+      console.warn('⚠️ Session loading timeout - forcing continue');
       setLoading(false);
-    }, 10000); // 10 second timeout
+    }, 5000); // Reduced timeout to 5 seconds
 
     getInitialSession().finally(() => {
       clearTimeout(timeoutId);
@@ -75,16 +75,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
+        console.log('🔄 Auth state changed:', event, session?.user?.id);
         
         try {
-          // Update session and user state
+          // Update session and user state immediately
           setSession(session);
           setUser(session?.user ?? null);
           
           // Handle specific auth events
           if (event === 'SIGNED_IN' && session?.user) {
-            console.log('User signed in, ensuring profile exists...');
+            console.log('✅ User signed in, ensuring profile exists...');
             try {
               const { data: userProfile, error: profileError } = await supabaseAdmin
                 .rpc('get_or_create_user', {
@@ -96,17 +96,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 });
 
               if (profileError) {
-                console.error('Error ensuring user profile exists:', profileError);
+                console.error('❌ Error ensuring user profile exists:', profileError);
               } else {
-                console.log('User profile ensured:', userProfile);
+                console.log('✅ User profile ensured:', userProfile);
               }
             } catch (err) {
-              console.error('Unexpected error ensuring user profile:', err);
+              console.error('❌ Unexpected error ensuring user profile:', err);
             }
           } else if (event === 'SIGNED_OUT') {
-            console.log('User signed out, state should be cleared by App.tsx useEffect');
+            console.log('🚪 User signed out, clearing state...');
+            // Ensure state is cleared immediately
+            setSession(null);
+            setUser(null);
           } else if (event === 'USER_UPDATED' && session?.user) {
-            console.log('User updated, ensuring profile exists...');
+            console.log('🔄 User updated, ensuring profile exists...');
             try {
               const { data: userProfile, error: profileError } = await supabaseAdmin
                 .rpc('get_or_create_user', {
@@ -118,16 +121,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 });
 
               if (profileError) {
-                console.error('Error ensuring user profile exists on update:', profileError);
+                console.error('❌ Error ensuring user profile exists on update:', profileError);
               } else {
-                console.log('User profile ensured on update:', userProfile);
+                console.log('✅ User profile ensured on update:', userProfile);
               }
             } catch (err) {
-              console.error('Unexpected error ensuring user profile on update:', err);
+              console.error('❌ Unexpected error ensuring user profile on update:', err);
             }
           }
         } catch (err) {
-          console.error('Error in auth state change handler:', err);
+          console.error('❌ Error in auth state change handler:', err);
           // Don't let errors break the auth flow
         }
         
@@ -204,24 +207,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     try {
-      console.log('Starting signout process...');
+      console.log('🚪 Starting signout process...');
       
       // Clear local state first to prevent flickering
       setUser(null);
       setSession(null);
+      setLoading(false);
       
       // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error('Error during signout:', error);
+        console.error('❌ Error during signout:', error);
       } else {
-        console.log('Signout successful');
+        console.log('✅ Signout successful');
       }
       
-      setLoading(false);
+      // Force clear any remaining session data
+      try {
+        await supabase.auth.refreshSession();
+      } catch (refreshError) {
+        // Ignore refresh errors during signout
+        console.log('ℹ️ Session refresh skipped during signout');
+      }
     } catch (err) {
-      console.error('Unexpected error during signout:', err);
+      console.error('❌ Unexpected error during signout:', err);
       // Ensure state is cleared even on error
       setUser(null);
       setSession(null);

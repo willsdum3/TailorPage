@@ -388,55 +388,66 @@ function App() {
 
   // Load user data from database when user is authenticated
   useEffect(() => {
-    console.log('loadUserData useEffect triggered, user:', user, 'authLoading:', authLoading);
+    console.log('🔄 loadUserData useEffect triggered, user:', user?.id, 'authLoading:', authLoading);
     
     // Don't load data while auth is still loading
     if (authLoading) {
-      console.log('Auth still loading, skipping user data load');
+      console.log('⏳ Auth still loading, skipping user data load');
       return;
     }
     
     if (user && user.id) {
-      console.log('Loading user data for user:', user.id);
+      console.log('✅ Loading user data for user:', user.id);
       
       const loadUserData = async () => {
         try {
+          // Clear any stale data first to ensure fresh data
+          setFavorites([]);
+          setPersonalityProfile(null);
+          
           // Load personality profile
-          console.log('Loading personality profile...');
+          console.log('📊 Loading personality profile...');
           const profile = await getUserPersonalityProfile(user.id);
           if (profile) {
-            console.log('Personality profile loaded:', profile);
+            console.log('✅ Personality profile loaded:', profile);
             setPersonalityProfile(profile);
           } else {
-            console.log('No personality profile found for user');
+            console.log('ℹ️ No personality profile found for user');
             setPersonalityProfile(null);
           }
           
           // Load favorites
-          console.log('Loading favorites...');
+          console.log('❤️ Loading favorites...');
           const dbFavorites = await getUserFavorites(user.id);
-          console.log('getUserFavorites returned:', dbFavorites);
+          console.log('📚 getUserFavorites returned:', dbFavorites);
           
           if (Array.isArray(dbFavorites) && dbFavorites.length > 0) {
             const formattedFavorites: FavoriteBook[] = dbFavorites.map((fav: any) => 
               normalizeFavoriteFromDatabase(fav)
             );
-            console.log('Raw database favorites:', dbFavorites);
-            console.log('Formatted favorites:', formattedFavorites);
+            console.log('✅ Raw database favorites:', dbFavorites);
+            console.log('✅ Formatted favorites:', formattedFavorites);
             setFavorites(formattedFavorites);
           } else {
-            console.log('No favorites found, setting empty array');
+            console.log('ℹ️ No favorites found, setting empty array');
             setFavorites([]);
           }
         } catch (error) {
-          console.error('Error loading user data:', error);
-          // Don't clear data on error - keep existing state
+          console.error('❌ Error loading user data:', error);
+          // Clear data on error to prevent stale data
+          setFavorites([]);
+          setPersonalityProfile(null);
         }
       };
       
-      loadUserData();
+      // Add a small delay to ensure auth state is stable
+      const timeoutId = setTimeout(() => {
+        loadUserData();
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
     } else {
-      console.log('No user or no user.id, clearing user data');
+      console.log('🚪 No user or no user.id, clearing user data');
       // Clear user data when user logs out
       setFavorites([]);
       setPersonalityProfile(null);
@@ -448,9 +459,9 @@ function App() {
       setAllRecommendedIds([]);
       
       // Force clear any remaining state that might affect the UI
-      console.log('Cleared quiz state - answers:', {}, 'bookAnswers:', {}, 'personalityProfile:', null);
+      console.log('🧹 Cleared all user data and quiz state');
     }
-  }, [user]); // Only trigger on user changes, not authLoading
+  }, [user, authLoading]); // Trigger on both user and authLoading changes
 
 
 
