@@ -399,13 +399,16 @@ function App() {
     if (user && user.id) {
       console.log('✅ Loading user data for user:', user.id);
       
+      // Only load if we don't already have data for this user
+      const shouldLoadData = !personalityProfile || favorites.length === 0;
+      if (!shouldLoadData) {
+        console.log('ℹ️ User data already loaded, skipping reload');
+        return;
+      }
+      
       const loadUserData = async () => {
         try {
-          // Clear any stale data first to ensure fresh data
-          setFavorites([]);
-          setPersonalityProfile(null);
-          
-          // Load personality profile
+          // Load personality profile first
           console.log('📊 Loading personality profile...');
           const profile = await getUserPersonalityProfile(user.id);
           if (profile) {
@@ -434,18 +437,13 @@ function App() {
           }
         } catch (error) {
           console.error('❌ Error loading user data:', error);
-          // Clear data on error to prevent stale data
-          setFavorites([]);
-          setPersonalityProfile(null);
+          // Don't clear existing data on error - keep what we have
+          console.log('⚠️ Keeping existing data due to loading error');
         }
       };
       
-      // Add a small delay to ensure auth state is stable
-      const timeoutId = setTimeout(() => {
-        loadUserData();
-      }, 100);
-      
-      return () => clearTimeout(timeoutId);
+      // Load data immediately without delay
+      loadUserData();
     } else {
       console.log('🚪 No user or no user.id, clearing user data');
       // Clear user data when user logs out
