@@ -78,11 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔄 Auth state changed:', event, session?.user?.id);
         
         try {
-          // Update session and user state immediately
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          // Handle specific auth events
+          // Handle specific auth events first
           if (event === 'SIGNED_IN' && session?.user) {
             console.log('✅ User signed in, ensuring profile exists...');
             try {
@@ -129,6 +125,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             } catch (err) {
               console.error('❌ Unexpected error ensuring user profile on update:', err);
             }
+          }
+          
+          // Update session and user state based on event
+          if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+            setSession(session);
+            setUser(session?.user ?? null);
+          } else if (event === 'SIGNED_OUT') {
+            // Don't update state here - let the signOut function handle it
+            console.log('🔄 Skipping state update for SIGNED_OUT - handled by signOut function');
           }
         } catch (err) {
           console.error('❌ Error in auth state change handler:', err);
