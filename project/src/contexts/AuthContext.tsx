@@ -210,19 +210,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('🚪 Starting signout process...');
       
-      // Clear local state first to prevent race conditions
-      setUser(null);
-      setSession(null);
-      setLoading(false);
-      
-      // Sign out from Supabase with timeout protection
-      const signOutPromise = supabase.auth.signOut();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Supabase signout timeout')), 5000)
-      );
-      
-      const result = await Promise.race([signOutPromise, timeoutPromise]);
-      const { error } = result as { error: any };
+      // Sign out from Supabase first (without timeout)
+      const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('❌ Error during signout:', error);
@@ -231,12 +220,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('✅ Supabase signout successful');
       }
       
-      // Force clear any remaining session data
-      try {
-        await supabase.auth.refreshSession();
-      } catch (refreshError) {
-        console.log('ℹ️ Session refresh skipped during signout');
-      }
+      // Clear local state after successful signout
+      setUser(null);
+      setSession(null);
+      setLoading(false);
       
       console.log('✅ Complete signout process finished');
       
