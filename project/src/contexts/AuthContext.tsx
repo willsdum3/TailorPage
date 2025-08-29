@@ -105,9 +105,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           } else if (event === 'SIGNED_OUT') {
             console.log('🚪 User signed out, clearing auth state...');
-            // Only clear auth state, let App.tsx handle user data clearing
+            // Clear auth state - this will trigger App.tsx to clear user data
             setSession(null);
             setUser(null);
+            setLoading(false);
           } else if (event === 'USER_UPDATED' && session?.user) {
             console.log('🔄 User updated, ensuring profile exists...');
             try {
@@ -209,12 +210,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('🚪 Starting signout process...');
       
-      // Clear local state first to prevent flickering
-      setUser(null);
-      setSession(null);
-      setLoading(false);
-      
-      // Sign out from Supabase
+      // Sign out from Supabase first
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -223,13 +219,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('✅ Signout successful');
       }
       
-      // Force clear any remaining session data
-      try {
-        await supabase.auth.refreshSession();
-      } catch (refreshError) {
-        // Ignore refresh errors during signout
-        console.log('ℹ️ Session refresh skipped during signout');
-      }
+      // Clear local state after successful signout
+      // This will trigger the onAuthStateChange handler
+      setUser(null);
+      setSession(null);
+      setLoading(false);
+      
     } catch (err) {
       console.error('❌ Unexpected error during signout:', err);
       // Ensure state is cleared even on error

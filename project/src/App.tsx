@@ -404,11 +404,19 @@ function App() {
     if (user && user.id) {
       console.log('✅ Loading user data for user:', user.id);
       
-      // Check if we already loaded data for this specific user
-      if (lastLoadedUserId === user.id && personalityProfile) {
-        console.log('ℹ️ Data already loaded for this user, skipping reload');
-        return;
-      }
+          // Check if we already loaded data for this specific user
+    if (lastLoadedUserId === user.id && personalityProfile) {
+      console.log('ℹ️ Data already loaded for this user, skipping reload');
+      return;
+    }
+    
+    // Clear any existing data when switching users
+    if (lastLoadedUserId && lastLoadedUserId !== user.id) {
+      console.log('🔄 User ID changed, clearing previous user data');
+      setFavorites([]);
+      setPersonalityProfile(null);
+      setLastLoadedUserId(null);
+    }
       
       console.log('🔄 Loading fresh data from database');
       
