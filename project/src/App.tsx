@@ -700,12 +700,33 @@ function App() {
   const handleLogout = async () => {
     try {
       console.log('Logout initiated, navigating to welcome page...');
-      // Navigate to welcome page first
+      
+      // Clear user data first to prevent state conflicts
+      setFavorites([]);
+      setPersonalityProfile(null);
+      setLastLoadedUserId(null);
+      setAnswers({});
+      setBookAnswers({});
+      setCurrentQuestionIndex(0);
+      setRecommendations([]);
+      setAllRecommendedIds([]);
+      
+      // Navigate to welcome page
       setCurrentPage('welcome');
-      // Then sign out
-      await signOut();
+      
+      // Then sign out with timeout protection
+      const signOutPromise = signOut();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Signout timeout')), 10000)
+      );
+      
+      await Promise.race([signOutPromise, timeoutPromise]);
+      console.log('✅ Logout completed successfully');
+      
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('❌ Error signing out:', error);
+      // Force clear auth state even if signout fails
+      console.log('🔄 Force clearing auth state due to signout error');
       // Still navigate to welcome page even if signout fails
       setCurrentPage('welcome');
     }
