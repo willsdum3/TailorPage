@@ -103,6 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.log('🚪 User signed out event detected - letting signOut function handle state clearing');
           } else if (event === 'USER_UPDATED' && session?.user) {
             console.log('🔄 User updated, ensuring profile exists...');
+            console.log('🔄 Updated user metadata:', session.user.user_metadata);
             try {
               const { data: userProfile, error: profileError } = await supabaseAdmin
                 .rpc('get_or_create_user', {
@@ -125,6 +126,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           // Update session and user state based on event
           if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+            console.log('🔄 Updating user state with session user:', session?.user);
+            console.log('🔄 Session user metadata:', session?.user?.user_metadata);
             setSession(session);
             setUser(session?.user ?? null);
           } else if (event === 'SIGNED_OUT') {

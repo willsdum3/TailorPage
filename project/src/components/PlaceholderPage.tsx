@@ -227,8 +227,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
       setProfileSettings(prev => ({ ...prev, profilePicture: uploadResult.url }));
       setProfileSuccess({ profilePicture: 'Profile picture updated successfully!' });
       
-      // Don't trigger full refresh - just update the user metadata in Supabase Auth
-      // This will cause the auth state to update and the profile picture to show
+      // Update the user metadata in Supabase Auth and force a user refresh
       try {
         const { supabase } = await import('../lib/supabase');
         console.log('🔄 Updating user metadata with avatar_url:', uploadResult.url);
@@ -243,6 +242,17 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
         } else {
           console.log('✅ User metadata updated successfully:', data);
           console.log('🔄 Updated user object:', data.user);
+          
+          // Force a refresh of the current user to get updated metadata
+          console.log('🔄 Refreshing user session to get updated metadata...');
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError) {
+            console.error('❌ Error refreshing session:', refreshError);
+          } else {
+            console.log('✅ Session refreshed successfully:', refreshData);
+            console.log('🔄 Refreshed user metadata:', refreshData.user?.user_metadata);
+          }
         }
       } catch (error) {
         console.error('❌ Error updating user metadata:', error);
