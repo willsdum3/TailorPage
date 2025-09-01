@@ -214,20 +214,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('🚪 Starting signout process...');
       
-      // Sign out from Supabase first (without timeout)
+      // Clear local state first to prevent race conditions
+      setUser(null);
+      setSession(null);
+      setLoading(false);
+      
+      // Small delay to ensure state is cleared before signout
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('❌ Error during signout:', error);
-        throw error;
+        // Don't throw error, just log it and continue
+        console.log('⚠️ Continuing with signout despite error');
       } else {
         console.log('✅ Supabase signout successful');
       }
-      
-      // Clear local state after successful signout
-      setUser(null);
-      setSession(null);
-      setLoading(false);
       
       console.log('✅ Complete signout process finished');
       
@@ -237,7 +241,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setSession(null);
       setLoading(false);
-      throw err; // Re-throw to let App.tsx handle it
+      console.log('⚠️ Continuing with signout despite error');
     }
   };
 

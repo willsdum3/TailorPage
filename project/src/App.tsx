@@ -704,14 +704,28 @@ function App() {
       // Navigate to welcome page first
       setCurrentPage('welcome');
       
-      // Then sign out (without timeout)
+      // Clear app state immediately to prevent race conditions
+      setPersonalityProfile(null);
+      setFavorites([]);
+      setRecommendations([]);
+      setAllRecommendedIds([]);
+      setLastLoadedUserId(null);
+      
+      // Then sign out
       await signOut();
       console.log('✅ Logout completed successfully');
       
     } catch (error) {
       console.error('❌ Error signing out:', error);
-      // Still navigate to welcome page even if signout fails
+      // Ensure app state is cleared even if signout fails
+      setUser(null);
+      setPersonalityProfile(null);
+      setFavorites([]);
+      setRecommendations([]);
+      setAllRecommendedIds([]);
+      setLastLoadedUserId(null);
       setCurrentPage('welcome');
+      console.log('✅ App state cleared despite signout error');
     }
   };
 
