@@ -37,6 +37,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
 }) => {
   // Debug logging to understand the state
   console.log('WelcomePage render - isLoggedIn:', isLoggedIn, 'hasCompletedQuiz:', hasCompletedQuiz, 'hasQuizProgress:', hasQuizProgress);
+  console.log('WelcomePage user data:', user);
+  console.log('WelcomePage user imageUrl:', user?.imageUrl);
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Elements */}

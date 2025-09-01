@@ -231,19 +231,21 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
       // This will cause the auth state to update and the profile picture to show
       try {
         const { supabase } = await import('../lib/supabase');
-        const { error } = await supabase.auth.updateUser({
+        console.log('🔄 Updating user metadata with avatar_url:', uploadResult.url);
+        const { data, error } = await supabase.auth.updateUser({
           data: {
             avatar_url: uploadResult.url
           }
         });
         
         if (error) {
-          console.error('Error updating user metadata:', error);
+          console.error('❌ Error updating user metadata:', error);
         } else {
-          console.log('User metadata updated successfully');
+          console.log('✅ User metadata updated successfully:', data);
+          console.log('🔄 Updated user object:', data.user);
         }
       } catch (error) {
-        console.error('Error updating user metadata:', error);
+        console.error('❌ Error updating user metadata:', error);
       }
       
       // Clear success message after 3 seconds

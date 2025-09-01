@@ -810,6 +810,9 @@ function App() {
       {currentPage === 'welcome' && (
         <>
           {console.log('Rendering WelcomePage with - isAuthenticated:', isAuthenticated, 'personalityProfile:', personalityProfile, 'hasCompletedQuiz:', !!personalityProfile)}
+          {console.log('App.tsx user object:', user)}
+          {console.log('App.tsx user.user_metadata:', user?.user_metadata)}
+          {console.log('App.tsx user.user_metadata?.avatar_url:', user?.user_metadata?.avatar_url)}
           <WelcomePage
             onStartQuiz={handleStartQuiz}
             onResumeQuiz={handleResumeQuiz}
