@@ -403,6 +403,13 @@ function App() {
     
     if (user && user.id) {
       console.log('✅ Loading user data for user:', user.id);
+      console.log('✅ User object details:', {
+        id: user.id,
+        email: user.email,
+        user_metadata: user.user_metadata,
+        user_metadata_type: typeof user.user_metadata,
+        user_metadata_keys: user.user_metadata ? Object.keys(user.user_metadata) : 'no metadata'
+      });
       
           // Check if we already loaded data for this specific user
     if (lastLoadedUserId === user.id && personalityProfile) {

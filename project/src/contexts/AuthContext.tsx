@@ -81,38 +81,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Handle specific auth events first
           if (event === 'SIGNED_IN' && session?.user) {
             console.log('✅ User signed in, ensuring profile exists...');
-            try {
-              // Add timeout to prevent hanging
-              const profilePromise = supabaseAdmin
-                .rpc('get_or_create_user', {
-                  auth_user_id: session.user.id,
-                  user_name: session.user.user_metadata?.name || 'User',
-                  user_email: session.user.email || '',
-                  user_username: session.user.user_metadata?.username || null,
-                  user_avatar_url: session.user.user_metadata?.avatar_url || null
-                });
+            
+            // Try profile creation but don't block signin if it fails
+            const ensureProfile = async () => {
+              try {
+                const { data: userProfile, error: profileError } = await supabaseAdmin
+                  .rpc('get_or_create_user', {
+                    auth_user_id: session.user.id,
+                    user_name: session.user.user_metadata?.name || 'User',
+                    user_email: session.user.email || '',
+                    user_username: session.user.user_metadata?.username || null,
+                    user_avatar_url: session.user.user_metadata?.avatar_url || null
+                  });
 
-              const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Profile creation timeout')), 3000)
-              );
-
-              const { data: userProfile, error: profileError } = await Promise.race([
-                profilePromise,
-                timeoutPromise
-              ]) as any;
-
-              if (profileError) {
-                console.error('❌ Error ensuring user profile exists:', profileError);
-                // Don't block signin if profile creation fails
-                console.log('⚠️ Continuing with signin despite profile error');
-              } else {
-                console.log('✅ User profile ensured:', userProfile);
+                if (profileError) {
+                  console.error('❌ Error ensuring user profile exists:', profileError);
+                } else {
+                  console.log('✅ User profile ensured:', userProfile);
+                }
+              } catch (err) {
+                console.error('❌ Unexpected error ensuring user profile:', err);
               }
-            } catch (err) {
-              console.error('❌ Unexpected error ensuring user profile:', err);
-              // Don't block signin if profile creation fails
-              console.log('⚠️ Continuing with signin despite profile error');
-            }
+            };
+            
+            // Run profile creation in background without blocking signin
+            ensureProfile().catch(err => {
+              console.log('⚠️ Profile creation failed, but signin continues:', err);
+            });
           } else if (event === 'SIGNED_OUT') {
             console.log('🚪 User signed out event detected - letting signOut function handle state clearing');
           } else if (event === 'USER_UPDATED' && session?.user) {
@@ -142,8 +137,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
             console.log('🔄 Updating user state with session user:', session?.user);
             console.log('🔄 Session user metadata:', session?.user?.user_metadata);
+            console.log('🔄 Session user metadata type:', typeof session?.user?.user_metadata);
+            console.log('🔄 Session user metadata keys:', session?.user?.user_metadata ? Object.keys(session.user.user_metadata) : 'no metadata');
             setSession(session);
             setUser(session?.user ?? null);
+            console.log('🔄 User state updated, new user object:', session?.user);
           } else if (event === 'SIGNED_OUT') {
             // Don't update state here - let the signOut function handle it
             console.log('🔄 Skipping state update for SIGNED_OUT - handled by signOut function');
