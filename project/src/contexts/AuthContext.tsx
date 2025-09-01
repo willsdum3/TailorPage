@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const timeoutId = setTimeout(() => {
       console.warn('⚠️ Session loading timeout - forcing continue');
       setLoading(false);
-    }, 5000); // Reduced timeout to 5 seconds
+    }, 3000); // Reduced timeout to 3 seconds
 
     getInitialSession().finally(() => {
       clearTimeout(timeoutId);
@@ -82,7 +82,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (event === 'SIGNED_IN' && session?.user) {
             console.log('✅ User signed in, ensuring profile exists...');
             try {
-              const { data: userProfile, error: profileError } = await supabaseAdmin
+              // Add timeout to prevent hanging
+              const profilePromise = supabaseAdmin
                 .rpc('get_or_create_user', {
                   auth_user_id: session.user.id,
                   user_name: session.user.user_metadata?.name || 'User',
@@ -91,13 +92,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                   user_avatar_url: session.user.user_metadata?.avatar_url || null
                 });
 
+              const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Profile creation timeout')), 3000)
+              );
+
+              const { data: userProfile, error: profileError } = await Promise.race([
+                profilePromise,
+                timeoutPromise
+              ]) as any;
+
               if (profileError) {
                 console.error('❌ Error ensuring user profile exists:', profileError);
+                // Don't block signin if profile creation fails
+                console.log('⚠️ Continuing with signin despite profile error');
               } else {
                 console.log('✅ User profile ensured:', userProfile);
               }
             } catch (err) {
               console.error('❌ Unexpected error ensuring user profile:', err);
+              // Don't block signin if profile creation fails
+              console.log('⚠️ Continuing with signin despite profile error');
             }
           } else if (event === 'SIGNED_OUT') {
             console.log('🚪 User signed out event detected - letting signOut function handle state clearing');
