@@ -796,7 +796,7 @@ function App() {
             onLearnMore={() => setCurrentPage('learn-more')}
             hasQuizProgress={Object.keys(answers).length > 0 || Object.keys(bookAnswers).length > 0}
             isLoggedIn={isAuthenticated}
-            hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
+            hasCompletedQuiz={!!personalityProfile}
             onGenerateNewBooks={handleGenerateNewBooks}
             onSignIn={() => handleAuthPrompt('login', 'access features')}
             onSignUp={() => handleAuthPrompt('signup', 'access features')}
