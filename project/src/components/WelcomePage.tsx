@@ -13,6 +13,13 @@ interface WelcomePageProps {
   onSignIn?: () => void;
   onSignUp?: () => void;
   onAuthPrompt?: (mode: 'login' | 'signup', feature?: string) => void;
+  user?: {
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    imageUrl?: string;
+  } | null;
 }
 
 const WelcomePage: React.FC<WelcomePageProps> = ({ 
@@ -25,7 +32,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   onGenerateNewBooks,
   onSignIn,
   onSignUp,
-  onAuthPrompt
+  onAuthPrompt,
+  user
 }) => {
   // Debug logging to understand the state
   console.log('WelcomePage render - isLoggedIn:', isLoggedIn, 'hasCompletedQuiz:', hasCompletedQuiz, 'hasQuizProgress:', hasQuizProgress);
@@ -36,17 +44,39 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
       <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       
-      {/* Top Center Sign In Button */}
-      {!isLoggedIn && (
-        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+      {/* Top Center Profile Picture or Sign In Button */}
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+        {isLoggedIn && user ? (
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              {user.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt={`${user.name}'s profile`}
+                  className="w-12 h-12 rounded-full border-2 border-white/20 object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center border-2 border-white/20">
+                  <span className="text-white font-semibold text-lg">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="text-white">
+              <div className="font-semibold text-sm">{user.name}</div>
+              <div className="text-xs text-white/70">@{user.username}</div>
+            </div>
+          </div>
+        ) : (
           <button
             onClick={onSignIn}
             className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-xl font-semibold text-base transition-all duration-300 transform hover:scale-105"
           >
             Sign In
           </button>
-        </div>
-      )}
+        )}
+      </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">

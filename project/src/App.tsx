@@ -725,6 +725,28 @@ function App() {
         setFavorites([]);
         setPersonalityProfile(null);
         
+        // Refresh user data from database
+        console.log('Manual refresh: Loading user data...');
+        const { getUserByAuthId } = await import('./lib/supabase');
+        const userData = await getUserByAuthId(user.id);
+        
+        if (userData) {
+          // Update the user metadata in Supabase Auth
+          const { error } = await supabase.auth.updateUser({
+            data: {
+              avatar_url: userData.avatar_url,
+              name: userData.name,
+              username: userData.username
+            }
+          });
+          
+          if (error) {
+            console.error('Error updating user metadata:', error);
+          } else {
+            console.log('User data refreshed successfully');
+          }
+        }
+        
         // Reload personality profile
         console.log('Manual refresh: Loading personality profile...');
         const profile = await getUserPersonalityProfile(user.id);
@@ -801,6 +823,13 @@ function App() {
             onSignIn={() => handleAuthPrompt('login', 'access features')}
             onSignUp={() => handleAuthPrompt('signup', 'access features')}
             onAuthPrompt={handleAuthPrompt}
+            user={user ? {
+              id: user.id,
+              name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+              username: user.user_metadata?.username || user.email?.split('@')[0] || 'user',
+              email: user.email || '',
+              imageUrl: user.user_metadata?.avatar_url || undefined
+            } : null}
           />
         </>
       )}
@@ -916,6 +945,7 @@ function App() {
             setAllRecommendedIds(newRecommendations.map(book => book.id));
             setCurrentPage('generated');
           }}
+          onRefreshUser={handleRefreshUserData}
         />
       )}
       {currentPage === 'book-cover-test' && (

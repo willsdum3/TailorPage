@@ -21,9 +21,10 @@ interface PlaceholderPageProps {
   favorites?: FavoriteBook[];
   onRemoveFavorite?: (bookId: string) => void;
   onLogout?: () => void;
+  onRefreshUser?: () => void;
 }
 
-const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations, onNavigate, favorites = [], onRemoveFavorite, onLogout }) => {
+const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, onBack, profile, onStartQuiz, onNewRecommendations, onNavigate, favorites = [], onRemoveFavorite, onLogout, onRefreshUser }) => {
   // Add global click test
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
@@ -199,12 +200,42 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     if (!file || !user) return;
 
     setIsUploadingImage(true);
+    setProfileErrors({ profilePicture: '' });
+    setProfileSuccess({ profilePicture: '' });
+
     try {
-      // For Supabase, profile picture upload requires additional setup
-      setProfileSuccess({ profilePicture: 'Profile picture upload feature coming soon!' });
+      // Import the upload function dynamically to avoid circular dependencies
+      const { uploadProfilePicture, updateUserAvatarUrl } = await import('../utils/profilePictureUpload');
+      
+      // Upload the file to storage
+      const uploadResult = await uploadProfilePicture(file, user.id);
+      
+      if (!uploadResult.success) {
+        setProfileErrors({ profilePicture: uploadResult.error || 'Failed to upload profile picture' });
+        return;
+      }
+
+      // Update the user's avatar URL in the database
+      const updateResult = await updateUserAvatarUrl(user.id, uploadResult.url!);
+      
+      if (!updateResult.success) {
+        setProfileErrors({ profilePicture: updateResult.error || 'Failed to update profile picture' });
+        return;
+      }
+
+      // Update local state
+      setProfileSettings(prev => ({ ...prev, profilePicture: uploadResult.url }));
+      setProfileSuccess({ profilePicture: 'Profile picture updated successfully!' });
+      
+      // Refresh user data to update the profile picture in the app
+      onRefreshUser?.();
+      
+      // Clear success message after 3 seconds
       setTimeout(() => setProfileSuccess(prev => ({ ...prev, profilePicture: '' })), 3000);
+      
     } catch (error: any) {
-      setProfileErrors({ profilePicture: 'Failed to upload profile picture' });
+      console.error('Profile picture upload error:', error);
+      setProfileErrors({ profilePicture: 'Failed to upload profile picture. Please try again.' });
     } finally {
       setIsUploadingImage(false);
     }
@@ -214,13 +245,34 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     if (!user) return;
 
     setIsUploadingImage(true);
+    setProfileErrors({ profilePicture: '' });
+    setProfileSuccess({ profilePicture: '' });
+
     try {
-      // For Supabase, profile picture removal requires additional setup
+      // Import the remove function dynamically
+      const { removeProfilePicture } = await import('../utils/profilePictureUpload');
+      
+      // Remove the profile picture
+      const result = await removeProfilePicture(user.id);
+      
+      if (!result.success) {
+        setProfileErrors({ profilePicture: result.error || 'Failed to remove profile picture' });
+        return;
+      }
+
+      // Update local state
       setProfileSettings(prev => ({ ...prev, profilePicture: null }));
       setProfileSuccess({ profilePicture: 'Profile picture removed successfully!' });
+      
+      // Refresh user data to update the profile picture in the app
+      onRefreshUser?.();
+      
+      // Clear success message after 3 seconds
       setTimeout(() => setProfileSuccess(prev => ({ ...prev, profilePicture: '' })), 3000);
+      
     } catch (error: any) {
-      setProfileErrors({ profilePicture: 'Failed to remove profile picture' });
+      console.error('Profile picture removal error:', error);
+      setProfileErrors({ profilePicture: 'Failed to remove profile picture. Please try again.' });
     } finally {
       setIsUploadingImage(false);
     }
