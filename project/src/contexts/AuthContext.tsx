@@ -100,11 +100,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               console.error('❌ Unexpected error ensuring user profile:', err);
             }
           } else if (event === 'SIGNED_OUT') {
-            console.log('🚪 User signed out, clearing auth state...');
-            // Clear auth state - this will trigger App.tsx to clear user data
-            setSession(null);
-            setUser(null);
-            setLoading(false);
+            console.log('🚪 User signed out event detected - letting signOut function handle state clearing');
           } else if (event === 'USER_UPDATED' && session?.user) {
             console.log('🔄 User updated, ensuring profile exists...');
             try {
