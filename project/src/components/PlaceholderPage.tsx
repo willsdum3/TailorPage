@@ -227,8 +227,24 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
       setProfileSettings(prev => ({ ...prev, profilePicture: uploadResult.url }));
       setProfileSuccess({ profilePicture: 'Profile picture updated successfully!' });
       
-      // Refresh user data to update the profile picture in the app
-      onRefreshUser?.();
+      // Don't trigger full refresh - just update the user metadata in Supabase Auth
+      // This will cause the auth state to update and the profile picture to show
+      try {
+        const { supabase } = await import('../lib/supabase');
+        const { error } = await supabase.auth.updateUser({
+          data: {
+            avatar_url: uploadResult.url
+          }
+        });
+        
+        if (error) {
+          console.error('Error updating user metadata:', error);
+        } else {
+          console.log('User metadata updated successfully');
+        }
+      } catch (error) {
+        console.error('Error updating user metadata:', error);
+      }
       
       // Clear success message after 3 seconds
       setTimeout(() => setProfileSuccess(prev => ({ ...prev, profilePicture: '' })), 3000);
@@ -264,8 +280,23 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
       setProfileSettings(prev => ({ ...prev, profilePicture: null }));
       setProfileSuccess({ profilePicture: 'Profile picture removed successfully!' });
       
-      // Refresh user data to update the profile picture in the app
-      onRefreshUser?.();
+      // Don't trigger full refresh - just update the user metadata in Supabase Auth
+      try {
+        const { supabase } = await import('../lib/supabase');
+        const { error } = await supabase.auth.updateUser({
+          data: {
+            avatar_url: null
+          }
+        });
+        
+        if (error) {
+          console.error('Error updating user metadata:', error);
+        } else {
+          console.log('User metadata updated successfully');
+        }
+      } catch (error) {
+        console.error('Error updating user metadata:', error);
+      }
       
       // Clear success message after 3 seconds
       setTimeout(() => setProfileSuccess(prev => ({ ...prev, profilePicture: '' })), 3000);

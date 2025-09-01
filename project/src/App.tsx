@@ -721,11 +721,7 @@ function App() {
       console.log('Manual refresh triggered for user:', user.id);
       
       try {
-        // Clear current data
-        setFavorites([]);
-        setPersonalityProfile(null);
-        
-        // Refresh user data from database
+        // Refresh user data from database first (don't clear existing data yet)
         console.log('Manual refresh: Loading user data...');
         const { getUserByAuthId, supabase } = await import('./lib/supabase');
         const userData = await getUserByAuthId(user.id);
@@ -755,7 +751,8 @@ function App() {
           setPersonalityProfile(profile);
         } else {
           console.log('Manual refresh: No personality profile found');
-          setPersonalityProfile(null);
+          // Don't clear existing profile if we can't load a new one
+          console.log('Manual refresh: Keeping existing personality profile to prevent data loss');
         }
         
         // Reload favorites
@@ -771,12 +768,13 @@ function App() {
           setFavorites(formattedFavorites);
         } else {
           console.log('Manual refresh: No favorites found');
+          // Only clear favorites if we successfully loaded an empty array
           setFavorites([]);
         }
       } catch (error) {
         console.error('Manual refresh error:', error);
-        setFavorites([]);
-        setPersonalityProfile(null);
+        // Don't clear existing data on error - keep what we have
+        console.log('Manual refresh: Error occurred, keeping existing data to prevent data loss');
       }
     } else {
       console.log('Manual refresh: No user available');
