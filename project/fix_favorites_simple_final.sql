@@ -34,7 +34,7 @@ ALTER TABLE user_favorites ENABLE ROW LEVEL SECURITY;
 
 -- Step 4: Create a simple, working policy
 SELECT '=== CREATING NEW POLICY ===' as info;
-CREATE POLICY "Simple favorites policy" ON user_favorites
+CREATE POLICY "Simple favorites policy v2" ON user_favorites
     FOR ALL 
     USING (auth.role() = 'authenticated')
     WITH CHECK (auth.role() = 'authenticated');

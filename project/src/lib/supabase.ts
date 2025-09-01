@@ -244,14 +244,14 @@ export const addBookToFavorites = async (
   try {
     const { data, error } = await supabaseAdmin
       .rpc('add_book_to_favorites', {
-        auth_user_id: authUserId,
-        book_title: bookData.title,
-        book_author: bookData.author,
-        book_genre: bookData.genre || null,
-        book_description: bookData.description || null,
-        book_amazon_link: bookData.amazon_link || null,
-        book_cover_image_url: bookData.cover_image_url || null,
-        reason: bookData.reason || null
+        p_auth_user_id: authUserId,
+        p_book_title: bookData.title,
+        p_book_author: bookData.author,
+        p_book_genre: bookData.genre || null,
+        p_book_description: bookData.description || null,
+        p_book_amazon_link: bookData.amazon_link || null,
+        p_book_cover_image_url: bookData.cover_image_url || null,
+        p_reason: bookData.reason || null
       });
 
     if (error) {
@@ -282,9 +282,9 @@ export const removeBookFromFavorites = async (
 ) => {
   const { data, error } = await supabaseAdmin
     .rpc('remove_book_from_favorites', {
-      auth_user_id: authUserId,
-      book_title: bookTitle,
-      book_author: bookAuthor
+      p_auth_user_id: authUserId,
+      p_book_title: bookTitle,
+      p_book_author: bookAuthor
     });
 
   if (error) {
