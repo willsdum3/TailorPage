@@ -727,7 +727,7 @@ function App() {
         
         // Refresh user data from database
         console.log('Manual refresh: Loading user data...');
-        const { getUserByAuthId } = await import('./lib/supabase');
+        const { getUserByAuthId, supabase } = await import('./lib/supabase');
         const userData = await getUserByAuthId(user.id);
         
         if (userData) {
