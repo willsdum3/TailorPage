@@ -71,13 +71,13 @@ export const isBookFavorited = (
  */
 export const normalizeFavoriteFromDatabase = (dbFavorite: any): FavoriteBook => {
   return {
-    id: generateBookId(dbFavorite.title, dbFavorite.author), // Use consistent ID
-    title: dbFavorite.title,
-    author: dbFavorite.author,
-    genre: dbFavorite.genre,
-    description: dbFavorite.description,
-    amazonLink: dbFavorite.amazon_link,
-
+    id: generateBookId(dbFavorite.book_title, dbFavorite.book_author), // Use consistent ID
+    title: dbFavorite.book_title,
+    author: dbFavorite.book_author,
+    genre: dbFavorite.book_genre,
+    description: dbFavorite.book_description,
+    amazonLink: dbFavorite.book_amazon_link,
+    coverImageUrl: dbFavorite.book_cover_image_url,
     dateAdded: dbFavorite.date_added,
     reason: dbFavorite.reason || 'Added to favorites'
   };

@@ -48,14 +48,13 @@ BEGIN
         cover_image_url, 
         reason_text
     )
-    ON CONFLICT (user_id, book_title, book_author)
-    DO UPDATE SET
-        book_genre = EXCLUDED.book_genre,
-        book_description = EXCLUDED.book_description,
-        book_amazon_link = EXCLUDED.book_amazon_link,
-        book_cover_image_url = EXCLUDED.book_cover_image_url,
-        reason = EXCLUDED.reason,
-        updated_at = NOW()
+         ON CONFLICT (user_id, book_title, book_author)
+     DO UPDATE SET
+         book_genre = EXCLUDED.book_genre,
+         book_description = EXCLUDED.book_description,
+         book_amazon_link = EXCLUDED.book_amazon_link,
+         book_cover_image_url = EXCLUDED.book_cover_image_url,
+         reason = EXCLUDED.reason
     RETURNING id INTO favorite_uuid;
     
     RETURN favorite_uuid;
