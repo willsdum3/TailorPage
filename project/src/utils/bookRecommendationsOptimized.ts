@@ -635,9 +635,29 @@ export const getBookRecommendationsWithExpandedMatching = (
       description: "A group of teenagers must solve a deadly maze to escape their confinement.",
       amazonLink: "https://www.amazon.co.uk/dp/1909489004",
       reason: "Perfect for readers who enjoy survival stories and mysterious settings."
+    },
+
+    // Mini Batch 4: 2 Science Fiction Books
+    {
+      id: 'the-5th-wave',
+      title: "The 5th Wave",
+      author: "Rick Yancey",
+      genre: "Young Adult Science Fiction",
+      description: "Humanity faces extinction as aliens launch wave after wave of attacks.",
+      amazonLink: "https://www.amazon.co.uk/dp/0141345841",
+      reason: "Appeals to readers who enjoy alien invasion stories and survival narratives."
+    },
+    {
+      id: 'ready-player-one',
+      title: "Ready Player One",
+      author: "Ernest Cline",
+      genre: "Science Fiction",
+      description: "In a virtual reality world, a teenager searches for an Easter egg that could change his life.",
+      amazonLink: "https://www.amazon.co.uk/dp/0099560437",
+      reason: "Perfect for readers who enjoy 80s nostalgia and virtual reality concepts."
     }
 
-    // Note: This curated selection now includes 66+ high-quality books across all genres
+    // Note: This curated selection now includes 68+ high-quality books across all genres
     // Each book has been selected for its quality, popularity, and diverse appeal
   ];
 
