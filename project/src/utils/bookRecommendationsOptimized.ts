@@ -575,9 +575,29 @@ export const getBookRecommendationsWithExpandedMatching = (
       description: "A love story between a man with a genetic disorder that causes him to time travel and his wife.",
       amazonLink: "https://www.amazon.co.uk/dp/0099464464",
       reason: "Appeals to readers who enjoy unique love stories with science fiction elements."
+    },
+
+    // Mini Batch 1: 2 Fantasy Books
+    {
+      id: 'acotar',
+      title: "A Court of Thorns and Roses",
+      author: "Sarah J. Maas",
+      genre: "Fantasy Romance",
+      description: "A young woman is drawn into a magical world of faeries and romance.",
+      amazonLink: "https://www.amazon.co.uk/dp/1408857868",
+      reason: "Perfect for readers who enjoy fantasy worlds with strong romantic elements."
+    },
+    {
+      id: 'caraval',
+      title: "Caraval",
+      author: "Stephanie Garber",
+      genre: "Fantasy",
+      description: "Two sisters escape their father to participate in a magical circus game.",
+      amazonLink: "https://www.amazon.co.uk/dp/1250095255",
+      reason: "Appeals to readers who enjoy magical realism and adventure."
     }
 
-    // Note: This curated selection includes 5,000 high-quality books across all genres
+    // Note: This curated selection now includes 62+ high-quality books across all genres
     // Each book has been selected for its quality, popularity, and diverse appeal
   ];
 
