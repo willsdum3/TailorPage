@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Book, ShoppingCart, ExternalLink, Star, Home, ArrowLeft } from 'lucide-react';
+import { Book, Star, Home, ArrowLeft } from 'lucide-react';
 import { PersonalityProfile, BookRecommendation, FavoriteBook, User } from '../types';
 import { BookCover } from './BookCover';
 import BookSummaryModal, { BookSummaryData } from './BookSummaryModal';
 import { bookInfoService } from '../services/bookInfoService';
+import AmazonLink from './AmazonLink';
 
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 
@@ -171,16 +172,12 @@ const GeneratedRecommendationsPage: React.FC<GeneratedRecommendationsPageProps> 
                   <span className="font-medium text-amber-400">Why this book:</span> {book.reason}
                 </p>
               </div>
-              <a
-                href={book.amazonLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center space-x-2 w-full group"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>Buy on Amazon</span>
-                <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              <AmazonLink
+                title={book.title}
+                author={book.author}
+                originalLink={book.amazonLink}
+                className="w-full"
+              />
             </div>
           ))}
         </div>
