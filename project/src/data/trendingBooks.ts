@@ -12,6 +12,12 @@ export interface TrendingBook {
 
 }
 
+// Helper function to generate reliable Amazon search URLs
+function generateAmazonSearchUrl(title: string, author: string): string {
+  const searchQuery = encodeURIComponent(`${title} ${author}`);
+  return `https://www.amazon.co.uk/s?k=${searchQuery}`;
+}
+
 export const trendingBooks: TrendingBook[] = [
   {
     id: 'fourth-wing',
@@ -19,7 +25,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Rebecca Yarros',
     genre: 'Fantasy Romance',
     description: 'Enter the brutal and elite world of a war college for dragon riders.',
-    amazonLink: 'https://www.amazon.co.uk/s?k=Fourth+Wing+Rebecca+Yarros',
+    amazonLink: generateAmazonSearchUrl('Fourth Wing', 'Rebecca Yarros'),
     rank: 1,
     price: '£9.99',
     rating: 4.6,
@@ -31,7 +37,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Rebecca Yarros',
     genre: 'Fantasy Romance',
     description: 'The highly anticipated sequel to Fourth Wing.',
-    amazonLink: 'https://www.amazon.co.uk/s?k=Iron+Flame+Rebecca+Yarros',
+    amazonLink: generateAmazonSearchUrl('Iron Flame', 'Rebecca Yarros'),
     rank: 2,
     price: '£10.99',
     rating: 4.5,
@@ -43,7 +49,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'James Clear',
     genre: 'Self-Help',
     description: 'An Easy & Proven Way to Build Good Habits & Break Bad Ones.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1847941834',
+    amazonLink: generateAmazonSearchUrl('Atomic Habits', 'James Clear'),
     rank: 3,
     price: '£10.99',
     rating: 4.7,
@@ -55,7 +61,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Colleen Hoover',
     genre: 'Contemporary Romance',
     description: 'A powerful story about love, courage, and the strength to break cycles.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1471156265',
+    amazonLink: generateAmazonSearchUrl('It Ends with Us', 'Colleen Hoover'),
     rank: 4,
     price: '£7.99',
     rating: 4.4,
@@ -67,7 +73,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Colleen Hoover',
     genre: 'Contemporary Romance',
     description: 'The sequel to the bestselling It Ends with Us.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1398521496',
+    amazonLink: generateAmazonSearchUrl('It Starts with Us', 'Colleen Hoover'),
     rank: 5,
     price: '£7.99',
     rating: 4.3,
@@ -79,7 +85,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Colleen Hoover',
     genre: 'Thriller',
     description: 'A psychological thriller that will keep you guessing until the very end.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1538724731',
+    amazonLink: generateAmazonSearchUrl('Verity', 'Colleen Hoover'),
     rank: 6,
     price: '£7.99',
     rating: 4.5,
@@ -91,7 +97,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Freida McFadden',
     genre: 'Thriller',
     description: 'A psychological thriller about a housemaid with a dark secret.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1538742578',
+    amazonLink: generateAmazonSearchUrl('The Housemaid', 'Freida McFadden'),
     rank: 7,
     price: '£7.99',
     rating: 4.4,
@@ -103,7 +109,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Bonnie Garmus',
     genre: 'Historical Fiction',
     description: 'A novel about a female scientist in the 1960s who becomes a cooking show host.',
-    amazonLink: 'https://www.amazon.co.uk/dp/0857528138',
+    amazonLink: generateAmazonSearchUrl('Lessons in Chemistry', 'Bonnie Garmus'),
     rank: 8,
     price: '£7.99',
     rating: 4.6,
@@ -115,7 +121,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Alex Michaelides',
     genre: 'Thriller',
     description: 'A psychological thriller about a woman who shoots her husband and then never speaks again.',
-    amazonLink: 'https://www.amazon.co.uk/dp/1409181634',
+    amazonLink: generateAmazonSearchUrl('The Silent Patient', 'Alex Michaelides'),
     rank: 9,
     price: '£7.99',
     rating: 4.4,
@@ -127,7 +133,7 @@ export const trendingBooks: TrendingBook[] = [
     author: 'Lucy Foley',
     genre: 'Thriller',
     description: 'A wedding celebration turns deadly in this atmospheric thriller.',
-    amazonLink: 'https://www.amazon.co.uk/dp/0008379258',
+    amazonLink: generateAmazonSearchUrl('The Guest List', 'Lucy Foley'),
     rank: 10,
     price: '£7.99',
     rating: 4.3,
