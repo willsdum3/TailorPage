@@ -321,3 +321,57 @@ export const getUserFavorites = async (authUserId: string) => {
     return [];
   }
 }; 
+
+// Helper function to get diverse book recommendations from database
+export const getDiverseBookRecommendations = async (
+  authUserId: string, 
+  personalityProfile: any, 
+  excludeIds: string[] = []
+): Promise<BookRecommendation[]> => {
+  console.log('🔍 getDiverseBookRecommendations called with:', { authUserId, personalityProfile, excludeIds });
+  
+  try {
+    const { data, error } = await supabaseAdmin
+      .rpc('get_diverse_book_recommendations', {
+        user_auth_id: authUserId,
+        personality_openness: personalityProfile.openness || 10,
+        personality_conscientiousness: personalityProfile.conscientiousness || 10,
+        personality_extraversion: personalityProfile.extraversion || 10,
+        personality_agreeableness: personalityProfile.agreeableness || 10,
+        personality_emotional_stability: personalityProfile.emotionalStability || 10,
+        personality_rational_thinking: personalityProfile.rationalThinking || 10,
+        personality_core_values: personalityProfile.coreValues || 10,
+        personality_lifestyle: personalityProfile.lifestyle || 10,
+        personality_social_style: personalityProfile.socialStyle || 10,
+        personality_self_expression: personalityProfile.selfExpression || 10,
+        exclude_book_ids: excludeIds,
+        limit_count: 6
+      });
+
+    if (error) {
+      console.error('❌ Error getting diverse book recommendations:', error);
+      console.error('❌ Full error object:', JSON.stringify(error, null, 2));
+      return [];
+    }
+    
+    console.log('✅ getDiverseBookRecommendations successful, returned data:', data);
+    
+    // Transform database format to frontend format
+    const recommendations: BookRecommendation[] = (data || []).map((book: any) => ({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      genre: book.genre,
+      description: book.description || 'A compelling read that matches your personality.',
+      amazonLink: book.amazon_link || '',
+      coverImageUrl: book.cover_image_url || '',
+      reason: book.reason || `Perfect match for your personality (Score: ${book.match_score})`
+    }));
+    
+    console.log('✅ Transformed recommendations:', recommendations);
+    return recommendations;
+  } catch (err) {
+    console.error('❌ Exception in getDiverseBookRecommendations:', err);
+    return [];
+  }
+}; 
