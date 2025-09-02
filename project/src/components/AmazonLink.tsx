@@ -133,7 +133,7 @@ const AmazonLink: React.FC<AmazonLinkProps> = ({
         className={`${className} text-amber-400 hover:text-amber-300 transition-colors duration-300 inline-flex items-center space-x-1`}
         title={!isValidProductLink ? "Search results on Amazon" : "View on Amazon"}
       >
-        <span>Buy on Amazon</span>
+        <span>View on Amazon</span>
         {showIcon && <ExternalLink className="w-3 h-3" />}
         {!isValidProductLink && (
           <span className="text-xs text-white/60">(search)</span>
@@ -186,7 +186,7 @@ const AmazonLink: React.FC<AmazonLinkProps> = ({
           ) : (
             <Search className="w-4 h-4" />
           )}
-          <span>Buy on Amazon</span>
+          <span>View on Amazon</span>
           <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           {!isValidProductLink && (
             <span className="text-xs text-white/80">(search)</span>
