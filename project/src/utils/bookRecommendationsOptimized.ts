@@ -615,9 +615,29 @@ export const getBookRecommendationsWithExpandedMatching = (
       description: "In a dystopian future, teenagers must fight to the death in a televised event.",
       amazonLink: "https://www.amazon.co.uk/dp/1407109081",
       reason: "Appeals to readers who enjoy action, survival stories, and social commentary."
+    },
+
+    // Mini Batch 3: 2 More Fantasy/Dystopian Books
+    {
+      id: 'divergent',
+      title: "Divergent",
+      author: "Veronica Roth",
+      genre: "Young Adult Dystopian",
+      description: "In a society divided into factions, a young woman discovers she doesn't fit into any single group.",
+      amazonLink: "https://www.amazon.co.uk/dp/0062024027",
+      reason: "Perfect for readers who enjoy coming-of-age stories in dystopian settings."
+    },
+    {
+      id: 'the-maze-runner',
+      title: "The Maze Runner",
+      author: "James Dashner",
+      genre: "Young Adult Science Fiction",
+      description: "A group of teenagers must solve a deadly maze to escape their confinement.",
+      amazonLink: "https://www.amazon.co.uk/dp/1909489004",
+      reason: "Perfect for readers who enjoy survival stories and mysterious settings."
     }
 
-    // Note: This curated selection now includes 64+ high-quality books across all genres
+    // Note: This curated selection now includes 66+ high-quality books across all genres
     // Each book has been selected for its quality, popularity, and diverse appeal
   ];
 
