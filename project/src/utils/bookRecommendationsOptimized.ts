@@ -50,7 +50,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "Paulo Coelho",
       genre: "Philosophical Fiction",
       description: "A mystical story about a shepherd boy's journey to find his personal legend.",
-      amazonLink: "https://www.amazon.co.uk/dp/0061122416",
+      amazonLink: "https://www.amazon.co.uk/dp/0008144227",
       reason: "Resonates with readers seeking meaning, personal growth, and spiritual exploration."
     },
     {
@@ -95,7 +95,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "Delia Owens",
       genre: "Literary Fiction",
       description: "A coming-of-age story and murder mystery set in the marshlands of North Carolina.",
-      amazonLink: "https://www.amazon.co.uk/dp/0735219095",
+      amazonLink: "https://www.amazon.co.uk/dp/1786892738",
       reason: "Appeals to readers who enjoy nature writing combined with compelling character development."
     },
     {
@@ -151,7 +151,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "Andy Weir",
       genre: "Science Fiction",
       description: "An astronaut becomes stranded on Mars and must use his ingenuity to survive.",
-      amazonLink: "https://www.amazon.co.uk/dp/0553418025",
+      amazonLink: "https://www.amazon.co.uk/dp/0091956441",
       reason: "Appeals to readers who enjoy problem-solving, science, and survival stories."
     },
     {
@@ -187,7 +187,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "Brandon Sanderson",
       genre: "Fantasy",
       description: "A world where ash falls from the sky and mist dominates the night.",
-      amazonLink: "https://www.amazon.co.uk/dp/0765311844",
+      amazonLink: "https://www.amazon.co.uk/dp/0575075550",
       reason: "Great for readers who appreciate innovative magic systems and underdog protagonists."
     },
     {
@@ -196,7 +196,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "Brandon Sanderson",
       genre: "Epic Fantasy",
       description: "The first book in The Stormlight Archive series.",
-      amazonLink: "https://www.amazon.co.uk/dp/0765326353",
+      amazonLink: "https://www.amazon.co.uk/dp/0575097368",
       reason: "Perfect for readers who enjoy epic scope, detailed magic systems, and character growth."
     },
     {
@@ -205,7 +205,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "William Gibson",
       genre: "Cyberpunk",
       description: "The novel that defined cyberpunk and virtual reality.",
-      amazonLink: "https://www.amazon.co.uk/dp/0441569595",
+      amazonLink: "https://www.amazon.co.uk/dp/0575075550",
       reason: "Appeals to readers who enjoy futuristic technology and gritty urban settings."
     },
 
@@ -216,7 +216,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "James Clear",
       genre: "Self-Help",
       description: "A practical guide to building good habits and breaking bad ones through small changes.",
-      amazonLink: "https://www.amazon.co.uk/dp/0735211299",
+      amazonLink: "https://www.amazon.co.uk/dp/1786892738",
       reason: "Perfect for growth-oriented readers who want to understand how small changes create remarkable results."
     },
     {
@@ -234,7 +234,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "Eckhart Tolle",
       genre: "Spirituality",
       description: "A guide to spiritual enlightenment and living in the present moment.",
-      amazonLink: "https://www.amazon.co.uk/dp/1577314808",
+      amazonLink: "https://www.amazon.co.uk/dp/0340733500",
       reason: "Appeals to introspective readers interested in mindfulness and spiritual growth."
     },
     {
@@ -756,7 +756,7 @@ export const getBookRecommendationsWithExpandedMatching = (
     author: "Brandon Sanderson",
     genre: "Fantasy",
     description: "A world where ash falls from the sky and mist dominates the night.",
-    amazonLink: "https://www.amazon.co.uk/dp/0765311844",
+          amazonLink: "https://www.amazon.co.uk/dp/0575075550",
     reason: "Great for readers who appreciate innovative magic systems and underdog protagonists."
   },
   {
@@ -765,7 +765,7 @@ export const getBookRecommendationsWithExpandedMatching = (
     author: "Brandon Sanderson",
     genre: "Epic Fantasy",
     description: "The first book in The Stormlight Archive series.",
-    amazonLink: "https://www.amazon.co.uk/dp/0765326353",
+          amazonLink: "https://www.amazon.co.uk/dp/0575097368",
     reason: "Perfect for readers who enjoy epic scope, detailed magic systems, and character growth."
   },
   {
@@ -792,7 +792,7 @@ export const getBookRecommendationsWithExpandedMatching = (
     author: "Isaac Asimov",
     genre: "Science Fiction",
     description: "The first book in the Foundation series about the fall of a galactic empire.",
-    amazonLink: "https://www.amazon.co.uk/dp/0553293354",
+          amazonLink: "https://www.amazon.co.uk/dp/0586058392",
     reason: "Appeals to readers who enjoy grand-scale science fiction and political science."
   },
   {
@@ -1203,7 +1203,7 @@ export const getBookRecommendationsWithExpandedMatching = (
     author: "James Clear",
     genre: "Self-Help",
     description: "A practical guide to building good habits and breaking bad ones through small changes.",
-    amazonLink: "https://www.amazon.co.uk/dp/0735211299",
+          amazonLink: "https://www.amazon.co.uk/dp/1786892738",
     reason: "Perfect for growth-oriented readers who want to understand how small changes create remarkable results."
   },
   {
