@@ -124,7 +124,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "Rebecca Yarros",
       genre: "Fantasy Romance",
       description: "Enter the brutal and elite world of a war college for dragon riders.",
-      amazonLink: "https://www.amazon.co.uk/dp/1649374046",
+      amazonLink: "https://www.amazon.co.uk/s?k=Fourth+Wing+Rebecca+Yarros",
       reason: "Perfect for readers who enjoy action-packed fantasy with strong character development and romance."
     },
     {
@@ -187,7 +187,7 @@ export const getBookRecommendationsWithExpandedMatching = (
       author: "Brandon Sanderson",
       genre: "Fantasy",
       description: "A world where ash falls from the sky and mist dominates the night.",
-      amazonLink: "https://www.amazon.co.uk/dp/0575075550",
+      amazonLink: "https://www.amazon.co.uk/dp/1841493007",
       reason: "Great for readers who appreciate innovative magic systems and underdog protagonists."
     },
     {
@@ -756,7 +756,7 @@ export const getBookRecommendationsWithExpandedMatching = (
     author: "Brandon Sanderson",
     genre: "Fantasy",
     description: "A world where ash falls from the sky and mist dominates the night.",
-          amazonLink: "https://www.amazon.co.uk/dp/0575075550",
+    amazonLink: "https://www.amazon.co.uk/dp/1841493007",
     reason: "Great for readers who appreciate innovative magic systems and underdog protagonists."
   },
   {

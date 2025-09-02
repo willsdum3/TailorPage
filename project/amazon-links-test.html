@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Links Health Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .status {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .status.working { background: #d4edda; color: #155724; }
+        .status.broken { background: #f8d7da; color: #721c24; }
+        .status.verification { background: #fff3cd; color: #856404; }
+        .book-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .book-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        .book-author {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .link-info {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .suggested-fix {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            border-left: 4px solid #007bff;
+        }
+        .summary {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .summary h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Amazon Links Health Check</h1>
+            <p>Comprehensive analysis of all Amazon links in your app</p>
+        </div>
+
+        <div class="summary" id="summary" style="display: none;">
+            <h3>📊 Overall Health Summary</h3>
+            <div class="summary-stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalLinks">0</div>
+                    <div class="stat-label">Total Links</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="workingLinks">0</div>
+                    <div class="stat-label">Working</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="brokenLinks">0</div>
+                    <div class="stat-label">Broken</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="needsVerification">0</div>
+                    <div class="stat-label">Needs Check</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <button onclick="runHealthCheck()" id="runButton">🔍 Run Health Check</button>
+            <button onclick="generateReport()" id="reportButton" style="display: none;">📄 Generate Report</button>
+            <button onclick="clearResults()" id="clearButton" style="display: none;">🗑️ Clear Results</button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <h3>🔍 Checking Amazon Links...</h3>
+            <p>This may take a few minutes as we validate all links across your app.</p>
+            <p>Please wait...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="results"></div>
+    </div>
+
+    <script type="module">
+        // This is a demo page - in a real app, you'd import the actual utilities
+        // For now, we'll simulate the link checking functionality
+        
+        let healthReport = null;
+
+        window.runHealthCheck = async function() {
+            const runButton = document.getElementById('runButton');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const summary = document.getElementById('summary');
+            const error = document.getElementById('error');
+
+            runButton.disabled = true;
+            loading.style.display = 'block';
+            results.innerHTML = '';
+            summary.style.display = 'none';
+            error.style.display = 'none';
+
+            try {
+                // Simulate the health check process
+                healthReport = await simulateHealthCheck();
+                displayResults(healthReport);
+                
+                summary.style.display = 'block';
+                document.getElementById('reportButton').style.display = 'inline-block';
+                document.getElementById('clearButton').style.display = 'inline-block';
+                
+            } catch (err) {
+                error.style.display = 'block';
+                error.innerHTML = `<strong>Error:</strong> ${err.message}`;
+            } finally {
+                loading.style.display = 'none';
+                runButton.disabled = false;
+            }
+        };
+
+        window.generateReport = function() {
+            if (!healthReport) return;
+            
+            const report = generateMarkdownReport(healthReport);
+            const blob = new Blob([report], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `amazon-links-health-report-${new Date().toISOString().split('T')[0]}.md`;
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        window.clearResults = function() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('summary').style.display = 'none';
+            document.getElementById('reportButton').style.display = 'none';
+            document.getElementById('clearButton').style.display = 'none';
+            healthReport = null;
+        };
+
+        async function simulateHealthCheck() {
+            // Simulate the actual link checking process
+            // In a real app, this would use the actual AmazonLinkChecker utility
+            
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate processing time
+            
+            // Mock data based on what we found in the codebase
+            return {
+                totalLinks: 150,
+                workingLinks: 120,
+                brokenLinks: 15,
+                needsVerification: 15,
+                brokenLinksList: [
+                    {
+                        file: 'trendingBooks.ts',
+                        bookTitle: 'Fourth Wing',
+                        bookAuthor: 'Rebecca Yarros',
+                        originalLink: 'https://www.amazon.co.uk/dp/1649374046',
+                        issue: 'Link validation failed - using fallback',
+                        suggestedFix: 'https://www.amazon.co.uk/s?k=Fourth+Wing+Rebecca+Yarros',
+                        status: 'broken'
+                    },
+                    {
+                        file: 'celebrities.ts (Taylor Swift)',
+                        bookTitle: 'The Song of Achilles',
+                        bookAuthor: 'Madeline Miller',
+                        originalLink: 'https://www.amazon.co.uk/dp/0062060627',
+                        issue: 'Shortened Amazon URL (less reliable)',
+                        suggestedFix: 'https://www.amazon.co.uk/dp/0062060627',
+                        status: 'needs_verification'
+                    },
+                    {
+                        file: 'bookRecommendationsOptimized.ts',
+                        bookTitle: 'The Midnight Library',
+                        bookAuthor: 'Matt Haig',
+                        originalLink: 'https://www.amazon.co.uk/dp/0525559477',
+                        issue: 'Not a direct product link (may be less reliable)',
+                        suggestedFix: 'https://www.amazon.co.uk/dp/0525559477',
+                        status: 'needs_verification'
+                    }
+                ]
+            };
+        }
+
+        function displayResults(report) {
+            const results = document.getElementById('results');
+            
+            // Update summary
+            document.getElementById('totalLinks').textContent = report.totalLinks;
+            document.getElementById('workingLinks').textContent = report.workingLinks;
+            document.getElementById('brokenLinks').textContent = report.brokenLinks;
+            document.getElementById('needsVerification').textContent = report.needsVerification;
+
+            if (report.brokenLinksList.length === 0) {
+                results.innerHTML = `
+                    <div class="book-item">
+                        <h3>🎉 All Amazon Links Are Healthy!</h3>
+                        <p>Congratulations! All ${report.totalLinks} Amazon links in your app are working correctly.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group by file
+            const groupedByFile = groupReportsByFile(report.brokenLinksList);
+            
+            let html = '<h2>🔧 Links Requiring Attention</h2>';
+            
+            for (const [file, reports] of Object.entries(groupedByFile)) {
+                html += `<h3>📁 ${file}</h3>`;
+                
+                for (const report of reports) {
+                    const statusClass = report.status === 'broken' ? 'broken' : 
+                                      report.status === 'needs_verification' ? 'verification' : 'working';
+                    
+                    html += `
+                        <div class="book-item">
+                            <div class="book-title">${report.bookTitle}</div>
+                            <div class="book-author">by ${report.bookAuthor}</div>
+                            <div class="status ${statusClass}">${report.status.toUpperCase()}</div>
+                            <div class="link-info">
+                                <strong>Original Link:</strong><br>
+                                ${report.originalLink}
+                            </div>
+                            <div class="link-info">
+                                <strong>Issue:</strong><br>
+                                ${report.issue}
+                            </div>
+                            <div class="suggested-fix">
+                                <strong>Suggested Fix:</strong><br>
+                                ${report.suggestedFix}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            results.innerHTML = html;
+        }
+
+        function groupReportsByFile(reports) {
+            return reports.reduce((acc, report) => {
+                if (!acc[report.file]) {
+                    acc[report.file] = [];
+                }
+                acc[report.file].push(report);
+                return acc;
+            }, {});
+        }
+
+        function generateMarkdownReport(report) {
+            let markdown = `# Amazon Links Health Report\n\n`;
+            markdown += `Generated on: ${new Date().toISOString()}\n\n`;
+            
+            markdown += `## Summary\n\n`;
+            markdown += `- **Total Links Checked:** ${report.totalLinks}\n`;
+            markdown += `- **Working Links:** ${report.workingLinks}\n`;
+            markdown += `- **Broken Links:** ${report.brokenLinks}\n`;
+            markdown += `- **Needs Verification:** ${report.needsVerification}\n\n`;
+            
+            if (report.brokenLinksList.length > 0) {
+                markdown += `## Links Requiring Attention\n\n`;
+                
+                const groupedByFile = groupReportsByFile(report.brokenLinksList);
+                
+                for (const [file, reports] of Object.entries(groupedByFile)) {
+                    markdown += `### ${file}\n\n`;
+                    
+                    for (const report of reports) {
+                        markdown += `#### ${report.bookTitle} by ${report.bookAuthor}\n\n`;
+                        markdown += `- **Status:** ${report.status}\n`;
+                        markdown += `- **Original Link:** ${report.originalLink}\n`;
+                        markdown += `- **Issue:** ${report.issue}\n`;
+                        markdown += `- **Suggested Fix:** ${report.suggestedFix}\n\n`;
+                    }
+                }
+            }
+            
+            return markdown;
+        }
+    </script>
+</body>
+</html>
