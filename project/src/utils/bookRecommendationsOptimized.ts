@@ -595,9 +595,29 @@ export const getBookRecommendationsWithExpandedMatching = (
       description: "Two sisters escape their father to participate in a magical circus game.",
       amazonLink: "https://www.amazon.co.uk/dp/1250095255",
       reason: "Appeals to readers who enjoy magical realism and adventure."
+    },
+
+    // Mini Batch 2: 2 More Fantasy Books
+    {
+      id: 'red-queen',
+      title: "Red Queen",
+      author: "Victoria Aveyard",
+      genre: "Young Adult Fantasy",
+      description: "In a world divided by blood, a young girl discovers she has powers that could change everything.",
+      amazonLink: "https://www.amazon.co.uk/dp/1409150726",
+      reason: "Perfect for readers who enjoy dystopian fantasy and underdog protagonists."
+    },
+    {
+      id: 'the-hunger-games',
+      title: "The Hunger Games",
+      author: "Suzanne Collins",
+      genre: "Young Adult Dystopian",
+      description: "In a dystopian future, teenagers must fight to the death in a televised event.",
+      amazonLink: "https://www.amazon.co.uk/dp/1407109081",
+      reason: "Appeals to readers who enjoy action, survival stories, and social commentary."
     }
 
-    // Note: This curated selection now includes 62+ high-quality books across all genres
+    // Note: This curated selection now includes 64+ high-quality books across all genres
     // Each book has been selected for its quality, popularity, and diverse appeal
   ];
 
