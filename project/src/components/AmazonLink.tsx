@@ -135,12 +135,6 @@ const AmazonLink: React.FC<AmazonLinkProps> = ({
       >
         <span>View on Amazon</span>
         {showIcon && <ExternalLink className="w-3 h-3" />}
-        {!isValidProductLink && (
-          <span className="text-xs text-white/60">(search)</span>
-        )}
-        {fallbackAttempts > 0 && (
-          <span className="text-xs text-amber-400/80">(fallback)</span>
-        )}
       </a>
     );
   }
@@ -158,12 +152,6 @@ const AmazonLink: React.FC<AmazonLinkProps> = ({
       >
         <span>Amazon</span>
         {showIcon && <ExternalLink className="w-3 h-3" />}
-        {!isValidProductLink && (
-          <span className="text-xs text-white/60">(search)</span>
-        )}
-        {fallbackAttempts > 0 && (
-          <span className="text-xs text-amber-400/80">(fallback)</span>
-        )}
       </a>
     );
   }
@@ -188,12 +176,6 @@ const AmazonLink: React.FC<AmazonLinkProps> = ({
           )}
           <span>View on Amazon</span>
           <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          {!isValidProductLink && (
-            <span className="text-xs text-white/80">(search)</span>
-          )}
-          {fallbackAttempts > 0 && (
-            <span className="text-xs text-white/80">(fallback)</span>
-          )}
         </>
       )}
     </a>
