@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebrity Book Links Test - Enhanced</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .celebrity {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .celebrity h3 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .book {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .book-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .book-author {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        .book-link {
+            color: #007bff;
+            text-decoration: none;
+            word-break: break-all;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .book-link:hover {
+            text-decoration: underline;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.working {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.broken {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.redirect {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status.testing {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Celebrity Book Links Test - Enhanced</h1>
+            <p>Testing if Amazon links actually go to the right books (not just generic pages)</p>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 How to Test:</h3>
+            <ol>
+                <li><strong>Click "Test Link"</strong> for each book</li>
+                <li><strong>Check if the page shows the actual book</strong> (title, author, book details)</li>
+                <li><strong>Mark as:</strong>
+                    <ul>
+                        <li><span class="status working">✓ Working</span> - Goes to the right book page</li>
+                        <li><span class="status redirect">⚠️ Redirect</span> - Goes to Amazon but wrong/generic page</li>
+                        <li><span class="status broken">✗ Broken</span> - 404 error or completely wrong page</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div id="celebrities-container">
+            <!-- Celebrity data will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        // Celebrity data from your app
+        const celebrities = [
+            {
+                name: "Taylor Swift",
+                books: [
+                    {
+                        title: "The Song of Achilles",
+                        author: "Madeline Miller",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Song+of+Achilles+Madeline+Miller"
+                    },
+                    {
+                        title: "Big Magic",
+                        author: "Elizabeth Gilbert",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Big+Magic+Elizabeth+Gilbert"
+                    },
+                    {
+                        title: "The Seven Husbands of Evelyn Hugo",
+                        author: "Taylor Jenkins Reid",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Seven+Husbands+of+Evelyn+Hugo+Taylor+Jenkins+Reid"
+                    }
+                ]
+            },
+            {
+                name: "Greta Thunberg",
+                books: [
+                    {
+                        title: "Silent Spring",
+                        author: "Rachel Carson",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Silent+Spring+Rachel+Carson"
+                    },
+                    {
+                        title: "The Sixth Extinction",
+                        author: "Elizabeth Kolbert",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Sixth+Extinction+Elizabeth+Kolbert"
+                    },
+                    {
+                        title: "Braiding Sweetgrass",
+                        author: "Robin Wall Kimmerer",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Braiding+Sweetgrass+Robin+Wall+Kimmerer"
+                    }
+                ]
+            },
+            {
+                name: "Keanu Reeves",
+                books: [
+                    {
+                        title: "The Tao of Physics",
+                        author: "Fritjof Capra",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Tao+of+Physics+Fritjof+Capra"
+                    },
+                    {
+                        title: "Siddhartha",
+                        author: "Hermann Hesse",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Siddhartha+Hermann+Hesse"
+                    },
+                    {
+                        title: "The Book of Joy",
+                        author: "Dalai Lama & Desmond Tutu",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Book+of+Joy+Dalai+Lama+Desmond+Tutu"
+                    }
+                ]
+            },
+            {
+                name: "Rihanna",
+                books: [
+                    {
+                        title: "The Lean Startup",
+                        author: "Eric Ries",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Lean+Startup+Eric+Ries"
+                    },
+                    {
+                        title: "Wild",
+                        author: "Cheryl Strayed",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Wild+Cheryl+Strayed"
+                    },
+                    {
+                        title: "The Color Purple",
+                        author: "Alice Walker",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Color+Purple+Alice+Walker"
+                    }
+                ]
+            },
+            {
+                name: "Elon Musk",
+                books: [
+                    {
+                        title: "The Foundation Series",
+                        author: "Isaac Asimov",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Foundation+Series+Isaac+Asimov"
+                    },
+                    {
+                        title: "Zero to One",
+                        author: "Peter Thiel",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Zero+to+One+Peter+Thiel"
+                    },
+                    {
+                        title: "The Martian",
+                        author: "Andy Weir",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Martian+Andy+Weir"
+                    }
+                ]
+            },
+            {
+                name: "Oprah Winfrey",
+                books: [
+                    {
+                        title: "Becoming",
+                        author: "Michelle Obama",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Becoming+Michelle+Obama"
+                    },
+                    {
+                        title: "The Power of Now",
+                        author: "Eckhart Tolle",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Power+of+Now+Eckhart+Tolle"
+                    },
+                    {
+                        title: "Beloved",
+                        author: "Toni Morrison",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Beloved+Toni+Morrison"
+                    }
+                ]
+            },
+            {
+                name: "LeBron James",
+                books: [
+                    {
+                        title: "The Mamba Mentality",
+                        author: "Kobe Bryant",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Mamba+Mentality+Kobe+Bryant"
+                    },
+                    {
+                        title: "Long Walk to Freedom",
+                        author: "Nelson Mandela",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Long+Walk+to+Freedom+Nelson+Mandela"
+                    },
+                    {
+                        title: "The Boys in the Boat",
+                        author: "Daniel James Brown",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Boys+in+the+Boat+Daniel+James+Brown"
+                    }
+                ]
+            },
+            {
+                name: "Emma Watson",
+                books: [
+                    {
+                        title: "A Room of One's Own",
+                        author: "Virginia Woolf",
+                        amazonLink: "https://www.amazon.co.uk/s?k=A+Room+of+One%27s+Own+Virginia+Woolf"
+                    },
+                    {
+                        title: "The Handmaid's Tale",
+                        author: "Margaret Atwood",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Handmaid%27s+Tale+Margaret+Atwood"
+                    },
+                    {
+                        title: "Educated",
+                        author: "Tara Westover",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Educated+Tara+Westover"
+                    }
+                ]
+            },
+            {
+                name: "Barack Obama",
+                books: [
+                    {
+                        title: "Team of Rivals",
+                        author: "Doris Kearns Goodwin",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Team+of+Rivals+Doris+Kearns+Goodwin"
+                    },
+                    {
+                        title: "The Souls of Black Folk",
+                        author: "W.E.B. Du Bois",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Souls+of+Black+Folk+W.E.B.+Du+Bois"
+                    },
+                    {
+                        title: "Gilead",
+                        author: "Marilynne Robinson",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Gilead+Marilynne+Robinson"
+                    }
+                ]
+            },
+            {
+                name: "Lionel Messi",
+                books: [
+                    {
+                        title: "The Alchemist",
+                        author: "Paulo Coelho",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Alchemist+Paulo+Coelho"
+                    },
+                    {
+                        title: "Open",
+                        author: "Andre Agassi",
+                        amazonLink: "https://www.amazon.co.uk/s?k=Open+Andre+Agassi"
+                    },
+                    {
+                        title: "The Art of Learning",
+                        author: "Josh Waitzkin",
+                        amazonLink: "https://www.amazon.co.uk/s?k=The+Art+of+Learning+Josh+Waitzkin"
+                    }
+                ]
+            }
+        ];
+
+        function renderCelebrities() {
+            const container = document.getElementById('celebrities-container');
+            
+            celebrities.forEach(celebrity => {
+                const celebrityDiv = document.createElement('div');
+                celebrityDiv.className = 'celebrity';
+                
+                let booksHtml = '';
+                celebrity.books.forEach(book => {
+                    booksHtml += `
+                        <div class="book">
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-author">by ${book.author}</div>
+                            <a href="${book.amazonLink}" target="_blank" class="book-link">${book.amazonLink}</a>
+                            <button class="test-button" onclick="testLink('${book.amazonLink}', this, '${book.title}')">Test Link</button>
+                            <span class="status testing" id="status-${btoa(book.amazonLink)}">Not Tested</span>
+                            <br><br>
+                            <div style="font-size: 12px; color: #666;">
+                                <strong>Manual Check:</strong> Click the link above and verify it goes to "${book.title}" by ${book.author}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                celebrityDiv.innerHTML = `
+                    <h3>${celebrity.name}</h3>
+                    ${booksHtml}
+                `;
+                
+                container.appendChild(celebrityDiv);
+            });
+        }
+
+        function testLink(url, button, bookTitle) {
+            const statusSpan = button.nextElementSibling;
+            
+            // Open the link in a new tab for manual verification
+            window.open(url, '_blank');
+            
+            // Update the button to show it's been tested
+            button.style.background = '#6c757d';
+            button.textContent = 'Link Opened';
+            
+            // Show instructions for manual verification
+            statusSpan.textContent = 'Check the opened tab manually';
+            statusSpan.className = 'status testing';
+            
+            // Add manual verification buttons
+            const manualButtons = `
+                <br><br>
+                <button onclick="markAsWorking('${btoa(url)}', this)" style="background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✓ Working</button>
+                <button onclick="markAsRedirect('${btoa(url)}', this)" style="background: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 4px; margin-right: 5px; cursor: pointer;">⚠️ Redirect</button>
+                <button onclick="markAsBroken('${btoa(url)}', this)" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">✗ Broken</button>
+            `;
+            
+            // Add the manual buttons if they don't exist
+            if (!statusSpan.nextElementSibling || !statusSpan.nextElementSibling.innerHTML.includes('Working')) {
+                statusSpan.insertAdjacentHTML('afterend', manualButtons);
+            }
+        }
+
+        function markAsWorking(encodedUrl, button) {
+            const statusSpan = document.getElementById(`status-${encodedUrl}`);
+            statusSpan.textContent = '✓ Working - Goes to correct book';
+            statusSpan.className = 'status working';
+            button.parentElement.remove();
+        }
+
+        function markAsRedirect(encodedUrl, button) {
+            const statusSpan = document.getElementById(`status-${encodedUrl}`);
+            statusSpan.textContent = '⚠️ Redirect - Wrong/generic page';
+            statusSpan.className = 'status redirect';
+            button.parentElement.remove();
+        }
+
+        function markAsBroken(encodedUrl, button) {
+            const statusSpan = document.getElementById(`status-${encodedUrl}`);
+            statusSpan.textContent = '✗ Broken - 404 or wrong page';
+            statusSpan.className = 'status broken';
+            button.parentElement.remove();
+        }
+
+        // Initialize the page
+        renderCelebrities();
+    </script>
+</body>
+</html>
