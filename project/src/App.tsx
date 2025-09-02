@@ -670,12 +670,21 @@ function App() {
   const handleGenerateNewBooks = () => {
     if (!personalityProfile) return;
     
+    console.log(`🎲 Generate New Books called:`);
+    console.log(`🎲 Current favorites count: ${favorites.length}`);
+    console.log(`🎲 Current favorites:`, favorites.map(fav => `${fav.title} by ${fav.author}`));
+    
     const excludeIds = [...allRecommendedIds];
     const favoritedBookSignatures = new Set(
       favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
     );
     
+    console.log(`🎲 Created favorited book signatures:`, Array.from(favoritedBookSignatures));
+    console.log(`🎲 Exclude IDs count: ${excludeIds.length}`);
+    
     let newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, excludeIds, true, favoritedBookSignatures);
+    
+    console.log(`🎲 Initial recommendations received: ${newRecs.length} books`);
     
     const removedFavorites: string[] = [];
     newRecs = newRecs.filter(book => {
@@ -684,6 +693,7 @@ function App() {
       
       if (isFavorited) {
         removedFavorites.push(`${book.title} by ${book.author}`);
+        console.log(`🚨 Found favorited book in recommendations: ${book.title} by ${book.author}`);
       }
       
       return !isFavorited;
@@ -692,6 +702,9 @@ function App() {
     if (removedFavorites.length > 0) {
       console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from recommendations:`, removedFavorites);
     }
+    
+    console.log(`🎲 Final recommendations after filtering: ${newRecs.length} books`);
+    console.log(`🎲 Final recommendations:`, newRecs.map(book => `${book.title} by ${book.author}`));
     
     setRecommendations(newRecs);
     setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
