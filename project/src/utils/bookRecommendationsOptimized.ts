@@ -6,14 +6,18 @@ function generateAmazonSearchUrl(title: string, author: string): string {
   return `https://www.amazon.co.uk/s?k=${searchQuery}`;
 }
 
-// Create a seed based on current time and a random factor for variability
-const randomSeed = Date.now() + Math.random() * 1000;
+// Function to generate a new random seed for each call
+const generateRandomSeed = () => {
+  return Date.now() + Math.random() * 1000000;
+};
 
-// Simple seeded random function for consistent randomization within this call
-let seed = randomSeed;
-const seededRandom = () => {
-  seed = (seed * 9301 + 49297) % 233280;
-  return seed / 233280;
+// Seeded random function that gets a new seed each time
+const seededRandom = (seed: number) => {
+  let currentSeed = seed;
+  return () => {
+    currentSeed = (currentSeed * 9301 + 49297) % 233280;
+    return currentSeed / 233280;
+  };
 };
 
 export const getBookRecommendations = (profile: PersonalityProfile, excludeIds: string[] = []): BookRecommendation[] => {
@@ -1667,11 +1671,20 @@ export const getBookRecommendationsWithExpandedMatching = (
   
   console.log(`📊 Book pool filtered: ${bookPool.length} -> ${filteredBookPool.length} books`);
   
+  // Generate a new random seed for this call to ensure different results each time
+  const currentSeed = generateRandomSeed();
+  const randomFunction = seededRandom(currentSeed);
+  
+  console.log(`🎲 Generating new recommendations with seed: ${currentSeed} at ${new Date().toLocaleTimeString()}`);
+  
+  // Add some additional randomization by slightly shuffling the book pool
+  const shuffledBookPool = [...filteredBookPool].sort(() => randomFunction() - 0.5);
+  
   // Score all books and sort by relevance
-  const scoredBooks = filteredBookPool.map(book => ({
+  const scoredBooks = shuffledBookPool.map(book => ({
     book,
     score: scoreBook(book, profile, useExpandedMatching),
-    randomFactor: seededRandom() // Add random factor for each book
+    randomFactor: randomFunction() // Add random factor for each book
   })).sort((a, b) => {
     // Weight: 85% personality match, 15% randomization
     const scoreA = (a.score * 0.85) + (a.randomFactor * 0.15 * 100);
@@ -1684,6 +1697,9 @@ export const getBookRecommendationsWithExpandedMatching = (
   const usedGenres = new Set<string>();
   const usedAuthors = new Set<string>();
 
+  // Add some randomness to the selection process
+  const selectionRandomness = randomFunction() * 0.3; // 0-30% randomness
+
   // First pass: select highest scoring books from different genres and authors
   for (const { book } of scoredBooks) {
     if (selectedBooks.length >= 6) break;
@@ -1691,12 +1707,15 @@ export const getBookRecommendationsWithExpandedMatching = (
     const genreCount = Array.from(usedGenres).filter(g => g === book.genre).length;
     const authorUsed = usedAuthors.has(book.author);
     
+    // Add some randomness to the selection criteria
+    const shouldSelect = randomFunction() > selectionRandomness;
+    
     // Prefer books from new genres and authors, but allow some overlap for quality
-    if ((!usedGenres.has(book.genre) || genreCount < 2) && !authorUsed) {
+    if ((!usedGenres.has(book.genre) || genreCount < 2) && !authorUsed && shouldSelect) {
       selectedBooks.push(book);
       usedGenres.add(book.genre);
       usedAuthors.add(book.author);
-    } else if (selectedBooks.length >= 3 && !authorUsed) {
+    } else if (selectedBooks.length >= 3 && !authorUsed && shouldSelect) {
       // After 3 books, allow genre overlap but still avoid author repetition
       selectedBooks.push(book);
       usedGenres.add(book.genre);
@@ -1724,7 +1743,11 @@ export const getBookRecommendationsWithExpandedMatching = (
   }
 
   // Ensure we always return exactly 6 books
-  return selectedBooks.slice(0, 6);
+  const finalRecommendations = selectedBooks.slice(0, 6);
+  
+  console.log(`🎯 Final recommendations generated:`, finalRecommendations.map(book => `${book.title} by ${book.author}`));
+  
+  return finalRecommendations;
 };
 
 
