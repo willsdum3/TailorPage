@@ -102,11 +102,11 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 mb-12">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">16K+</div>
+                <div className="text-3xl font-bold text-white mb-1">150+</div>
                 <div className="text-sm text-white/70">Books analyzed</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-white mb-1">95%</div>
+                <div className="text-3xl font-bold text-white mb-1">90%</div>
                 <div className="text-sm text-white/70">Match accuracy</div>
               </div>
             </div>

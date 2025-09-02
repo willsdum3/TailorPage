@@ -647,24 +647,8 @@ function App() {
     console.log('🎯 Quiz completed - new profile calculated:', profile);
     setPersonalityProfile(profile);
     
-    // Generate initial book recommendations from database (16,000+ books)
-    let initialRecommendations: BookRecommendation[] = [];
-    
-    if (user) {
-      try {
-        console.log('🔍 Getting initial recommendations from database for user:', user.id);
-        initialRecommendations = await getDiverseBookRecommendations(user.id, profile, []);
-        console.log('✅ Initial database recommendations:', initialRecommendations);
-      } catch (error) {
-        console.error('❌ Error getting database recommendations, falling back to hardcoded:', error);
-        // Fallback to hardcoded recommendations if database fails
-        initialRecommendations = getBookRecommendationsWithExpandedMatching(profile, [], true, new Set());
-      }
-    } else {
-      console.log('ℹ️ No user, using hardcoded recommendations');
-      initialRecommendations = getBookRecommendationsWithExpandedMatching(profile, [], true, new Set());
-    }
-    
+    // Generate initial book recommendations using hardcoded system (working)
+    const initialRecommendations = getBookRecommendationsWithExpandedMatching(profile, [], true, new Set());
     setRecommendations(initialRecommendations);
     setAllRecommendedIds(initialRecommendations.map(book => book.id));
     
@@ -683,49 +667,35 @@ function App() {
     }
   };
 
-  const handleGenerateNewBooks = async () => {
-    if (!personalityProfile || !user) return;
+  const handleGenerateNewBooks = () => {
+    if (!personalityProfile) return;
     
-    console.log('🔄 Generating new books from database for user:', user.id);
+    const excludeIds = [...allRecommendedIds];
+    const favoritedBookSignatures = new Set(
+      favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
+    );
     
-    try {
-      // Get new recommendations from the database (16,000+ books)
-      const newRecs = await getDiverseBookRecommendations(
-        user.id, 
-        personalityProfile, 
-        allRecommendedIds
-      );
+    let newRecs = getBookRecommendationsWithExpandedMatching(personalityProfile, excludeIds, true, favoritedBookSignatures);
+    
+    const removedFavorites: string[] = [];
+    newRecs = newRecs.filter(book => {
+      const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
+      const isFavorited = favoritedBookSignatures.has(bookSignature);
       
-      console.log('✅ New database recommendations generated:', newRecs);
-      
-      if (newRecs.length > 0) {
-        // Filter out favorited books
-        const favoritedBookSignatures = new Set(
-          favorites.map(fav => `${fav.title.toLowerCase()}-${fav.author.toLowerCase()}`)
-        );
-        
-        const filteredRecs = newRecs.filter(book => {
-          const bookSignature = `${book.title.toLowerCase()}-${book.author.toLowerCase()}`;
-          return !favoritedBookSignatures.has(bookSignature);
-        });
-        
-        console.log(`✅ Filtered recommendations: ${newRecs.length} -> ${filteredRecs.length} (removed favorited books)`);
-        
-        // Add new recommendations to the list
-        setRecommendations(prev => [...prev, ...filteredRecs]);
-        
-        // Track all recommended book IDs to avoid duplicates
-        const newIds = filteredRecs.map(book => book.id);
-        setAllRecommendedIds(prev => [...prev, ...newIds]);
-        
-        setCurrentPage('generated');
-      } else {
-        console.log('⚠️ No new recommendations found from database');
+      if (isFavorited) {
+        removedFavorites.push(`${book.title} by ${book.author}`);
       }
       
-    } catch (error) {
-      console.error('❌ Error generating new books from database:', error);
+      return !isFavorited;
+    });
+    
+    if (removedFavorites.length > 0) {
+      console.log(`🚨 ALERT: Removed ${removedFavorites.length} favorited books from recommendations:`, removedFavorites);
     }
+    
+    setRecommendations(newRecs);
+    setAllRecommendedIds([...allRecommendedIds, ...newRecs.map(book => book.id)]);
+    setCurrentPage('generated');
   };
 
   const handleNavigation = (page: string) => {
