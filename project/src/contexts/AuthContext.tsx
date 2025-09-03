@@ -11,6 +11,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   refreshUserMetadata: () => Promise<void>;
+  fixExistingUserUsernames: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -193,42 +194,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { error };
       }
       
-      // After successful login, ensure username is preserved in user_metadata
-      if (data.user && !data.user.user_metadata?.username) {
-        console.log('🔄 Username missing from user_metadata, attempting to restore...');
-        
-        try {
-          // Get the user profile from database to extract username
-          const { data: userProfile, error: profileError } = await supabaseAdmin
-            .rpc('get_or_create_user', {
-              auth_user_id: data.user.id,
-              user_name: data.user.user_metadata?.name || 'User',
-              user_email: data.user.email || '',
-              user_username: null, // Don't create new username, just get existing
-              user_avatar_url: data.user.user_metadata?.avatar_url || null
-            });
-          
-          if (!profileError && userProfile && userProfile.username) {
-            console.log('✅ Found username in database profile:', userProfile.username);
+                // After successful login, ensure username is preserved in user_metadata
+          if (data.user && !data.user.user_metadata?.username) {
+            console.log('🔄 Username missing from user_metadata, attempting to restore...');
             
-            // Update the user's metadata with the username
-            const { error: updateError } = await supabase.auth.updateUser({
-              data: {
-                username: userProfile.username
+            try {
+              // Get the user profile from database to extract username
+              const { data: userProfile, error: profileError } = await supabaseAdmin
+                .rpc('get_or_create_user', {
+                  auth_user_id: data.user.id,
+                  user_name: data.user.user_metadata?.name || 'User',
+                  user_email: data.user.email || '',
+                  user_username: null, // Don't create new username, just get existing
+                  user_avatar_url: data.user.user_metadata?.avatar_url || null
+                });
+              
+              if (!profileError && userProfile && userProfile.username) {
+                console.log('✅ Found username in database profile:', userProfile.username);
+                
+                // Update the user's metadata with the username
+                const { error: updateError } = await supabase.auth.updateUser({
+                  data: {
+                    username: userProfile.username
+                  }
+                });
+                
+                if (updateError) {
+                  console.error('❌ Failed to update user metadata with username:', updateError);
+                } else {
+                  console.log('✅ Successfully restored username in user_metadata');
+                }
               }
-            });
-            
-            if (updateError) {
-              console.error('❌ Failed to update user metadata with username:', updateError);
-            } else {
-              console.log('✅ Successfully restored username in user_metadata');
+            } catch (err) {
+              console.error('❌ Error restoring username:', err);
+              // Don't fail the login process if username restoration fails
             }
+          } else if (data.user && data.user.user_metadata?.username) {
+            console.log('✅ Username already exists in user_metadata:', data.user.user_metadata.username);
           }
-        } catch (err) {
-          console.error('❌ Error restoring username:', err);
-          // Don't fail the login process if username restoration fails
-        }
-      }
       
       return { error: null };
     } catch (err) {
@@ -281,6 +284,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // The profile can be created later when the user first logs in
       } else {
         console.log('User profile created successfully:', userProfile);
+      }
+
+      // Step 3: Ensure the username is properly saved in user_metadata
+      // This is critical for the username to display correctly
+      try {
+        console.log('🔄 Ensuring username is saved in user_metadata...');
+        
+        // Update the user's metadata to include the username
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: {
+            username: userData.username
+          }
+        });
+        
+        if (updateError) {
+          console.error('❌ Failed to update user metadata with username:', updateError);
+          console.log('⚠️ Username may not display correctly - this is a critical issue');
+        } else {
+          console.log('✅ Successfully saved username in user_metadata:', userData.username);
+        }
+      } catch (err) {
+        console.error('❌ Error updating user metadata with username:', err);
+        console.log('⚠️ Username may not display correctly - this is a critical issue');
       }
 
       return { error: null };
@@ -375,6 +401,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Function to fix username for existing users
+  const fixExistingUserUsernames = async () => {
+    if (!user) return;
+    
+    try {
+      console.log('🔧 Fixing username for existing user...');
+      
+      // Get the user profile from database
+      const { data: userProfile, error: profileError } = await supabaseAdmin
+        .rpc('get_or_create_user', {
+          auth_user_id: user.id,
+          user_name: user.user_metadata?.name || 'User',
+          user_email: user.email || '',
+          user_username: null, // Don't create new username, just get existing
+          user_avatar_url: user.user_metadata?.avatar_url || null
+        });
+      
+      if (profileError) {
+        console.error('❌ Error getting user profile for username fix:', profileError);
+        return;
+      }
+      
+      if (userProfile && userProfile.username && !user.user_metadata?.username) {
+        console.log('🔧 Found missing username in database:', userProfile.username);
+        
+        // Update the user's metadata with the username
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: {
+            username: userProfile.username
+          }
+        });
+        
+        if (updateError) {
+          console.error('❌ Failed to fix username in user metadata:', updateError);
+        } else {
+          console.log('✅ Successfully fixed username in user metadata');
+          // Force a refresh of the user session to get updated metadata
+          await supabase.auth.refreshSession();
+        }
+      } else if (userProfile && userProfile.username) {
+        console.log('ℹ️ Username already exists in metadata:', user.user_metadata?.username);
+      } else {
+        console.log('⚠️ No username found in database profile');
+      }
+    } catch (err) {
+      console.error('❌ Error fixing existing user username:', err);
+    }
+  };
+
   const value = {
     user,
     session,
@@ -384,6 +459,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut,
     resetPassword,
     refreshUserMetadata,
+    fixExistingUserUsernames,
   };
 
   return (
