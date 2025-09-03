@@ -88,13 +88,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
              // Try profile creation but don't block signin if it fails
              const ensureProfile = async () => {
                try {
+                 // For existing users, we want to preserve their current profile picture
+                 // Only update avatar_url if it's actually changing and the user doesn't already have one
+                 let avatarUrlToUse = session.user.user_metadata?.avatar_url || null;
+                 let existingUser = null;
+                 
+                 // If this is a Google OAuth user and they already have a profile, 
+                 // we should be more careful about overwriting their existing avatar
+                 if (session.user.app_metadata?.provider === 'google') {
+                   console.log('🔍 Google OAuth user detected');
+                   
+                   // Check if user already exists in our database
+                   const { data: userData } = await supabaseAdmin
+                     .from('users')
+                     .select('avatar_url, username')
+                     .eq('auth_user_id', session.user.id)
+                     .single();
+                   
+                   existingUser = userData;
+                   
+                   if (existingUser?.avatar_url) {
+                     console.log('🔄 User already has profile picture, preserving existing:', existingUser.avatar_url);
+                     // Don't overwrite existing avatar with Google's version
+                     avatarUrlToUse = existingUser.avatar_url;
+                     
+                     // Also log what Google is trying to set
+                     console.log('🔄 Google OAuth avatar URL:', session.user.user_metadata?.avatar_url);
+                     console.log('🔄 Will preserve existing avatar instead');
+                   } else {
+                     console.log('🆕 New Google user, using Google avatar:', avatarUrlToUse);
+                   }
+                   
+                   // Additional safety check: if we have an existing user, force preserve their data
+                   if (existingUser) {
+                     console.log('🛡️ Existing user detected, ensuring data preservation');
+                     // For existing users, we should be extra careful about data loss
+                     if (!avatarUrlToUse && existingUser.avatar_url) {
+                       avatarUrlToUse = existingUser.avatar_url;
+                       console.log('🛡️ Forced avatar preservation for existing user');
+                     }
+                   }
+                 }
+                 
                  const { data: userProfile, error: profileError } = await supabaseAdmin
                    .rpc('get_or_create_user', {
                      auth_user_id: session.user.id,
                      user_name: session.user.user_metadata?.name || 'User',
                      user_email: session.user.email || '',
                      user_username: session.user.user_metadata?.username || null,
-                     user_avatar_url: session.user.user_metadata?.avatar_url || null
+                     user_avatar_url: avatarUrlToUse
                    });
 
                                    if (profileError) {
@@ -114,14 +156,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                         console.log('🔄 Creating username for Google user:', suggestedUsername);
                         
                         try {
-                          // Update the user profile with the username
+                          // Update the user profile with the username, but preserve existing avatar
                           const { error: updateError } = await supabaseAdmin
                             .rpc('get_or_create_user', {
                               auth_user_id: session.user.id,
                               user_name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
                               user_email: session.user.email,
                               user_username: suggestedUsername,
-                              user_avatar_url: session.user.user_metadata?.avatar_url || null
+                              user_avatar_url: avatarUrlToUse // Use the preserved avatar URL
                             });
                           
                           if (updateError) {
@@ -135,27 +177,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                       }
                     }
                     
-                    // Check if username needs to be restored to user_metadata
-                    if (userProfile && userProfile.username && !session.user.user_metadata?.username) {
-                      console.log('🔄 Restoring missing username in user_metadata:', userProfile.username);
-                      try {
-                        const { error: updateError } = await supabase.auth.updateUser({
-                          data: {
-                            username: userProfile.username
-                          }
-                        });
-                        
-                        if (updateError) {
-                          console.error('❌ Failed to restore username in user_metadata:', updateError);
-                        } else {
-                          console.log('✅ Successfully restored username in user_metadata');
-                          // Force a session refresh to get updated metadata
-                          await supabase.auth.refreshSession();
-                        }
-                      } catch (err) {
-                        console.error('❌ Error restoring username in user_metadata:', err);
-                      }
-                    }
+                                         // Check if username needs to be restored to user_metadata
+                     if (userProfile && userProfile.username && !session.user.user_metadata?.username) {
+                       console.log('🔄 Restoring missing username in user_metadata:', userProfile.username);
+                       try {
+                         const { error: updateError } = await supabase.auth.updateUser({
+                           data: {
+                             username: userProfile.username
+                           }
+                         });
+                         
+                         if (updateError) {
+                           console.error('❌ Failed to restore username in user_metadata:', updateError);
+                         } else {
+                           console.log('✅ Successfully restored username in user_metadata');
+                           // Force a session refresh to get updated metadata
+                           await supabase.auth.refreshSession();
+                         }
+                       } catch (err) {
+                         console.error('❌ Error restoring username in user_metadata:', err);
+                       }
+                     }
+                     
+                     // Additional safety check: ensure avatar is preserved in user_metadata for existing users
+                     if (userProfile && existingUser?.avatar_url && session.user.user_metadata?.avatar_url !== existingUser.avatar_url) {
+                       console.log('🛡️ Ensuring avatar is preserved in user_metadata:', existingUser.avatar_url);
+                       try {
+                         const { error: updateError } = await supabase.auth.updateUser({
+                           data: {
+                             avatar_url: existingUser.avatar_url
+                           }
+                         });
+                         
+                         if (updateError) {
+                           console.error('❌ Failed to preserve avatar in user_metadata:', updateError);
+                         } else {
+                           console.log('✅ Successfully preserved avatar in user_metadata');
+                           // Force a session refresh to get updated metadata
+                           await supabase.auth.refreshSession();
+                         }
+                       } catch (err) {
+                         console.error('❌ Error preserving avatar in user_metadata:', err);
+                       }
+                     }
                   }
                } catch (err) {
                  console.error('❌ Unexpected error ensuring user profile:', err);
@@ -172,13 +236,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.log('🔄 User updated, ensuring profile exists...');
             console.log('🔄 Updated user metadata:', session.user.user_metadata);
             try {
+              // For USER_UPDATED events, we should be extra careful about preserving existing data
+              // Check if user already exists and has an avatar
+              const { data: existingUser } = await supabaseAdmin
+                .from('users')
+                .select('avatar_url')
+                .eq('auth_user_id', session.user.id)
+                .single();
+              
+              let avatarUrlToUse = session.user.user_metadata?.avatar_url || null;
+              
+              // Preserve existing avatar if user has one and new one is not significantly different
+              if (existingUser?.avatar_url && avatarUrlToUse) {
+                // Only update if the URLs are actually different (not just Google's different format)
+                if (existingUser.avatar_url !== avatarUrlToUse) {
+                  console.log('🔄 User avatar changed, updating from', existingUser.avatar_url, 'to', avatarUrlToUse);
+                } else {
+                  console.log('🔄 User avatar unchanged, preserving existing:', existingUser.avatar_url);
+                  avatarUrlToUse = existingUser.avatar_url;
+                }
+              } else if (existingUser?.avatar_url) {
+                console.log('🔄 Preserving existing user avatar:', existingUser.avatar_url);
+                avatarUrlToUse = existingUser.avatar_url;
+              }
+              
               const { data: userProfile, error: profileError } = await supabaseAdmin
                 .rpc('get_or_create_user', {
                   auth_user_id: session.user.id,
                   user_name: session.user.user_metadata?.name || 'User',
                   user_email: session.user.email || '',
                   user_username: session.user.user_metadata?.username || null,
-                  user_avatar_url: session.user.user_metadata?.avatar_url || null
+                  user_avatar_url: avatarUrlToUse
                 });
 
               if (profileError) {
@@ -461,6 +549,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('🔄 Refreshing user metadata...');
       
+      // Check if user already exists and has an avatar to preserve
+      const { data: existingUser } = await supabaseAdmin
+        .from('users')
+        .select('avatar_url')
+        .eq('auth_user_id', user.id)
+        .single();
+      
+      let avatarUrlToUse = user.user_metadata?.avatar_url || null;
+      
+      // Preserve existing avatar if user has one
+      if (existingUser?.avatar_url && !avatarUrlToUse) {
+        console.log('🔄 Preserving existing avatar during metadata refresh:', existingUser.avatar_url);
+        avatarUrlToUse = existingUser.avatar_url;
+      }
+      
       // Get the latest user profile from database
       const { data: userProfile, error: profileError } = await supabaseAdmin
         .rpc('get_or_create_user', {
@@ -468,7 +571,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           user_name: user.user_metadata?.name || 'User',
           user_email: user.email || '',
           user_username: null, // Don't create new username, just get existing
-          user_avatar_url: user.user_metadata?.avatar_url || null
+          user_avatar_url: avatarUrlToUse
         });
       
       if (profileError) {
@@ -505,6 +608,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('🔧 Fixing username for existing user...');
       
+      // Check if user already exists and has an avatar to preserve
+      const { data: existingUser } = await supabaseAdmin
+        .from('users')
+        .select('avatar_url')
+        .eq('auth_user_id', user.id)
+        .single();
+      
+      let avatarUrlToUse = user.user_metadata?.avatar_url || null;
+      
+      // Preserve existing avatar if user has one
+      if (existingUser?.avatar_url && !avatarUrlToUse) {
+        console.log('🔧 Preserving existing avatar during username fix:', existingUser.avatar_url);
+        avatarUrlToUse = existingUser.avatar_url;
+      }
+      
       // Get the user profile from database
       const { data: userProfile, error: profileError } = await supabaseAdmin
         .rpc('get_or_create_user', {
@@ -512,7 +630,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           user_name: user.user_metadata?.name || 'User',
           user_email: user.email || '',
           user_username: null, // Don't create new username, just get existing
-          user_avatar_url: user.user_metadata?.avatar_url || null
+          user_avatar_url: avatarUrlToUse
         });
       
       if (profileError) {
