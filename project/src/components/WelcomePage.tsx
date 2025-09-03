@@ -13,7 +13,6 @@ interface WelcomePageProps {
   onSignIn?: () => void;
   onSignUp?: () => void;
   onAuthPrompt?: (mode: 'login' | 'signup', feature?: string) => void;
-  onFixUsername?: () => void;
   user?: {
     id: string;
     name: string;
@@ -34,7 +33,6 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   onSignIn,
   onSignUp,
   onAuthPrompt,
-  onFixUsername,
   user
 }) => {
   // Debug logging to understand the state
@@ -70,14 +68,6 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
             <div className="text-white">
               <div className="font-semibold text-sm">{user.name}</div>
               <div className="text-xs text-white/70">@{user.username}</div>
-              {onFixUsername && (
-                <button
-                  onClick={onFixUsername}
-                  className="mt-2 text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2 py-1 rounded transition-all duration-200"
-                >
-                  🔧 Fix Username
-                </button>
-              )}
             </div>
           </div>
         ) : (

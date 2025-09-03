@@ -857,7 +857,6 @@ function App() {
             onSignIn={() => handleAuthPrompt('login', 'access features')}
             onSignUp={() => handleAuthPrompt('signup', 'access features')}
             onAuthPrompt={handleAuthPrompt}
-            onFixUsername={fixExistingUserUsernames}
             user={user ? {
               id: user.id,
               name: user.name,
