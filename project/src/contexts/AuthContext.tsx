@@ -10,6 +10,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, userData: { name: string; username: string }) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  refreshUserMetadata: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -128,6 +129,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               } else {
                 console.log('✅ User profile ensured on update:', userProfile);
               }
+              
+              // Ensure username is preserved in user_metadata
+              if (userProfile && userProfile.username && !session.user.user_metadata?.username) {
+                console.log('🔄 Restoring missing username in user_metadata:', userProfile.username);
+                try {
+                  const { error: updateError } = await supabase.auth.updateUser({
+                    data: {
+                      username: userProfile.username
+                    }
+                  });
+                  
+                  if (updateError) {
+                    console.error('❌ Failed to restore username in user_metadata:', updateError);
+                  } else {
+                    console.log('✅ Successfully restored username in user_metadata');
+                  }
+                } catch (err) {
+                  console.error('❌ Error restoring username in user_metadata:', err);
+                }
+              }
             } catch (err) {
               console.error('❌ Unexpected error ensuring user profile on update:', err);
             }
@@ -162,11 +183,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        return { error };
+      }
+      
+      // After successful login, ensure username is preserved in user_metadata
+      if (data.user && !data.user.user_metadata?.username) {
+        console.log('🔄 Username missing from user_metadata, attempting to restore...');
+        
+        try {
+          // Get the user profile from database to extract username
+          const { data: userProfile, error: profileError } = await supabaseAdmin
+            .rpc('get_or_create_user', {
+              auth_user_id: data.user.id,
+              user_name: data.user.user_metadata?.name || 'User',
+              user_email: data.user.email || '',
+              user_username: null, // Don't create new username, just get existing
+              user_avatar_url: data.user.user_metadata?.avatar_url || null
+            });
+          
+          if (!profileError && userProfile && userProfile.username) {
+            console.log('✅ Found username in database profile:', userProfile.username);
+            
+            // Update the user's metadata with the username
+            const { error: updateError } = await supabase.auth.updateUser({
+              data: {
+                username: userProfile.username
+              }
+            });
+            
+            if (updateError) {
+              console.error('❌ Failed to update user metadata with username:', updateError);
+            } else {
+              console.log('✅ Successfully restored username in user_metadata');
+            }
+          }
+        } catch (err) {
+          console.error('❌ Error restoring username:', err);
+          // Don't fail the login process if username restoration fails
+        }
+      }
+      
+      return { error: null };
+    } catch (err) {
+      console.error('❌ Unexpected error during signin:', err);
+      return { error: err };
+    }
   };
 
   const signUp = async (email: string, password: string, userData: { name: string; username: string }) => {
@@ -264,6 +332,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return { error };
   };
 
+  const refreshUserMetadata = async () => {
+    if (!user) return;
+    
+    try {
+      console.log('🔄 Refreshing user metadata...');
+      
+      // Get the latest user profile from database
+      const { data: userProfile, error: profileError } = await supabaseAdmin
+        .rpc('get_or_create_user', {
+          auth_user_id: user.id,
+          user_name: user.user_metadata?.name || 'User',
+          user_email: user.email || '',
+          user_username: null, // Don't create new username, just get existing
+          user_avatar_url: user.user_metadata?.avatar_url || null
+        });
+      
+      if (profileError) {
+        console.error('❌ Error getting user profile for metadata refresh:', profileError);
+        return;
+      }
+      
+      if (userProfile && userProfile.username && userProfile.username !== user.user_metadata?.username) {
+        console.log('🔄 Updating user metadata with username:', userProfile.username);
+        
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: {
+            username: userProfile.username
+          }
+        });
+        
+        if (updateError) {
+          console.error('❌ Failed to update user metadata:', updateError);
+        } else {
+          console.log('✅ Successfully updated user metadata');
+          // Force a refresh of the user session to get updated metadata
+          await supabase.auth.refreshSession();
+        }
+      }
+    } catch (err) {
+      console.error('❌ Error refreshing user metadata:', err);
+    }
+  };
+
   const value = {
     user,
     session,
@@ -272,6 +383,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signUp,
     signOut,
     resetPassword,
+    refreshUserMetadata,
   };
 
   return (
