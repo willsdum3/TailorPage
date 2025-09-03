@@ -13,6 +13,7 @@ interface WelcomePageProps {
   onSignIn?: () => void;
   onSignUp?: () => void;
   onAuthPrompt?: (mode: 'login' | 'signup', feature?: string) => void;
+  onNavigateToProfile?: () => void;
   user?: {
     id: string;
     name: string;
@@ -33,6 +34,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   onSignIn,
   onSignUp,
   onAuthPrompt,
+  onNavigateToProfile,
   user
 }) => {
   // Debug logging to understand the state
@@ -67,7 +69,17 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
             </div>
             <div className="text-white">
               <div className="font-semibold text-sm">{user.name}</div>
-              <div className="text-xs text-white/70">@{user.username}</div>
+              {onNavigateToProfile ? (
+                <button
+                  onClick={onNavigateToProfile}
+                  className="text-xs text-white/70 hover:text-amber-300 transition-colors duration-200 cursor-pointer"
+                  title="Click to view your profile"
+                >
+                  @{user.username}
+                </button>
+              ) : (
+                <div className="text-xs text-white/70">@{user.username}</div>
+              )}
             </div>
           </div>
         ) : (

@@ -857,6 +857,7 @@ function App() {
             onSignIn={() => handleAuthPrompt('login', 'access features')}
             onSignUp={() => handleAuthPrompt('signup', 'access features')}
             onAuthPrompt={handleAuthPrompt}
+            onNavigateToProfile={() => setCurrentPage('profile')}
             user={user ? {
               id: user.id,
               name: user.name,
