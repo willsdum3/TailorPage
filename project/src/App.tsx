@@ -337,7 +337,7 @@ type AppPage = 'welcome' | 'quiz' | 'results' | 'generated' | 'celebrity-books' 
 
 function App() {
   // Use Supabase authentication
-  const { user: supabaseUser, session, loading: authLoading, signOut } = useAuth();
+  const { user: supabaseUser, session, loading: authLoading, signOut, fixExistingUserUsernames } = useAuth();
   const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
   const [bookAnswers, setBookAnswers] = useState<Record<number, BookResponse>>({});
@@ -407,9 +407,8 @@ function App() {
       console.log('✅ User object details:', {
         id: user.id,
         email: user.email,
-        user_metadata: user.user_metadata,
-        user_metadata_type: typeof user.user_metadata,
-        user_metadata_keys: user.user_metadata ? Object.keys(user.user_metadata) : 'no metadata'
+        name: user.name,
+        username: user.username
       });
       
           // Check if we already loaded data for this specific user
@@ -739,7 +738,6 @@ function App() {
     } catch (error) {
       console.error('❌ Error signing out:', error);
       // Ensure app state is cleared even if signout fails
-      setUser(null);
       setPersonalityProfile(null);
       setFavorites([]);
       setRecommendations([]);
@@ -846,8 +844,8 @@ function App() {
         <>
           {console.log('Rendering WelcomePage with - isAuthenticated:', isAuthenticated, 'personalityProfile:', personalityProfile, 'hasCompletedQuiz:', !!personalityProfile)}
           {console.log('App.tsx user object:', user)}
-          {console.log('App.tsx user.user_metadata:', user?.user_metadata)}
-          {console.log('App.tsx user.user_metadata?.avatar_url:', user?.user_metadata?.avatar_url)}
+          {console.log('App.tsx user object:', user)}
+          {console.log('App.tsx user properties:', user ? { name: user.name, username: user.username, email: user.email, imageUrl: user.imageUrl } : 'no user')}
           <WelcomePage
             onStartQuiz={handleStartQuiz}
             onResumeQuiz={handleResumeQuiz}
@@ -859,12 +857,13 @@ function App() {
             onSignIn={() => handleAuthPrompt('login', 'access features')}
             onSignUp={() => handleAuthPrompt('signup', 'access features')}
             onAuthPrompt={handleAuthPrompt}
+            onFixUsername={fixExistingUserUsernames}
             user={user ? {
               id: user.id,
-              name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-              username: user.user_metadata?.username || user.email?.split('@')[0] || 'user',
+              name: user.name,
+              username: user.username,
               email: user.email || '',
-              imageUrl: user.user_metadata?.avatar_url || undefined
+              imageUrl: user.imageUrl
             } : null}
           />
         </>

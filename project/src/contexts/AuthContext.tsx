@@ -80,37 +80,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔄 Auth state changed:', event, session?.user?.id);
         
         try {
-          // Handle specific auth events first
-          if (event === 'SIGNED_IN' && session?.user) {
-            console.log('✅ User signed in, ensuring profile exists...');
-            
-            // Try profile creation but don't block signin if it fails
-            const ensureProfile = async () => {
-              try {
-                const { data: userProfile, error: profileError } = await supabaseAdmin
-                  .rpc('get_or_create_user', {
-                    auth_user_id: session.user.id,
-                    user_name: session.user.user_metadata?.name || 'User',
-                    user_email: session.user.email || '',
-                    user_username: session.user.user_metadata?.username || null,
-                    user_avatar_url: session.user.user_metadata?.avatar_url || null
-                  });
+                     // Handle specific auth events first
+           if (event === 'SIGNED_IN' && session?.user) {
+             console.log('✅ User signed in, ensuring profile exists...');
+             
+             // Try profile creation but don't block signin if it fails
+             const ensureProfile = async () => {
+               try {
+                 const { data: userProfile, error: profileError } = await supabaseAdmin
+                   .rpc('get_or_create_user', {
+                     auth_user_id: session.user.id,
+                     user_name: session.user.user_metadata?.name || 'User',
+                     user_email: session.user.email || '',
+                     user_username: session.user.user_metadata?.username || null,
+                     user_avatar_url: session.user.user_metadata?.avatar_url || null
+                   });
 
-                if (profileError) {
-                  console.error('❌ Error ensuring user profile exists:', profileError);
-                } else {
-                  console.log('✅ User profile ensured:', userProfile);
-                }
-              } catch (err) {
-                console.error('❌ Unexpected error ensuring user profile:', err);
-              }
-            };
-            
-            // Run profile creation in background without blocking signin
-            ensureProfile().catch(err => {
-              console.log('⚠️ Profile creation failed, but signin continues:', err);
-            });
-          } else if (event === 'SIGNED_OUT') {
+                 if (profileError) {
+                   console.error('❌ Error ensuring user profile exists:', profileError);
+                 } else {
+                   console.log('✅ User profile ensured:', userProfile);
+                   
+                   // Check if username needs to be restored to user_metadata
+                   if (userProfile && userProfile.username && !session.user.user_metadata?.username) {
+                     console.log('🔄 Restoring missing username in user_metadata:', userProfile.username);
+                     try {
+                       const { error: updateError } = await supabase.auth.updateUser({
+                         data: {
+                           username: userProfile.username
+                         }
+                       });
+                       
+                       if (updateError) {
+                         console.error('❌ Failed to restore username in user_metadata:', updateError);
+                       } else {
+                         console.log('✅ Successfully restored username in user_metadata');
+                         // Force a session refresh to get updated metadata
+                         await supabase.auth.refreshSession();
+                       }
+                     } catch (err) {
+                       console.error('❌ Error restoring username in user_metadata:', err);
+                     }
+                   }
+                 }
+               } catch (err) {
+                 console.error('❌ Unexpected error ensuring user profile:', err);
+               }
+             };
+             
+             // Run profile creation in background without blocking signin
+             ensureProfile().catch(err => {
+               console.log('⚠️ Profile creation failed, but signin continues:', err);
+             });
+           } else if (event === 'SIGNED_OUT') {
             console.log('🚪 User signed out event detected - letting signOut function handle state clearing');
           } else if (event === 'USER_UPDATED' && session?.user) {
             console.log('🔄 User updated, ensuring profile exists...');
@@ -303,6 +325,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('⚠️ Username may not display correctly - this is a critical issue');
         } else {
           console.log('✅ Successfully saved username in user_metadata:', userData.username);
+          
+          // Force a session refresh to ensure the updated metadata is available
+          try {
+            console.log('🔄 Refreshing session to get updated metadata...');
+            const { error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError) {
+              console.error('❌ Failed to refresh session:', refreshError);
+            } else {
+              console.log('✅ Session refreshed successfully');
+            }
+          } catch (refreshErr) {
+            console.error('❌ Error refreshing session:', refreshErr);
+          }
         }
       } catch (err) {
         console.error('❌ Error updating user metadata with username:', err);
@@ -439,6 +474,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('✅ Successfully fixed username in user metadata');
           // Force a refresh of the user session to get updated metadata
           await supabase.auth.refreshSession();
+          
+          // Also update the local user state to reflect the change
+          setUser(prevUser => prevUser ? {
+            ...prevUser,
+            user_metadata: {
+              ...prevUser.user_metadata,
+              username: userProfile.username
+            }
+          } : null);
         }
       } else if (userProfile && userProfile.username) {
         console.log('ℹ️ Username already exists in metadata:', user.user_metadata?.username);
