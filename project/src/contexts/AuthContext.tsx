@@ -8,6 +8,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, userData: { name: string; username: string }) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   refreshUserMetadata: () => Promise<void>;
@@ -96,33 +97,66 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                      user_avatar_url: session.user.user_metadata?.avatar_url || null
                    });
 
-                 if (profileError) {
-                   console.error('❌ Error ensuring user profile exists:', profileError);
-                 } else {
-                   console.log('✅ User profile ensured:', userProfile);
-                   
-                   // Check if username needs to be restored to user_metadata
-                   if (userProfile && userProfile.username && !session.user.user_metadata?.username) {
-                     console.log('🔄 Restoring missing username in user_metadata:', userProfile.username);
-                     try {
-                       const { error: updateError } = await supabase.auth.updateUser({
-                         data: {
-                           username: userProfile.username
-                         }
-                       });
-                       
-                       if (updateError) {
-                         console.error('❌ Failed to restore username in user_metadata:', updateError);
-                       } else {
-                         console.log('✅ Successfully restored username in user_metadata');
-                         // Force a session refresh to get updated metadata
-                         await supabase.auth.refreshSession();
-                       }
-                     } catch (err) {
-                       console.error('❌ Error restoring username in user_metadata:', err);
-                     }
-                   }
-                 }
+                                   if (profileError) {
+                    console.error('❌ Error ensuring user profile exists:', profileError);
+                  } else {
+                    console.log('✅ User profile ensured:', userProfile);
+                    
+                    // For Google OAuth users, we need to handle username creation
+                    if (session.user.app_metadata?.provider === 'google') {
+                      console.log('🔍 Google OAuth user detected');
+                      
+                      // If no username exists, create one from email
+                      if (!userProfile?.username && session.user.email) {
+                        const emailPrefix = session.user.email.split('@')[0];
+                        const suggestedUsername = emailPrefix;
+                        
+                        console.log('🔄 Creating username for Google user:', suggestedUsername);
+                        
+                        try {
+                          // Update the user profile with the username
+                          const { error: updateError } = await supabaseAdmin
+                            .rpc('get_or_create_user', {
+                              auth_user_id: session.user.id,
+                              user_name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User',
+                              user_email: session.user.email,
+                              user_username: suggestedUsername,
+                              user_avatar_url: session.user.user_metadata?.avatar_url || null
+                            });
+                          
+                          if (updateError) {
+                            console.error('❌ Failed to create username for Google user:', updateError);
+                          } else {
+                            console.log('✅ Username created for Google user:', suggestedUsername);
+                          }
+                        } catch (err) {
+                          console.error('❌ Error creating username for Google user:', err);
+                        }
+                      }
+                    }
+                    
+                    // Check if username needs to be restored to user_metadata
+                    if (userProfile && userProfile.username && !session.user.user_metadata?.username) {
+                      console.log('🔄 Restoring missing username in user_metadata:', userProfile.username);
+                      try {
+                        const { error: updateError } = await supabase.auth.updateUser({
+                          data: {
+                            username: userProfile.username
+                          }
+                        });
+                        
+                        if (updateError) {
+                          console.error('❌ Failed to restore username in user_metadata:', updateError);
+                        } else {
+                          console.log('✅ Successfully restored username in user_metadata');
+                          // Force a session refresh to get updated metadata
+                          await supabase.auth.refreshSession();
+                        }
+                      } catch (err) {
+                        console.error('❌ Error restoring username in user_metadata:', err);
+                      }
+                    }
+                  }
                } catch (err) {
                  console.error('❌ Unexpected error ensuring user profile:', err);
                }
@@ -386,6 +420,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      console.log('🔄 Starting Google OAuth sign in...');
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+      
+      if (error) {
+        console.error('❌ Google OAuth error:', error);
+        return { error };
+      }
+      
+      console.log('✅ Google OAuth initiated successfully');
+      return { error: null };
+    } catch (err) {
+      console.error('❌ Unexpected error during Google OAuth:', err);
+      return { error: err };
+    }
+  };
+
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
@@ -500,6 +562,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
     resetPassword,
     refreshUserMetadata,
