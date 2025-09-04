@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, ChevronDown, ChevronUp, Book, ArrowRight, Star, Check, X, Upload, Camera } from 'lucide-react';
+import { Home, ArrowLeft, Construction, Sparkles, Brain, Target, User, Heart, Shield, Zap, Users, Eye, EyeOff, ChevronDown, ChevronUp, Book, ArrowRight, Star, Check, X, Upload, Camera } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { PersonalityProfile, BookRecommendation, FavoriteBook } from '../types';
 import { getBookRecommendationsWithExpandedMatching } from '../utils/bookRecommendationsOptimized';
@@ -34,7 +34,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     document.addEventListener('click', handleGlobalClick, true); // Use capture phase
     return () => document.removeEventListener('click', handleGlobalClick, true);
   }, []);
-  const { user } = useAuth();
+  const { user, updatePassword } = useAuth();
   const [expandedPersonality, setExpandedPersonality] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPage, setCurrentPage] = useState<'profile' | 'strengths' | 'growth'>('profile');
@@ -54,6 +54,9 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
   const [profileSuccess, setProfileSuccess] = useState<Record<string, string>>({});
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Update profile settings when user data changes
   useEffect(() => {
@@ -151,11 +154,16 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
         newErrors.newPassword = 'New password is required';
       } else if (profileSettings.newPassword.length < 8) {
         newErrors.newPassword = 'Password must be at least 8 characters';
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(profileSettings.newPassword)) {
+        newErrors.newPassword = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
       }
       if (!profileSettings.confirmPassword.trim()) {
         newErrors.confirmPassword = 'Please confirm your new password';
       } else if (profileSettings.newPassword !== profileSettings.confirmPassword) {
         newErrors.confirmPassword = 'Passwords do not match';
+      }
+      if (profileSettings.currentPassword === profileSettings.newPassword) {
+        newErrors.newPassword = 'New password must be different from current password';
       }
     }
 
@@ -183,15 +191,50 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     if (!user || !validateProfileSettings('password')) return;
 
     setIsUpdating(true);
+    setProfileErrors({});
+    setProfileSuccess({});
+    
     try {
-      // For password updates, we need to use a different approach
-      // This would typically involve the user's session and password change flow
-      // For now, we'll show a message that this feature requires additional setup
-      setProfileErrors({ password: 'Password change requires additional security verification. Please use the "Forgot Password" option from the login screen.' });
+      console.log('🔄 Starting password update process...');
+      
+      // Add timeout to prevent hanging (increased to 60 seconds for slower connections)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Password update is taking longer than expected. The password may have been updated successfully - please check by signing out and back in.')), 60000); // 60 second timeout
+      });
+      
+      const updatePromise = updatePassword(
+        profileSettings.currentPassword,
+        profileSettings.newPassword
+      );
+      
+      const { error } = await Promise.race([updatePromise, timeoutPromise]) as any;
+
+      if (error) {
+        console.error('❌ Password update failed:', error);
+        setProfileErrors({ password: error.message || 'Failed to update password' });
+      } else {
+        console.log('✅ Password update successful');
+        setProfileSuccess({ password: 'Password updated successfully! You can now use your new password to sign in.' });
+        
+        // Clear the password fields
+        setProfileSettings(prev => ({
+          ...prev,
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        }));
+        
+        // Clear success message after 5 seconds (longer for better UX)
+        setTimeout(() => {
+          setProfileSuccess(prev => ({ ...prev, password: '' }));
+        }, 5000);
+      }
     } catch (error: any) {
-      setProfileErrors({ password: error.errors?.[0]?.message || 'Failed to update password' });
+      console.error('❌ Unexpected error during password update:', error);
+      setProfileErrors({ password: error.message || 'An unexpected error occurred. Please try again.' });
     } finally {
       setIsUpdating(false);
+      console.log('🔄 Password update process completed');
     }
   };
 
@@ -935,13 +978,22 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                     <div className="space-y-4">
                       <div>
                         <label className="block text-white/80 text-sm font-medium mb-2">Current Password</label>
-                        <input 
-                          type="password" 
-                          value={profileSettings.currentPassword}
-                          onChange={(e) => handleProfileInputChange('currentPassword', e.target.value)}
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                          placeholder="Enter current password"
-                        />
+                        <div className="relative">
+                          <input 
+                            type={showCurrentPassword ? "text" : "password"}
+                            value={profileSettings.currentPassword}
+                            onChange={(e) => handleProfileInputChange('currentPassword', e.target.value)}
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            placeholder="Enter current password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
+                          >
+                            {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
                         {profileErrors.currentPassword && (
                           <p className="text-red-400 text-sm mt-2">{profileErrors.currentPassword}</p>
                         )}
@@ -949,13 +1001,22 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                       
                       <div>
                         <label className="block text-white/80 text-sm font-medium mb-2">New Password</label>
-                        <input 
-                          type="password" 
-                          value={profileSettings.newPassword}
-                          onChange={(e) => handleProfileInputChange('newPassword', e.target.value)}
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                          placeholder="Enter new password"
-                        />
+                        <div className="relative">
+                          <input 
+                            type={showNewPassword ? "text" : "password"}
+                            value={profileSettings.newPassword}
+                            onChange={(e) => handleProfileInputChange('newPassword', e.target.value)}
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            placeholder="Enter new password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
+                          >
+                            {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
                         {profileErrors.newPassword && (
                           <p className="text-red-400 text-sm mt-2">{profileErrors.newPassword}</p>
                         )}
@@ -963,17 +1024,35 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                       
                       <div>
                         <label className="block text-white/80 text-sm font-medium mb-2">Confirm New Password</label>
-                        <input 
-                          type="password" 
-                          value={profileSettings.confirmPassword}
-                          onChange={(e) => handleProfileInputChange('confirmPassword', e.target.value)}
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                          placeholder="Confirm new password"
-                        />
+                        <div className="relative">
+                          <input 
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={profileSettings.confirmPassword}
+                            onChange={(e) => handleProfileInputChange('confirmPassword', e.target.value)}
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            placeholder="Confirm new password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
+                          >
+                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
                         {profileErrors.confirmPassword && (
                           <p className="text-red-400 text-sm mt-2">{profileErrors.confirmPassword}</p>
                         )}
                       </div>
+                      
+                      {isUpdating && (
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                          <p className="text-blue-400 text-sm flex items-center">
+                            <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin mr-2" />
+                            Updating password... This may take up to 60 seconds.
+                          </p>
+                        </div>
+                      )}
                       
                       {profileErrors.password && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
@@ -990,23 +1069,55 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                         </div>
                       )}
                       
-                      <button 
-                        onClick={handleUpdatePassword}
-                        disabled={isUpdating}
-                        className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center"
-                      >
-                        {isUpdating ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                            Updating...
-                          </>
-                        ) : (
-                          <>
-                            <Check className="w-4 h-4 mr-1" />
-                            Update Password
-                          </>
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={handleUpdatePassword}
+                          disabled={isUpdating}
+                          className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center"
+                        >
+                          {isUpdating ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                              Updating...
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-4 h-4 mr-1" />
+                              Update Password
+                            </>
+                          )}
+                        </button>
+                        
+                        {isUpdating && (
+                          <button 
+                            onClick={() => {
+                              setIsUpdating(false);
+                              setProfileErrors({ password: 'Password update cancelled' });
+                            }}
+                            className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-lg font-medium transition-all duration-300"
+                          >
+                            Cancel
+                          </button>
                         )}
-                      </button>
+                        
+                        {profileErrors.password && profileErrors.password.includes('longer than expected') && (
+                          <button 
+                            onClick={() => {
+                              setProfileSuccess({ password: 'Password appears to have been updated successfully! Try signing out and back in to verify.' });
+                              setProfileErrors({});
+                              setProfileSettings(prev => ({
+                                ...prev,
+                                currentPassword: '',
+                                newPassword: '',
+                                confirmPassword: ''
+                              }));
+                            }}
+                            className="w-full mt-2 px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 rounded-lg font-medium transition-all duration-300"
+                          >
+                            ✓ Password Likely Updated - Clear Form
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
 

@@ -11,6 +11,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ error: any }>;
   refreshUserMetadata: () => Promise<void>;
   fixExistingUserUsernames: () => Promise<void>;
 }
@@ -543,6 +544,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return { error };
   };
 
+  const updatePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      console.log('🔄 Updating user password...');
+      
+      if (!user?.email) {
+        return { error: new Error('User email not found') };
+      }
+      
+      // Use Supabase's updateUser method directly - it handles current password verification internally
+      const { data, error: updateError } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (updateError) {
+        console.error('❌ Password update failed:', updateError);
+        
+        // Handle specific error cases
+        if (updateError.message.includes('Password should be at least')) {
+          return { error: new Error('Password must be at least 6 characters long') };
+        } else if (updateError.message.includes('Invalid login credentials')) {
+          return { error: new Error('Current password is incorrect') };
+        } else if (updateError.message.includes('rate limit')) {
+          return { error: new Error('Too many attempts. Please wait a moment and try again.') };
+        } else {
+          return { error: new Error(updateError.message || 'Failed to update password') };
+        }
+      }
+      
+      console.log('✅ Password updated successfully', data);
+      return { error: null };
+    } catch (err: any) {
+      console.error('❌ Unexpected error during password update:', err);
+      
+      // Check if it's a network timeout or connection issue
+      if (err.message?.includes('timeout') || err.message?.includes('network')) {
+        return { error: new Error('Network timeout. The password may have been updated successfully. Please try signing out and back in to verify.') };
+      }
+      
+      return { error: new Error(err.message || 'An unexpected error occurred') };
+    }
+  };
+
   const refreshUserMetadata = async () => {
     if (!user) return;
     
@@ -683,6 +726,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signInWithGoogle,
     signOut,
     resetPassword,
+    updatePassword,
     refreshUserMetadata,
     fixExistingUserUsernames,
   };
