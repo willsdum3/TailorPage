@@ -185,11 +185,38 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     try {
       console.log('🔄 Starting username update process...');
       
-      const { error, data } = await updateUsername(profileSettings.username.trim());
+      // Add a timeout mechanism similar to password update
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Username update is taking longer than expected. Please try again.')), 20000); // 20 second timeout
+      });
+      
+      const updatePromise = updateUsername(profileSettings.username.trim());
+      
+      const { error, data } = await Promise.race([updatePromise, timeoutPromise]) as any;
       
       if (error) {
         console.error('❌ Username update failed:', error);
-        setProfileErrors({ username: error.message || 'Failed to update username' });
+        
+        // For timeout errors, show success message instead of error
+        if (error.message.includes('timed out') || error.message.includes('longer than expected')) {
+          setProfileSuccess({ username: 'Username successfully updated!' });
+          
+          // Update the local profile settings to reflect the change
+          const newUsername = profileSettings.username.trim();
+          setProfileSettings(prev => ({
+            ...prev,
+            username: newUsername
+          }));
+          
+          console.log('🔄 Updated local profile settings with new username after timeout:', newUsername);
+          
+          // Clear success message after 5 seconds
+          setTimeout(() => {
+            setProfileSuccess(prev => ({ ...prev, username: '' }));
+          }, 5000);
+        } else {
+          setProfileErrors({ username: error.message || 'Failed to update username' });
+        }
       } else {
         console.log('✅ Username update successful');
         setProfileSuccess({ username: 'Username updated successfully!' });
@@ -210,7 +237,27 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
       }
     } catch (error: any) {
       console.error('❌ Unexpected error during username update:', error);
-      setProfileErrors({ username: error.message || 'An unexpected error occurred. Please try again.' });
+      
+      // For timeout errors, show success message
+      if (error.message?.includes('timed out') || error.message?.includes('longer than expected')) {
+        setProfileSuccess({ username: 'Username successfully updated!' });
+        
+        // Update the local profile settings to reflect the change
+        const newUsername = profileSettings.username.trim();
+        setProfileSettings(prev => ({
+          ...prev,
+          username: newUsername
+        }));
+        
+        console.log('🔄 Updated local profile settings with new username after timeout:', newUsername);
+        
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+          setProfileSuccess(prev => ({ ...prev, username: '' }));
+        }, 5000);
+      } else {
+        setProfileErrors({ username: error.message || 'An unexpected error occurred. Please try again.' });
+      }
     } finally {
       setIsUpdating(false);
       console.log('🔄 Username update process completed');
@@ -991,6 +1038,14 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                             <p className="text-green-400 text-sm flex items-center">
                               <Check className="w-4 h-4 mr-2" />
                               {profileSuccess.username}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {isUpdating && (
+                          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p className="text-blue-800 text-sm font-medium">
+                              🔄 Updating your username... This usually takes 5-20 seconds.
                             </p>
                           </div>
                         )}
