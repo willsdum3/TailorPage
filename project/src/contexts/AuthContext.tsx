@@ -155,6 +155,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                      user_username: session.user.user_metadata?.username || null,
                      user_avatar_url: avatarUrlToUse
                    });
+                 
+                 console.log('🔍 get_or_create_user result:', { userProfile, profileError });
 
                                    if (profileError) {
                     console.error('❌ Error ensuring user profile exists:', profileError);
@@ -923,9 +925,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Check if user already exists and has an avatar to preserve
       const { data: existingUser } = await supabaseAdmin
         .from('users')
-        .select('avatar_url')
+        .select('avatar_url, username')
         .eq('auth_user_id', user.id)
         .single();
+      
+      console.log('🔍 Existing user data:', existingUser);
       
       let avatarUrlToUse = user.user_metadata?.avatar_url || null;
       
@@ -941,9 +945,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           auth_user_id: user.id,
           user_name: user.user_metadata?.name || 'User',
           user_email: user.email || '',
-          user_username: null, // Don't create new username, just get existing
+          user_username: user.user_metadata?.username || existingUser?.username || null,
           user_avatar_url: avatarUrlToUse
         });
+      
+      console.log('🔍 get_or_create_user result for fix:', { userProfile, profileError });
       
       if (profileError) {
         console.error('❌ Error getting user profile for username fix:', profileError);
