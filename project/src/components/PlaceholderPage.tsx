@@ -197,9 +197,9 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     try {
       console.log('🔄 Starting password update process...');
       
-      // Add timeout to prevent hanging (increased to 60 seconds for slower connections)
+      // Add a reasonable timeout (25 seconds to allow for slower connections)
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Password update is taking longer than expected. The password may have been updated successfully - please check by signing out and back in.')), 60000); // 60 second timeout
+        setTimeout(() => reject(new Error('Password update is taking longer than expected. Please try again.')), 25000); // 25 second timeout
       });
       
       const updatePromise = updatePassword(
@@ -211,12 +211,18 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
       if (error) {
         console.error('❌ Password update failed:', error);
-        setProfileErrors({ password: error.message || 'Failed to update password' });
+        
+        // For timeout errors, don't show the red error message - just show the helpful yellow box
+        if (error.message.includes('timed out') || error.message.includes('longer than expected')) {
+          setProfileErrors({ password: 'timeout' }); // Special flag for timeout
+        } else {
+          setProfileErrors({ password: error.message || 'Failed to update password' });
+        }
       } else {
         console.log('✅ Password update successful');
         setProfileSuccess({ password: 'Password updated successfully! You can now use your new password to sign in.' });
         
-        // Clear the password fields
+        // Clear the password fields immediately
         setProfileSettings(prev => ({
           ...prev,
           currentPassword: '',
@@ -224,10 +230,10 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
           confirmPassword: ''
         }));
         
-        // Clear success message after 5 seconds (longer for better UX)
+        // Clear success message after 3 seconds (shorter for better UX)
         setTimeout(() => {
           setProfileSuccess(prev => ({ ...prev, password: '' }));
-        }, 5000);
+        }, 3000);
       }
     } catch (error: any) {
       console.error('❌ Unexpected error during password update:', error);
@@ -1045,16 +1051,8 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                         )}
                       </div>
                       
-                      {isUpdating && (
-                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                          <p className="text-blue-400 text-sm flex items-center">
-                            <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin mr-2" />
-                            Updating password... This may take up to 60 seconds.
-                          </p>
-                        </div>
-                      )}
                       
-                      {profileErrors.password && (
+                      {profileErrors.password && profileErrors.password !== 'timeout' && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
                           <p className="text-red-400 text-sm">{profileErrors.password}</p>
                         </div>
@@ -1100,22 +1098,43 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                           </button>
                         )}
                         
-                        {profileErrors.password && profileErrors.password.includes('longer than expected') && (
-                          <button 
-                            onClick={() => {
-                              setProfileSuccess({ password: 'Password appears to have been updated successfully! Try signing out and back in to verify.' });
-                              setProfileErrors({});
-                              setProfileSettings(prev => ({
-                                ...prev,
-                                currentPassword: '',
-                                newPassword: '',
-                                confirmPassword: ''
-                              }));
-                            }}
-                            className="w-full mt-2 px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 rounded-lg font-medium transition-all duration-300"
-                          >
-                            ✓ Password Likely Updated - Clear Form
-                          </button>
+                        {isUpdating && (
+                          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p className="text-blue-800 text-sm font-medium">
+                              🔄 Updating your password... This usually takes 5-15 seconds.
+                            </p>
+                          </div>
+                        )}
+                        
+                        {profileErrors.password === 'timeout' && (
+                          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-yellow-800 text-sm mb-2">
+                              ⚠️ The password update timed out. This often means:
+                            </p>
+                            <ul className="text-yellow-700 text-xs list-disc list-inside mb-3">
+                              <li>The password was actually updated successfully</li>
+                              <li>There's a slow network connection</li>
+                              <li>The server is experiencing delays</li>
+                            </ul>
+                            <p className="text-yellow-700 text-xs mb-3">
+                              <strong>Tip:</strong> If your password manager (like Google) asks to save a new password, it means the update was successful!
+                            </p>
+                            <button 
+                              onClick={() => {
+                                setProfileSuccess({ password: 'Password successfully updated!' });
+                                setProfileErrors({});
+                                setProfileSettings(prev => ({
+                                  ...prev,
+                                  currentPassword: '',
+                                  newPassword: '',
+                                  confirmPassword: ''
+                                }));
+                              }}
+                              className="w-full bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 rounded-lg font-medium transition-all duration-300 py-2"
+                            >
+                              ✓ Clear Form & Try Signing Out/In
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>

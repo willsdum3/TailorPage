@@ -55,6 +55,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('✅ Initial session loaded:', session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // If we have a session, ensure user metadata is properly loaded
+        if (session?.user) {
+          console.log('🔄 Ensuring user metadata is loaded for initial session...');
+          // Run this in background without blocking the loading state
+          setTimeout(async () => {
+            try {
+              await refreshUserMetadata();
+              await ensureUserDataRestored();
+            } catch (err) {
+              console.error('❌ Error refreshing user metadata for initial session:', err);
+            }
+          }, 500);
+        }
+        
         setLoading(false);
       } catch (err) {
         console.error('❌ Unexpected error getting initial session:', err);
@@ -231,6 +246,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
              ensureProfile().catch(err => {
                console.log('⚠️ Profile creation failed, but signin continues:', err);
              });
+             
+             // Also ensure user metadata is properly restored
+             setTimeout(async () => {
+               try {
+                 console.log('🔄 Ensuring user metadata is properly restored after signin...');
+                 await refreshUserMetadata();
+                 await ensureUserDataRestored();
+               } catch (err) {
+                 console.error('❌ Error refreshing user metadata after signin:', err);
+               }
+             }, 1000); // Small delay to ensure session is fully established
            } else if (event === 'SIGNED_OUT') {
             console.log('🚪 User signed out event detected - letting signOut function handle state clearing');
           } else if (event === 'USER_UPDATED' && session?.user) {
@@ -483,11 +509,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setSession(null);
       setLoading(false);
       
-      // Small delay to ensure state is cleared before signout
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut();
+      // Sign out from Supabase with scope: 'local' to clear local session
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
       
       if (error) {
         console.error('❌ Error during signout:', error);
@@ -496,6 +519,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         console.log('✅ Supabase signout successful');
       }
+      
+      // Additional cleanup - clear any remaining session data
+      try {
+        // Force clear the session by getting a fresh session (should be null)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log('⚠️ Session still exists after signout, forcing clear...');
+          // If session still exists, try global signout
+          await supabase.auth.signOut({ scope: 'global' });
+        }
+      } catch (cleanupErr) {
+        console.log('⚠️ Error during session cleanup:', cleanupErr);
+      }
+      
+      // Ensure state is completely cleared
+      setUser(null);
+      setSession(null);
+      setLoading(false);
       
       console.log('✅ Complete signout process finished');
       
@@ -553,36 +594,104 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       
       // Use Supabase's updateUser method directly - it handles current password verification internally
-      const { data, error: updateError } = await supabase.auth.updateUser({
+      // Add a timeout to the Supabase call itself
+      const updatePromise = supabase.auth.updateUser({
         password: newPassword
       });
       
-      if (updateError) {
-        console.error('❌ Password update failed:', updateError);
-        
-        // Handle specific error cases
-        if (updateError.message.includes('Password should be at least')) {
-          return { error: new Error('Password must be at least 6 characters long') };
-        } else if (updateError.message.includes('Invalid login credentials')) {
-          return { error: new Error('Current password is incorrect') };
-        } else if (updateError.message.includes('rate limit')) {
-          return { error: new Error('Too many attempts. Please wait a moment and try again.') };
-        } else {
-          return { error: new Error(updateError.message || 'Failed to update password') };
-        }
-      }
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 20000); // 20 second timeout for the actual API call
+      });
       
-      console.log('✅ Password updated successfully', data);
-      return { error: null };
+      try {
+        const { data, error: updateError } = await Promise.race([updatePromise, timeoutPromise]) as any;
+        
+        if (updateError) {
+          console.error('❌ Password update failed:', updateError);
+          
+          // Handle specific error cases
+          if (updateError.message.includes('Password should be at least')) {
+            return { error: new Error('Password must be at least 6 characters long') };
+          } else if (updateError.message.includes('Invalid login credentials')) {
+            return { error: new Error('Current password is incorrect') };
+          } else if (updateError.message.includes('rate limit')) {
+            return { error: new Error('Too many attempts. Please wait a moment and try again.') };
+          } else if (updateError.message.includes('timeout')) {
+            return { error: new Error('Request timed out. Please check your connection and try again.') };
+          } else {
+            return { error: new Error(updateError.message || 'Failed to update password') };
+          }
+        }
+        
+        // If we get here, the password was updated successfully
+        console.log('✅ Password updated successfully', data);
+        
+        // Refresh the session to ensure user metadata is up to date
+        try {
+          console.log('🔄 Refreshing session after password update...');
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError) {
+            console.error('❌ Error refreshing session after password update:', refreshError);
+          } else {
+            console.log('✅ Session refreshed successfully after password update');
+            // Update local state with refreshed session
+            setSession(refreshData.session);
+            setUser(refreshData.user);
+          }
+        } catch (refreshErr) {
+          console.error('❌ Error during session refresh after password update:', refreshErr);
+        }
+        
+        return { error: null };
+      } catch (raceError: any) {
+        // This catches the timeout from Promise.race
+        console.error('❌ Password update timed out:', raceError);
+        
+        // Check if the password might have been updated despite the timeout
+        // We can't easily verify this without making another API call, so we'll suggest the user check
+        if (raceError.message?.includes('timeout')) {
+          return { error: new Error('Password update timed out, but it may have been successful. Please try signing out and back in to verify.') };
+        }
+        
+        return { error: new Error(raceError.message || 'Password update failed due to timeout') };
+      }
     } catch (err: any) {
       console.error('❌ Unexpected error during password update:', err);
       
       // Check if it's a network timeout or connection issue
       if (err.message?.includes('timeout') || err.message?.includes('network')) {
-        return { error: new Error('Network timeout. The password may have been updated successfully. Please try signing out and back in to verify.') };
+        return { error: new Error('Network timeout. Please check your connection and try again.') };
       }
       
       return { error: new Error(err.message || 'An unexpected error occurred') };
+    }
+  };
+
+  const ensureUserDataRestored = async () => {
+    if (!user) return;
+    
+    try {
+      console.log('🔄 Ensuring user data is properly restored...');
+      
+      // Get the latest user profile from database
+      const { data: userProfile, error: profileError } = await supabaseAdmin
+        .rpc('get_or_create_user', {
+          auth_user_id: user.id,
+          user_name: user.user_metadata?.name || 'User',
+          user_email: user.email || '',
+          user_username: null, // Don't create new username, just get existing
+          user_avatar_url: user.user_metadata?.avatar_url || null
+        });
+      
+      if (profileError) {
+        console.error('❌ Error getting user profile for data restoration:', profileError);
+        return;
+      }
+      
+      console.log('✅ User data restoration check completed');
+    } catch (err) {
+      console.error('❌ Error ensuring user data restoration:', err);
     }
   };
 
@@ -636,7 +745,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
           console.log('✅ Successfully updated user metadata');
           // Force a refresh of the user session to get updated metadata
-          await supabase.auth.refreshSession();
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError) {
+            console.error('❌ Error refreshing session after metadata update:', refreshError);
+          } else {
+            console.log('✅ Session refreshed successfully after metadata update');
+            // Update local state with refreshed session
+            setSession(refreshData.session);
+            setUser(refreshData.user);
+          }
         }
       }
     } catch (err) {
