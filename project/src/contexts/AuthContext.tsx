@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (emailOrUsername: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, userData: { name: string; username: string }) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -355,8 +355,62 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (emailOrUsername: string, password: string) => {
     try {
+      let email = emailOrUsername;
+      
+      // Check if the input is a username (not an email)
+      if (!emailOrUsername.includes('@')) {
+        console.log('🔄 Username detected, looking up email for username:', emailOrUsername);
+        
+        // Look up the email associated with this username
+        // First try exact match
+        let { data: userData, error: lookupError } = await supabaseAdmin
+          .from('users')
+          .select('email, username, auth_user_id')
+          .eq('username', emailOrUsername)
+          .single();
+        
+        // If exact match fails, try case-insensitive match
+        if (lookupError && lookupError.code === 'PGRST116') {
+          console.log('🔄 Exact username match failed, trying case-insensitive match...');
+          const { data: caseInsensitiveData, error: caseInsensitiveError } = await supabaseAdmin
+            .from('users')
+            .select('email, username, auth_user_id')
+            .ilike('username', emailOrUsername)
+            .single();
+          
+          if (!caseInsensitiveError && caseInsensitiveData) {
+            userData = caseInsensitiveData;
+            lookupError = null;
+            console.log('✅ Found username with case-insensitive match');
+          }
+        }
+        
+        console.log('🔍 Username lookup result:', { userData, lookupError });
+        
+        if (lookupError) {
+          console.error('❌ Username lookup error:', lookupError);
+          
+          // Check if it's a "not found" error
+          if (lookupError.code === 'PGRST116') {
+            return { error: new Error('Username not found. Please check your username or try signing in with your email address.') };
+          } else {
+            return { error: new Error('Unable to verify username. Please try again or use your email address.') };
+          }
+        }
+        
+        if (!userData || !userData.email) {
+          console.error('❌ No user data or email found for username:', emailOrUsername);
+          return { error: new Error('Username not found. Please check your username or try signing in with your email address.') };
+        }
+        
+        email = userData.email;
+        console.log('✅ Found email for username:', email, 'User ID:', userData.auth_user_id);
+      } else {
+        console.log('🔄 Email detected, proceeding with direct sign-in');
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,

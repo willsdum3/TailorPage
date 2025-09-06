@@ -53,7 +53,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       if (mode === 'login') {
         const { error } = await signIn(email, password);
         if (error) {
-          setError(error.message);
+          // Provide more helpful error messages for username-related issues
+          if (error.message.includes('Username not found')) {
+            setError('Username not found. Please check your username or try signing in with your email address.');
+          } else if (error.message.includes('Invalid username')) {
+            setError('Invalid username or password. Please check your credentials or try signing in with your email address.');
+          } else {
+            setError(error.message);
+          }
         } else {
           setMessage('Successfully signed in!');
           setTimeout(() => {
@@ -148,7 +155,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-400 font-medium">or continue with email</span>
+              <span className="px-4 bg-white text-gray-400 font-medium">or continue with email/username</span>
             </div>
           </div>
 
@@ -183,14 +190,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
-              type="email"
-              placeholder="Email address"
+              type="text"
+              placeholder="Email address or username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
           </div>
+          
+          {mode === 'login' && (
+            <p className="text-xs text-gray-500 -mt-2">
+              You can sign in with either your email address or username
+            </p>
+          )}
 
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
