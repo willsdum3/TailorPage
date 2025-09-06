@@ -12,6 +12,7 @@ import PlaceholderPage from './components/PlaceholderPage';
 import LearnMorePage from './components/LearnMorePage';
 import BurgerMenu from './components/BurgerMenu';
 import { AuthModal } from './components/AuthModal';
+import { ResetPasswordPage } from './components/ResetPasswordPage';
 import { useScrollToTopInstant } from './hooks/useScrollToTop';
 import { 
   getUserPersonalityProfile, 
@@ -333,12 +334,38 @@ const questions: Question[] = [
   }
 ];
 
-type AppPage = 'welcome' | 'quiz' | 'results' | 'generated' | 'celebrity-books' | 'trending-books' | 'trending-authors' | 'tailor-mates' | 'favourites' | 'learn-more' | 'profile' | 'book-cover-test';
+type AppPage = 'welcome' | 'quiz' | 'results' | 'generated' | 'celebrity-books' | 'trending-books' | 'trending-authors' | 'tailor-mates' | 'favourites' | 'learn-more' | 'profile' | 'book-cover-test' | 'reset-password';
 
 function App() {
   // Use Supabase authentication
   const { user: supabaseUser, session, loading: authLoading, signOut, fixExistingUserUsernames } = useAuth();
   const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
+
+  // Check if we're on a reset password page
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    
+    console.log('🔍 App.tsx - Checking URL for reset password:', {
+      hash,
+      search: urlParams.toString(),
+      pathname: window.location.pathname
+    });
+    
+    // Check for Supabase auth callback or reset password parameters
+    const hasRecoveryToken = hash.includes('type=recovery') || 
+                            urlParams.get('type') === 'recovery' ||
+                            (hash.includes('access_token') && hash.includes('type=recovery'));
+    
+    // Also check for password reset errors
+    const hasPasswordResetError = hash.includes('error=') && 
+                                 (hash.includes('otp_expired') || hash.includes('access_denied'));
+    
+    if (hasRecoveryToken || hasPasswordResetError || window.location.pathname.includes('reset-password')) {
+      console.log('✅ App.tsx - Setting page to reset-password');
+      setCurrentPage('reset-password');
+    }
+  }, []);
   const [answers, setAnswers] = useState<Record<number, LikertResponse>>({});
   const [bookAnswers, setBookAnswers] = useState<Record<number, BookResponse>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -989,6 +1016,9 @@ function App() {
           description="Testing book cover loading performance."
           onBack={() => setCurrentPage('welcome')}
         />
+      )}
+      {currentPage === 'reset-password' && (
+        <ResetPasswordPage onNavigate={setCurrentPage} />
       )}
     </div>
   );

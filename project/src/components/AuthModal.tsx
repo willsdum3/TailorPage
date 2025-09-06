@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { ForgotPasswordModal } from './ForgotPasswordModal';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const { signIn, signUp, signInWithGoogle } = useAuth();
 
@@ -252,10 +254,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
         {mode === 'login' && (
           <div className="mt-4 text-center">
             <button
-              onClick={() => {
-                // TODO: Implement password reset
-                setMessage('Password reset functionality coming soon!');
-              }}
+              onClick={() => setShowForgotPassword(true)}
               className="text-gray-500 hover:text-gray-700 text-sm"
             >
               Forgot your password?
@@ -263,6 +262,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
           </div>
         )}
       </div>
+      
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        onBackToLogin={() => setShowForgotPassword(false)}
+      />
     </div>
   );
 };
