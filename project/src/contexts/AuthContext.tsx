@@ -12,6 +12,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<{ error: any }>;
+  updateUsername: (newUsername: string) => Promise<{ error: any; data?: any }>;
   refreshUserMetadata: () => Promise<void>;
   fixExistingUserUsernames: () => Promise<void>;
 }
@@ -668,6 +669,102 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateUsername = async (newUsername: string) => {
+    try {
+      console.log('🔄 Updating username to:', newUsername);
+      
+      if (!user?.id) {
+        return { error: new Error('User not found') };
+      }
+      
+      // First, check if the username is already taken
+      const { data: existingUser, error: checkError } = await supabaseAdmin
+        .from('users')
+        .select('username')
+        .eq('username', newUsername)
+        .neq('auth_user_id', user.id) // Exclude current user
+        .single();
+      
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found" which is what we want
+        console.error('❌ Error checking username availability:', checkError);
+        return { error: new Error('Failed to check username availability') };
+      }
+      
+      if (existingUser) {
+        return { error: new Error('Username is already taken') };
+      }
+      
+      // Update username in the database
+      const { data: userProfile, error: dbError } = await supabaseAdmin
+        .from('users')
+        .update({ 
+          username: newUsername,
+          updated_at: new Date().toISOString()
+        })
+        .eq('auth_user_id', user.id)
+        .select()
+        .single();
+      
+      if (dbError) {
+        console.error('❌ Error updating username in database:', dbError);
+        
+        // Handle specific database errors
+        if (dbError.code === '23505') { // Unique constraint violation
+          return { error: new Error('Username is already taken') };
+        } else if (dbError.message.includes('duplicate key')) {
+          return { error: new Error('Username is already taken') };
+        } else {
+          return { error: new Error('Failed to update username in database') };
+        }
+      }
+      
+      // Update username in Supabase Auth user metadata
+      const { data: authData, error: authError } = await supabase.auth.updateUser({
+        data: {
+          username: newUsername
+        }
+      });
+      
+      if (authError) {
+        console.error('❌ Error updating username in auth metadata:', authError);
+        // Don't fail the entire operation if auth metadata update fails
+        console.log('⚠️ Username updated in database but not in auth metadata');
+      } else {
+        console.log('✅ Username updated in auth metadata successfully');
+      }
+      
+      // Refresh the session to get updated user data
+      try {
+        console.log('🔄 Refreshing session after username update...');
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (refreshError) {
+          console.error('❌ Error refreshing session after username update:', refreshError);
+        } else {
+          console.log('✅ Session refreshed successfully after username update');
+          console.log('🔄 Updated user metadata:', refreshData.user?.user_metadata);
+          // Update local state with refreshed session
+          setSession(refreshData.session);
+          setUser(refreshData.user);
+          
+          // Force a small delay to ensure state updates are processed
+          setTimeout(() => {
+            console.log('🔄 Final user state after username update:', refreshData.user);
+          }, 100);
+        }
+      } catch (refreshErr) {
+        console.error('❌ Error during session refresh after username update:', refreshErr);
+      }
+      
+      console.log('✅ Username updated successfully');
+      return { error: null, data: { username: newUsername } };
+      
+    } catch (err: any) {
+      console.error('❌ Unexpected error during username update:', err);
+      return { error: new Error(err.message || 'An unexpected error occurred') };
+    }
+  };
+
   const ensureUserDataRestored = async () => {
     if (!user) return;
     
@@ -845,6 +942,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut,
     resetPassword,
     updatePassword,
+    updateUsername,
     refreshUserMetadata,
     fixExistingUserUsernames,
   };

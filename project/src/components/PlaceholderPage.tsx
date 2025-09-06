@@ -34,7 +34,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     document.addEventListener('click', handleGlobalClick, true); // Use capture phase
     return () => document.removeEventListener('click', handleGlobalClick, true);
   }, []);
-  const { user, updatePassword } = useAuth();
+  const { user, updatePassword, updateUsername } = useAuth();
   const [expandedPersonality, setExpandedPersonality] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPage, setCurrentPage] = useState<'profile' | 'strengths' | 'growth'>('profile');
@@ -61,9 +61,13 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
   // Update profile settings when user data changes
   useEffect(() => {
     if (user) {
+      console.log('🔄 Updating profile settings from user data:', user.user_metadata);
+      const newUsername = user.user_metadata?.username || user.email?.split('@')[0] || '';
+      console.log('🔄 Setting username to:', newUsername);
+      
       setProfileSettings(prev => ({
         ...prev,
-        username: user.user_metadata?.username || user.email?.split('@')[0] || '',
+        username: newUsername,
         email: user.email || '',
         profilePicture: user.user_metadata?.avatar_url || null
       }));
@@ -175,15 +179,41 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
     if (!user || !validateProfileSettings('username')) return;
 
     setIsUpdating(true);
+    setProfileErrors({});
+    setProfileSuccess({});
+    
     try {
-      // For Supabase, we would need to update the user metadata
-      // This requires additional setup with Supabase Auth
-      setProfileSuccess({ username: 'Username update feature coming soon!' });
-      setTimeout(() => setProfileSuccess(prev => ({ ...prev, username: '' })), 3000);
+      console.log('🔄 Starting username update process...');
+      
+      const { error, data } = await updateUsername(profileSettings.username.trim());
+      
+      if (error) {
+        console.error('❌ Username update failed:', error);
+        setProfileErrors({ username: error.message || 'Failed to update username' });
+      } else {
+        console.log('✅ Username update successful');
+        setProfileSuccess({ username: 'Username updated successfully!' });
+        
+        // Update the local profile settings to reflect the change immediately
+        const newUsername = data?.username || profileSettings.username.trim();
+        setProfileSettings(prev => ({
+          ...prev,
+          username: newUsername
+        }));
+        
+        console.log('🔄 Updated local profile settings with new username:', newUsername);
+        
+        // Clear success message after 5 seconds (longer for better visibility)
+        setTimeout(() => {
+          setProfileSuccess(prev => ({ ...prev, username: '' }));
+        }, 5000);
+      }
     } catch (error: any) {
-      setProfileErrors({ username: 'Failed to update username' });
+      console.error('❌ Unexpected error during username update:', error);
+      setProfileErrors({ username: error.message || 'An unexpected error occurred. Please try again.' });
     } finally {
       setIsUpdating(false);
+      console.log('🔄 Username update process completed');
     }
   };
 
@@ -957,10 +987,12 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                           <p className="text-red-400 text-sm mt-2">{profileErrors.username}</p>
                         )}
                         {profileSuccess.username && (
-                          <p className="text-green-400 text-sm mt-2 flex items-center">
-                            <Check className="w-4 h-4 mr-1" />
-                            {profileSuccess.username}
-                          </p>
+                          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 mt-2">
+                            <p className="text-green-400 text-sm flex items-center">
+                              <Check className="w-4 h-4 mr-2" />
+                              {profileSuccess.username}
+                            </p>
+                          </div>
                         )}
                       </div>
                       
