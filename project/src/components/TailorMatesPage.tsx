@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send, User as UserIcon, Clock } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
-import { BookClub, Discussion, FriendConnection, FriendRecommendation, User } from '../types';
+import { BookClub, Discussion, FriendConnection, FriendRecommendation, User, CreateBookClubServiceData } from '../types';
 import CreateBookClubModal from './CreateBookClubModal';
 import CreateDiscussionModal from './CreateDiscussionModal';
 import DiscussionDetailPage from './DiscussionDetailPage';
-import TailorMatesDebug from './TailorMatesDebug';
 
 interface TailorMatesPageProps {
   onBack: () => void;
@@ -49,15 +48,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       setIsLoading(true);
       
       if (activeTab === 'clubs') {
-        const clubs = await TailorMatesService.getBookClubs(user.id);
+        const clubs = await TailorMatesService.getBookClubs();
         setBookClubs(clubs);
       } else if (activeTab === 'discussions') {
-        const discussionsData = await TailorMatesService.getDiscussions(user.id);
+        const discussionsData = await TailorMatesService.getDiscussions();
         setDiscussions(discussionsData);
       } else if (activeTab === 'friends') {
         const [connections, recommendations] = await Promise.all([
-          TailorMatesService.getFriendConnections(user.id),
-          TailorMatesService.getFriendRecommendations(user.id)
+          TailorMatesService.getFriendConnections(),
+          TailorMatesService.getFriendRecommendations()
         ]);
         setFriendConnections(connections);
         setFriendRecommendations(recommendations);
@@ -85,15 +84,20 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     try {
       console.log('Attempting to create book club for user:', user.id);
       
-      // Prepare user data for potential user creation
-      const userData = {
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        image_url: user.imageUrl
+      // Map form data to service expected format
+      const mappedClubData: CreateBookClubServiceData = {
+        name: clubData.name,
+        description: clubData.description,
+        currentBookTitle: clubData.currentBookTitle,
+        currentBookAuthor: clubData.currentBookAuthor,
+        maxMembers: clubData.maxMembers,
+        isPublic: !clubData.isPrivate, // Convert isPrivate to isPublic
+        targetPersonalityTraits: clubData.personalityTraits, // Map personalityTraits to targetPersonalityTraits
+        tags: clubData.tags,
+        meetingInfo: clubData.meetingTime ? `${clubData.meetingTime}${clubData.nextMeetingDate ? ` - ${clubData.nextMeetingDate}` : ''}` : null
       };
       
-      await TailorMatesService.createBookClub(clubData, user.id, userData);
+      await TailorMatesService.createBookClub(mappedClubData);
       await loadData(); // Refresh the list
     } catch (error: any) {
       console.error('Error creating club:', error);
@@ -111,7 +115,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
-      await TailorMatesService.createDiscussion(discussionData, user.id);
+      await TailorMatesService.createDiscussion(discussionData);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error creating discussion:', error);
@@ -126,7 +130,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
-      await TailorMatesService.joinBookClub(clubId, user.id);
+      await TailorMatesService.joinBookClub(clubId);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error joining club:', error);
@@ -141,7 +145,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
-      await TailorMatesService.leaveBookClub(clubId, user.id);
+      await TailorMatesService.leaveBookClub(clubId);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error leaving club:', error);
@@ -156,7 +160,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
-      await TailorMatesService.sendFriendRequest(friendClerkId, user.id);
+      await TailorMatesService.sendFriendRequest(friendClerkId);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error sending friend request:', error);
@@ -171,7 +175,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
-      await TailorMatesService.acceptFriendRequest(friendClerkId, user.id);
+      await TailorMatesService.acceptFriendRequest(friendClerkId);
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error accepting friend request:', error);
@@ -186,7 +190,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
-      await TailorMatesService.generateFriendRecommendations(user.id);
+      await TailorMatesService.generateFriendRecommendations();
       await loadData(); // Refresh the list
     } catch (error) {
       console.error('Error generating recommendations:', error);
@@ -769,8 +773,6 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         onSubmit={handleCreateDiscussion}
       />
 
-      {/* Debug Component - Always show for now */}
-      <TailorMatesDebug user={user} />
     </div>
   );
 };

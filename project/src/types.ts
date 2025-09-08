@@ -161,6 +161,19 @@ export interface CreateBookClubData {
   tags: string[];
 }
 
+// Service-level interface for book club creation
+export interface CreateBookClubServiceData {
+  name: string;
+  description: string;
+  currentBookTitle?: string;
+  currentBookAuthor?: string;
+  maxMembers: number;
+  isPublic: boolean;
+  targetPersonalityTraits: string[];
+  tags: string[];
+  meetingInfo?: string;
+}
+
 export interface CreateDiscussionData {
   title: string;
   content: string;
