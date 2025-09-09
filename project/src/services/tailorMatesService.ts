@@ -205,7 +205,7 @@ export class TailorMatesService {
           discussion_content: discussionData.content,
           book_title: discussionData.bookTitle || null,
           book_author: discussionData.bookAuthor || null,
-          tags: discussionData.tags || []
+          discussion_tags: discussionData.tags || []
         });
 
       if (error) {
