@@ -115,7 +115,28 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Transform database data to match UI interface
+      const transformedData: BookClub[] = (data || []).map((club: any) => ({
+        id: club.id,
+        name: club.name,
+        description: club.description,
+        currentBookTitle: club.current_book_title,
+        currentBookAuthor: club.current_book_author,
+        memberCount: club.member_count || 0,
+        maxMembers: club.max_members,
+        personalityTraits: club.target_personality_traits || [],
+        meetingTime: club.meeting_info ? club.meeting_info.split(' - ')[0] : undefined,
+        nextMeetingDate: club.meeting_info && club.meeting_info.includes(' - ') ? club.meeting_info.split(' - ')[1] : undefined,
+        isPrivate: !club.is_public,
+        tags: club.tags || [],
+        createdBy: club.created_by,
+        createdAt: club.created_at,
+        isMember: club.is_member || false,
+        userRole: club.user_role || '',
+        creatorName: 'Unknown' // We'll need to get this from a join or separate query
+      }));
+
+      return transformedData;
     } catch (error) {
       console.error('Error in getBookClubs:', error);
       return [];
@@ -215,7 +236,23 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Transform database data to match UI interface
+      const transformedData: Discussion[] = (data || []).map((discussion: any) => ({
+        id: discussion.id,
+        title: discussion.title,
+        content: discussion.content,
+        bookTitle: discussion.book_title,
+        bookAuthor: discussion.book_author,
+        tags: discussion.tags || [],
+        createdBy: discussion.created_by,
+        createdAt: discussion.created_at,
+        participantCount: discussion.participant_count || 0,
+        lastActivity: discussion.last_message_at || discussion.created_at,
+        isParticipant: discussion.is_participant || false,
+        creatorName: 'Unknown' // We'll need to get this from a join or separate query
+      }));
+
+      return transformedData;
     } catch (error) {
       console.error('Error in getDiscussions:', error);
       return [];

@@ -47,12 +47,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     try {
       setIsLoading(true);
       
+      // Load data for the current active tab
       if (activeTab === 'clubs') {
         const clubs = await TailorMatesService.getBookClubs();
         setBookClubs(clubs);
+        console.log('Loaded book clubs:', clubs);
       } else if (activeTab === 'discussions') {
         const discussionsData = await TailorMatesService.getDiscussions();
         setDiscussions(discussionsData);
+        console.log('Loaded discussions:', discussionsData);
       } else if (activeTab === 'friends') {
         const [connections, recommendations] = await Promise.all([
           TailorMatesService.getFriendConnections(),
@@ -60,6 +63,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         ]);
         setFriendConnections(connections);
         setFriendRecommendations(recommendations);
+        console.log('Loaded friends data:', { connections, recommendations });
       }
     } catch (error) {
       console.error('Error loading data:', error);
