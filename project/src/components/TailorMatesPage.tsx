@@ -36,7 +36,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [activeTab, user]);
 
   const loadData = async () => {
     if (!user) {
@@ -44,19 +44,25 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       return;
     }
 
+    console.log('Loading data for active tab:', activeTab);
     try {
       setIsLoading(true);
       
       // Load data for the current active tab
       if (activeTab === 'clubs') {
+        console.log('Loading book clubs...');
         const clubs = await TailorMatesService.getBookClubs();
         setBookClubs(clubs);
         console.log('Loaded book clubs:', clubs);
+        console.log('Book clubs state updated:', clubs.length, 'clubs');
       } else if (activeTab === 'discussions') {
+        console.log('Loading discussions...');
         const discussionsData = await TailorMatesService.getDiscussions();
         setDiscussions(discussionsData);
         console.log('Loaded discussions:', discussionsData);
+        console.log('Discussions state updated:', discussionsData.length, 'discussions');
       } else if (activeTab === 'friends') {
+        console.log('Loading friends data...');
         const [connections, recommendations] = await Promise.all([
           TailorMatesService.getFriendConnections(),
           TailorMatesService.getFriendRecommendations()
@@ -73,10 +79,11 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   };
 
   const handleTabChange = (tab: 'clubs' | 'discussions' | 'friends') => {
+    console.log('Changing tab to:', tab);
     setActiveTab(tab);
     setSearchTerm('');
     setSelectedFilter('All');
-    loadData();
+    // loadData will be called automatically by useEffect when activeTab changes
   };
 
   const handleCreateClub = async (clubData: any) => {
@@ -374,6 +381,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 <BookOpen className="w-16 h-16 text-white/30 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-white mb-2">No Book Clubs Yet</h3>
                 <p className="text-white/70 mb-6">Be the first to create a book club!</p>
+                <p className="text-white/50 text-sm mb-4">Debug: bookClubs.length = {bookClubs.length}</p>
                 <button
                   onClick={() => setShowCreateClubModal(true)}
                   className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
@@ -498,6 +506,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-white mb-2">No Discussions Yet</h3>
                 <p className="text-white/70 mb-6">Be the first to start a discussion!</p>
+                <p className="text-white/50 text-sm mb-4">Debug: discussions.length = {discussions.length}</p>
                 <button
                   onClick={() => setShowCreateDiscussionModal(true)}
                   className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
