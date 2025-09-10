@@ -10,7 +10,7 @@ DROP FUNCTION IF EXISTS get_book_club_messages(UUID, UUID);
 -- Minimal get_book_club_details function
 CREATE OR REPLACE FUNCTION get_book_club_details(
     auth_user_id UUID,
-    club_id UUID
+    club_id_param UUID
 )
 RETURNS TABLE (
     id UUID,
@@ -63,14 +63,14 @@ BEGIN
         'member'::TEXT as user_role,
         'Creator'::TEXT as creator_name
     FROM book_clubs bc
-    WHERE bc.id = get_book_club_details.club_id;
+    WHERE bc.id = get_book_club_details.club_id_param;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Minimal get_book_club_members function
 CREATE OR REPLACE FUNCTION get_book_club_members(
     auth_user_id UUID,
-    club_id UUID
+    club_id_param UUID
 )
 RETURNS TABLE (
     user_id UUID,
@@ -104,7 +104,7 @@ BEGIN
         cm.joined_at
     FROM club_memberships cm
     JOIN users u ON cm.user_id = u.id
-    WHERE cm.club_id = get_book_club_members.club_id
+    WHERE cm.club_id = get_book_club_members.club_id_param
     ORDER BY cm.joined_at ASC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -112,8 +112,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Minimal add_book_club_message function
 CREATE OR REPLACE FUNCTION add_book_club_message(
     auth_user_id UUID,
-    club_id UUID,
-    content TEXT
+    club_id_param UUID,
+    content_param TEXT
 )
 RETURNS TABLE (
     id UUID,
@@ -138,7 +138,7 @@ BEGIN
     
     -- Insert message
     INSERT INTO book_club_messages (club_id, user_id, content)
-    VALUES (add_book_club_message.club_id, user_uuid, add_book_club_message.content)
+    VALUES (add_book_club_message.club_id_param, user_uuid, add_book_club_message.content_param)
     RETURNING book_club_messages.id INTO new_message_id;
     
     -- Return the new message
@@ -157,7 +157,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Minimal get_book_club_messages function
 CREATE OR REPLACE FUNCTION get_book_club_messages(
     auth_user_id UUID,
-    club_id UUID
+    club_id_param UUID
 )
 RETURNS TABLE (
     id UUID,
@@ -195,7 +195,7 @@ BEGIN
         u.avatar_url
     FROM book_club_messages bcm
     JOIN users u ON bcm.user_id = u.id
-    WHERE bcm.club_id = get_book_club_messages.club_id
+    WHERE bcm.club_id = get_book_club_messages.club_id_param
     ORDER BY bcm.created_at ASC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
