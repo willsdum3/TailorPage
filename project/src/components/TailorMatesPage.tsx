@@ -6,6 +6,7 @@ import { BookClub, Discussion, FriendConnection, FriendRecommendation, User, Cre
 import CreateBookClubModal from './CreateBookClubModal';
 import CreateDiscussionModal from './CreateDiscussionModal';
 import DiscussionDetailPage from './DiscussionDetailPage';
+import BookClubDetailPage from './BookClubDetailPage';
 
 interface TailorMatesPageProps {
   onBack: () => void;
@@ -30,6 +31,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [showCreateClubModal, setShowCreateClubModal] = useState(false);
   const [showCreateDiscussionModal, setShowCreateDiscussionModal] = useState(false);
   const [selectedDiscussionId, setSelectedDiscussionId] = useState<string | null>(null);
+  const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
   
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
@@ -231,6 +233,17 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     ));
   };
 
+  // Show book club detail page if a club is selected
+  if (selectedClubId) {
+    return (
+      <BookClubDetailPage
+        clubId={selectedClubId}
+        onBack={() => setSelectedClubId(null)}
+        user={user}
+      />
+    );
+  }
+
   // Show discussion detail page if a discussion is selected
   if (selectedDiscussionId) {
     return (
@@ -399,9 +412,12 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">
                         <BookOpen className="w-5 h-5 text-pink-400" />
-                        <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors">
+                        <button
+                          onClick={() => setSelectedClubId(club.id)}
+                          className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors hover:underline cursor-pointer text-left"
+                        >
                           {club.name}
-                        </h3>
+                        </button>
                       </div>
                       <div className="flex items-center space-x-1 text-white/60 text-sm">
                         <Users className="w-4 h-4" />
