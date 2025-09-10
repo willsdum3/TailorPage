@@ -189,6 +189,124 @@ export class TailorMatesService {
     }
   }
 
+  static async getBookClubDetails(clubId: string): Promise<BookClub | null> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_book_club_details', {
+          auth_user_id: authUserId,
+          club_id: clubId
+        });
+
+      if (error) {
+        console.error('Error getting book club details:', error);
+        return null;
+      }
+
+      if (!data || data.length === 0) {
+        return null;
+      }
+
+      const club = data[0];
+      return {
+        id: club.id,
+        name: club.name,
+        description: club.description,
+        currentBookTitle: club.current_book_title,
+        currentBookAuthor: club.current_book_author,
+        memberCount: club.member_count || 0,
+        maxMembers: club.max_members,
+        personalityTraits: club.target_personality_traits || [],
+        meetingTime: club.meeting_info ? club.meeting_info.split(' - ')[0] : undefined,
+        nextMeetingDate: club.meeting_info && club.meeting_info.includes(' - ') ? club.meeting_info.split(' - ')[1] : undefined,
+        isPrivate: !club.is_public,
+        tags: club.tags || [],
+        createdBy: club.created_by,
+        createdAt: club.created_at,
+        isMember: club.is_member || false,
+        userRole: club.user_role || '',
+        creatorName: club.creator_name || 'Unknown'
+      };
+    } catch (error) {
+      console.error('Error in getBookClubDetails:', error);
+      return null;
+    }
+  }
+
+  static async getBookClubMembers(clubId: string): Promise<any[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_book_club_members', {
+          auth_user_id: authUserId,
+          club_id: clubId
+        });
+
+      if (error) {
+        console.error('Error getting book club members:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getBookClubMembers:', error);
+      return [];
+    }
+  }
+
+  static async addBookClubMessage(clubId: string, content: string): Promise<string | null> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('add_book_club_message', {
+          auth_user_id: authUserId,
+          club_id: clubId,
+          message_content: content
+        });
+
+      if (error) {
+        console.error('Error adding book club message:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in addBookClubMessage:', error);
+      return null;
+    }
+  }
+
+  static async getBookClubMessages(clubId: string, limit: number = 50, offset: number = 0): Promise<any[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_book_club_messages', {
+          auth_user_id: authUserId,
+          club_id: clubId,
+          limit_count: limit,
+          offset_count: offset
+        });
+
+      if (error) {
+        console.error('Error getting book club messages:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getBookClubMessages:', error);
+      return [];
+    }
+  }
+
   // =====================================================
   // DISCUSSION FUNCTIONS
   // =====================================================
