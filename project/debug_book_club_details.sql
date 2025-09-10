@@ -40,5 +40,5 @@ SELECT
 FROM club_memberships cm
 JOIN book_clubs bc ON cm.club_id = bc.id
 JOIN users u ON cm.user_id = u.id
-ORDER BY cm.created_at DESC 
+ORDER BY bc.created_at DESC 
 LIMIT 10;
