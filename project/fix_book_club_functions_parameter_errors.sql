@@ -8,8 +8,8 @@ DROP FUNCTION IF EXISTS get_book_club_messages(UUID, UUID);
 -- Fix add_book_club_message function (parameter name issue)
 CREATE OR REPLACE FUNCTION add_book_club_message(
     auth_user_id UUID,
-    club_id UUID,
-    content TEXT
+    club_id_param UUID,
+    content_param TEXT
 )
 RETURNS TABLE (
     id UUID,
@@ -36,7 +36,7 @@ BEGIN
     -- Check if user is a member of the club
     SELECT EXISTS(
         SELECT 1 FROM club_memberships 
-        WHERE club_id = add_book_club_message.club_id 
+        WHERE club_id = add_book_club_message.club_id_param 
         AND user_id = user_uuid
     ) INTO is_member;
     
@@ -47,7 +47,7 @@ BEGIN
     
     -- Insert the message (using correct parameter name 'content')
     INSERT INTO book_club_messages (club_id, user_id, content)
-    VALUES (add_book_club_message.club_id, user_uuid, add_book_club_message.content)
+    VALUES (add_book_club_message.club_id_param, user_uuid, add_book_club_message.content_param)
     RETURNING book_club_messages.id INTO new_message_id;
     
     -- Return the new message
@@ -66,7 +66,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Fix get_book_club_messages function (remove non-existent parameters)
 CREATE OR REPLACE FUNCTION get_book_club_messages(
     auth_user_id UUID,
-    club_id UUID
+    club_id_param UUID
 )
 RETURNS TABLE (
     id UUID,
@@ -95,7 +95,7 @@ BEGIN
     -- Check if user is a member of the club
     SELECT EXISTS(
         SELECT 1 FROM club_memberships 
-        WHERE club_id = get_book_club_messages.club_id 
+        WHERE club_id = get_book_club_messages.club_id_param 
         AND user_id = user_uuid
     ) INTO is_member;
     
@@ -113,7 +113,7 @@ BEGIN
             u.avatar_url
         FROM book_club_messages bcm
         JOIN users u ON bcm.user_id = u.id
-        WHERE bcm.club_id = get_book_club_messages.club_id
+        WHERE bcm.club_id = get_book_club_messages.club_id_param
         ORDER BY bcm.created_at ASC;
     END IF;
 END;
