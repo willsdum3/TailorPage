@@ -197,7 +197,7 @@ export class TailorMatesService {
       const { data, error } = await supabase
         .rpc('get_book_club_details', {
           auth_user_id: authUserId,
-          club_id: clubId
+          club_id_param: clubId
         });
 
       if (error) {
@@ -243,7 +243,7 @@ export class TailorMatesService {
       const { data, error } = await supabase
         .rpc('get_book_club_members', {
           auth_user_id: authUserId,
-          club_id: clubId
+          club_id_param: clubId
         });
 
       if (error) {
@@ -266,8 +266,8 @@ export class TailorMatesService {
       const { data, error } = await supabase
         .rpc('add_book_club_message', {
           auth_user_id: authUserId,
-          club_id: clubId,
-          message_content: content
+          club_id_param: clubId,
+          content_param: content
         });
 
       if (error) {
@@ -290,9 +290,7 @@ export class TailorMatesService {
       const { data, error } = await supabase
         .rpc('get_book_club_messages', {
           auth_user_id: authUserId,
-          club_id: clubId,
-          limit_count: limit,
-          offset_count: offset
+          club_id_param: clubId
         });
 
       if (error) {
