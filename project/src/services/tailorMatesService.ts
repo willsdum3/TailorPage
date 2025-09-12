@@ -470,6 +470,8 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
+      console.log('Voting on poll:', { pollId, optionIndex, authUserId });
+
       const { data, error } = await supabase
         .rpc('vote_on_poll', {
           auth_user_id: authUserId,
@@ -477,15 +479,19 @@ export class TailorMatesService {
           option_index: optionIndex
         });
 
+      console.log('Vote response:', { data, error });
+
       if (error) {
         console.error('Error voting on poll:', error);
-        return { success: false, message: 'Failed to vote' };
+        return { success: false, message: `Failed to vote: ${error.message}` };
       }
 
-      return data[0] || { success: false, message: 'Unknown error' };
+      const result = data[0] || { success: false, message: 'Unknown error' };
+      console.log('Vote result:', result);
+      return result;
     } catch (error) {
       console.error('Error in voteOnPoll:', error);
-      return { success: false, message: 'Failed to vote' };
+      return { success: false, message: `Failed to vote: ${error}` };
     }
   }
 

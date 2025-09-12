@@ -89,7 +89,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 rounded-2xl border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-hidden">
+      <div className="bg-slate-900 rounded-2xl border border-white/20 w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center space-x-3">
@@ -105,7 +105,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 flex-1 overflow-y-auto">
           {message && (
             <div className={`mb-4 p-4 rounded-lg ${
               message.type === 'success' 
@@ -239,7 +239,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-4 p-6 border-t border-white/10 bg-slate-800/50">
+        <div className="flex items-center justify-end space-x-4 p-6 border-t border-white/10 bg-slate-800/50 flex-shrink-0">
           <button
             onClick={onClose}
             disabled={isLoading}
