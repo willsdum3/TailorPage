@@ -306,6 +306,236 @@ export class TailorMatesService {
   }
 
   // =====================================================
+  // ADMIN FUNCTIONS
+  // =====================================================
+
+  static async inviteUserToBookClub(clubId: string, invitedUserId: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('invite_user_to_book_club', {
+          auth_user_id: authUserId,
+          club_id_param: clubId,
+          invited_user_id: invitedUserId
+        });
+
+      if (error) {
+        console.error('Error inviting user:', error);
+        return { success: false, message: 'Failed to invite user' };
+      }
+
+      return data[0] || { success: false, message: 'Unknown error' };
+    } catch (error) {
+      console.error('Error in inviteUserToBookClub:', error);
+      return { success: false, message: 'Failed to invite user' };
+    }
+  }
+
+  static async removeUserFromBookClub(clubId: string, userIdToRemove: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('remove_user_from_book_club', {
+          auth_user_id: authUserId,
+          club_id_param: clubId,
+          user_to_remove_id: userIdToRemove
+        });
+
+      if (error) {
+        console.error('Error removing user:', error);
+        return { success: false, message: 'Failed to remove user' };
+      }
+
+      return data[0] || { success: false, message: 'Unknown error' };
+    } catch (error) {
+      console.error('Error in removeUserFromBookClub:', error);
+      return { success: false, message: 'Failed to remove user' };
+    }
+  }
+
+  static async promoteUserToAdmin(clubId: string, userIdToPromote: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('promote_user_to_admin', {
+          auth_user_id: authUserId,
+          club_id_param: clubId,
+          user_to_promote_id: userIdToPromote
+        });
+
+      if (error) {
+        console.error('Error promoting user:', error);
+        return { success: false, message: 'Failed to promote user' };
+      }
+
+      return data[0] || { success: false, message: 'Unknown error' };
+    } catch (error) {
+      console.error('Error in promoteUserToAdmin:', error);
+      return { success: false, message: 'Failed to promote user' };
+    }
+  }
+
+  static async updateBookClubDetails(
+    clubId: string, 
+    updates: {
+      name?: string;
+      description?: string;
+      currentBookTitle?: string;
+      currentBookAuthor?: string;
+      meetingInfo?: string;
+    }
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('update_book_club_details', {
+          auth_user_id: authUserId,
+          club_id_param: clubId,
+          new_name: updates.name || null,
+          new_description: updates.description || null,
+          new_current_book_title: updates.currentBookTitle || null,
+          new_current_book_author: updates.currentBookAuthor || null,
+          new_meeting_info: updates.meetingInfo || null
+        });
+
+      if (error) {
+        console.error('Error updating club details:', error);
+        return { success: false, message: 'Failed to update club details' };
+      }
+
+      return data[0] || { success: false, message: 'Unknown error' };
+    } catch (error) {
+      console.error('Error in updateBookClubDetails:', error);
+      return { success: false, message: 'Failed to update club details' };
+    }
+  }
+
+  // =====================================================
+  // POLL FUNCTIONS
+  // =====================================================
+
+  static async createBookSelectionPoll(
+    clubId: string,
+    title: string,
+    description: string,
+    bookOptions: Array<{
+      title: string;
+      author: string;
+      coverUrl?: string;
+      description?: string;
+    }>,
+    closesAt?: Date
+  ): Promise<{ success: boolean; message: string; pollId?: string }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('create_book_selection_poll', {
+          auth_user_id: authUserId,
+          club_id_param: clubId,
+          poll_title: title,
+          poll_description: description,
+          book_options: JSON.stringify(bookOptions),
+          closes_at: closesAt?.toISOString() || null
+        });
+
+      if (error) {
+        console.error('Error creating poll:', error);
+        return { success: false, message: 'Failed to create poll' };
+      }
+
+      const result = data[0] || { success: false, message: 'Unknown error' };
+      return {
+        success: result.success,
+        message: result.message,
+        pollId: result.poll_id
+      };
+    } catch (error) {
+      console.error('Error in createBookSelectionPoll:', error);
+      return { success: false, message: 'Failed to create poll' };
+    }
+  }
+
+  static async voteOnPoll(pollId: string, optionIndex: number): Promise<{ success: boolean; message: string }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('vote_on_poll', {
+          auth_user_id: authUserId,
+          poll_id_param: pollId,
+          option_index: optionIndex
+        });
+
+      if (error) {
+        console.error('Error voting on poll:', error);
+        return { success: false, message: 'Failed to vote' };
+      }
+
+      return data[0] || { success: false, message: 'Unknown error' };
+    } catch (error) {
+      console.error('Error in voteOnPoll:', error);
+      return { success: false, message: 'Failed to vote' };
+    }
+  }
+
+  static async getClubPolls(clubId: string): Promise<any[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_club_polls', {
+          auth_user_id: authUserId,
+          club_id_param: clubId
+        });
+
+      if (error) {
+        console.error('Error getting polls:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getClubPolls:', error);
+      return [];
+    }
+  }
+
+  static async getPollResults(pollId: string): Promise<any> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_poll_results', {
+          auth_user_id: authUserId,
+          poll_id_param: pollId
+        });
+
+      if (error) {
+        console.error('Error getting poll results:', error);
+        return null;
+      }
+
+      return data[0] || null;
+    } catch (error) {
+      console.error('Error in getPollResults:', error);
+      return null;
+    }
+  }
+
+  // =====================================================
   // DISCUSSION FUNCTIONS
   // =====================================================
 
