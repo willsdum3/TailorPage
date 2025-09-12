@@ -5,6 +5,7 @@ import { BookClub } from '../types';
 import AdminPanel from './AdminPanel';
 import CreatePollModal from './CreatePollModal';
 import EditClubModal from './EditClubModal';
+import PollVotingInterface from './PollVotingInterface';
 
 interface BookClubDetailPageProps {
   clubId: string;
@@ -23,6 +24,7 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
   const [showCreatePollModal, setShowCreatePollModal] = useState(false);
   const [showEditClubModal, setShowEditClubModal] = useState(false);
   const [polls, setPolls] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'discussion' | 'polls'>('discussion');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,9 +65,6 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
   const isUserAdmin = () => {
     if (!user || !members.length) return false;
     
-    console.log('Admin check - user object:', user);
-    console.log('Admin check - members:', members.map(m => ({ id: m.user_id, role: m.role, name: m.name })));
-    
     // Try multiple ways to match the user
     let userMember = members.find(member => member.user_id === user.id);
     
@@ -77,7 +76,6 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
       );
     }
     
-    console.log('Admin check - found user member:', userMember);
     return userMember?.role === 'admin';
   };
 
@@ -248,10 +246,6 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              {/* Debug info - remove this later */}
-              <div className="text-xs text-white/50">
-                Admin: {isUserAdmin() ? 'Yes' : 'No'} | User: {user?.name} | ID: {user?.id}
-              </div>
               {isUserAdmin() && (
                 <>
                   <button
@@ -332,71 +326,106 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
             </div>
           </div>
 
-          {/* Messages Section */}
+          {/* Main Content Section with Tabs */}
           <div className="lg:col-span-2">
             <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 h-[600px] flex flex-col">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-                <MessageSquare className="w-5 h-5 text-pink-400" />
-                <span>Discussion</span>
-              </h3>
-              
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-                {messages.length === 0 ? (
-                  <div className="text-center py-8">
-                    <MessageCircle className="w-12 h-12 text-white/30 mx-auto mb-3" />
-                    <p className="text-white/60">No messages yet. Start the conversation!</p>
-                  </div>
-                ) : (
-                  messages.map((message) => (
-                    <div key={message.id} className="flex space-x-3">
-                      {message.avatar_url ? (
-                        <img 
-                          src={message.avatar_url} 
-                          alt={message.name || message.username} 
-                          className="w-8 h-8 rounded-full object-cover border border-white/20 flex-shrink-0"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                          <User className="w-4 h-4 text-white" />
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="text-white font-medium">{message.name}</span>
-                          <span className="text-white/50 text-xs">@{message.username}</span>
-                          <span className="text-white/40 text-xs">
-                            {new Date(message.created_at).toLocaleString()}
-                          </span>
-                        </div>
-                        <p className="text-white/90 bg-white/5 rounded-lg p-3">{message.content}</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-              
-              {/* Message Input */}
-              <div className="flex space-x-3">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type your message..."
-                  className="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
-                  disabled={isSending}
-                />
+              {/* Tab Navigation */}
+              <div className="flex border-b border-white/10 mb-6">
                 <button
-                  onClick={handleSendMessage}
-                  disabled={!newMessage.trim() || isSending}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
+                    activeTab === 'discussion' 
+                      ? 'text-amber-400 border-b-2 border-amber-400' 
+                      : 'text-white/70 hover:text-white'
+                  }`}
+                  onClick={() => setActiveTab('discussion')}
                 >
-                  <Send className="w-4 h-4" />
-                  <span>{isSending ? 'Sending...' : 'Send'}</span>
+                  <MessageSquare className="w-5 h-5" />
+                  <span>Discussion</span>
+                </button>
+                <button
+                  className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
+                    activeTab === 'polls' 
+                      ? 'text-amber-400 border-b-2 border-amber-400' 
+                      : 'text-white/70 hover:text-white'
+                  }`}
+                  onClick={() => setActiveTab('polls')}
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  <span>Polls</span>
                 </button>
               </div>
+
+              {/* Tab Content */}
+              {activeTab === 'discussion' && (
+                <>
+                  {/* Messages */}
+                  <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                    {messages.length === 0 ? (
+                      <div className="text-center py-8">
+                        <MessageCircle className="w-12 h-12 text-white/30 mx-auto mb-3" />
+                        <p className="text-white/60">No messages yet. Start the conversation!</p>
+                      </div>
+                    ) : (
+                      messages.map((message) => (
+                        <div key={message.id} className="flex space-x-3">
+                          {message.avatar_url ? (
+                            <img 
+                              src={message.avatar_url} 
+                              alt={message.name || message.username} 
+                              className="w-8 h-8 rounded-full object-cover border border-white/20 flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                              <User className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <span className="text-white font-medium">{message.name}</span>
+                              <span className="text-white/50 text-xs">@{message.username}</span>
+                              <span className="text-white/40 text-xs">
+                                {new Date(message.created_at).toLocaleString()}
+                              </span>
+                            </div>
+                            <p className="text-white/90 bg-white/5 rounded-lg p-3">{message.content}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+                  
+                  {/* Message Input */}
+                  <div className="flex space-x-3">
+                    <input
+                      type="text"
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      placeholder="Type your message..."
+                      className="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                      disabled={isSending}
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!newMessage.trim() || isSending}
+                      className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      <span>{isSending ? 'Sending...' : 'Send'}</span>
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'polls' && (
+                <div className="flex-1 overflow-y-auto">
+                  <PollVotingInterface 
+                    clubId={clubId} 
+                    onPollUpdate={loadClubData}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
