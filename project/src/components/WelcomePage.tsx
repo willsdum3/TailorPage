@@ -1,5 +1,5 @@
 import React from 'react';
-import { Book, Users, Heart, Brain, Star, ArrowRight, Sparkles, Target, Zap, BookOpen, UserCheck } from 'lucide-react';
+import { Book, Users, Heart, Brain, Star, ArrowRight, Sparkles, Target, Zap, BookOpen, UserCheck, Bell } from 'lucide-react';
 import Logo from './Logo';
 
 interface WelcomePageProps {
@@ -48,6 +48,26 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
       <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       
+      {/* Top Left Notifications Bell */}
+      <div className="absolute top-6 left-6 z-20">
+        <button
+          onClick={() => {
+            if (!isLoggedIn) {
+              onAuthPrompt?.('login', 'notifications');
+            } else {
+              // TODO: Open notifications panel for authenticated users
+              console.log('Open notifications panel');
+            }
+          }}
+          className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+          title={isLoggedIn ? "View Notifications" : "Sign in to view notifications"}
+        >
+          <Bell 
+            className="w-6 h-6 text-white group-hover:text-amber-400 transition-colors duration-200" 
+          />
+        </button>
+      </div>
+
       {/* Top Center Profile Picture or Sign In Button */}
       <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
         {isLoggedIn && user ? (
