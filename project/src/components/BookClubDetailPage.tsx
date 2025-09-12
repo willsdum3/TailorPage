@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3 } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub } from '../types';
+import AdminPanel from './AdminPanel';
+import CreatePollModal from './CreatePollModal';
+import EditClubModal from './EditClubModal';
 
 interface BookClubDetailPageProps {
   clubId: string;
@@ -16,6 +19,10 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showCreatePollModal, setShowCreatePollModal] = useState(false);
+  const [showEditClubModal, setShowEditClubModal] = useState(false);
+  const [polls, setPolls] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,21 +41,29 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     try {
       setIsLoading(true);
       
-      // Load club details, members, and messages in parallel
-      const [clubData, membersData, messagesData] = await Promise.all([
+      // Load club details, members, messages, and polls in parallel
+      const [clubData, membersData, messagesData, pollsData] = await Promise.all([
         TailorMatesService.getBookClubDetails(clubId),
         TailorMatesService.getBookClubMembers(clubId),
-        TailorMatesService.getBookClubMessages(clubId)
+        TailorMatesService.getBookClubMessages(clubId),
+        TailorMatesService.getClubPolls(clubId)
       ]);
 
       setClub(clubData);
       setMembers(membersData);
       setMessages(messagesData);
+      setPolls(pollsData);
     } catch (error) {
       console.error('Error loading club data:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const isUserAdmin = () => {
+    if (!user || !members.length) return false;
+    const userMember = members.find(member => member.user_id === user.id);
+    return userMember?.role === 'admin';
   };
 
   const handleSendMessage = async () => {
@@ -217,12 +232,39 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                 <span>Created by {club.creatorName}</span>
               </div>
             </div>
-            <button
-              onClick={handleLeaveClub}
-              className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
-            >
-              Leave Club
-            </button>
+            <div className="flex items-center space-x-3">
+              {isUserAdmin() && (
+                <>
+                  <button
+                    onClick={() => setShowCreatePollModal(true)}
+                    className="flex items-center space-x-2 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 text-pink-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    <span>Create Poll</span>
+                  </button>
+                  <button
+                    onClick={() => setShowEditClubModal(true)}
+                    className="flex items-center space-x-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Edit Club</span>
+                  </button>
+                  <button
+                    onClick={() => setShowAdminPanel(true)}
+                    className="flex items-center space-x-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Admin Panel</span>
+                  </button>
+                </>
+              )}
+              <button
+                onClick={handleLeaveClub}
+                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
+              >
+                Leave Club
+              </button>
+            </div>
           </div>
         </div>
 
@@ -340,6 +382,35 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
           </div>
         </div>
       </div>
+
+      {/* Admin Panel Modal */}
+      {showAdminPanel && (
+        <AdminPanel
+          clubId={clubId}
+          members={members}
+          onMembersUpdate={loadClubData}
+          onClubUpdate={loadClubData}
+          onClose={() => setShowAdminPanel(false)}
+        />
+      )}
+
+      {/* Create Poll Modal */}
+      {showCreatePollModal && (
+        <CreatePollModal
+          clubId={clubId}
+          onClose={() => setShowCreatePollModal(false)}
+          onPollCreated={loadClubData}
+        />
+      )}
+
+      {/* Edit Club Modal */}
+      {showEditClubModal && (
+        <EditClubModal
+          club={club}
+          onClose={() => setShowEditClubModal(false)}
+          onClubUpdated={loadClubData}
+        />
+      )}
     </div>
   );
 };
