@@ -39,8 +39,8 @@ BEGIN
     FROM book_club_polls 
     WHERE id = poll_id_param;
     
-    -- Check if poll is active
-    IF poll_active != 'active' THEN
+    -- Check if poll is active (status is a string, not boolean)
+    IF poll_active IS NULL OR poll_active != 'active' THEN
         RETURN QUERY SELECT false, 'Poll is not active';
         RETURN;
     END IF;
