@@ -239,17 +239,18 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-white/10">
+        <div className="flex items-center justify-end space-x-4 p-6 border-t border-white/10 bg-slate-800/50">
           <button
             onClick={onClose}
-            className="px-6 py-3 text-white/60 hover:text-white transition-colors"
+            disabled={isLoading}
+            className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={handleCreatePoll}
             disabled={isLoading}
-            className="px-6 py-3 bg-pink-500 hover:bg-pink-600 disabled:opacity-50 text-white rounded-lg transition-colors"
+            className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-all duration-300 transform hover:scale-105 disabled:transform-none"
           >
             {isLoading ? 'Creating...' : 'Create Poll'}
           </button>

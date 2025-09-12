@@ -35,11 +35,14 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
   const loadPolls = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading polls for club:', clubId);
       const pollsData = await TailorMatesService.getClubPolls(clubId);
-      setPolls(pollsData);
+      console.log('Polls data received:', pollsData);
+      setPolls(pollsData || []);
     } catch (error) {
       console.error('Error loading polls:', error);
       showMessage('error', 'Failed to load polls');
+      setPolls([]);
     } finally {
       setIsLoading(false);
     }
@@ -111,6 +114,25 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
     );
   }
 
+  // Error fallback
+  if (polls === null || polls === undefined) {
+    return (
+      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+        <div className="text-center text-white/70">
+          <BarChart3 className="w-12 h-12 mx-auto mb-3 text-white/30" />
+          <h3 className="text-lg font-medium mb-2">Error Loading Polls</h3>
+          <p className="text-sm">There was an error loading the polls. Please try again.</p>
+          <button 
+            onClick={loadPolls}
+            className="mt-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 px-4 py-2 rounded-lg text-sm transition-all duration-300"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (polls.length === 0) {
     return (
       <div className="bg-white/5 rounded-xl p-6 border border-white/10">
@@ -166,7 +188,10 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
           </div>
 
           <div className="space-y-3">
-            {poll.options.map((option, index) => {
+            {(() => {
+              try {
+                const options = Array.isArray(poll.options) ? poll.options : JSON.parse(poll.options || '[]');
+                return options.map((option, index) => {
               const isVoted = poll.user_vote === index;
               const isVoting = votingPollId === poll.id;
               const canVote = isPollActive(poll) && poll.user_vote === null;
@@ -222,17 +247,33 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
                   </button>
                 </div>
               );
-            })}
+            });
+              } catch (error) {
+                console.error('Error parsing poll options:', error);
+                return (
+                  <div className="text-center text-white/60 py-4">
+                    <p>Error loading poll options</p>
+                  </div>
+                );
+              }
+            })()}
           </div>
 
-          {poll.user_vote !== null && (
-            <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-              <div className="flex items-center space-x-2 text-green-300 text-sm">
-                <CheckCircle className="w-4 h-4" />
-                <span>You voted for: {poll.options[poll.user_vote]?.title}</span>
-              </div>
-            </div>
-          )}
+          {poll.user_vote !== null && (() => {
+            try {
+              const options = Array.isArray(poll.options) ? poll.options : JSON.parse(poll.options || '[]');
+              return (
+                <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                  <div className="flex items-center space-x-2 text-green-300 text-sm">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>You voted for: {options[poll.user_vote]?.title}</span>
+                  </div>
+                </div>
+              );
+            } catch (error) {
+              return null;
+            }
+          })()}
 
           {!isPollActive(poll) && poll.user_vote === null && (
             <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
