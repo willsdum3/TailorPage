@@ -62,7 +62,22 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
 
   const isUserAdmin = () => {
     if (!user || !members.length) return false;
-    const userMember = members.find(member => member.user_id === user.id);
+    
+    console.log('Admin check - user object:', user);
+    console.log('Admin check - members:', members.map(m => ({ id: m.user_id, role: m.role, name: m.name })));
+    
+    // Try multiple ways to match the user
+    let userMember = members.find(member => member.user_id === user.id);
+    
+    // If not found, try matching by name or username
+    if (!userMember) {
+      userMember = members.find(member => 
+        member.name === user.name || 
+        member.username === user.username
+      );
+    }
+    
+    console.log('Admin check - found user member:', userMember);
     return userMember?.role === 'admin';
   };
 
@@ -233,6 +248,10 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              {/* Debug info - remove this later */}
+              <div className="text-xs text-white/50">
+                Admin: {isUserAdmin() ? 'Yes' : 'No'} | User: {user?.name} | ID: {user?.id}
+              </div>
               {isUserAdmin() && (
                 <>
                   <button
