@@ -444,7 +444,7 @@ export class TailorMatesService {
           club_id_param: clubId,
           poll_title: title,
           poll_description: description,
-          book_options: JSON.stringify(bookOptions),
+          book_options: bookOptions, // Send as array, not stringified
           closes_at: closesAt?.toISOString() || null
         });
 
