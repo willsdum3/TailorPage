@@ -54,12 +54,17 @@ BEGIN
     
     -- Convert to JSONB if it's a string, or use as-is if it's already JSONB
     IF jsonb_typeof(poll_options) = 'string' THEN
-        poll_options := poll_options::text::jsonb;
+        BEGIN
+            poll_options := poll_options::text::jsonb;
+        EXCEPTION WHEN OTHERS THEN
+            RETURN QUERY SELECT false, 'Invalid JSON format in poll options';
+            RETURN;
+        END;
     END IF;
     
     -- Check if it's an array
     IF jsonb_typeof(poll_options) != 'array' THEN
-        RETURN QUERY SELECT false, 'Poll options are not in array format';
+        RETURN QUERY SELECT false, 'Poll options are not in array format. Type: ' || jsonb_typeof(poll_options);
         RETURN;
     END IF;
     
