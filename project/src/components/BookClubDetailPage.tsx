@@ -238,9 +238,17 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
               <div className="space-y-3">
                 {members.map((member) => (
                   <div key={member.user_id} className="flex items-center space-x-3 p-3 bg-white/5 rounded-xl">
-                    <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
-                    </div>
+                    {member.avatar_url ? (
+                      <img 
+                        src={member.avatar_url} 
+                        alt={member.name || member.username} 
+                        className="w-10 h-10 rounded-full object-cover border border-white/20"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                    )}
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
                         <span className="text-white font-medium">{member.name}</span>
@@ -281,9 +289,17 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                 ) : (
                   messages.map((message) => (
                     <div key={message.id} className="flex space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                        <User className="w-4 h-4 text-white" />
-                      </div>
+                      {message.avatar_url ? (
+                        <img 
+                          src={message.avatar_url} 
+                          alt={message.name || message.username} 
+                          className="w-8 h-8 rounded-full object-cover border border-white/20 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                      )}
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
                           <span className="text-white font-medium">{message.name}</span>
