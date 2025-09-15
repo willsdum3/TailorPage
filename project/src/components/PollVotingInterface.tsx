@@ -19,6 +19,7 @@ interface Poll {
   closes_at: string | null;
   created_by_name: string;
   user_vote: number | null;
+  vote_counts: Array<{ option_index: number; vote_count: number }>;
 }
 
 const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPollUpdate }) => {
@@ -101,6 +102,17 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
     if (poll.status === 'active' && isPollActive(poll)) return 'Active';
     if (poll.closes_at && new Date(poll.closes_at) <= new Date()) return 'Expired';
     return 'Active';
+  };
+
+  const getVotePercentage = (poll: Poll, optionIndex: number) => {
+    if (poll.total_votes === 0) return 0;
+    
+    const voteCount = poll.vote_counts?.find(vc => vc.option_index === optionIndex)?.vote_count || 0;
+    return Math.round((voteCount / poll.total_votes) * 100);
+  };
+
+  const getVoteCount = (poll: Poll, optionIndex: number) => {
+    return poll.vote_counts?.find(vc => vc.option_index === optionIndex)?.vote_count || 0;
   };
 
   if (isLoading) {
@@ -220,9 +232,21 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
                         )}
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <BookOpen className="w-4 h-4 text-pink-400" />
-                          <h4 className="font-medium">{option.title}</h4>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center space-x-2">
+                            <BookOpen className="w-4 h-4 text-pink-400" />
+                            <h4 className="font-medium">{option.title}</h4>
+                          </div>
+                          {poll.total_votes > 0 && (
+                            <div className="flex items-center space-x-2 text-sm">
+                              <span className="text-white/70">
+                                {getVoteCount(poll, index)} vote{getVoteCount(poll, index) !== 1 ? 's' : ''}
+                              </span>
+                              <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded-lg text-xs font-medium">
+                                {getVotePercentage(poll, index)}%
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <p className="text-sm text-white/70 mb-2">by {option.author}</p>
                         {option.description && (
@@ -235,6 +259,15 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
                               alt={`${option.title} cover`}
                               className="w-12 h-16 object-cover rounded border border-white/20"
                             />
+                          </div>
+                        )}
+                        {/* Progress bar for visual representation */}
+                        {poll.total_votes > 0 && (
+                          <div className="mt-2 w-full bg-white/10 rounded-full h-1.5">
+                            <div 
+                              className="bg-gradient-to-r from-amber-400 to-amber-500 h-1.5 rounded-full transition-all duration-500"
+                              style={{ width: `${getVotePercentage(poll, index)}%` }}
+                            ></div>
                           </div>
                         )}
                       </div>
