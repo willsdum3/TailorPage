@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, Users, UserPlus, UserMinus, Crown, Edit3, BarChart3, X } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 
@@ -27,6 +27,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [currentVisibility, setCurrentVisibility] = useState<boolean | null>(null);
+
+  // Initialize current visibility state when clubData changes
+  useEffect(() => {
+    if (clubData) {
+      setCurrentVisibility(!clubData.isPrivate); // isPublic = !isPrivate
+    }
+  }, [clubData]);
 
   const handleInviteUser = async () => {
     if (!inviteUserId.trim()) return;
@@ -81,22 +89,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
-  const handleToggleVisibility = async () => {
+  const handleToggleVisibility = async (newVisibility: boolean) => {
     if (!clubData) return;
     
     console.log('Current club data:', clubData);
     console.log('Current isPrivate:', clubData.isPrivate);
+    console.log('New visibility (isPublic):', newVisibility);
     
     setIsTogglingVisibility(true);
     try {
-      const newVisibility = !clubData.isPrivate; // Toggle between public/private
-      console.log('New visibility (isPublic):', newVisibility);
-      
       const result = await TailorMatesService.toggleBookClubVisibility(clubId, newVisibility);
       console.log('Toggle result:', result);
       
       setMessage({ type: result.success ? 'success' : 'error', text: result.message });
       if (result.success) {
+        setCurrentVisibility(newVisibility); // Update local state immediately
         onClubUpdate(); // Refresh club data
       }
     } catch (error) {
@@ -269,22 +276,22 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   <div>
                     <h4 className="text-lg font-medium text-white mb-2">Club Visibility</h4>
                     <p className="text-white/70 text-sm">
-                      {clubData?.isPrivate 
+                      {currentVisibility === false
                         ? 'This club is currently private. Only members can see and join it.'
                         : 'This club is currently public. Anyone can see and join it.'
                       }
                     </p>
                   </div>
                   <button
-                    onClick={handleToggleVisibility}
-                    disabled={isTogglingVisibility || !clubData}
+                    onClick={() => handleToggleVisibility(!currentVisibility)}
+                    disabled={isTogglingVisibility || !clubData || currentVisibility === null}
                     className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed ${
-                      clubData?.isPrivate ? 'bg-gray-600' : 'bg-pink-500'
+                      currentVisibility ? 'bg-pink-500' : 'bg-gray-600'
                     }`}
                   >
                     <span
                       className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                        clubData?.isPrivate ? 'translate-x-1' : 'translate-x-7'
+                        currentVisibility ? 'translate-x-7' : 'translate-x-1'
                       }`}
                     />
                     {isTogglingVisibility && (
@@ -296,14 +303,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
                 <div className="mt-3 flex items-center space-x-2 text-sm">
                   <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                    clubData?.isPrivate 
+                    currentVisibility === false
                       ? 'bg-red-500/20 text-red-300' 
                       : 'bg-green-500/20 text-green-300'
                   }`}>
-                    {clubData?.isPrivate ? 'Private' : 'Public'}
+                    {currentVisibility === false ? 'Private' : 'Public'}
                   </span>
                   <span className="text-white/50">
-                    {clubData?.isPrivate ? 'Only members can join' : 'Anyone can join'}
+                    {currentVisibility === false ? 'Only members can join' : 'Anyone can join'}
                   </span>
                 </div>
               </div>
