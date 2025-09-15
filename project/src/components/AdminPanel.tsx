@@ -5,6 +5,7 @@ import { TailorMatesService } from '../services/tailorMatesService';
 interface AdminPanelProps {
   clubId: string;
   members: any[];
+  clubData?: any; // Add club data to access current public/private status
   onMembersUpdate: () => void;
   onClubUpdate: () => void;
   onClose: () => void;
@@ -13,6 +14,7 @@ interface AdminPanelProps {
 const AdminPanel: React.FC<AdminPanelProps> = ({ 
   clubId, 
   members, 
+  clubData,
   onMembersUpdate, 
   onClubUpdate, 
   onClose 
@@ -24,6 +26,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [inviteUserId, setInviteUserId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
 
   const handleInviteUser = async () => {
     if (!inviteUserId.trim()) return;
@@ -75,6 +78,24 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       setMessage({ type: 'error', text: 'Failed to promote user' });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleToggleVisibility = async () => {
+    if (!clubData) return;
+    
+    setIsTogglingVisibility(true);
+    try {
+      const newVisibility = !clubData.isPrivate; // Toggle between public/private
+      const result = await TailorMatesService.toggleBookClubVisibility(clubId, newVisibility);
+      setMessage({ type: result.success ? 'success' : 'error', text: result.message });
+      if (result.success) {
+        onClubUpdate(); // Refresh club data
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to update club visibility' });
+    } finally {
+      setIsTogglingVisibility(false);
     }
   };
 
@@ -222,7 +243,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           )}
 
           {activeTab === 'settings' && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white">Club Settings</h3>
                 <button
@@ -233,7 +254,57 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   <span>Edit Club</span>
                 </button>
               </div>
-              <p className="text-white/60">Club settings management coming soon...</p>
+
+              {/* Public/Private Toggle */}
+              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-lg font-medium text-white mb-2">Club Visibility</h4>
+                    <p className="text-white/70 text-sm">
+                      {clubData?.isPrivate 
+                        ? 'This club is currently private. Only members can see and join it.'
+                        : 'This club is currently public. Anyone can see and join it.'
+                      }
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleToggleVisibility}
+                    disabled={isTogglingVisibility || !clubData}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      clubData?.isPrivate ? 'bg-gray-600' : 'bg-pink-500'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                        clubData?.isPrivate ? 'translate-x-1' : 'translate-x-7'
+                      }`}
+                    />
+                    {isTogglingVisibility && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      </div>
+                    )}
+                  </button>
+                </div>
+                <div className="mt-3 flex items-center space-x-2 text-sm">
+                  <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                    clubData?.isPrivate 
+                      ? 'bg-red-500/20 text-red-300' 
+                      : 'bg-green-500/20 text-green-300'
+                  }`}>
+                    {clubData?.isPrivate ? 'Private' : 'Public'}
+                  </span>
+                  <span className="text-white/50">
+                    {clubData?.isPrivate ? 'Only members can join' : 'Anyone can join'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Additional Settings Placeholder */}
+              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                <h4 className="text-lg font-medium text-white mb-2">Additional Settings</h4>
+                <p className="text-white/60 text-sm">More club settings will be available soon...</p>
+              </div>
             </div>
           )}
         </div>

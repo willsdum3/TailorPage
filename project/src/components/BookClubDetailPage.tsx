@@ -436,6 +436,7 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
         <AdminPanel
           clubId={clubId}
           members={members}
+          clubData={club}
           onMembersUpdate={loadClubData}
           onClubUpdate={loadClubData}
           onClose={() => setShowAdminPanel(false)}

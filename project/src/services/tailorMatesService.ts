@@ -872,4 +872,29 @@ export class TailorMatesService {
       return date.toLocaleDateString();
     }
   }
+
+  static async toggleBookClubVisibility(clubId: string, isPublic: boolean): Promise<{ success: boolean; message: string }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('toggle_book_club_visibility', {
+          auth_user_id: authUserId,
+          club_id_param: clubId,
+          is_public_param: isPublic
+        });
+
+      if (error) {
+        console.error('Error toggling club visibility:', error);
+        return { success: false, message: 'Failed to update club visibility' };
+      }
+
+      const result = data[0] || { success: false, message: 'Unknown error' };
+      return result;
+    } catch (error) {
+      console.error('Error in toggleBookClubVisibility:', error);
+      return { success: false, message: 'Failed to update club visibility' };
+    }
+  }
 }
