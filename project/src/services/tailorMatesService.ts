@@ -878,6 +878,8 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
+      console.log('Toggling club visibility:', { clubId, isPublic, authUserId });
+
       const { data, error } = await supabase
         .rpc('toggle_book_club_visibility', {
           auth_user_id: authUserId,
@@ -885,12 +887,15 @@ export class TailorMatesService {
           is_public_param: isPublic
         });
 
+      console.log('Toggle visibility response:', { data, error });
+
       if (error) {
         console.error('Error toggling club visibility:', error);
-        return { success: false, message: 'Failed to update club visibility' };
+        return { success: false, message: `Failed to update club visibility: ${error.message}` };
       }
 
       const result = data[0] || { success: false, message: 'Unknown error' };
+      console.log('Toggle visibility result:', result);
       return result;
     } catch (error) {
       console.error('Error in toggleBookClubVisibility:', error);

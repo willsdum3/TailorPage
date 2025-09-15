@@ -84,15 +84,23 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleToggleVisibility = async () => {
     if (!clubData) return;
     
+    console.log('Current club data:', clubData);
+    console.log('Current isPrivate:', clubData.isPrivate);
+    
     setIsTogglingVisibility(true);
     try {
       const newVisibility = !clubData.isPrivate; // Toggle between public/private
+      console.log('New visibility (isPublic):', newVisibility);
+      
       const result = await TailorMatesService.toggleBookClubVisibility(clubId, newVisibility);
+      console.log('Toggle result:', result);
+      
       setMessage({ type: result.success ? 'success' : 'error', text: result.message });
       if (result.success) {
         onClubUpdate(); // Refresh club data
       }
     } catch (error) {
+      console.error('Toggle visibility error:', error);
       setMessage({ type: 'error', text: 'Failed to update club visibility' });
     } finally {
       setIsTogglingVisibility(false);
