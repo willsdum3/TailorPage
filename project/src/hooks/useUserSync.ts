@@ -28,11 +28,11 @@ export const useUserSync = () => {
       const syncUser = async () => {
         try {
           const userData = {
-            clerk_id: user.id,
+            auth_user_id: user.id,
             name: user.fullName || user.firstName || user.username || 'User',
             username: user.username || user.emailAddresses[0]?.emailAddress?.split('@')[0] || 'user',
             email: user.emailAddresses[0]?.emailAddress || '',
-            image_url: user.imageUrl || undefined,
+            avatar_url: user.imageUrl || undefined,
           };
 
           console.log('📤 useUserSync: Sending user data to Supabase:', userData);
