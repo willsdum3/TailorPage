@@ -7,7 +7,10 @@ import {
   FriendRecommendation,
   CreateBookClubData,
   CreateBookClubServiceData,
-  CreateDiscussionData
+  CreateDiscussionData,
+  ClubInvitation,
+  UserSearchResult,
+  SentInvitation
 } from '../types';
 
 export class TailorMatesService {
@@ -900,6 +903,217 @@ export class TailorMatesService {
     } catch (error) {
       console.error('Error in toggleBookClubVisibility:', error);
       return { success: false, message: 'Failed to update club visibility' };
+    }
+  }
+
+  // =====================================================
+  // CLUB INVITATION FUNCTIONS
+  // =====================================================
+
+  // Search users by username
+  static async searchUsersByUsername(searchTerm: string): Promise<UserSearchResult[]> {
+    try {
+      if (!searchTerm || searchTerm.trim().length < 2) {
+        return [];
+      }
+
+      const { data, error } = await supabase
+        .rpc('search_users_by_username', {
+          search_term: searchTerm.trim(),
+          limit_count: 10
+        });
+
+      if (error) {
+        console.error('Error searching users:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in searchUsersByUsername:', error);
+      return [];
+    }
+  }
+
+  // Invite user to club by username
+  static async inviteUserToClub(clubId: string, username: string, message?: string): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      console.log('Inviting user to club:', { clubId, username, authUserId });
+
+      const { data, error } = await supabase
+        .rpc('invite_user_to_club', {
+          auth_user_id: authUserId,
+          club_id_param: clubId,
+          username_param: username,
+          message_param: message || null
+        });
+
+      console.log('Invite user response:', { data, error });
+
+      if (error) {
+        console.error('Error inviting user:', error);
+        return { success: false, message: `Failed to send invitation: ${error.message}` };
+      }
+
+      if (data && data.success) {
+        return { 
+          success: true, 
+          message: data.message || 'Invitation sent successfully!',
+          data: data
+        };
+      } else {
+        return { 
+          success: false, 
+          message: data?.error || 'Failed to send invitation' 
+        };
+      }
+    } catch (error) {
+      console.error('Error in inviteUserToClub:', error);
+      return { success: false, message: 'Failed to send invitation' };
+    }
+  }
+
+  // Get user's received club invitations
+  static async getUserClubInvitations(): Promise<ClubInvitation[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_user_club_invitations', {
+          auth_user_id: authUserId
+        });
+
+      if (error) {
+        console.error('Error getting user invitations:', error);
+        return [];
+      }
+
+      // Transform database data to match UI interface
+      const transformedData: ClubInvitation[] = (data || []).map((invitation: any) => ({
+        id: invitation.id,
+        clubId: invitation.club_id,
+        clubName: invitation.club_name,
+        clubDescription: invitation.club_description,
+        inviterName: invitation.inviter_name,
+        inviterUsername: invitation.inviter_username,
+        message: invitation.message,
+        createdAt: invitation.created_at,
+        expiresAt: invitation.expires_at,
+        status: invitation.status
+      }));
+
+      return transformedData;
+    } catch (error) {
+      console.error('Error in getUserClubInvitations:', error);
+      return [];
+    }
+  }
+
+  // Respond to club invitation
+  static async respondToClubInvitation(invitationId: string, response: 'accepted' | 'declined'): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      console.log('Responding to club invitation:', { invitationId, response, authUserId });
+
+      const { data, error } = await supabase
+        .rpc('respond_to_club_invitation', {
+          auth_user_id: authUserId,
+          invitation_id_param: invitationId,
+          response: response
+        });
+
+      console.log('Respond to invitation response:', { data, error });
+
+      if (error) {
+        console.error('Error responding to invitation:', error);
+        return { success: false, message: `Failed to respond to invitation: ${error.message}` };
+      }
+
+      if (data && data.success) {
+        return { 
+          success: true, 
+          message: data.message || `Invitation ${response} successfully!`,
+          data: data
+        };
+      } else {
+        return { 
+          success: false, 
+          message: data?.error || 'Failed to respond to invitation' 
+        };
+      }
+    } catch (error) {
+      console.error('Error in respondToClubInvitation:', error);
+      return { success: false, message: 'Failed to respond to invitation' };
+    }
+  }
+
+  // Get sent invitations for a club (admin only)
+  static async getClubSentInvitations(clubId: string): Promise<SentInvitation[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_club_sent_invitations', {
+          auth_user_id: authUserId,
+          club_id_param: clubId
+        });
+
+      if (error) {
+        console.error('Error getting club sent invitations:', error);
+        return [];
+      }
+
+      // Transform database data to match UI interface
+      const transformedData: SentInvitation[] = (data || []).map((invitation: any) => ({
+        id: invitation.id,
+        inviteeUsername: invitation.invitee_username,
+        inviteeName: invitation.invitee_name,
+        message: invitation.message,
+        status: invitation.status,
+        createdAt: invitation.created_at,
+        expiresAt: invitation.expires_at
+      }));
+
+      return transformedData;
+    } catch (error) {
+      console.error('Error in getClubSentInvitations:', error);
+      return [];
+    }
+  }
+
+  // Check if user is admin of a club
+  static async isClubAdmin(clubId: string): Promise<boolean> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      // Get user's role in the club
+      const { data, error } = await supabase
+        .from('club_memberships')
+        .select('role')
+        .eq('club_id', clubId)
+        .eq('user_id', (await supabase
+          .from('users')
+          .select('id')
+          .eq('auth_user_id', authUserId)
+          .single()).data?.id)
+        .single();
+
+      if (error || !data) {
+        return false;
+      }
+
+      return data.role === 'owner' || data.role === 'admin';
+    } catch (error) {
+      console.error('Error checking if user is club admin:', error);
+      return false;
     }
   }
 }

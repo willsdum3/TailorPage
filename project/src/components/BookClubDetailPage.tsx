@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub } from '../types';
 import AdminPanel from './AdminPanel';
 import CreatePollModal from './CreatePollModal';
 import EditClubModal from './EditClubModal';
 import PollVotingInterface from './PollVotingInterface';
+import ClubInvitationsManager from './ClubInvitationsManager';
 
 interface BookClubDetailPageProps {
   clubId: string;
@@ -24,7 +25,7 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
   const [showCreatePollModal, setShowCreatePollModal] = useState(false);
   const [showEditClubModal, setShowEditClubModal] = useState(false);
   const [polls, setPolls] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'discussion' | 'polls'>('discussion');
+  const [activeTab, setActiveTab] = useState<'discussion' | 'polls' | 'invitations'>('discussion');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -353,6 +354,19 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   <BarChart3 className="w-5 h-5" />
                   <span>Polls</span>
                 </button>
+                {isUserAdmin() && (
+                  <button
+                    className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
+                      activeTab === 'invitations' 
+                        ? 'text-amber-400 border-b-2 border-amber-400' 
+                        : 'text-white/70 hover:text-white'
+                    }`}
+                    onClick={() => setActiveTab('invitations')}
+                  >
+                    <UserPlus className="w-5 h-5" />
+                    <span>Invitations</span>
+                  </button>
+                )}
               </div>
 
               {/* Tab Content */}
@@ -423,6 +437,16 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   <PollVotingInterface 
                     clubId={clubId} 
                     onPollUpdate={loadClubData}
+                  />
+                </div>
+              )}
+
+              {activeTab === 'invitations' && isUserAdmin() && (
+                <div className="flex-1 overflow-y-auto">
+                  <ClubInvitationsManager
+                    clubId={clubId}
+                    clubName={club?.name || ''}
+                    isAdmin={isUserAdmin()}
                   />
                 </div>
               )}

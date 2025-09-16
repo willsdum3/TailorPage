@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Users, UserPlus, UserMinus, Crown, Edit3, BarChart3, X } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
+import InviteUserModal from './InviteUserModal';
 
 interface AdminPanelProps {
   clubId: string;
@@ -23,7 +24,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showEditClubModal, setShowEditClubModal] = useState(false);
   const [showCreatePollModal, setShowCreatePollModal] = useState(false);
-  const [inviteUserId, setInviteUserId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
@@ -36,23 +36,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   }, [clubData]);
 
-  const handleInviteUser = async () => {
-    if (!inviteUserId.trim()) return;
-    
-    setIsLoading(true);
-    try {
-      const result = await TailorMatesService.inviteUserToBookClub(clubId, inviteUserId.trim());
-      setMessage({ type: result.success ? 'success' : 'error', text: result.message });
-      if (result.success) {
-        setInviteUserId('');
-        setShowInviteModal(false);
-        onMembersUpdate();
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to invite user' });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleInviteSent = () => {
+    // Refresh members list after successful invitation
+    onMembersUpdate();
+    setMessage({ type: 'success', text: 'Invitation sent successfully!' });
   };
 
   const handleRemoveUser = async (userId: string, userName: string) => {
@@ -326,40 +313,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       </div>
 
       {/* Invite User Modal */}
-      {showInviteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-60 flex items-center justify-center p-4">
-          <div className="bg-slate-900 rounded-2xl border border-white/20 p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold text-white mb-4">Invite User</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-white/80 text-sm mb-2">User ID</label>
-                <input
-                  type="text"
-                  value={inviteUserId}
-                  onChange={(e) => setInviteUserId(e.target.value)}
-                  placeholder="Enter user ID to invite"
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-pink-400"
-                />
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleInviteUser}
-                  disabled={isLoading || !inviteUserId.trim()}
-                  className="flex-1 bg-pink-500 hover:bg-pink-600 disabled:opacity-50 text-white px-4 py-3 rounded-lg transition-colors"
-                >
-                  {isLoading ? 'Inviting...' : 'Invite User'}
-                </button>
-                <button
-                  onClick={() => setShowInviteModal(false)}
-                  className="px-4 py-3 text-white/60 hover:text-white transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <InviteUserModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        clubId={clubId}
+        clubName={clubData?.name || 'Book Club'}
+        onInviteSent={handleInviteSent}
+      />
     </div>
   );
 };

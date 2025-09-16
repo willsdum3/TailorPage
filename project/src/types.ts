@@ -148,6 +148,36 @@ export interface FriendRecommendation {
   createdAt: string;
 }
 
+export interface ClubInvitation {
+  id: string;
+  clubId: string;
+  clubName: string;
+  clubDescription: string;
+  inviterName: string;
+  inviterUsername: string;
+  message?: string;
+  createdAt: string;
+  expiresAt: string;
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled';
+}
+
+export interface UserSearchResult {
+  id: string;
+  username: string;
+  name: string;
+  avatarUrl?: string;
+}
+
+export interface SentInvitation {
+  id: string;
+  inviteeUsername: string;
+  inviteeName: string;
+  message?: string;
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled';
+  createdAt: string;
+  expiresAt: string;
+}
+
 export interface CreateBookClubData {
   name: string;
   description: string;

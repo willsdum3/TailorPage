@@ -7,6 +7,7 @@ import CreateBookClubModal from './CreateBookClubModal';
 import CreateDiscussionModal from './CreateDiscussionModal';
 import DiscussionDetailPage from './DiscussionDetailPage';
 import BookClubDetailPage from './BookClubDetailPage';
+import ClubInvitationsNotifications from './ClubInvitationsNotifications';
 
 interface TailorMatesPageProps {
   onBack: () => void;
@@ -107,7 +108,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         isPublic: !clubData.isPrivate, // Convert isPrivate to isPublic
         targetPersonalityTraits: clubData.personalityTraits, // Map personalityTraits to targetPersonalityTraits
         tags: clubData.tags,
-        meetingInfo: clubData.meetingTime ? `${clubData.meetingTime}${clubData.nextMeetingDate ? ` - ${clubData.nextMeetingDate}` : ''}` : null
+        meetingInfo: clubData.meetingTime ? `${clubData.meetingTime}${clubData.nextMeetingDate ? ` - ${clubData.nextMeetingDate}` : ''}` : undefined
       };
       
       await TailorMatesService.createBookClub(mappedClubData);
@@ -307,6 +308,18 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
             </div>
           )}
         </div>
+
+        {/* Club Invitations Notifications */}
+        {user && (
+          <div className="mb-8">
+            <ClubInvitationsNotifications 
+              onInvitationResponse={() => {
+                // Refresh data after responding to an invitation
+                loadData();
+              }}
+            />
+          </div>
+        )}
 
         {/* Navigation Tabs */}
         <div className="flex justify-center mb-8">
