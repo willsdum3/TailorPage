@@ -45,30 +45,30 @@ const ClubInvitationsManager: React.FC<ClubInvitationsManagerProps> = ({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
+        return <Clock className="w-4 h-4 text-yellow-400" />;
       case 'accepted':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-green-400" />;
       case 'declined':
-        return <XCircle className="w-4 h-4 text-red-500" />;
+        return <XCircle className="w-4 h-4 text-red-400" />;
       case 'cancelled':
-        return <AlertCircle className="w-4 h-4 text-gray-500" />;
+        return <AlertCircle className="w-4 h-4 text-white/60" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-500" />;
+        return <Clock className="w-4 h-4 text-white/60" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'text-yellow-700 bg-yellow-50 border-yellow-200';
+        return 'text-yellow-300 bg-yellow-500/20 border-yellow-500/30';
       case 'accepted':
-        return 'text-green-700 bg-green-50 border-green-200';
+        return 'text-green-300 bg-green-500/20 border-green-500/30';
       case 'declined':
-        return 'text-red-700 bg-red-50 border-red-200';
+        return 'text-red-300 bg-red-500/20 border-red-500/30';
       case 'cancelled':
-        return 'text-gray-700 bg-gray-50 border-gray-200';
+        return 'text-white/70 bg-white/10 border-white/20';
       default:
-        return 'text-gray-700 bg-gray-50 border-gray-200';
+        return 'text-white/70 bg-white/10 border-white/20';
     }
   };
 
@@ -101,26 +101,26 @@ const ClubInvitationsManager: React.FC<ClubInvitationsManagerProps> = ({
       {/* Header with Invite Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
             <Users className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Club Invitations</h3>
-            <p className="text-sm text-gray-600">Manage invitations to your club</p>
+            <h3 className="text-lg font-semibold text-white">Club Invitations</h3>
+            <p className="text-sm text-white/70">Manage invitations to your club</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
           <button
             onClick={loadSentInvitations}
             disabled={isLoading}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             title="Refresh invitations"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setShowInviteModal(true)}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 flex items-center space-x-2 transition-all"
+            className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:from-amber-500 hover:to-orange-600 flex items-center space-x-2 transition-all shadow-lg"
           >
             <UserPlus className="w-4 h-4" />
             <span>Invite User</span>
@@ -131,16 +131,16 @@ const ClubInvitationsManager: React.FC<ClubInvitationsManagerProps> = ({
       {/* Invitations List */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+          <div className="animate-spin w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full"></div>
         </div>
       ) : sentInvitations.length === 0 ? (
         <div className="text-center py-12">
-          <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Invitations Sent</h3>
-          <p className="text-gray-600 mb-6">Start building your book club by inviting readers!</p>
+          <Users className="w-16 h-16 mx-auto mb-4 text-white/30" />
+          <h3 className="text-lg font-medium text-white mb-2">No Invitations Sent</h3>
+          <p className="text-white/70 mb-6">Start building your book club by inviting readers!</p>
           <button
             onClick={() => setShowInviteModal(true)}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 flex items-center space-x-2 mx-auto transition-all"
+            className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-6 py-3 rounded-lg font-medium hover:from-amber-500 hover:to-orange-600 flex items-center space-x-2 mx-auto transition-all shadow-lg"
           >
             <UserPlus className="w-4 h-4" />
             <span>Send First Invitation</span>
@@ -151,30 +151,30 @@ const ClubInvitationsManager: React.FC<ClubInvitationsManagerProps> = ({
           {sentInvitations.map((invitation) => (
             <div
               key={invitation.id}
-              className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow"
+              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 hover:bg-white/15 transition-all"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                      <Users className="w-4 h-4 text-gray-600" />
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <Users className="w-4 h-4 text-white/80" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">@{invitation.inviteeUsername}</h4>
-                      <p className="text-sm text-gray-600">{invitation.inviteeName}</p>
+                      <h4 className="font-medium text-white">@{invitation.inviteeUsername}</h4>
+                      <p className="text-sm text-white/70">{invitation.inviteeName}</p>
                     </div>
                   </div>
                   
                   {invitation.message && (
-                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                      <p className="text-sm text-gray-700">"{invitation.message}"</p>
+                    <div className="bg-white/10 rounded-lg p-3 mb-3 border border-white/10">
+                      <p className="text-sm text-white/90">"{invitation.message}"</p>
                     </div>
                   )}
                   
-                  <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center justify-between text-sm text-white/60">
                     <span>Sent {formatDate(invitation.createdAt)}</span>
                     {invitation.status === 'pending' && isExpired(invitation.expiresAt) && (
-                      <span className="text-red-500 font-medium">Expired</span>
+                      <span className="text-red-400 font-medium">Expired</span>
                     )}
                   </div>
                 </div>
@@ -192,29 +192,29 @@ const ClubInvitationsManager: React.FC<ClubInvitationsManagerProps> = ({
       {/* Statistics */}
       {sentInvitations.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-white">
               {sentInvitations.length}
             </div>
-            <div className="text-sm text-gray-600">Total Sent</div>
+            <div className="text-sm text-white/70">Total Sent</div>
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-yellow-600">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-yellow-400">
               {sentInvitations.filter(inv => inv.status === 'pending' && !isExpired(inv.expiresAt)).length}
             </div>
-            <div className="text-sm text-gray-600">Pending</div>
+            <div className="text-sm text-white/70">Pending</div>
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-green-400">
               {sentInvitations.filter(inv => inv.status === 'accepted').length}
             </div>
-            <div className="text-sm text-gray-600">Accepted</div>
+            <div className="text-sm text-white/70">Accepted</div>
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-red-600">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-red-400">
               {sentInvitations.filter(inv => inv.status === 'declined').length}
             </div>
-            <div className="text-sm text-gray-600">Declined</div>
+            <div className="text-sm text-white/70">Declined</div>
           </div>
         </div>
       )}
