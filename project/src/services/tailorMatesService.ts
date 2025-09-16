@@ -136,7 +136,7 @@ export class TailorMatesService {
         createdAt: club.created_at,
         isMember: club.is_member || false,
         userRole: club.user_role || '',
-        creatorName: 'Unknown' // We'll need to get this from a join or separate query
+        creatorName: club.creator_name || 'Unknown'
       }));
 
       return transformedData;
