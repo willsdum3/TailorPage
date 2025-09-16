@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Users, UserPlus, UserMinus, Crown, Edit3, BarChart3, X } from 'lucide-react';
+import { Settings, Users, UserPlus, UserMinus, Crown, Edit3, X } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import InviteUserModal from './InviteUserModal';
 
@@ -20,10 +20,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   onClubUpdate, 
   onClose 
 }) => {
-  const [activeTab, setActiveTab] = useState<'members' | 'polls' | 'settings'>('members');
+  const [activeTab, setActiveTab] = useState<'members' | 'settings'>('members');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showEditClubModal, setShowEditClubModal] = useState(false);
-  const [showCreatePollModal, setShowCreatePollModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
@@ -124,7 +123,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         <div className="flex border-b border-white/10">
           {[
             { id: 'members', label: 'Members', icon: Users },
-            { id: 'polls', label: 'Polls', icon: BarChart3 },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map((tab) => {
             const IconComponent = tab.icon;
@@ -225,22 +223,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {activeTab === 'polls' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Manage Polls</h3>
-                <button
-                  onClick={() => setShowCreatePollModal(true)}
-                  className="flex items-center space-x-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  <span>Create Poll</span>
-                </button>
-              </div>
-              <p className="text-white/60">Poll management coming soon...</p>
             </div>
           )}
 
