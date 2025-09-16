@@ -928,7 +928,16 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Transform database results to match TypeScript interface
+      const transformedResults: UserSearchResult[] = (data || []).map((user: any) => ({
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        avatarUrl: user.avatar_url // Map snake_case to camelCase
+      }));
+
+      console.log('Transformed search results:', transformedResults);
+      return transformedResults;
     } catch (error) {
       console.error('Error in searchUsersByUsername:', error);
       return [];

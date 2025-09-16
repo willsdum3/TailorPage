@@ -37,6 +37,15 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
       setIsSearching(true);
       try {
         const results = await TailorMatesService.searchUsersByUsername(searchTerm);
+        console.log('Search results received:', results);
+        results.forEach((user, index) => {
+          console.log(`User ${index + 1}:`, {
+            username: user.username,
+            name: user.name,
+            avatarUrl: user.avatarUrl,
+            hasAvatar: !!user.avatarUrl
+          });
+        });
         setSearchResults(results);
       } catch (error) {
         console.error('Error searching users:', error);
@@ -193,12 +202,24 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
                         src={user.avatarUrl}
                         alt={user.name}
                         className="w-8 h-8 rounded-full object-cover"
+                        onError={(e) => {
+                          console.log('Avatar load error for user:', user.username, 'URL:', user.avatarUrl);
+                          // Hide the broken image and show fallback
+                          (e.target as HTMLImageElement).style.display = 'none';
+                          if ((e.target as HTMLImageElement).nextElementSibling) {
+                            ((e.target as HTMLImageElement).nextElementSibling as HTMLElement).style.display = 'flex';
+                          }
+                        }}
+                        onLoad={() => {
+                          console.log('Avatar loaded successfully for user:', user.username);
+                        }}
                       />
                     ) : (
-                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                        <Users className="w-4 h-4 text-gray-500" />
-                      </div>
+                      console.log('No avatar URL for user:', user.username, 'avatarUrl:', user.avatarUrl) || null
                     )}
+                    <div className={`w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ${user.avatarUrl ? 'hidden' : ''}`}>
+                      <Users className="w-4 h-4 text-gray-500" />
+                    </div>
                     <div>
                       <p className="font-medium text-gray-900">@{user.username}</p>
                       <p className="text-sm text-gray-600">{user.name}</p>
@@ -217,12 +238,23 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
                       src={selectedUser.avatarUrl}
                       alt={selectedUser.name}
                       className="w-8 h-8 rounded-full object-cover"
+                      onError={(e) => {
+                        console.log('Selected user avatar load error:', selectedUser.username, 'URL:', selectedUser.avatarUrl);
+                        (e.target as HTMLImageElement).style.display = 'none';
+                        if ((e.target as HTMLImageElement).nextElementSibling) {
+                          ((e.target as HTMLImageElement).nextElementSibling as HTMLElement).style.display = 'flex';
+                        }
+                      }}
+                      onLoad={() => {
+                        console.log('Selected user avatar loaded successfully:', selectedUser.username);
+                      }}
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center">
-                      <Users className="w-4 h-4 text-blue-600" />
-                    </div>
+                    console.log('Selected user has no avatar URL:', selectedUser.username, 'avatarUrl:', selectedUser.avatarUrl) || null
                   )}
+                  <div className={`w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center ${selectedUser.avatarUrl ? 'hidden' : ''}`}>
+                    <Users className="w-4 h-4 text-blue-600" />
+                  </div>
                   <div>
                     <p className="font-medium text-blue-900">@{selectedUser.username}</p>
                     <p className="text-sm text-blue-700">{selectedUser.name}</p>
