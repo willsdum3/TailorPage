@@ -116,6 +116,21 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     }
   };
 
+  const handleJoinClub = async () => {
+    if (!club) return;
+    
+    try {
+      const success = await TailorMatesService.joinBookClub(clubId);
+      if (success) {
+        // Reload club data to update membership status
+        await loadClubData();
+      }
+    } catch (error) {
+      console.error('Error joining club:', error);
+      alert('Failed to join club. Please try again.');
+    }
+  };
+
   const renderPersonalityTags = (traits: string[]) => {
     return traits.map((trait, index) => (
       <span
@@ -272,12 +287,21 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   </button>
                 </>
               )}
-              <button
-                onClick={handleLeaveClub}
-                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
-              >
-                Leave Club
-              </button>
+              {club.isMember ? (
+                <button
+                  onClick={handleLeaveClub}
+                  className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                >
+                  Leave Club
+                </button>
+              ) : (
+                <button
+                  onClick={handleJoinClub}
+                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                >
+                  Join Club
+                </button>
+              )}
             </div>
           </div>
         </div>
