@@ -365,6 +365,8 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
+      console.log('Promoting user to admin:', { clubId, userIdToPromote, authUserId });
+
       const { data, error } = await supabase
         .rpc('promote_user_to_admin', {
           auth_user_id: authUserId,
@@ -372,12 +374,25 @@ export class TailorMatesService {
           user_to_promote_id: userIdToPromote
         });
 
+      console.log('Promote user response:', { data, error });
+
       if (error) {
         console.error('Error promoting user:', error);
-        return { success: false, message: 'Failed to promote user' };
+        return { success: false, message: `Failed to promote user: ${error.message}` };
       }
 
-      return data[0] || { success: false, message: 'Unknown error' };
+      // Handle JSON response from the new database function
+      if (data && data.success) {
+        return { 
+          success: true, 
+          message: data.message || 'User promoted to admin successfully!'
+        };
+      } else {
+        return { 
+          success: false, 
+          message: data?.error || 'Failed to promote user' 
+        };
+      }
     } catch (error) {
       console.error('Error in promoteUserToAdmin:', error);
       return { success: false, message: 'Failed to promote user' };
