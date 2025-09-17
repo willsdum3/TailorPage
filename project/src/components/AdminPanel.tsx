@@ -65,7 +65,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       const result = await TailorMatesService.promoteUserToAdmin(clubId, userId);
       setMessage({ type: result.success ? 'success' : 'error', text: result.message });
       if (result.success) {
-        onMembersUpdate();
+        onMembersUpdate(); // Refresh members list to show new admin status
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to promote user' });
@@ -73,6 +73,24 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       setIsLoading(false);
     }
   };
+
+  const handleDemoteAdmin = async (userId: string, userName: string) => {
+    if (!window.confirm(`Are you sure you want to demote ${userName} from admin to member?`)) return;
+    
+    setIsLoading(true);
+    try {
+      const result = await TailorMatesService.demoteAdminToMember(clubId, userId);
+      setMessage({ type: result.success ? 'success' : 'error', text: result.message });
+      if (result.success) {
+        onMembersUpdate(); // Refresh members list to show updated role
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to demote admin' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const handleToggleVisibility = async (newVisibility: boolean) => {
     if (!clubData) return;
@@ -200,7 +218,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {member.role !== 'admin' && (
+                      {member.role === 'member' && (
                         <button
                           onClick={() => handlePromoteUser(member.user_id, member.name)}
                           disabled={isLoading}
@@ -210,14 +228,26 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           <Crown className="w-4 h-4" />
                         </button>
                       )}
-                      <button
-                        onClick={() => handleRemoveUser(member.user_id, member.name)}
-                        disabled={isLoading}
-                        className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-colors disabled:opacity-50"
-                        title="Remove User"
-                      >
-                        <UserMinus className="w-4 h-4" />
-                      </button>
+                      {member.role === 'admin' && (
+                        <button
+                          onClick={() => handleDemoteAdmin(member.user_id, member.name)}
+                          disabled={isLoading}
+                          className="p-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 rounded-lg transition-colors disabled:opacity-50"
+                          title="Demote to Member"
+                        >
+                          <UserMinus className="w-4 h-4" />
+                        </button>
+                      )}
+                      {member.role !== 'owner' && (
+                        <button
+                          onClick={() => handleRemoveUser(member.user_id, member.name)}
+                          disabled={isLoading}
+                          className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-colors disabled:opacity-50"
+                          title="Remove User"
+                        >
+                          <UserMinus className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -1125,4 +1125,44 @@ export class TailorMatesService {
       return false;
     }
   }
+
+  // Demote admin to member
+  static async demoteAdminToMember(clubId: string, userId: string): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      console.log('Demoting admin to member:', { clubId, userId, authUserId });
+
+      const { data, error } = await supabase
+        .rpc('demote_admin_to_member', {
+          auth_user_id: authUserId,
+          club_id_param: clubId,
+          user_id_param: userId
+        });
+
+      console.log('Demote admin response:', { data, error });
+
+      if (error) {
+        console.error('Error demoting admin:', error);
+        return { success: false, message: `Failed to demote admin: ${error.message}` };
+      }
+
+      if (data && data.success) {
+        return { 
+          success: true, 
+          message: data.message || 'Admin demoted to member successfully!',
+          data: data
+        };
+      } else {
+        return { 
+          success: false, 
+          message: data?.error || 'Failed to demote admin' 
+        };
+      }
+    } catch (error) {
+      console.error('Error in demoteAdminToMember:', error);
+      return { success: false, message: 'Failed to demote admin' };
+    }
+  }
 }
