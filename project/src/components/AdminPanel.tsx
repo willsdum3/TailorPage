@@ -314,30 +314,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={async () => {
-                      setIsLoading(true);
-                      try {
-                        const result = await TailorMatesService.maintainPollHygiene();
-                        setMessage({ 
-                          type: result.success ? 'success' : 'error', 
-                          text: result.message 
-                        });
-                      } catch (error) {
-                        setMessage({ type: 'error', text: 'Failed to maintain polls' });
-                      } finally {
-                        setIsLoading(false);
-                      }
-                    }}
-                    disabled={isLoading}
-                    className="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50"
-                  >
-                    {isLoading ? 'Cleaning...' : 'Clean Up Polls'}
-                  </button>
-                  <div className="text-white/60 text-sm">
-                    Manually clean up expired polls
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 text-green-300">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium">Automatic Cleanup Active</span>
                   </div>
+                  <p className="text-green-200/80 text-xs mt-1">
+                    Expired polls are automatically removed after 24 hours
+                  </p>
                 </div>
               </div>
 
