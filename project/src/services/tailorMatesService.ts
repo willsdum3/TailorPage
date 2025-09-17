@@ -518,6 +518,14 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
+      // Automatically run poll maintenance when loading polls (silent cleanup)
+      try {
+        await this.maintainPollHygiene();
+        console.log('Poll maintenance completed automatically');
+      } catch (maintenanceError) {
+        console.warn('Poll maintenance failed, continuing with poll loading:', maintenanceError);
+      }
+
       const { data, error } = await supabase
         .rpc('get_club_polls', {
           auth_user_id: authUserId,
@@ -1178,6 +1186,94 @@ export class TailorMatesService {
     } catch (error) {
       console.error('Error in demoteAdminToMember:', error);
       return { success: false, message: 'Failed to demote admin' };
+    }
+  }
+
+  // =====================================================
+  // POLL CLEANUP FUNCTIONS
+  // =====================================================
+
+  // Run poll maintenance (close expired polls and cleanup old ones)
+  static async maintainPollHygiene(): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      console.log('Running poll maintenance...');
+
+      const { data, error } = await supabase
+        .rpc('maintain_poll_hygiene');
+
+      console.log('Poll maintenance response:', { data, error });
+
+      if (error) {
+        console.error('Error maintaining polls:', error);
+        return { success: false, message: `Failed to maintain polls: ${error.message}` };
+      }
+
+      if (data && data.success) {
+        return { 
+          success: true, 
+          message: data.message || 'Poll maintenance completed successfully!',
+          data: data
+        };
+      } else {
+        return { 
+          success: false, 
+          message: data?.error || 'Failed to maintain polls' 
+        };
+      }
+    } catch (error) {
+      console.error('Error in maintainPollHygiene:', error);
+      return { success: false, message: 'Failed to maintain polls' };
+    }
+  }
+
+  // Get poll cleanup statistics
+  static async getPollCleanupStats(): Promise<any> {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_poll_cleanup_stats');
+
+      if (error) {
+        console.error('Error getting poll stats:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in getPollCleanupStats:', error);
+      return null;
+    }
+  }
+
+  // Clean up expired polls manually (admin function)
+  static async cleanupExpiredPolls(): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      console.log('Cleaning up expired polls...');
+
+      const { data, error } = await supabase
+        .rpc('cleanup_expired_polls');
+
+      console.log('Cleanup response:', { data, error });
+
+      if (error) {
+        console.error('Error cleaning up polls:', error);
+        return { success: false, message: `Failed to cleanup polls: ${error.message}` };
+      }
+
+      if (data && data.success) {
+        return { 
+          success: true, 
+          message: data.message || 'Poll cleanup completed successfully!',
+          data: data
+        };
+      } else {
+        return { 
+          success: false, 
+          message: data?.error || 'Failed to cleanup polls' 
+        };
+      }
+    } catch (error) {
+      console.error('Error in cleanupExpiredPolls:', error);
+      return { success: false, message: 'Failed to cleanup polls' };
     }
   }
 }

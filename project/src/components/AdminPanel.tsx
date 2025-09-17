@@ -304,6 +304,43 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
               </div>
 
+              {/* Poll Management */}
+              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-lg font-medium text-white mb-2">Poll Management</h4>
+                    <p className="text-white/70 text-sm">
+                      Polls are automatically cleaned up 24 hours after expiration to keep your club organized.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={async () => {
+                      setIsLoading(true);
+                      try {
+                        const result = await TailorMatesService.maintainPollHygiene();
+                        setMessage({ 
+                          type: result.success ? 'success' : 'error', 
+                          text: result.message 
+                        });
+                      } catch (error) {
+                        setMessage({ type: 'error', text: 'Failed to maintain polls' });
+                      } finally {
+                        setIsLoading(false);
+                      }
+                    }}
+                    disabled={isLoading}
+                    className="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50"
+                  >
+                    {isLoading ? 'Cleaning...' : 'Clean Up Polls'}
+                  </button>
+                  <div className="text-white/60 text-sm">
+                    Manually clean up expired polls
+                  </div>
+                </div>
+              </div>
+
               {/* Additional Settings Placeholder */}
               <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                 <h4 className="text-lg font-medium text-white mb-2">Additional Settings</h4>
