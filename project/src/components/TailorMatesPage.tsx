@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send, User as UserIcon, Clock } from 'lucide-react';
+import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send, User as UserIcon, Clock, Crown } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub, Discussion, FriendConnection, FriendRecommendation, User, CreateBookClubServiceData } from '../types';
@@ -417,20 +417,78 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
               </div>
             ) : (
               <>
-                {bookClubs.map((club) => (
+                {bookClubs
+                  .sort((a, b) => {
+                    // Sort priority: 1. Admin clubs, 2. Member clubs, 3. Other clubs
+                    const aIsAdmin = a.userRole === 'admin' || a.userRole === 'owner';
+                    const bIsAdmin = b.userRole === 'admin' || b.userRole === 'owner';
+                    const aIsMember = a.isMember;
+                    const bIsMember = b.isMember;
+                    
+                    // Admin clubs first
+                    if (aIsAdmin && !bIsAdmin) return -1;
+                    if (!aIsAdmin && bIsAdmin) return 1;
+                    
+                    // Then member clubs
+                    if (aIsMember && !bIsMember) return -1;
+                    if (!aIsMember && bIsMember) return 1;
+                    
+                    // Finally sort by creation date (newest first)
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                  })
+                  .map((club) => (
                   <div
                     key={club.id}
-                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group"
+                    className={`backdrop-blur-xl rounded-2xl p-6 transition-all duration-300 group relative ${
+                      club.userRole === 'admin' || club.userRole === 'owner'
+                        ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-400/50 hover:from-amber-500/30 hover:to-orange-500/30 shadow-lg shadow-amber-500/10'
+                        : club.isMember
+                        ? 'bg-gradient-to-br from-blue-500/15 to-purple-500/15 border-2 border-blue-400/40 hover:from-blue-500/25 hover:to-purple-500/25'
+                        : 'bg-white/10 border border-white/20 hover:bg-white/15'
+                    }`}
                   >
+                    {/* Admin/Owner Corner Badge */}
+                    {(club.userRole === 'admin' || club.userRole === 'owner') && (
+                      <div className="absolute top-3 right-3">
+                        <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white p-1.5 rounded-full shadow-lg">
+                          <Crown className="w-3 h-3" />
+                        </div>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">
-                        <BookOpen className="w-5 h-5 text-pink-400" />
+                        <BookOpen className={`w-5 h-5 ${
+                          club.userRole === 'admin' || club.userRole === 'owner' 
+                            ? 'text-amber-400' 
+                            : club.isMember 
+                            ? 'text-blue-400' 
+                            : 'text-pink-400'
+                        }`} />
                         <button
                           onClick={() => setSelectedClubId(club.id)}
-                          className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors hover:underline cursor-pointer text-left"
+                          className={`text-lg font-bold transition-colors hover:underline cursor-pointer text-left ${
+                            club.userRole === 'admin' || club.userRole === 'owner'
+                              ? 'text-amber-100 group-hover:text-amber-300'
+                              : club.isMember
+                              ? 'text-blue-100 group-hover:text-blue-300'
+                              : 'text-white group-hover:text-pink-400'
+                          }`}
                         >
                           {club.name}
                         </button>
+                        {/* Role Badge */}
+                        {(club.userRole === 'admin' || club.userRole === 'owner') && (
+                          <div className="flex items-center space-x-1 bg-amber-500/30 border border-amber-400/50 text-amber-200 px-2 py-1 rounded-full text-xs font-medium">
+                            <Crown className="w-3 h-3" />
+                            <span>{club.userRole === 'owner' ? 'Owner' : 'Admin'}</span>
+                          </div>
+                        )}
+                        {club.isMember && club.userRole === 'member' && (
+                          <div className="flex items-center space-x-1 bg-blue-500/30 border border-blue-400/50 text-blue-200 px-2 py-1 rounded-full text-xs font-medium">
+                            <UserCheck className="w-3 h-3" />
+                            <span>Member</span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center space-x-1 text-white/60 text-sm">
                         <Users className="w-4 h-4" />
