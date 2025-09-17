@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Users, UserPlus, UserMinus, Crown, Edit3, X } from 'lucide-react';
+import { Settings, Users, UserPlus, UserMinus, Crown, X } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import InviteUserModal from './InviteUserModal';
 
@@ -22,7 +22,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'members' | 'settings'>('members');
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showEditClubModal, setShowEditClubModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
@@ -228,16 +227,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
           {activeTab === 'settings' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Club Settings</h3>
-                <button
-                  onClick={() => setShowEditClubModal(true)}
-                  className="flex items-center space-x-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  <span>Edit Club</span>
-                </button>
-              </div>
+              <h3 className="text-lg font-semibold text-white mb-6">Club Settings</h3>
 
               {/* Public/Private Toggle */}
               <div className="bg-white/5 rounded-xl p-6 border border-white/10">
