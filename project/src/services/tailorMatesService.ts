@@ -692,7 +692,7 @@ export class TailorMatesService {
       const { data, error } = await supabase
         .rpc('get_discussion_messages', {
           auth_user_id: authUserId,
-          discussion_id: discussionId,
+          p_discussion_id: discussionId,
           limit_count: limit,
           offset_count: offset
         });
