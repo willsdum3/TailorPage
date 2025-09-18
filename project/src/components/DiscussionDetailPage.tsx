@@ -41,7 +41,7 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
       
       // Get discussion details and messages
       const [discussions, discussionMessages] = await Promise.all([
-        TailorMatesService.getDiscussions(user.id),
+        TailorMatesService.getDiscussions(),
         TailorMatesService.getDiscussionMessages(discussionId)
       ]);
 
@@ -66,7 +66,7 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     }
 
     try {
-      await TailorMatesService.joinDiscussion(discussionId, user.id);
+      await TailorMatesService.joinDiscussion(discussionId);
       setIsParticipant(true);
       await loadDiscussion(); // Refresh to update participant count
     } catch (error) {
@@ -82,7 +82,7 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
 
     try {
       setIsSending(true);
-      await TailorMatesService.addDiscussionMessage(discussionId, newMessage.trim(), user.id);
+      await TailorMatesService.addDiscussionMessage(discussionId, newMessage.trim());
       setNewMessage('');
       await loadDiscussion(); // Refresh messages
     } catch (error) {

@@ -603,19 +603,52 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
               </div>
             ) : (
               <>
-                {discussions.map((discussion) => (
+                {discussions
+                  .sort((a, b) => {
+                    // Sort priority: 1. Participated discussions, 2. Other discussions
+                    if (a.isParticipant && !b.isParticipant) return -1;
+                    if (!a.isParticipant && b.isParticipant) return 1;
+                    
+                    // Within each group, sort by last activity (most recent first)
+                    return new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime();
+                  })
+                  .map((discussion) => (
                   <div
                     key={discussion.id}
-                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 group cursor-pointer"
+                    className={`backdrop-blur-xl rounded-2xl p-6 transition-all duration-300 group cursor-pointer relative ${
+                      discussion.isParticipant
+                        ? 'bg-gradient-to-br from-green-500/15 to-emerald-500/15 border-2 border-green-400/40 hover:from-green-500/25 hover:to-emerald-500/25'
+                        : 'bg-white/10 border border-white/20 hover:bg-white/15'
+                    }`}
                     onClick={() => setSelectedDiscussionId(discussion.id)}
                   >
+                    {/* Participant Badge */}
+                    {discussion.isParticipant && (
+                      <div className="absolute top-3 right-3">
+                        <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white p-1.5 rounded-full shadow-lg">
+                          <MessageCircle className="w-3 h-3" />
+                        </div>
+                      </div>
+                    )}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <MessageCircle className="w-5 h-5 text-pink-400" />
-                          <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors">
+                          <MessageCircle className={`w-5 h-5 ${
+                            discussion.isParticipant ? 'text-green-400' : 'text-pink-400'
+                          }`} />
+                          <h3 className={`text-lg font-bold transition-colors ${
+                            discussion.isParticipant 
+                              ? 'text-green-100 group-hover:text-green-300' 
+                              : 'text-white group-hover:text-pink-400'
+                          }`}>
                             {discussion.title}
                           </h3>
+                          {discussion.isParticipant && (
+                            <div className="flex items-center space-x-1 bg-green-500/30 border border-green-400/50 text-green-200 px-2 py-1 rounded-full text-xs font-medium">
+                              <UserCheck className="w-3 h-3" />
+                              <span>Participating</span>
+                            </div>
+                          )}
                         </div>
                         {discussion.bookTitle && (
                           <p className="text-white/70 text-sm mb-3">
