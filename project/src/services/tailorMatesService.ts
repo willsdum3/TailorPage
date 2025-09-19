@@ -677,6 +677,12 @@ export class TailorMatesService {
         return null;
       }
 
+      // Parse JSON response from database function
+      if (data && typeof data === 'object' && data.error) {
+        console.error('Database function returned error:', data.error);
+        return null;
+      }
+
       return data;
     } catch (error) {
       console.error('Error in addDiscussionMessage:', error);
@@ -702,7 +708,18 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Parse JSON response from database function
+      if (data && typeof data === 'string') {
+        try {
+          return JSON.parse(data);
+        } catch (parseError) {
+          console.error('Error parsing discussion messages JSON:', parseError);
+          return [];
+        }
+      }
+      
+      // If data is already an array, return it directly
+      return Array.isArray(data) ? data : (data ? [data] : []);
     } catch (error) {
       console.error('Error in getDiscussionMessages:', error);
       return [];
