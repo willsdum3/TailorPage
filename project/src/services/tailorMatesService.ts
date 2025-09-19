@@ -625,9 +625,11 @@ export class TailorMatesService {
         createdBy: discussion.created_by,
         createdAt: discussion.created_at,
         participantCount: discussion.participant_count || 0,
-        lastActivity: discussion.last_message_at || discussion.created_at,
+        lastActivity: discussion.last_activity || discussion.created_at,
         isParticipant: discussion.is_participant || false,
-        creatorName: 'Unknown' // We'll need to get this from a join or separate query
+        creatorName: discussion.creator_name || 'Unknown',
+        creatorUsername: discussion.creator_username,
+        isCreatedByUser: discussion.is_created_by_user || false
       }));
 
       return transformedData;

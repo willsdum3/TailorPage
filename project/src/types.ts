@@ -114,6 +114,8 @@ export interface Discussion {
   lastActivity: string;
   isParticipant: boolean;
   creatorName: string;
+  creatorUsername?: string;
+  isCreatedByUser: boolean;
 }
 
 export interface DiscussionMessage {

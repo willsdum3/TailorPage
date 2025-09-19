@@ -207,7 +207,10 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
           </div>
           
           <div className="flex items-center justify-between text-white/60 text-sm">
-            <span>Started by {discussion.creatorName}</span>
+            <span>
+              Started by {discussion.creatorName}
+              {discussion.creatorUsername && ` @${discussion.creatorUsername}`}
+            </span>
             <span>{TailorMatesService.formatDate(discussion.createdAt)}</span>
           </div>
         </div>

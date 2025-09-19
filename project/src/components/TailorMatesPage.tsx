@@ -605,7 +605,11 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
               <>
                 {discussions
                   .sort((a, b) => {
-                    // Sort priority: 1. Participated discussions, 2. Other discussions
+                    // Sort priority: 1. Created by user, 2. Participated discussions, 3. Other discussions
+                    if (a.isCreatedByUser && !b.isCreatedByUser) return -1;
+                    if (!a.isCreatedByUser && b.isCreatedByUser) return 1;
+                    
+                    // If both/neither created by user, then sort by participation
                     if (a.isParticipant && !b.isParticipant) return -1;
                     if (!a.isParticipant && b.isParticipant) return 1;
                     
@@ -616,14 +620,24 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   <div
                     key={discussion.id}
                     className={`backdrop-blur-xl rounded-2xl p-6 transition-all duration-300 group cursor-pointer relative ${
-                      discussion.isParticipant
+                      discussion.isCreatedByUser
+                        ? 'bg-gradient-to-br from-amber-500/15 to-orange-500/15 border-2 border-amber-400/40 hover:from-amber-500/25 hover:to-orange-500/25'
+                        : discussion.isParticipant
                         ? 'bg-gradient-to-br from-green-500/15 to-emerald-500/15 border-2 border-green-400/40 hover:from-green-500/25 hover:to-emerald-500/25'
                         : 'bg-white/10 border border-white/20 hover:bg-white/15'
                     }`}
                     onClick={() => setSelectedDiscussionId(discussion.id)}
                   >
+                    {/* Creator Badge */}
+                    {discussion.isCreatedByUser && (
+                      <div className="absolute top-3 right-3">
+                        <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white p-1.5 rounded-full shadow-lg">
+                          <UserIcon className="w-3 h-3" />
+                        </div>
+                      </div>
+                    )}
                     {/* Participant Badge */}
-                    {discussion.isParticipant && (
+                    {discussion.isParticipant && !discussion.isCreatedByUser && (
                       <div className="absolute top-3 right-3">
                         <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white p-1.5 rounded-full shadow-lg">
                           <MessageCircle className="w-3 h-3" />
@@ -634,10 +648,16 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <MessageCircle className={`w-5 h-5 ${
-                            discussion.isParticipant ? 'text-green-400' : 'text-pink-400'
+                            discussion.isCreatedByUser 
+                              ? 'text-amber-400' 
+                              : discussion.isParticipant 
+                              ? 'text-green-400' 
+                              : 'text-pink-400'
                           }`} />
                           <h3 className={`text-lg font-bold transition-colors ${
-                            discussion.isParticipant 
+                            discussion.isCreatedByUser
+                              ? 'text-amber-100 group-hover:text-amber-300'
+                              : discussion.isParticipant 
                               ? 'text-green-100 group-hover:text-green-300' 
                               : 'text-white group-hover:text-pink-400'
                           }`}>
@@ -674,7 +694,10 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </div>
                     
                     <div className="flex items-center justify-between text-white/60 text-sm">
-                      <span>Started by {discussion.creatorName}</span>
+                      <span>
+                        Started by {discussion.creatorName}
+                        {discussion.creatorUsername && ` @${discussion.creatorUsername}`}
+                      </span>
                       <span>{TailorMatesService.formatDate(discussion.createdAt)}</span>
                     </div>
                     
