@@ -677,12 +677,17 @@ export class TailorMatesService {
         return null;
       }
 
+      // Debug logging
+      console.log('addDiscussionMessage raw response:', data);
+      console.log('addDiscussionMessage data type:', typeof data);
+
       // Parse JSON response from database function
       if (data && typeof data === 'object' && data.error) {
         console.error('Database function returned error:', data.error);
         return null;
       }
 
+      console.log('addDiscussionMessage final result:', data);
       return data;
     } catch (error) {
       console.error('Error in addDiscussionMessage:', error);
@@ -708,18 +713,27 @@ export class TailorMatesService {
         return [];
       }
 
+      // Debug logging
+      console.log('getDiscussionMessages raw response:', data);
+      console.log('getDiscussionMessages data type:', typeof data);
+      console.log('getDiscussionMessages data:', data);
+
       // Parse JSON response from database function
       if (data && typeof data === 'string') {
         try {
-          return JSON.parse(data);
+          const parsed = JSON.parse(data);
+          console.log('getDiscussionMessages parsed JSON:', parsed);
+          return parsed;
         } catch (parseError) {
-          console.error('Error parsing discussion messages JSON:', parseError);
+          console.error('Error parsing discussion messages JSON:', parseError, 'Raw data:', data);
           return [];
         }
       }
       
       // If data is already an array, return it directly
-      return Array.isArray(data) ? data : (data ? [data] : []);
+      const result = Array.isArray(data) ? data : (data ? [data] : []);
+      console.log('getDiscussionMessages final result:', result);
+      return result;
     } catch (error) {
       console.error('Error in getDiscussionMessages:', error);
       return [];
