@@ -247,10 +247,10 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
               messages.map((message) => (
                 <div key={message.id} className="flex space-x-3">
                   <div className="flex-shrink-0">
-                    {message.avatar_url ? (
+                    {message.userImageUrl ? (
                       <img 
-                        src={message.avatar_url} 
-                        alt={message.name || message.username} 
+                        src={message.userImageUrl} 
+                        alt={message.userName} 
                         className="w-8 h-8 rounded-full object-cover border border-white/20"
                       />
                     ) : (
