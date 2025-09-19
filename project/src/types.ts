@@ -122,6 +122,7 @@ export interface DiscussionMessage {
   createdAt: string;
   userId: string;
   userName: string;
+  userUsername?: string;
   userImageUrl?: string;
   isEdited: boolean;
 }

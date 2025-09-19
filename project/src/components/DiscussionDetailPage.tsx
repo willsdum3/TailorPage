@@ -261,7 +261,12 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
                   </div>
                   <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-white font-medium">{message.userName}</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-white font-medium">{message.userName}</span>
+                        {message.userUsername && (
+                          <span className="text-white/60 text-sm">@{message.userUsername}</span>
+                        )}
+                      </div>
                       <span className="text-white/50 text-sm">
                         {TailorMatesService.formatDate(message.createdAt)}
                       </span>
