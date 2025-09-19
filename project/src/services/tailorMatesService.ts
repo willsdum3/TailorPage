@@ -662,6 +662,29 @@ export class TailorMatesService {
     }
   }
 
+  static async leaveDiscussion(discussionId: string): Promise<boolean> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('leave_discussion', {
+          auth_user_id: authUserId,
+          discussion_id: discussionId
+        });
+
+      if (error) {
+        console.error('Error leaving discussion:', error);
+        return false;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in leaveDiscussion:', error);
+      return false;
+    }
+  }
+
   static async addDiscussionMessage(discussionId: string, content: string): Promise<DiscussionMessage | null> {
     try {
       const authUserId = await this.getCurrentUserId();

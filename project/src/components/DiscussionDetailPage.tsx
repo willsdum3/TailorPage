@@ -75,6 +75,32 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     }
   };
 
+  const handleLeaveDiscussion = async () => {
+    if (!user) {
+      alert('Please log in to leave the discussion.');
+      return;
+    }
+
+    // Confirm before leaving
+    if (!confirm('Are you sure you want to leave this discussion? You will no longer be able to send messages unless you rejoin.')) {
+      return;
+    }
+
+    try {
+      const success = await TailorMatesService.leaveDiscussion(discussionId);
+      if (success) {
+        setIsParticipant(false);
+        await loadDiscussion(); // Refresh to update participant count
+        alert('You have left the discussion successfully.');
+      } else {
+        alert('Unable to leave discussion. You may be the creator of this discussion.');
+      }
+    } catch (error) {
+      console.error('Error leaving discussion:', error);
+      alert('Failed to leave discussion. Please try again.');
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -235,10 +261,23 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
 
         {/* Messages */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
-            <MessageCircle className="w-5 h-5 text-pink-400" />
-            <span>Messages ({messages.length})</span>
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center space-x-2">
+              <MessageCircle className="w-5 h-5 text-pink-400" />
+              <span>Messages ({messages.length})</span>
+            </h2>
+            
+            {/* Leave Discussion Button */}
+            {isParticipant && discussion && !discussion.isCreatedByUser && (
+              <button
+                onClick={handleLeaveDiscussion}
+                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+              >
+                <UserIcon className="w-4 h-4" />
+                <span>Leave Discussion</span>
+              </button>
+            )}
+          </div>
           
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
             {messages.length === 0 ? (
