@@ -82,9 +82,14 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
 
     try {
       setIsSending(true);
-      await TailorMatesService.addDiscussionMessage(discussionId, newMessage.trim());
-      setNewMessage('');
-      await loadDiscussion(); // Refresh messages
+      const messageResult = await TailorMatesService.addDiscussionMessage(discussionId, newMessage.trim());
+      
+      if (messageResult) {
+        setNewMessage('');
+        // Reload messages directly like book clubs do
+        const updatedMessages = await TailorMatesService.getDiscussionMessages(discussionId);
+        setMessages(updatedMessages);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       alert('Failed to send message. Please try again.');
