@@ -677,9 +677,8 @@ export class TailorMatesService {
         return null;
       }
 
-      // Debug logging
-      console.log('addDiscussionMessage raw response:', data);
-      console.log('addDiscussionMessage data type:', typeof data);
+      // Debug logging (simplified)
+      console.log('addDiscussionMessage response:', data);
 
       // Parse JSON response from database function
       if (data && typeof data === 'object' && data.error) {
@@ -687,7 +686,6 @@ export class TailorMatesService {
         return null;
       }
 
-      console.log('addDiscussionMessage final result:', data);
       return data;
     } catch (error) {
       console.error('Error in addDiscussionMessage:', error);
@@ -713,19 +711,17 @@ export class TailorMatesService {
         return [];
       }
 
-      // Debug logging
-      console.log('getDiscussionMessages raw response:', data);
-      console.log('getDiscussionMessages data type:', typeof data);
-      console.log('getDiscussionMessages data:', data);
+      // Debug logging (simplified)
+      console.log('getDiscussionMessages response:', data, 'type:', typeof data);
 
       // Parse JSON response from database function
       if (data && typeof data === 'string') {
         try {
           const parsed = JSON.parse(data);
-          console.log('getDiscussionMessages parsed JSON:', parsed);
+          console.log('getDiscussionMessages parsed result:', parsed);
           return parsed;
         } catch (parseError) {
-          console.error('Error parsing discussion messages JSON:', parseError, 'Raw data:', data);
+          console.error('Error parsing discussion messages JSON:', parseError);
           return [];
         }
       }

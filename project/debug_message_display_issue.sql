@@ -50,7 +50,15 @@ LEFT JOIN discussion_participants dp ON d.id = dp.discussion_id
 LEFT JOIN users u ON dp.user_id = u.id AND u.auth_user_id = 'ee11bb62-0684-4293-a77a-d385c9a070f9'::UUID
 WHERE d.id = (SELECT id FROM discussions ORDER BY created_at DESC LIMIT 1);
 
--- Test 4: Check actual messages in database with proper formatting
+-- Test 4: Check discussion_messages table structure first
+SELECT 
+    'DISCUSSION_MESSAGES COLUMNS' as test_name,
+    string_agg(column_name, ', ' ORDER BY ordinal_position) as columns
+FROM information_schema.columns 
+WHERE table_name = 'discussion_messages' 
+AND table_schema = 'public';
+
+-- Test 5: Check actual messages in database with proper formatting
 SELECT 
     'DATABASE MESSAGES' as test_name,
     json_agg(
@@ -61,7 +69,7 @@ SELECT
             'userId', dm.user_id::TEXT,
             'userName', COALESCE(u.name, u.username, 'Unknown'),
             'userImageUrl', NULL,
-            'isEdited', COALESCE(dm.is_edited, false)
+            'isEdited', false
         )
         ORDER BY dm.created_at ASC
     ) as expected_format
@@ -69,7 +77,7 @@ FROM discussion_messages dm
 JOIN users u ON dm.user_id = u.id
 WHERE dm.discussion_id = (SELECT id FROM discussions ORDER BY created_at DESC LIMIT 1);
 
--- Test 5: Compare with book club message format
+-- Test 6: Compare with book club message format
 SELECT 
     'BOOK CLUB MESSAGE FORMAT' as test_name,
     json_agg(
