@@ -669,8 +669,8 @@ export class TailorMatesService {
 
       const { data, error } = await supabase
         .rpc('leave_discussion', {
-          auth_user_id: authUserId,
-          discussion_id: discussionId
+          p_auth_user_id: authUserId,
+          p_discussion_id: discussionId
         });
 
       if (error) {
