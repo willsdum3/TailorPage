@@ -685,6 +685,36 @@ export class TailorMatesService {
     }
   }
 
+  static async deleteDiscussion(discussionId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('delete_discussion', {
+          p_auth_user_id: authUserId,
+          p_discussion_id: discussionId
+        });
+
+      if (error) {
+        console.error('Error deleting discussion:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse the JSON response from the database function
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in deleteDiscussion:', error);
+      return { success: false, error: 'Failed to delete discussion' };
+    }
+  }
+
   static async addDiscussionMessage(discussionId: string, content: string): Promise<DiscussionMessage | null> {
     try {
       const authUserId = await this.getCurrentUserId();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as UserIcon } from 'lucide-react';
+import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as UserIcon, Trash2 } from 'lucide-react';
 import { Discussion, DiscussionMessage, User as UserType } from '../types';
 import { TailorMatesService } from '../services/tailorMatesService';
 
@@ -98,6 +98,35 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     } catch (error) {
       console.error('Error leaving discussion:', error);
       alert('Failed to leave discussion. Please try again.');
+    }
+  };
+
+  const handleDeleteDiscussion = async () => {
+    if (!user || !discussion) {
+      alert('Please log in to delete the discussion.');
+      return;
+    }
+
+    // Double confirmation for deletion
+    if (!confirm(`Are you sure you want to DELETE this discussion "${discussion.title}"? This action cannot be undone and will remove all messages and participants.`)) {
+      return;
+    }
+
+    if (!confirm('This will permanently delete the discussion and all its content. Are you absolutely sure?')) {
+      return;
+    }
+
+    try {
+      const result = await TailorMatesService.deleteDiscussion(discussionId);
+      if (result.success) {
+        alert('Discussion deleted successfully.');
+        onBack(); // Navigate back to discussions list
+      } else {
+        alert(result.error || 'Unable to delete discussion. You may not be the creator.');
+      }
+    } catch (error) {
+      console.error('Error deleting discussion:', error);
+      alert('Failed to delete discussion. Please try again.');
     }
   };
 
@@ -267,16 +296,30 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
               <span>Messages ({messages.length})</span>
             </h2>
             
-            {/* Leave Discussion Button */}
-            {isParticipant && discussion && !discussion.isCreatedByUser && (
-              <button
-                onClick={handleLeaveDiscussion}
-                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
-              >
-                <UserIcon className="w-4 h-4" />
-                <span>Leave Discussion</span>
-              </button>
-            )}
+            {/* Discussion Actions */}
+            <div className="flex items-center space-x-3">
+              {/* Delete Discussion Button (Creator Only) */}
+              {discussion && discussion.isCreatedByUser && (
+                <button
+                  onClick={handleDeleteDiscussion}
+                  className="bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 hover:text-red-200"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Discussion</span>
+                </button>
+              )}
+              
+              {/* Leave Discussion Button (Participants Only) */}
+              {isParticipant && discussion && !discussion.isCreatedByUser && (
+                <button
+                  onClick={handleLeaveDiscussion}
+                  className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+                >
+                  <UserIcon className="w-4 h-4" />
+                  <span>Leave Discussion</span>
+                </button>
+              )}
+            </div>
           </div>
           
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
