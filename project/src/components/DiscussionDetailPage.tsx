@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as UserIcon, Trash2 } from 'lucide-react';
 import { Discussion, DiscussionMessage, User as UserType } from '../types';
 import { TailorMatesService } from '../services/tailorMatesService';
+import AddFriendModal from './AddFriendModal';
 
 interface DiscussionDetailPageProps {
   discussionId: string;
@@ -19,6 +20,13 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
   const [isSending, setIsSending] = useState(false);
   const [isParticipant, setIsParticipant] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const [selectedUserForFriend, setSelectedUserForFriend] = useState<{
+    id: string;
+    name: string;
+    username: string;
+    imageUrl?: string;
+  } | null>(null);
 
   useEffect(() => {
     loadDiscussion();
@@ -165,6 +173,19 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
       console.error('Error deleting discussion:', error);
       alert('Failed to delete discussion. Please try again.');
     }
+  };
+
+  const handleUserClick = (userId: string, userName: string, userUsername: string, userImageUrl?: string) => {
+    // Don't allow adding yourself as a friend
+    if (userId === user?.id) return;
+    
+    setSelectedUserForFriend({
+      id: userId,
+      name: userName,
+      username: userUsername,
+      imageUrl: userImageUrl
+    });
+    setShowAddFriendModal(true);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -384,9 +405,19 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
                   <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
-                        <span className="text-white font-medium">{message.userName}</span>
+                        <button
+                          onClick={() => handleUserClick(message.userId, message.userName, message.userUsername || '', message.userImageUrl)}
+                          className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer"
+                        >
+                          {message.userName}
+                        </button>
                         {message.userUsername && (
-                          <span className="text-white/60 text-sm">@{message.userUsername}</span>
+                          <button
+                            onClick={() => handleUserClick(message.userId, message.userName, message.userUsername, message.userImageUrl)}
+                            className="text-white/60 hover:text-pink-400/70 text-sm transition-colors cursor-pointer"
+                          >
+                            @{message.userUsername}
+                          </button>
                         )}
                       </div>
                       <span className="text-white/50 text-sm">
@@ -423,6 +454,24 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
           )}
         </div>
       </div>
+
+      {/* Add Friend Modal */}
+      {showAddFriendModal && selectedUserForFriend && (
+        <AddFriendModal
+          isOpen={showAddFriendModal}
+          onClose={() => {
+            setShowAddFriendModal(false);
+            setSelectedUserForFriend(null);
+          }}
+          targetUserId={selectedUserForFriend.id}
+          targetUserName={selectedUserForFriend.name}
+          targetUserUsername={selectedUserForFriend.username}
+          targetUserImageUrl={selectedUserForFriend.imageUrl}
+          onFriendRequestSent={() => {
+            // Optionally refresh friend connections or show success message
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import CreateDiscussionModal from './CreateDiscussionModal';
 import DiscussionDetailPage from './DiscussionDetailPage';
 import BookClubDetailPage from './BookClubDetailPage';
 import ClubInvitationsNotifications from './ClubInvitationsNotifications';
+import FriendsMessagingPage from './FriendsMessagingPage';
 
 interface TailorMatesPageProps {
   onBack: () => void;
@@ -33,6 +34,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [showCreateDiscussionModal, setShowCreateDiscussionModal] = useState(false);
   const [selectedDiscussionId, setSelectedDiscussionId] = useState<string | null>(null);
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
+  const [showFriendsMessaging, setShowFriendsMessaging] = useState(false);
   
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
@@ -260,6 +262,16 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     ));
   };
 
+  // Show friends messaging page if selected
+  if (showFriendsMessaging) {
+    return (
+      <FriendsMessagingPage
+        onBack={() => setShowFriendsMessaging(false)}
+        user={user}
+      />
+    );
+  }
+
   // Show book club detail page if a club is selected
   if (selectedClubId) {
     return (
@@ -398,8 +410,8 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 }`}
               >
                 <div className="flex items-center space-x-2">
-                  <UserPlus className="w-4 h-4" />
-                  <span>Find Friends</span>
+                  <Users className="w-4 h-4" />
+                  <span>Friends</span>
                 </div>
               </button>
             </div>
@@ -781,10 +793,21 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
               <>
                 {/* Friend Connections */}
                 <div>
-                  <h3 className="text-2xl font-bold text-white mb-6 flex items-center space-x-2">
-                    <UserCheck className="w-6 h-6 text-green-400" />
-                    <span>Your Friends ({friendConnections.filter(f => f.status === 'accepted').length})</span>
-                  </h3>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                      <UserCheck className="w-6 h-6 text-green-400" />
+                      <span>Your Friends ({friendConnections.filter(f => f.status === 'accepted').length})</span>
+                    </h3>
+                    {friendConnections.filter(f => f.status === 'accepted').length > 0 && (
+                      <button
+                        onClick={() => setShowFriendsMessaging(true)}
+                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Messages</span>
+                      </button>
+                    )}
+                  </div>
                   
                   {friendConnections.filter(f => f.status === 'accepted').length === 0 ? (
                     <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
@@ -927,11 +950,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                             
                             {recommendation.matchReasons.length > 0 && (
                               <div className="space-y-1">
+                                <p className="text-white/60 text-xs font-medium mb-1">Why you might connect:</p>
                                 {recommendation.matchReasons
                                   .filter(reason => reason)
-                                  .slice(0, 2)
+                                  .slice(0, 3)
                                   .map((reason, index) => (
-                                    <p key={index} className="text-white/70 text-xs">• {reason}</p>
+                                    <p key={index} className="text-white/70 text-xs flex items-center space-x-1">
+                                      <span className="w-1 h-1 bg-pink-400 rounded-full flex-shrink-0"></span>
+                                      <span>{reason}</span>
+                                    </p>
                                   ))}
                               </div>
                             )}

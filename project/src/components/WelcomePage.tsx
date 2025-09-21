@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Book, Users, Heart, Brain, Star, ArrowRight, Sparkles, Target, Zap, BookOpen, UserCheck, Bell } from 'lucide-react';
 import Logo from './Logo';
+import NotificationsPanel from './NotificationsPanel';
 
 interface WelcomePageProps {
   onStartQuiz: () => void;
@@ -27,7 +28,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   onStartQuiz, 
   onResumeQuiz, 
   onLearnMore, 
-  hasQuizProgress = false, 
+  hasQuizProgress = false,
   isLoggedIn = false, 
   hasCompletedQuiz = false, 
   onGenerateNewBooks,
@@ -37,6 +38,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   onNavigateToProfile,
   user
 }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  
   // Debug logging to understand the state
   console.log('WelcomePage render - isLoggedIn:', isLoggedIn, 'hasCompletedQuiz:', hasCompletedQuiz, 'hasQuizProgress:', hasQuizProgress);
   console.log('WelcomePage user data:', user);
@@ -55,16 +58,21 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
             if (!isLoggedIn) {
               onAuthPrompt?.('login', 'notifications');
             } else {
-              // TODO: Open notifications panel for authenticated users
-              console.log('Open notifications panel');
+              setShowNotifications(true);
             }
           }}
-          className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+          className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-200 group relative"
           title={isLoggedIn ? "View Notifications" : "Sign in to view notifications"}
         >
           <Bell 
             className="w-6 h-6 text-white group-hover:text-amber-400 transition-colors duration-200" 
           />
+          {/* Mock notification badge - will be dynamic when connected to backend */}
+          {isLoggedIn && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
+              3
+            </span>
+          )}
         </button>
       </div>
 
@@ -213,6 +221,13 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
 
 
       </div>
+
+      {/* Notifications Panel */}
+      <NotificationsPanel
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        user={user}
+      />
     </div>
   );
 };

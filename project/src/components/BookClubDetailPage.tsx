@@ -7,6 +7,7 @@ import CreatePollModal from './CreatePollModal';
 import EditClubModal from './EditClubModal';
 import PollVotingInterface from './PollVotingInterface';
 import ClubInvitationsManager from './ClubInvitationsManager';
+import AddFriendModal from './AddFriendModal';
 
 interface BookClubDetailPageProps {
   clubId: string;
@@ -28,6 +29,13 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
   const [polls, setPolls] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'discussion' | 'polls' | 'invitations'>('discussion');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const [selectedUserForFriend, setSelectedUserForFriend] = useState<{
+    id: string;
+    name: string;
+    username: string;
+    imageUrl?: string;
+  } | null>(null);
 
   useEffect(() => {
     loadClubData();
@@ -164,6 +172,19 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
       console.error('Error deleting book club:', error);
       alert('Failed to delete book club. Please try again.');
     }
+  };
+
+  const handleUserClick = (userId: string, userName: string, userUsername: string, userImageUrl?: string) => {
+    // Don't allow adding yourself as a friend
+    if (userId === user?.id) return;
+    
+    setSelectedUserForFriend({
+      id: userId,
+      name: userName,
+      username: userUsername,
+      imageUrl: userImageUrl
+    });
+    setShowAddFriendModal(true);
   };
 
   const renderPersonalityTags = (traits: string[]) => {
@@ -454,8 +475,18 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                           )}
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
-                              <span className="text-white font-medium">{message.name}</span>
-                              <span className="text-white/50 text-xs">@{message.username}</span>
+                              <button
+                                onClick={() => handleUserClick(message.user_id, message.name, message.username, message.avatar_url)}
+                                className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer"
+                              >
+                                {message.name}
+                              </button>
+                              <button
+                                onClick={() => handleUserClick(message.user_id, message.name, message.username, message.avatar_url)}
+                                className="text-white/50 hover:text-pink-400/70 text-xs transition-colors cursor-pointer"
+                              >
+                                @{message.username}
+                              </button>
                               <span className="text-white/40 text-xs">
                                 {new Date(message.created_at).toLocaleString()}
                               </span>
@@ -542,6 +573,24 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
           club={club}
           onClose={() => setShowEditClubModal(false)}
           onClubUpdated={loadClubData}
+        />
+      )}
+
+      {/* Add Friend Modal */}
+      {showAddFriendModal && selectedUserForFriend && (
+        <AddFriendModal
+          isOpen={showAddFriendModal}
+          onClose={() => {
+            setShowAddFriendModal(false);
+            setSelectedUserForFriend(null);
+          }}
+          targetUserId={selectedUserForFriend.id}
+          targetUserName={selectedUserForFriend.name}
+          targetUserUsername={selectedUserForFriend.username}
+          targetUserImageUrl={selectedUserForFriend.imageUrl}
+          onFriendRequestSent={() => {
+            // Optionally refresh friend connections or show success message
+          }}
         />
       )}
     </div>

@@ -151,6 +151,50 @@ export interface FriendRecommendation {
   createdAt: string;
 }
 
+export interface FriendMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderName: string;
+  senderUsername: string;
+  senderImageUrl?: string;
+  content: string;
+  messageType: 'text' | 'book_recommendation';
+  bookRecommendation?: {
+    title: string;
+    author: string;
+    description?: string;
+    coverImageUrl?: string;
+    amazonUrl?: string;
+  };
+  createdAt: string;
+  isRead: boolean;
+}
+
+export interface FriendConversation {
+  id: string;
+  friendId: string;
+  friendName: string;
+  friendUsername: string;
+  friendImageUrl?: string;
+  lastMessage?: string;
+  lastMessageAt?: string;
+  unreadCount: number;
+  isOnline: boolean;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: 'club_message' | 'discussion_message' | 'friend_message' | 'club_invitation' | 'friend_request' | 'admin_promotion';
+  title: string;
+  message: string;
+  relatedId?: string; // club_id, discussion_id, friend_id, etc.
+  relatedName?: string; // club name, discussion title, friend name
+  isRead: boolean;
+  createdAt: string;
+}
+
 export interface ClubInvitation {
   id: string;
   clubId: string;
