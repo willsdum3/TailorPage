@@ -8,23 +8,23 @@ BEGIN
 END $$;
 
 SELECT 
-    routine_name as function_name,
+    r.routine_name as function_name,
     string_agg(
         CASE 
-            WHEN data_type = 'ARRAY' THEN udt_name || '[]'
-            WHEN data_type = 'USER-DEFINED' THEN udt_name 
-            ELSE data_type 
+            WHEN p.data_type = 'ARRAY' THEN p.udt_name || '[]'
+            WHEN p.data_type = 'USER-DEFINED' THEN p.udt_name 
+            ELSE p.data_type 
         END, 
         ', ' 
-        ORDER BY ordinal_position
+        ORDER BY p.ordinal_position
     ) as parameters
 FROM information_schema.routines r
 LEFT JOIN information_schema.parameters p ON r.specific_name = p.specific_name
 WHERE r.routine_schema = 'public' 
 AND r.routine_name LIKE '%discussion%'
 AND r.routine_type = 'FUNCTION'
-GROUP BY routine_name, r.specific_name
-ORDER BY routine_name;
+GROUP BY r.routine_name, r.specific_name
+ORDER BY r.routine_name;
 
 -- Create the delete_discussion function
 CREATE OR REPLACE FUNCTION delete_discussion(

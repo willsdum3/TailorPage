@@ -41,6 +41,23 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     loadData();
   }, [activeTab, user]);
 
+  const loadDiscussionsData = async () => {
+    if (!user) {
+      console.log('No user available for loading discussions');
+      return;
+    }
+
+    try {
+      console.log('Loading discussions...');
+      const discussionsData = await TailorMatesService.getDiscussions();
+      setDiscussions(discussionsData);
+      console.log('Loaded discussions:', discussionsData);
+      console.log('Discussions state updated:', discussionsData.length, 'discussions');
+    } catch (error) {
+      console.error('Error loading discussions:', error);
+    }
+  };
+
   const loadData = async () => {
     if (!user) {
       console.log('No user available for loading data');
@@ -59,11 +76,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         console.log('Loaded book clubs:', clubs);
         console.log('Book clubs state updated:', clubs.length, 'clubs');
       } else if (activeTab === 'discussions') {
-        console.log('Loading discussions...');
-        const discussionsData = await TailorMatesService.getDiscussions();
-        setDiscussions(discussionsData);
-        console.log('Loaded discussions:', discussionsData);
-        console.log('Discussions state updated:', discussionsData.length, 'discussions');
+        await loadDiscussionsData();
       } else if (activeTab === 'friends') {
         console.log('Loading friends data...');
         const [connections, recommendations] = await Promise.all([
@@ -130,7 +143,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
 
     try {
       await TailorMatesService.createDiscussion(discussionData);
-      await loadData(); // Refresh the list
+      await loadDiscussionsData(); // Refresh only discussions list for better performance
     } catch (error) {
       console.error('Error creating discussion:', error);
       throw error;
@@ -252,6 +265,14 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         discussionId={selectedDiscussionId}
         onBack={() => setSelectedDiscussionId(null)}
         user={user}
+        onDiscussionDeleted={() => {
+          // Refresh discussions list after deletion
+          loadDiscussionsData();
+        }}
+        onDiscussionLeft={() => {
+          // Refresh discussions list after leaving
+          loadDiscussionsData();
+        }}
       />
     );
   }

@@ -7,9 +7,11 @@ interface DiscussionDetailPageProps {
   discussionId: string;
   onBack: () => void;
   user: UserType | null;
+  onDiscussionDeleted?: () => void;
+  onDiscussionLeft?: () => void;
 }
 
-const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionId, onBack, user }) => {
+const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionId, onBack, user, onDiscussionDeleted, onDiscussionLeft }) => {
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [messages, setMessages] = useState<DiscussionMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -67,8 +69,23 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
 
     try {
       await TailorMatesService.joinDiscussion(discussionId);
+      
+      // Immediate UI update
       setIsParticipant(true);
-      await loadDiscussion(); // Refresh to update participant count
+      
+      // Update local discussion state
+      if (discussion) {
+        setDiscussion({
+          ...discussion,
+          participantCount: discussion.participantCount + 1,
+          isParticipant: true
+        });
+      }
+      
+      // Notify parent component to refresh discussions list
+      if (onDiscussionLeft) {
+        onDiscussionLeft(); // Reusing this callback for any participation change
+      }
     } catch (error) {
       console.error('Error joining discussion:', error);
       alert('Failed to join discussion. Please try again.');
@@ -89,8 +106,23 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     try {
       const success = await TailorMatesService.leaveDiscussion(discussionId);
       if (success) {
+        // Immediate UI update
         setIsParticipant(false);
-        await loadDiscussion(); // Refresh to update participant count
+        
+        // Notify parent component to refresh discussions list
+        if (onDiscussionLeft) {
+          onDiscussionLeft();
+        }
+        
+        // Update local discussion state
+        if (discussion) {
+          setDiscussion({
+            ...discussion,
+            participantCount: Math.max(0, discussion.participantCount - 1),
+            isParticipant: false
+          });
+        }
+        
         alert('You have left the discussion successfully.');
       } else {
         alert('Unable to leave discussion. You may be the creator of this discussion.');
@@ -119,6 +151,11 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     try {
       const result = await TailorMatesService.deleteDiscussion(discussionId);
       if (result.success) {
+        // Notify parent component to refresh discussions list
+        if (onDiscussionDeleted) {
+          onDiscussionDeleted();
+        }
+        
         alert('Discussion deleted successfully.');
         onBack(); // Navigate back to discussions list
       } else {
