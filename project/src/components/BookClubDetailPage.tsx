@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus } from 'lucide-react';
+import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus, Trash2 } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub } from '../types';
 import AdminPanel from './AdminPanel';
@@ -12,9 +12,10 @@ interface BookClubDetailPageProps {
   clubId: string;
   onBack: () => void;
   user: any;
+  onBookClubDeleted?: () => void;
 }
 
-const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack, user }) => {
+const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack, user, onBookClubDeleted }) => {
   const [club, setClub] = useState<BookClub | null>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
@@ -128,6 +129,40 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     } catch (error) {
       console.error('Error joining club:', error);
       alert('Failed to join club. Please try again.');
+    }
+  };
+
+  const handleDeleteClub = async () => {
+    if (!club || !user) {
+      alert('Please log in to delete the book club.');
+      return;
+    }
+
+    // Double confirmation for deletion
+    if (!confirm(`Are you sure you want to DELETE the book club "${club.name}"? This action cannot be undone and will remove all messages, polls, and members.`)) {
+      return;
+    }
+
+    if (!confirm('This will permanently delete the book club and all its content. Are you absolutely sure?')) {
+      return;
+    }
+
+    try {
+      const result = await TailorMatesService.deleteBookClub(clubId);
+      if (result.success) {
+        // Notify parent component to refresh book clubs list
+        if (onBookClubDeleted) {
+          onBookClubDeleted();
+        }
+        
+        alert('Book club deleted successfully.');
+        onBack(); // Navigate back to book clubs list
+      } else {
+        alert(result.error || 'Unable to delete book club. You may not be an admin.');
+      }
+    } catch (error) {
+      console.error('Error deleting book club:', error);
+      alert('Failed to delete book club. Please try again.');
     }
   };
 
@@ -284,6 +319,13 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   >
                     <Settings className="w-4 h-4" />
                     <span>Admin Panel</span>
+                  </button>
+                  <button
+                    onClick={handleDeleteClub}
+                    className="flex items-center space-x-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:text-red-200"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Delete Club</span>
                   </button>
                 </>
               )}

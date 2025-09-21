@@ -192,6 +192,36 @@ export class TailorMatesService {
     }
   }
 
+  static async deleteBookClub(clubId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('delete_book_club', {
+          p_auth_user_id: authUserId,
+          p_book_club_id: clubId
+        });
+
+      if (error) {
+        console.error('Error deleting book club:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse the JSON response from the database function
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in deleteBookClub:', error);
+      return { success: false, error: 'Failed to delete book club' };
+    }
+  }
+
   static async getBookClubDetails(clubId: string): Promise<BookClub | null> {
     try {
       const authUserId = await this.getCurrentUserId();

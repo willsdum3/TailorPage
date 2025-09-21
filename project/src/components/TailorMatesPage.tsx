@@ -58,6 +58,23 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
   };
 
+  const loadBookClubsData = async () => {
+    if (!user) {
+      console.log('No user available for loading book clubs');
+      return;
+    }
+
+    try {
+      console.log('Loading book clubs...');
+      const clubs = await TailorMatesService.getBookClubs();
+      setBookClubs(clubs);
+      console.log('Loaded book clubs:', clubs);
+      console.log('Book clubs state updated:', clubs.length, 'clubs');
+    } catch (error) {
+      console.error('Error loading book clubs:', error);
+    }
+  };
+
   const loadData = async () => {
     if (!user) {
       console.log('No user available for loading data');
@@ -70,11 +87,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       
       // Load data for the current active tab
       if (activeTab === 'clubs') {
-        console.log('Loading book clubs...');
-        const clubs = await TailorMatesService.getBookClubs();
-        setBookClubs(clubs);
-        console.log('Loaded book clubs:', clubs);
-        console.log('Book clubs state updated:', clubs.length, 'clubs');
+        await loadBookClubsData();
       } else if (activeTab === 'discussions') {
         await loadDiscussionsData();
       } else if (activeTab === 'friends') {
@@ -125,7 +138,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       };
       
       await TailorMatesService.createBookClub(mappedClubData);
-      await loadData(); // Refresh the list
+      await loadBookClubsData(); // Refresh only book clubs list for better performance
     } catch (error: any) {
       console.error('Error creating club:', error);
       // Show more specific error message
@@ -254,6 +267,10 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         clubId={selectedClubId}
         onBack={() => setSelectedClubId(null)}
         user={user}
+        onBookClubDeleted={() => {
+          // Refresh book clubs list after deletion
+          loadBookClubsData();
+        }}
       />
     );
   }
