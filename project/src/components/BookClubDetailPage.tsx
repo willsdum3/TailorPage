@@ -320,13 +320,6 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                     <Settings className="w-4 h-4" />
                     <span>Admin Panel</span>
                   </button>
-                  <button
-                    onClick={handleDeleteClub}
-                    className="flex items-center space-x-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:text-red-200"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Delete Club</span>
-                  </button>
                 </>
               )}
               {club.isMember ? (
@@ -530,6 +523,7 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
           onMembersUpdate={loadClubData}
           onClubUpdate={loadClubData}
           onClose={() => setShowAdminPanel(false)}
+          onDeleteClub={handleDeleteClub}
         />
       )}
 

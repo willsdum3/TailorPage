@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Users, UserPlus, UserMinus, Crown, X } from 'lucide-react';
+import { Settings, Users, UserPlus, UserMinus, Crown, X, Trash2 } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import InviteUserModal from './InviteUserModal';
 
@@ -10,6 +10,7 @@ interface AdminPanelProps {
   onMembersUpdate: () => void;
   onClubUpdate: () => void;
   onClose: () => void;
+  onDeleteClub?: () => void;
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ 
@@ -18,7 +19,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   clubData,
   onMembersUpdate, 
   onClubUpdate, 
-  onClose 
+  onClose,
+  onDeleteClub
 }) => {
   const [activeTab, setActiveTab] = useState<'members' | 'settings'>('members');
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -325,10 +327,24 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
               </div>
 
-              {/* Additional Settings Placeholder */}
-              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                <h4 className="text-lg font-medium text-white mb-2">Additional Settings</h4>
-                <p className="text-white/60 text-sm">More club settings will be available soon...</p>
+              {/* Delete Club Section */}
+              <div className="bg-red-500/5 rounded-xl p-6 border border-red-500/20">
+                <h4 className="text-lg font-medium text-red-300 mb-2">Danger Zone</h4>
+                <p className="text-red-200/70 text-sm mb-4">
+                  Permanently delete this book club and all associated data. This action cannot be undone.
+                </p>
+                {onDeleteClub && (
+                  <button
+                    onClick={() => {
+                      onClose(); // Close admin panel first
+                      onDeleteClub(); // Then trigger delete
+                    }}
+                    className="flex items-center space-x-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:text-red-200"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Delete Book Club</span>
+                  </button>
+                )}
               </div>
             </div>
           )}
