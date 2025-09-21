@@ -25,70 +25,8 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose
     
     try {
       setIsLoading(true);
-      // This will be implemented in the service
-      // const notificationsData = await TailorMatesService.getNotifications();
-      // setNotifications(notificationsData);
-      
-      // Mock data for now
-      const mockNotifications: Notification[] = [
-        {
-          id: '1',
-          userId: user.id,
-          type: 'friend_request',
-          title: 'New Friend Request',
-          message: 'Sarah Johnson wants to be your friend',
-          relatedId: 'user-123',
-          relatedName: 'Sarah Johnson',
-          isRead: false,
-          createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() // 30 minutes ago
-        },
-        {
-          id: '2',
-          userId: user.id,
-          type: 'club_message',
-          title: 'New Club Message',
-          message: 'New message in "Mystery Book Club"',
-          relatedId: 'club-456',
-          relatedName: 'Mystery Book Club',
-          isRead: false,
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() // 2 hours ago
-        },
-        {
-          id: '3',
-          userId: user.id,
-          type: 'admin_promotion',
-          title: 'You\'re now an Admin!',
-          message: 'You have been promoted to admin in "Sci-Fi Readers"',
-          relatedId: 'club-789',
-          relatedName: 'Sci-Fi Readers',
-          isRead: true,
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() // 1 day ago
-        },
-        {
-          id: '4',
-          userId: user.id,
-          type: 'discussion_message',
-          title: 'Discussion Reply',
-          message: 'Someone replied to your discussion "Best Fantasy Books"',
-          relatedId: 'discussion-101',
-          relatedName: 'Best Fantasy Books',
-          isRead: true,
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString() // 2 days ago
-        },
-        {
-          id: '5',
-          userId: user.id,
-          type: 'friend_message',
-          title: 'New Message',
-          message: 'Alex sent you a book recommendation',
-          relatedId: 'user-456',
-          relatedName: 'Alex Thompson',
-          isRead: true,
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString() // 3 days ago
-        }
-      ];
-      
-      setNotifications(mockNotifications);
+      const notificationsData = await TailorMatesService.getNotifications(50, 0, false);
+      setNotifications(notificationsData);
     } catch (error) {
       console.error('Error loading notifications:', error);
     } finally {
@@ -98,14 +36,15 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
-      // This will be implemented in the service
-      // await TailorMatesService.markNotificationAsRead(notificationId);
+      const result = await TailorMatesService.markNotificationAsRead(notificationId);
       
-      setNotifications(prev =>
-        prev.map(notif =>
-          notif.id === notificationId ? { ...notif, isRead: true } : notif
-        )
-      );
+      if (result.success) {
+        setNotifications(prev =>
+          prev.map(notif =>
+            notif.id === notificationId ? { ...notif, isRead: true } : notif
+          )
+        );
+      }
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -113,12 +52,13 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose
 
   const handleMarkAllAsRead = async () => {
     try {
-      // This will be implemented in the service
-      // await TailorMatesService.markAllNotificationsAsRead();
+      const result = await TailorMatesService.markAllNotificationsAsRead();
       
-      setNotifications(prev =>
-        prev.map(notif => ({ ...notif, isRead: true }))
-      );
+      if (result.success) {
+        setNotifications(prev =>
+          prev.map(notif => ({ ...notif, isRead: true }))
+        );
+      }
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
     }
@@ -126,12 +66,13 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose
 
   const handleDeleteNotification = async (notificationId: string) => {
     try {
-      // This will be implemented in the service
-      // await TailorMatesService.deleteNotification(notificationId);
+      const result = await TailorMatesService.deleteNotification(notificationId);
       
-      setNotifications(prev =>
-        prev.filter(notif => notif.id !== notificationId)
-      );
+      if (result.success) {
+        setNotifications(prev =>
+          prev.filter(notif => notif.id !== notificationId)
+        );
+      }
     } catch (error) {
       console.error('Error deleting notification:', error);
     }

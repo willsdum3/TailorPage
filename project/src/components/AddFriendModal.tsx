@@ -30,14 +30,17 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({
     try {
       setIsLoading(true);
       
-      // This will be implemented in the service
-      // await TailorMatesService.sendFriendRequest(targetUserId, message);
+      const result = await TailorMatesService.sendFriendRequest(targetUserId, message || undefined);
       
-      alert(`Friend request sent to ${targetUserName}!`);
-      if (onFriendRequestSent) {
-        onFriendRequestSent();
+      if (result.success) {
+        alert(`Friend request sent to ${targetUserName}!`);
+        if (onFriendRequestSent) {
+          onFriendRequestSent();
+        }
+        onClose();
+      } else {
+        alert(result.error || 'Failed to send friend request.');
       }
-      onClose();
     } catch (error) {
       console.error('Error sending friend request:', error);
       alert('Failed to send friend request. Please try again.');

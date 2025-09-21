@@ -5,6 +5,9 @@ import {
   DiscussionMessage, 
   FriendConnection, 
   FriendRecommendation,
+  FriendConversation,
+  FriendMessage,
+  Notification,
   CreateBookClubData,
   CreateBookClubServiceData,
   CreateDiscussionData,
@@ -1387,6 +1390,371 @@ export class TailorMatesService {
     } catch (error) {
       console.error('Error in cleanupExpiredPolls:', error);
       return { success: false, message: 'Failed to cleanup polls' };
+    }
+  }
+
+  // =====================================================
+  // FRIENDS MESSAGING SYSTEM
+  // =====================================================
+
+  static async getFriendConversations(): Promise<FriendConversation[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_friend_conversations', {
+          p_auth_user_id: authUserId
+        });
+
+      if (error) {
+        console.error('Error getting friend conversations:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getFriendConversations:', error);
+      return [];
+    }
+  }
+
+  static async getFriendMessages(conversationId: string): Promise<FriendMessage[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_friend_messages', {
+          p_auth_user_id: authUserId,
+          p_conversation_id: conversationId,
+          p_limit: 50,
+          p_offset: 0
+        });
+
+      if (error) {
+        console.error('Error getting friend messages:', error);
+        return [];
+      }
+
+      // Parse JSON response if needed
+      const messages = typeof data === 'string' ? JSON.parse(data) : data;
+      return messages || [];
+    } catch (error) {
+      console.error('Error in getFriendMessages:', error);
+      return [];
+    }
+  }
+
+  static async sendFriendMessage(friendId: string, content: string): Promise<FriendMessage | null> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('send_friend_message', {
+          p_auth_user_id: authUserId,
+          p_friend_id: friendId,
+          p_content: content
+        });
+
+      if (error) {
+        console.error('Error sending friend message:', error);
+        return null;
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return result.message;
+      } else {
+        console.error('Failed to send message:', result.error);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error in sendFriendMessage:', error);
+      return null;
+    }
+  }
+
+  static async sendBookRecommendation(
+    friendId: string, 
+    bookTitle: string, 
+    bookAuthor: string, 
+    description?: string, 
+    amazonUrl?: string,
+    coverImageUrl?: string
+  ): Promise<FriendMessage | null> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('send_book_recommendation', {
+          p_auth_user_id: authUserId,
+          p_friend_id: friendId,
+          p_book_title: bookTitle,
+          p_book_author: bookAuthor,
+          p_description: description,
+          p_amazon_url: amazonUrl,
+          p_cover_image_url: coverImageUrl
+        });
+
+      if (error) {
+        console.error('Error sending book recommendation:', error);
+        return null;
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return result.message;
+      } else {
+        console.error('Failed to send book recommendation:', result.error);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error in sendBookRecommendation:', error);
+      return null;
+    }
+  }
+
+  // =====================================================
+  // FRIENDS MANAGEMENT SYSTEM
+  // =====================================================
+
+  static async sendFriendRequest(targetUserId: string, message?: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('send_friend_request', {
+          p_auth_user_id: authUserId,
+          p_target_user_id: targetUserId,
+          p_message: message
+        });
+
+      if (error) {
+        console.error('Error sending friend request:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in sendFriendRequest:', error);
+      return { success: false, error: 'Failed to send friend request' };
+    }
+  }
+
+  static async removeFriend(friendId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('remove_friend', {
+          p_auth_user_id: authUserId,
+          p_friend_id: friendId
+        });
+
+      if (error) {
+        console.error('Error removing friend:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in removeFriend:', error);
+      return { success: false, error: 'Failed to remove friend' };
+    }
+  }
+
+  static async blockFriend(friendId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('block_friend', {
+          p_auth_user_id: authUserId,
+          p_friend_id: friendId
+        });
+
+      if (error) {
+        console.error('Error blocking friend:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in blockFriend:', error);
+      return { success: false, error: 'Failed to block friend' };
+    }
+  }
+
+  // =====================================================
+  // NOTIFICATIONS SYSTEM
+  // =====================================================
+
+  static async getNotifications(limit: number = 50, offset: number = 0, unreadOnly: boolean = false): Promise<Notification[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_notifications', {
+          p_auth_user_id: authUserId,
+          p_limit: limit,
+          p_offset: offset,
+          p_unread_only: unreadOnly
+        });
+
+      if (error) {
+        console.error('Error getting notifications:', error);
+        return [];
+      }
+
+      // Parse JSON response if needed
+      const notifications = typeof data === 'string' ? JSON.parse(data) : data;
+      return notifications || [];
+    } catch (error) {
+      console.error('Error in getNotifications:', error);
+      return [];
+    }
+  }
+
+  static async markNotificationAsRead(notificationId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('mark_notification_as_read', {
+          p_auth_user_id: authUserId,
+          p_notification_id: notificationId
+        });
+
+      if (error) {
+        console.error('Error marking notification as read:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in markNotificationAsRead:', error);
+      return { success: false, error: 'Failed to mark notification as read' };
+    }
+  }
+
+  static async markAllNotificationsAsRead(): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('mark_all_notifications_as_read', {
+          p_auth_user_id: authUserId
+        });
+
+      if (error) {
+        console.error('Error marking all notifications as read:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in markAllNotificationsAsRead:', error);
+      return { success: false, error: 'Failed to mark all notifications as read' };
+    }
+  }
+
+  static async deleteNotification(notificationId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('delete_notification', {
+          p_auth_user_id: authUserId,
+          p_notification_id: notificationId
+        });
+
+      if (error) {
+        console.error('Error deleting notification:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in deleteNotification:', error);
+      return { success: false, error: 'Failed to delete notification' };
+    }
+  }
+
+  static async getUnreadNotificationCount(): Promise<number> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_unread_notification_count', {
+          p_auth_user_id: authUserId
+        });
+
+      if (error) {
+        console.error('Error getting unread notification count:', error);
+        return 0;
+      }
+
+      return data || 0;
+    } catch (error) {
+      console.error('Error in getUnreadNotificationCount:', error);
+      return 0;
     }
   }
 }

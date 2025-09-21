@@ -47,12 +47,8 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     if (!user) return;
     try {
       setIsLoading(true);
-      // This will be implemented in the service
-      // const conversationsData = await TailorMatesService.getFriendConversations();
-      // setConversations(conversationsData);
-      
-      // Mock data for now
-      setConversations([]);
+      const conversationsData = await TailorMatesService.getFriendConversations();
+      setConversations(conversationsData);
     } catch (error) {
       console.error('Error loading conversations:', error);
     } finally {
@@ -62,12 +58,8 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
   const loadMessages = async (conversationId: string) => {
     try {
-      // This will be implemented in the service
-      // const messagesData = await TailorMatesService.getFriendMessages(conversationId);
-      // setMessages(messagesData);
-      
-      // Mock data for now
-      setMessages([]);
+      const messagesData = await TailorMatesService.getFriendMessages(conversationId);
+      setMessages(messagesData);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -81,12 +73,17 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     try {
       setIsSending(true);
       
-      // This will be implemented in the service
-      // await TailorMatesService.sendFriendMessage(selectedConversation.id, newMessage.trim());
+      const messageResult = await TailorMatesService.sendFriendMessage(selectedConversation.friendId, newMessage.trim());
       
-      setNewMessage('');
-      // Reload messages after sending
-      await loadMessages(selectedConversation.id);
+      if (messageResult) {
+        setNewMessage('');
+        // Reload messages after sending
+        await loadMessages(selectedConversation.id);
+        // Refresh conversations to update last message
+        await loadConversations();
+      } else {
+        alert('Failed to send message. Please try again.');
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       alert('Failed to send message. Please try again.');
@@ -106,13 +103,24 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     try {
       setIsSending(true);
       
-      // This will be implemented in the service
-      // await TailorMatesService.sendBookRecommendation(selectedConversation.id, bookRecommendation);
+      const messageResult = await TailorMatesService.sendBookRecommendation(
+        selectedConversation.friendId,
+        bookRecommendation.title,
+        bookRecommendation.author,
+        bookRecommendation.description || undefined,
+        bookRecommendation.amazonUrl || undefined
+      );
       
-      setBookRecommendation({ title: '', author: '', description: '', amazonUrl: '' });
-      setShowBookRecommendation(false);
-      // Reload messages after sending
-      await loadMessages(selectedConversation.id);
+      if (messageResult) {
+        setBookRecommendation({ title: '', author: '', description: '', amazonUrl: '' });
+        setShowBookRecommendation(false);
+        // Reload messages after sending
+        await loadMessages(selectedConversation.id);
+        // Refresh conversations to update last message
+        await loadConversations();
+      } else {
+        alert('Failed to send book recommendation. Please try again.');
+      }
     } catch (error) {
       console.error('Error sending book recommendation:', error);
       alert('Failed to send book recommendation. Please try again.');
@@ -127,13 +135,17 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     }
 
     try {
-      // This will be implemented in the service
-      // await TailorMatesService.removeFriend(friendId);
+      const result = await TailorMatesService.removeFriend(friendId);
       
-      // Refresh conversations
-      await loadConversations();
-      setSelectedConversation(null);
-      setMessages([]);
+      if (result.success) {
+        // Refresh conversations
+        await loadConversations();
+        setSelectedConversation(null);
+        setMessages([]);
+        alert('Friend removed successfully.');
+      } else {
+        alert(result.error || 'Failed to remove friend.');
+      }
     } catch (error) {
       console.error('Error removing friend:', error);
       alert('Failed to remove friend. Please try again.');
@@ -146,13 +158,17 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     }
 
     try {
-      // This will be implemented in the service
-      // await TailorMatesService.blockFriend(friendId);
+      const result = await TailorMatesService.blockFriend(friendId);
       
-      // Refresh conversations
-      await loadConversations();
-      setSelectedConversation(null);
-      setMessages([]);
+      if (result.success) {
+        // Refresh conversations
+        await loadConversations();
+        setSelectedConversation(null);
+        setMessages([]);
+        alert('Friend blocked successfully.');
+      } else {
+        alert(result.error || 'Failed to block friend.');
+      }
     } catch (error) {
       console.error('Error blocking friend:', error);
       alert('Failed to block friend. Please try again.');
