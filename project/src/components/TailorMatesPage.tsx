@@ -899,8 +899,22 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                           return (
                             <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
                               <div className="flex items-center space-x-3 mb-3">
-                                <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                                  <UserIcon className="w-6 h-6 text-white" />
+                                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                                  {friend.friendImageUrl ? (
+                                    <img 
+                                      src={friend.friendImageUrl} 
+                                      alt={`${friend.friendName || 'User'}'s profile`}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        // Fallback to gradient icon if image fails to load
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${friend.friendImageUrl ? 'hidden' : 'flex'}`}>
+                                    <UserIcon className="w-6 h-6 text-white" />
+                                  </div>
                                 </div>
                                 <div className="flex-1">
                                   <h4 className="text-white font-medium">{friend.friendName || 'Unknown'}</h4>
@@ -939,8 +953,21 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                             <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
-                                  <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                                    <UserIcon className="w-5 h-5 text-white" />
+                                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                                    {friend.friendImageUrl ? (
+                                      <img 
+                                        src={friend.friendImageUrl} 
+                                        alt={`${friend.friendName || 'User'}'s profile`}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display = 'none';
+                                          e.currentTarget.nextElementSibling.style.display = 'flex';
+                                        }}
+                                      />
+                                    ) : null}
+                                    <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${friend.friendImageUrl ? 'hidden' : 'flex'}`}>
+                                      <UserIcon className="w-5 h-5 text-white" />
+                                    </div>
                                   </div>
                                   <div>
                                     <h4 className="text-white font-medium">{friend.friendName || 'Unknown'}</h4>
@@ -981,8 +1008,21 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                           <div key={request.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                  <UserIcon className="w-5 h-5 text-white" />
+                                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                                  {request.friendImageUrl ? (
+                                    <img 
+                                      src={request.friendImageUrl} 
+                                      alt={`${request.friendName || 'User'}'s profile`}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div className={`w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center ${request.friendImageUrl ? 'hidden' : 'flex'}`}>
+                                    <UserIcon className="w-5 h-5 text-white" />
+                                  </div>
                                 </div>
                                 <div>
                                   <h4 className="text-white font-medium">{request.friendName || 'Unknown'}</h4>
@@ -1059,8 +1099,21 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         return (
                           <div key={recommendation.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
                             <div className="flex items-center space-x-3 mb-3">
-                              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                                <UserIcon className="w-6 h-6 text-white" />
+                              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                                {recommendation.recommendedUserImageUrl ? (
+                                  <img 
+                                    src={recommendation.recommendedUserImageUrl} 
+                                    alt={`${recommendation.recommendedUserName || 'User'}'s profile`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                      e.currentTarget.nextElementSibling.style.display = 'flex';
+                                    }}
+                                  />
+                                ) : null}
+                                <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${recommendation.recommendedUserImageUrl ? 'hidden' : 'flex'}`}>
+                                  <UserIcon className="w-6 h-6 text-white" />
+                                </div>
                               </div>
                               <div className="flex-1">
                                 <h4 className="text-white font-medium">{recommendation.recommendedUserName || 'Unknown'}</h4>
