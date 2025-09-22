@@ -174,33 +174,34 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     }
   };
 
-  const handleUserClick = async (userId: string, userName: string, userUsername: string, userImageUrl?: string) => {
-    try {
-      // Get current user's internal ID to prevent self-friend requests
-      const currentInternalUserId = await TailorMatesService.getCurrentInternalUserId();
-      if (userId === currentInternalUserId) {
-        alert('You cannot send a friend request to yourself');
-        return;
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Get current user ID on component mount
+  useEffect(() => {
+    const getCurrentUserId = async () => {
+      try {
+        const userId = await TailorMatesService.getCurrentInternalUserId();
+        setCurrentUserId(userId);
+      } catch (error) {
+        console.error('Error getting current user ID:', error);
       }
-      
-      setSelectedUserForFriend({
-        id: userId,
-        name: userName,
-        username: userUsername,
-        imageUrl: userImageUrl
-      });
-      setShowAddFriendModal(true);
-    } catch (error) {
-      console.error('Error checking user ID:', error);
-      // If we can't get the current user ID, just proceed (the service will handle the validation)
-      setSelectedUserForFriend({
-        id: userId,
-        name: userName,
-        username: userUsername,
-        imageUrl: userImageUrl
-      });
-      setShowAddFriendModal(true);
+    };
+    getCurrentUserId();
+  }, []);
+
+  const handleUserClick = (userId: string, userName: string, userUsername: string, userImageUrl?: string) => {
+    // Don't allow clicking on your own username
+    if (userId === currentUserId) {
+      return;
     }
+    
+    setSelectedUserForFriend({
+      id: userId,
+      name: userName,
+      username: userUsername,
+      imageUrl: userImageUrl
+    });
+    setShowAddFriendModal(true);
   };
 
   const renderPersonalityTags = (traits: string[]) => {
@@ -491,18 +492,30 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                           )}
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
-                              <button
-                                onClick={() => handleUserClick(message.user_id, message.name, message.username, message.avatar_url)}
-                                className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer"
-                              >
-                                {message.name}
-                              </button>
-                              <button
-                                onClick={() => handleUserClick(message.user_id, message.name, message.username, message.avatar_url)}
-                                className="text-white/50 hover:text-pink-400/70 text-xs transition-colors cursor-pointer"
-                              >
-                                @{message.username}
-                              </button>
+                              {message.user_id === currentUserId ? (
+                                <span className="text-white font-medium">
+                                  {message.name}
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => handleUserClick(message.user_id, message.name, message.username, message.avatar_url)}
+                                  className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer"
+                                >
+                                  {message.name}
+                                </button>
+                              )}
+                              {message.user_id === currentUserId ? (
+                                <span className="text-white/50 text-xs">
+                                  @{message.username}
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => handleUserClick(message.user_id, message.name, message.username, message.avatar_url)}
+                                  className="text-white/50 hover:text-pink-400/70 text-xs transition-colors cursor-pointer"
+                                >
+                                  @{message.username}
+                                </button>
+                              )}
                               <span className="text-white/40 text-xs">
                                 {new Date(message.created_at).toLocaleString()}
                               </span>
