@@ -40,7 +40,8 @@ BEGIN
     
     RETURN QUERY
     SELECT DISTINCT
-        gen_random_uuid() as id, -- Generate a conversation ID for now
+        -- Create a consistent conversation ID based on the two user IDs
+        md5(LEAST(fr.requester_id, fr.target_id)::text || GREATEST(fr.requester_id, fr.target_id)::text)::uuid as id,
         CASE 
             WHEN fr.requester_id = v_user_id THEN fr.target_id 
             ELSE fr.requester_id 
@@ -133,10 +134,15 @@ CREATE OR REPLACE FUNCTION send_friend_message(
 DECLARE
     v_user_id UUID;
     v_message_id UUID;
+    v_conversation_id UUID;
+    v_user_name TEXT;
+    v_user_username TEXT;
+    v_user_avatar_url TEXT;
     v_result JSONB;
 BEGIN
     -- Get the user ID from auth_user_id
-    SELECT users.id INTO v_user_id
+    SELECT users.id, users.name, users.username, users.avatar_url 
+    INTO v_user_id, v_user_name, v_user_username, v_user_avatar_url
     FROM users 
     WHERE auth_user_id = p_auth_user_id;
     
@@ -144,19 +150,23 @@ BEGIN
         RAISE EXCEPTION 'User not found';
     END IF;
     
-    -- For now, just return a success response
-    -- In a full implementation, this would create the message in the database
+    -- Create a consistent conversation ID based on the two user IDs
+    v_conversation_id := md5(LEAST(v_user_id, p_friend_id)::text || GREATEST(v_user_id, p_friend_id)::text)::uuid;
+    
+    -- Generate a message ID
     v_message_id := gen_random_uuid();
     
+    -- For now, just return a success response with the message data
+    -- In a full implementation, this would insert into friend_messages table
     v_result := jsonb_build_object(
         'success', true,
         'message', jsonb_build_object(
             'id', v_message_id,
-            'conversationId', gen_random_uuid(),
+            'conversationId', v_conversation_id,
             'senderId', v_user_id,
-            'senderName', 'You',
-            'senderUsername', 'you',
-            'senderImageUrl', NULL,
+            'senderName', v_user_name,
+            'senderUsername', v_user_username,
+            'senderImageUrl', v_user_avatar_url,
             'content', p_content,
             'messageType', 'text',
             'bookRecommendation', NULL,
