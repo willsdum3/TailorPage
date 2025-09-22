@@ -29,6 +29,11 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [friendRecommendations, setFriendRecommendations] = useState<FriendRecommendation[]>([]);
   const [friendRequests, setFriendRequests] = useState<FriendConnection[]>([]);
   
+  // Ensure arrays are never undefined
+  const safeFriendConnections = friendConnections || [];
+  const safeFriendRecommendations = friendRecommendations || [];
+  const safeFriendRequests = friendRequests || [];
+  
   // UI states
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateClubModal, setShowCreateClubModal] = useState(false);
@@ -839,7 +844,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   <p className="text-white/70">Connect with fellow book lovers and share recommendations</p>
                   {/* Debug info */}
                   <div className="text-xs text-white/40 mt-2">
-                    Debug: connections={friendConnections.length}, recommendations={friendRecommendations.length}, requests={friendRequests.length}
+                    Debug: connections={safeFriendConnections.length}, recommendations={safeFriendRecommendations.length}, requests={safeFriendRequests.length}
                   </div>
                 </div>
                 {/* Friend Connections */}
@@ -847,9 +852,9 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
                       <UserCheck className="w-6 h-6 text-green-400" />
-                      <span>Your Friends ({friendConnections.filter(f => f.status === 'accepted').length})</span>
+                      <span>Your Friends ({safeFriendConnections.filter(f => f.status === 'accepted').length})</span>
                     </h3>
-                    {friendConnections.filter(f => f.status === 'accepted').length > 0 && (
+                    {safeFriendConnections.filter(f => f.status === 'accepted').length > 0 && (
                       <button
                         onClick={() => setShowFriendsMessaging(true)}
                         className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
@@ -860,7 +865,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     )}
                   </div>
                   
-                  {friendConnections.filter(f => f.status === 'accepted').length === 0 ? (
+                  {safeFriendConnections.filter(f => f.status === 'accepted').length === 0 ? (
                     <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
                       <UserCheck className="w-16 h-16 text-white/30 mx-auto mb-4" />
                       <p className="text-white/70 mb-4">You haven't connected with any friends yet.</p>
@@ -868,7 +873,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {friendConnections
+                      {safeFriendConnections
                         .filter(f => f.status === 'accepted')
                         .map((friend) => (
                           <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
@@ -896,14 +901,14 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 </div>
 
                 {/* Pending Friend Requests */}
-                {friendConnections.filter(f => f.status === 'pending').length > 0 && (
+                {safeFriendConnections.filter(f => f.status === 'pending').length > 0 && (
                   <div>
                     <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
                       <Clock className="w-5 h-5 text-yellow-400" />
-                      <span>Pending Requests ({friendConnections.filter(f => f.status === 'pending').length})</span>
+                      <span>Pending Requests ({safeFriendConnections.filter(f => f.status === 'pending').length})</span>
                     </h3>
                     <div className="space-y-3">
-                      {friendConnections
+                      {safeFriendConnections
                         .filter(f => f.status === 'pending')
                         .map((friend) => (
                           <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
@@ -936,14 +941,14 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 )}
 
                 {/* Incoming Friend Requests */}
-                {friendRequests.length > 0 && (
+                {safeFriendRequests.length > 0 && (
                   <div>
                     <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
                       <UserPlus className="w-5 h-5 text-blue-400" />
-                      <span>Friend Requests ({friendRequests.length})</span>
+                      <span>Friend Requests ({safeFriendRequests.length})</span>
                     </h3>
                     <div className="space-y-3">
-                      {friendRequests.map((request) => (
+                      {safeFriendRequests.map((request) => (
                         <div key={request.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
@@ -981,7 +986,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
                       <Sparkles className="w-6 h-6 text-amber-400" />
-                      <span>Recommended Friends ({friendRecommendations.length})</span>
+                      <span>Recommended Friends ({safeFriendRecommendations.length})</span>
                     </h3>
                     <button
                       onClick={handleGenerateRecommendations}
@@ -1005,7 +1010,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         Take Personality Quiz
                       </button>
                     </div>
-                  ) : friendRecommendations.length === 0 ? (
+                  ) : safeFriendRecommendations.length === 0 ? (
                     <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
                       <Sparkles className="w-16 h-16 text-white/30 mx-auto mb-4" />
                       <p className="text-white/70 mb-4">No recommendations available.</p>
@@ -1018,7 +1023,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {friendRecommendations.map((recommendation) => (
+                      {safeFriendRecommendations.map((recommendation) => (
                         <div key={recommendation.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
                           <div className="flex items-center space-x-3 mb-3">
                             <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
