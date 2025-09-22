@@ -175,17 +175,33 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     }
   };
 
-  const handleUserClick = (userId: string, userName: string, userUsername: string, userImageUrl?: string) => {
-    // Don't allow adding yourself as a friend
-    if (userId === user?.id) return;
-    
-    setSelectedUserForFriend({
-      id: userId,
-      name: userName,
-      username: userUsername,
-      imageUrl: userImageUrl
-    });
-    setShowAddFriendModal(true);
+  const handleUserClick = async (userId: string, userName: string, userUsername: string, userImageUrl?: string) => {
+    try {
+      // Get current user's internal ID to prevent self-friend requests
+      const currentInternalUserId = await TailorMatesService.getCurrentInternalUserId();
+      if (userId === currentInternalUserId) {
+        alert('You cannot send a friend request to yourself');
+        return;
+      }
+      
+      setSelectedUserForFriend({
+        id: userId,
+        name: userName,
+        username: userUsername,
+        imageUrl: userImageUrl
+      });
+      setShowAddFriendModal(true);
+    } catch (error) {
+      console.error('Error checking user ID:', error);
+      // If we can't get the current user ID, just proceed (the service will handle the validation)
+      setSelectedUserForFriend({
+        id: userId,
+        name: userName,
+        username: userUsername,
+        imageUrl: userImageUrl
+      });
+      setShowAddFriendModal(true);
+    }
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {

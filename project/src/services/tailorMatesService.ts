@@ -26,6 +26,21 @@ export class TailorMatesService {
     return user.id;
   }
 
+  // Helper function to get current user's internal user ID from users table
+  static async getCurrentInternalUserId(): Promise<string> {
+    const authUserId = await this.getCurrentUserId();
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id')
+      .eq('auth_user_id', authUserId)
+      .single();
+
+    if (error || !user) {
+      throw new Error('User not found in database');
+    }
+    return user.id;
+  }
+
   // Helper function to check if user exists in database
   static async ensureUserExists(authUserId: string): Promise<boolean> {
     try {
@@ -831,12 +846,11 @@ export class TailorMatesService {
 
   static async getFriendRequests(): Promise<FriendConnection[]> {
     try {
-      const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
+      const currentUserId = await this.getCurrentInternalUserId();
 
       const { data, error } = await supabase
         .rpc('get_friend_requests', {
-          p_auth_user_id: authUserId
+          p_auth_user_id: currentUserId
         });
 
       if (error) {
@@ -853,12 +867,11 @@ export class TailorMatesService {
 
   static async acceptFriendRequest(requesterUserId: string): Promise<{success: boolean, error?: string}> {
     try {
-      const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
+      const currentUserId = await this.getCurrentInternalUserId();
 
       const { data, error } = await supabase
         .rpc('accept_friend_request', {
-          p_auth_user_id: authUserId,
+          p_auth_user_id: currentUserId,
           p_requester_user_id: requesterUserId
         });
 
@@ -883,12 +896,11 @@ export class TailorMatesService {
 
   static async rejectFriendRequest(requesterUserId: string): Promise<{success: boolean, error?: string}> {
     try {
-      const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
+      const currentUserId = await this.getCurrentInternalUserId();
 
       const { data, error } = await supabase
         .rpc('reject_friend_request', {
-          p_auth_user_id: authUserId,
+          p_auth_user_id: currentUserId,
           p_requester_user_id: requesterUserId
         });
 
@@ -913,12 +925,11 @@ export class TailorMatesService {
 
   static async getFriendConnections(): Promise<FriendConnection[]> {
     try {
-      const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
+      const currentUserId = await this.getCurrentInternalUserId();
 
       const { data, error } = await supabase
         .rpc('get_friend_connections', {
-          p_auth_user_id: authUserId
+          p_auth_user_id: currentUserId
         });
 
       if (error) {
@@ -935,12 +946,11 @@ export class TailorMatesService {
 
   static async generateFriendRecommendations(): Promise<number> {
     try {
-      const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
+      const currentUserId = await this.getCurrentInternalUserId();
 
       const { data, error } = await supabase
         .rpc('generate_friend_recommendations', {
-          p_auth_user_id: authUserId
+          p_auth_user_id: currentUserId
         });
 
       if (error) {
@@ -957,12 +967,11 @@ export class TailorMatesService {
 
   static async getFriendRecommendations(): Promise<FriendRecommendation[]> {
     try {
-      const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
+      const currentUserId = await this.getCurrentInternalUserId();
 
       const { data, error } = await supabase
         .rpc('get_friend_recommendations', {
-          p_auth_user_id: authUserId
+          p_auth_user_id: currentUserId
         });
 
       if (error) {
@@ -1564,12 +1573,16 @@ export class TailorMatesService {
 
   static async sendFriendRequest(targetUserId: string, message?: string): Promise<{success: boolean, error?: string}> {
     try {
-      const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
+      const currentUserId = await this.getCurrentInternalUserId();
+      
+      // Prevent users from sending friend requests to themselves
+      if (currentUserId === targetUserId) {
+        return { success: false, error: 'You cannot send a friend request to yourself' };
+      }
 
       const { data, error } = await supabase
         .rpc('send_friend_request', {
-          p_auth_user_id: authUserId,
+          p_auth_user_id: currentUserId,
           p_target_user_id: targetUserId,
           p_message: message
         });
