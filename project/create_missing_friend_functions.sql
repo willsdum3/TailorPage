@@ -29,7 +29,7 @@ RETURNS TABLE(
     friend_name TEXT,
     friend_username TEXT,
     friend_image_url TEXT,
-    status TEXT,
+    status CHARACTER VARYING(20),
     personality_match_score INTEGER,
     created_at TIMESTAMP WITH TIME ZONE
 ) 
@@ -63,7 +63,7 @@ RETURNS TABLE(
     friend_name TEXT,
     friend_username TEXT,
     friend_image_url TEXT,
-    status TEXT,
+    status CHARACTER VARYING(20),
     personality_match_score INTEGER,
     created_at TIMESTAMP WITH TIME ZONE
 ) 

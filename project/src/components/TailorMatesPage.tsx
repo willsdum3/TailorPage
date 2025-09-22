@@ -29,10 +29,10 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [friendRecommendations, setFriendRecommendations] = useState<FriendRecommendation[]>([]);
   const [friendRequests, setFriendRequests] = useState<FriendConnection[]>([]);
   
-  // Ensure arrays are never undefined
-  const safeFriendConnections = friendConnections || [];
-  const safeFriendRecommendations = friendRecommendations || [];
-  const safeFriendRequests = friendRequests || [];
+  // Ensure arrays are never undefined and have proper structure
+  const safeFriendConnections = Array.isArray(friendConnections) ? friendConnections : [];
+  const safeFriendRecommendations = Array.isArray(friendRecommendations) ? friendRecommendations : [];
+  const safeFriendRequests = Array.isArray(friendRequests) ? friendRequests : [];
   
   // UI states
   const [isLoading, setIsLoading] = useState(true);
@@ -863,6 +863,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </p>
                   </div>
                 )}
+                
                 {/* Friend Connections */}
                 <div>
                   <div className="flex items-center justify-between mb-6">
