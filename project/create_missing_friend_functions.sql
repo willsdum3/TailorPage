@@ -1,4 +1,25 @@
 -- Create missing friend functions that are causing 404 errors
+-- This script drops existing functions first to avoid conflicts
+
+-- Drop existing friend functions that might conflict
+DROP FUNCTION IF EXISTS get_friend_requests(UUID);
+DROP FUNCTION IF EXISTS get_friend_connections(UUID);
+DROP FUNCTION IF EXISTS get_friend_recommendations(UUID);
+DROP FUNCTION IF EXISTS generate_friend_recommendations(UUID);
+DROP FUNCTION IF EXISTS send_friend_request(UUID, UUID);
+DROP FUNCTION IF EXISTS send_friend_request(UUID, UUID, TEXT);
+DROP FUNCTION IF EXISTS accept_friend_request(UUID, UUID);
+DROP FUNCTION IF EXISTS reject_friend_request(UUID, UUID);
+
+-- Also check for variations with different parameter names
+DROP FUNCTION IF EXISTS get_friend_requests(auth_user_id UUID);
+DROP FUNCTION IF EXISTS get_friend_connections(auth_user_id UUID);
+DROP FUNCTION IF EXISTS get_friend_recommendations(auth_user_id UUID);
+DROP FUNCTION IF EXISTS generate_friend_recommendations(auth_user_id UUID);
+DROP FUNCTION IF EXISTS send_friend_request(auth_user_id UUID, target_user_id UUID);
+DROP FUNCTION IF EXISTS send_friend_request(auth_user_id UUID, target_user_id UUID, message TEXT);
+DROP FUNCTION IF EXISTS accept_friend_request(auth_user_id UUID, requester_user_id UUID);
+DROP FUNCTION IF EXISTS reject_friend_request(auth_user_id UUID, requester_user_id UUID);
 
 -- 1. Create get_friend_requests function
 CREATE OR REPLACE FUNCTION get_friend_requests(p_auth_user_id UUID)

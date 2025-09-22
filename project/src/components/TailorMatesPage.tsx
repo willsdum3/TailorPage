@@ -95,15 +95,32 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         await loadDiscussionsData();
       } else if (activeTab === 'friends') {
         console.log('Loading friends data...');
-        const [connections, recommendations, requests] = await Promise.all([
-          TailorMatesService.getFriendConnections(),
-          TailorMatesService.getFriendRecommendations(),
-          TailorMatesService.getFriendRequests()
-        ]);
-        setFriendConnections(connections);
-        setFriendRecommendations(recommendations);
-        setFriendRequests(requests);
-        console.log('Loaded friends data:', { connections, recommendations, requests });
+        try {
+          const [connections, recommendations, requests] = await Promise.all([
+            TailorMatesService.getFriendConnections().catch(err => {
+              console.error('Error loading friend connections:', err);
+              return [];
+            }),
+            TailorMatesService.getFriendRecommendations().catch(err => {
+              console.error('Error loading friend recommendations:', err);
+              return [];
+            }),
+            TailorMatesService.getFriendRequests().catch(err => {
+              console.error('Error loading friend requests:', err);
+              return [];
+            })
+          ]);
+          setFriendConnections(connections);
+          setFriendRecommendations(recommendations);
+          setFriendRequests(requests);
+          console.log('Loaded friends data:', { connections, recommendations, requests });
+        } catch (error) {
+          console.error('Error loading friends data:', error);
+          // Set empty arrays to prevent blank page
+          setFriendConnections([]);
+          setFriendRecommendations([]);
+          setFriendRequests([]);
+        }
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -816,7 +833,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 <p className="text-white/70 mt-4">Loading friends...</p>
               </div>
             ) : (
-              <>
+              <div>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-white mb-2">Friends</h2>
+                  <p className="text-white/70">Connect with fellow book lovers and share recommendations</p>
+                  {/* Debug info */}
+                  <div className="text-xs text-white/40 mt-2">
+                    Debug: connections={friendConnections.length}, recommendations={friendRecommendations.length}, requests={friendRequests.length}
+                  </div>
+                </div>
                 {/* Friend Connections */}
                 <div>
                   <div className="flex items-center justify-between mb-6">
@@ -1042,7 +1067,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
