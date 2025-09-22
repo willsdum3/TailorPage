@@ -858,7 +858,17 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Map snake_case database fields to camelCase frontend fields
+      return (data || []).map((request: any) => ({
+        id: request.id,
+        friendId: request.friend_id,
+        friendName: request.friend_name,
+        friendUsername: request.friend_username,
+        friendImageUrl: request.friend_image_url,
+        status: request.status,
+        personalityMatchScore: request.personality_match_score,
+        createdAt: request.created_at
+      }));
     } catch (error) {
       console.error('Error in getFriendRequests:', error);
       return [];
@@ -937,7 +947,17 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Map snake_case database fields to camelCase frontend fields
+      return (data || []).map((connection: any) => ({
+        id: connection.id,
+        friendId: connection.friend_id,
+        friendName: connection.friend_name,
+        friendUsername: connection.friend_username,
+        friendImageUrl: connection.friend_image_url,
+        status: connection.status,
+        personalityMatchScore: connection.personality_match_score,
+        createdAt: connection.created_at
+      }));
     } catch (error) {
       console.error('Error in getFriendConnections:', error);
       return [];
@@ -979,7 +999,17 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Map snake_case database fields to camelCase frontend fields
+      return (data || []).map((recommendation: any) => ({
+        id: recommendation.id,
+        recommendedUserId: recommendation.recommended_user_id,
+        recommendedUserName: recommendation.recommended_user_name,
+        recommendedUserUsername: recommendation.recommended_user_username,
+        recommendedUserImageUrl: recommendation.recommended_user_image_url,
+        matchScore: recommendation.match_score,
+        matchReasons: recommendation.match_reasons || [],
+        createdAt: recommendation.created_at
+      }));
     } catch (error) {
       console.error('Error in getFriendRecommendations:', error);
       return [];

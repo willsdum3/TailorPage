@@ -30,7 +30,7 @@ RETURNS TABLE(
     friend_username TEXT,
     friend_image_url TEXT,
     status CHARACTER VARYING(20),
-    personality_match_score INTEGER,
+    personality_match_score DECIMAL(3,2),
     created_at TIMESTAMP WITH TIME ZONE
 ) 
 LANGUAGE plpgsql
@@ -45,7 +45,7 @@ BEGIN
         u.username as friend_username,
         u.avatar_url as friend_image_url,
         fr.status,
-        0 as personality_match_score, -- Default for now
+        0.0 as personality_match_score, -- Default for now
         fr.created_at
     FROM friend_requests fr
     JOIN users u ON fr.requester_id = u.id
@@ -64,7 +64,7 @@ RETURNS TABLE(
     friend_username TEXT,
     friend_image_url TEXT,
     status CHARACTER VARYING(20),
-    personality_match_score INTEGER,
+    personality_match_score DECIMAL(3,2),
     created_at TIMESTAMP WITH TIME ZONE
 ) 
 LANGUAGE plpgsql
@@ -91,7 +91,7 @@ BEGIN
             ELSE u1.avatar_url
         END as friend_image_url,
         fr.status,
-        0 as personality_match_score, -- Default for now
+        0.0 as personality_match_score, -- Default for now
         fr.created_at
     FROM friend_requests fr
     LEFT JOIN users u1 ON fr.requester_id = u1.id
@@ -110,7 +110,7 @@ RETURNS TABLE(
     recommended_user_name TEXT,
     recommended_user_username TEXT,
     recommended_user_image_url TEXT,
-    match_score INTEGER,
+    match_score DECIMAL(3,2),
     match_reasons TEXT[],
     created_at TIMESTAMP WITH TIME ZONE
 ) 
@@ -125,7 +125,7 @@ BEGIN
         u.name as recommended_user_name,
         u.username as recommended_user_username,
         u.avatar_url as recommended_user_image_url,
-        75 as match_score, -- Default score
+        0.75 as match_score, -- Default score
         ARRAY['Similar reading interests', 'Active in book clubs', 'Great conversation starter'] as match_reasons,
         NOW() as created_at
     FROM users u
