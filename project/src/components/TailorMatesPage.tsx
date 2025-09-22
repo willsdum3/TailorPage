@@ -101,24 +101,31 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       } else if (activeTab === 'friends') {
         console.log('Loading friends data...');
         try {
-          const [connections, recommendations, requests] = await Promise.all([
-            TailorMatesService.getFriendConnections().catch(err => {
-              console.error('Error loading friend connections:', err);
-              return [];
-            }),
-            TailorMatesService.getFriendRecommendations().catch(err => {
-              console.error('Error loading friend recommendations:', err);
-              return [];
-            }),
-            TailorMatesService.getFriendRequests().catch(err => {
-              console.error('Error loading friend requests:', err);
-              return [];
-            })
-          ]);
+          console.log('Calling getFriendConnections...');
+          const connections = await TailorMatesService.getFriendConnections().catch(err => {
+            console.error('Error loading friend connections:', err);
+            return [];
+          });
+          console.log('Friend connections result:', connections);
+          
+          console.log('Calling getFriendRecommendations...');
+          const recommendations = await TailorMatesService.getFriendRecommendations().catch(err => {
+            console.error('Error loading friend recommendations:', err);
+            return [];
+          });
+          console.log('Friend recommendations result:', recommendations);
+          
+          console.log('Calling getFriendRequests...');
+          const requests = await TailorMatesService.getFriendRequests().catch(err => {
+            console.error('Error loading friend requests:', err);
+            return [];
+          });
+          console.log('Friend requests result:', requests);
+          
           setFriendConnections(connections);
           setFriendRecommendations(recommendations);
           setFriendRequests(requests);
-          console.log('Loaded friends data:', { connections, recommendations, requests });
+          console.log('Loaded friends data successfully:', { connections, recommendations, requests });
         } catch (error) {
           console.error('Error loading friends data:', error);
           // Set empty arrays to prevent blank page
