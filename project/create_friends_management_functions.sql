@@ -2,6 +2,23 @@
 -- This script creates all functions for friend requests, blocking, and management
 
 -- =====================================================
+-- CLEANUP EXISTING FUNCTIONS (if they exist)
+-- =====================================================
+
+-- Drop existing friend management functions that might conflict
+DROP FUNCTION IF EXISTS accept_friend_request(UUID, UUID);
+DROP FUNCTION IF EXISTS send_friend_request(UUID, UUID);
+DROP FUNCTION IF EXISTS reject_friend_request(UUID, UUID);
+DROP FUNCTION IF EXISTS remove_friend(UUID, UUID);
+DROP FUNCTION IF EXISTS block_friend(UUID, UUID);
+DROP FUNCTION IF EXISTS unblock_user(UUID, UUID);
+DROP FUNCTION IF EXISTS get_blocked_users(UUID);
+
+-- Also check for variations with different parameter names
+DROP FUNCTION IF EXISTS accept_friend_request(auth_user_id UUID, requester_user_id UUID);
+DROP FUNCTION IF EXISTS send_friend_request(auth_user_id UUID, target_user_id UUID);
+
+-- =====================================================
 -- FRIEND REQUEST FUNCTIONS
 -- =====================================================
 

@@ -828,49 +828,86 @@ export class TailorMatesService {
   // FRIEND FUNCTIONS
   // =====================================================
 
-  static async sendFriendRequest(targetUserId: string): Promise<boolean> {
+
+  static async getFriendRequests(): Promise<FriendConnection[]> {
     try {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
       const { data, error } = await supabase
-        .rpc('send_friend_request', {
-          auth_user_id: authUserId,
-          target_user_id: targetUserId
+        .rpc('get_friend_requests', {
+          p_auth_user_id: authUserId
         });
 
       if (error) {
-        console.error('Error sending friend request:', error);
-        return false;
+        console.error('Error getting friend requests:', error);
+        return [];
       }
 
-      return data;
+      return data || [];
     } catch (error) {
-      console.error('Error in sendFriendRequest:', error);
-      return false;
+      console.error('Error in getFriendRequests:', error);
+      return [];
     }
   }
 
-  static async acceptFriendRequest(requesterUserId: string): Promise<boolean> {
+  static async acceptFriendRequest(requesterUserId: string): Promise<{success: boolean, error?: string}> {
     try {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
       const { data, error } = await supabase
         .rpc('accept_friend_request', {
-          auth_user_id: authUserId,
-          requester_user_id: requesterUserId
+          p_auth_user_id: authUserId,
+          p_requester_user_id: requesterUserId
         });
 
       if (error) {
         console.error('Error accepting friend request:', error);
-        return false;
+        return { success: false, error: error.message };
       }
 
-      return data;
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
     } catch (error) {
       console.error('Error in acceptFriendRequest:', error);
-      return false;
+      return { success: false, error: 'Failed to accept friend request' };
+    }
+  }
+
+  static async rejectFriendRequest(requesterUserId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('reject_friend_request', {
+          p_auth_user_id: authUserId,
+          p_requester_user_id: requesterUserId
+        });
+
+      if (error) {
+        console.error('Error rejecting friend request:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in rejectFriendRequest:', error);
+      return { success: false, error: 'Failed to reject friend request' };
     }
   }
 
@@ -881,7 +918,7 @@ export class TailorMatesService {
 
       const { data, error } = await supabase
         .rpc('get_friend_connections', {
-          auth_user_id: authUserId
+          p_auth_user_id: authUserId
         });
 
       if (error) {
@@ -903,7 +940,7 @@ export class TailorMatesService {
 
       const { data, error } = await supabase
         .rpc('generate_friend_recommendations', {
-          auth_user_id: authUserId
+          p_auth_user_id: authUserId
         });
 
       if (error) {
@@ -925,7 +962,7 @@ export class TailorMatesService {
 
       const { data, error } = await supabase
         .rpc('get_friend_recommendations', {
-          auth_user_id: authUserId
+          p_auth_user_id: authUserId
         });
 
       if (error) {

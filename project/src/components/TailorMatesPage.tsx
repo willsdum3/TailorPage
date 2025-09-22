@@ -27,6 +27,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [friendConnections, setFriendConnections] = useState<FriendConnection[]>([]);
   const [friendRecommendations, setFriendRecommendations] = useState<FriendRecommendation[]>([]);
+  const [friendRequests, setFriendRequests] = useState<FriendConnection[]>([]);
   
   // UI states
   const [isLoading, setIsLoading] = useState(true);
@@ -94,13 +95,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         await loadDiscussionsData();
       } else if (activeTab === 'friends') {
         console.log('Loading friends data...');
-        const [connections, recommendations] = await Promise.all([
+        const [connections, recommendations, requests] = await Promise.all([
           TailorMatesService.getFriendConnections(),
-          TailorMatesService.getFriendRecommendations()
+          TailorMatesService.getFriendRecommendations(),
+          TailorMatesService.getFriendRequests()
         ]);
         setFriendConnections(connections);
         setFriendRecommendations(recommendations);
-        console.log('Loaded friends data:', { connections, recommendations });
+        setFriendRequests(requests);
+        console.log('Loaded friends data:', { connections, recommendations, requests });
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -217,11 +220,34 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
-      await TailorMatesService.acceptFriendRequest(friendClerkId);
-      await loadData(); // Refresh the list
+      const result = await TailorMatesService.acceptFriendRequest(friendClerkId);
+      if (result.success) {
+        await loadData(); // Refresh the list
+      } else {
+        alert(result.error || 'Failed to accept friend request.');
+      }
     } catch (error) {
       console.error('Error accepting friend request:', error);
       alert('Failed to accept friend request. Please try again.');
+    }
+  };
+
+  const handleRejectFriendRequest = async (friendClerkId: string) => {
+    if (!user) {
+      alert('Please log in to reject friend requests.');
+      return;
+    }
+
+    try {
+      const result = await TailorMatesService.rejectFriendRequest(friendClerkId);
+      if (result.success) {
+        await loadData(); // Refresh the list
+      } else {
+        alert(result.error || 'Failed to reject friend request.');
+      }
+    } catch (error) {
+      console.error('Error rejecting friend request:', error);
+      alert('Failed to reject friend request. Please try again.');
     }
   };
 
@@ -880,6 +906,47 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                             </div>
                           </div>
                         ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Incoming Friend Requests */}
+                {friendRequests.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                      <UserPlus className="w-5 h-5 text-blue-400" />
+                      <span>Friend Requests ({friendRequests.length})</span>
+                    </h3>
+                    <div className="space-y-3">
+                      {friendRequests.map((request) => (
+                        <div key={request.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                <UserIcon className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                <h4 className="text-white font-medium">{request.friendName}</h4>
+                                <p className="text-white/60 text-sm">@{request.friendUsername}</p>
+                              </div>
+                            </div>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleAcceptFriendRequest(request.friendId)}
+                                className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                              >
+                                Accept
+                              </button>
+                              <button 
+                                onClick={() => handleRejectFriendRequest(request.friendId)}
+                                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                              >
+                                Decline
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

@@ -13,8 +13,10 @@ CREATE TABLE IF NOT EXISTS friend_conversations (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
+    -- Ensure user1_id is always less than user2_id for consistency
+    CONSTRAINT check_user_order CHECK (user1_id < user2_id),
     -- Ensure no duplicate conversations between the same users
-    CONSTRAINT unique_conversation UNIQUE(LEAST(user1_id, user2_id), GREATEST(user1_id, user2_id))
+    CONSTRAINT unique_conversation UNIQUE(user1_id, user2_id)
 );
 
 -- Friend messages table
