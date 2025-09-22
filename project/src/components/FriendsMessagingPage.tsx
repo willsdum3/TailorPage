@@ -6,9 +6,10 @@ import { TailorMatesService } from '../services/tailorMatesService';
 interface FriendsMessagingPageProps {
   onBack: () => void;
   user: UserType | null;
+  selectedFriend?: FriendConnection | null;
 }
 
-const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user }) => {
+const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user, selectedFriend }) => {
   const [conversations, setConversations] = useState<FriendConversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<FriendConversation | null>(null);
   const [messages, setMessages] = useState<FriendMessage[]>([]);
@@ -38,6 +39,18 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Auto-select conversation when a friend is passed from Friends tab
+  useEffect(() => {
+    if (selectedFriend && conversations.length > 0) {
+      const matchingConversation = conversations.find(conv => 
+        conv.friendId === selectedFriend.friendId
+      );
+      if (matchingConversation) {
+        setSelectedConversation(matchingConversation);
+      }
+    }
+  }, [selectedFriend, conversations]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

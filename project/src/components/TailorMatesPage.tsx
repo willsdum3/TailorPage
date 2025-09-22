@@ -41,6 +41,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [selectedDiscussionId, setSelectedDiscussionId] = useState<string | null>(null);
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
   const [showFriendsMessaging, setShowFriendsMessaging] = useState(false);
+  const [selectedFriendForMessaging, setSelectedFriendForMessaging] = useState<FriendConnection | null>(null);
   
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
@@ -321,8 +322,12 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   if (showFriendsMessaging) {
     return (
       <FriendsMessagingPage
-        onBack={() => setShowFriendsMessaging(false)}
+        onBack={() => {
+          setShowFriendsMessaging(false);
+          setSelectedFriendForMessaging(null);
+        }}
         user={user}
+        selectedFriend={selectedFriendForMessaging}
       />
     );
   }
@@ -902,8 +907,8 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                               className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 cursor-pointer hover:bg-white/15 transition-all duration-300"
                               onClick={() => {
                                 // Start a conversation with this friend
+                                setSelectedFriendForMessaging(friend);
                                 setShowFriendsMessaging(true);
-                                // You could also pass the friend ID to the messaging component
                               }}
                             >
                               <div className="flex items-center space-x-3 mb-3">

@@ -39,7 +39,7 @@ BEGIN
     END IF;
     
     RETURN QUERY
-    SELECT 
+    SELECT DISTINCT
         gen_random_uuid() as id, -- Generate a conversation ID for now
         CASE 
             WHEN fr.requester_id = v_user_id THEN fr.target_id 
@@ -104,8 +104,7 @@ BEGIN
         RAISE EXCEPTION 'User not found';
     END IF;
     
-    -- For now, return empty result since we don't have actual messages yet
-    -- This will be populated when users start sending messages
+    -- Return a welcome message to start the conversation
     RETURN QUERY
     SELECT 
         gen_random_uuid() as id,
@@ -118,8 +117,7 @@ BEGIN
         'text' as message_type,
         NULL as book_recommendation,
         NOW() as created_at,
-        false as is_edited
-    WHERE false; -- This ensures no rows are returned for now
+        false as is_edited;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
