@@ -851,9 +851,18 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   <p className="text-white/70">Connect with fellow book lovers and share recommendations</p>
                   {/* Debug info */}
                   <div className="text-xs text-white/40 mt-2">
-                    Debug: connections={safeFriendConnections.length}, recommendations={safeFriendRecommendations.length}, requests={safeFriendRequests.length}
+                    Debug: connections={safeFriendConnections?.length || 0}, recommendations={safeFriendRecommendations?.length || 0}, requests={safeFriendRequests?.length || 0}
                   </div>
                 </div>
+                
+                {/* Error fallback */}
+                {(!safeFriendConnections || !safeFriendRecommendations || !safeFriendRequests) && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
+                    <p className="text-red-300 text-sm">
+                      ⚠️ Some friend data failed to load. This is likely due to database function issues.
+                    </p>
+                  </div>
+                )}
                 {/* Friend Connections */}
                 <div>
                   <div className="flex items-center justify-between mb-6">
