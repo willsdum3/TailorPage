@@ -1476,7 +1476,6 @@ export class TailorMatesService {
   static async getFriendConversations(): Promise<FriendConversation[]> {
     try {
       const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
 
       const { data, error } = await supabase
         .rpc('get_friend_conversations', {
@@ -1488,7 +1487,18 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Map snake_case database fields to camelCase frontend fields
+      return (data || []).map((conversation: any) => ({
+        id: conversation.id,
+        friendId: conversation.friend_id,
+        friendName: conversation.friend_name,
+        friendUsername: conversation.friend_username,
+        friendImageUrl: conversation.friend_image_url,
+        lastMessage: conversation.last_message,
+        lastMessageAt: conversation.last_message_at,
+        unreadCount: conversation.unread_count,
+        createdAt: conversation.created_at
+      }));
     } catch (error) {
       console.error('Error in getFriendConversations:', error);
       return [];
@@ -1498,7 +1508,6 @@ export class TailorMatesService {
   static async getFriendMessages(conversationId: string): Promise<FriendMessage[]> {
     try {
       const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
 
       const { data, error } = await supabase
         .rpc('get_friend_messages', {
@@ -1513,9 +1522,20 @@ export class TailorMatesService {
         return [];
       }
 
-      // Parse JSON response if needed
-      const messages = typeof data === 'string' ? JSON.parse(data) : data;
-      return messages || [];
+      // Map snake_case database fields to camelCase frontend fields
+      return (data || []).map((message: any) => ({
+        id: message.id,
+        conversationId: message.conversation_id,
+        senderId: message.sender_id,
+        senderName: message.sender_name,
+        senderUsername: message.sender_username,
+        senderImageUrl: message.sender_image_url,
+        content: message.content,
+        messageType: message.message_type,
+        bookRecommendation: message.book_recommendation ? JSON.parse(message.book_recommendation) : null,
+        createdAt: message.created_at,
+        isEdited: message.is_edited || false
+      }));
     } catch (error) {
       console.error('Error in getFriendMessages:', error);
       return [];
@@ -1525,7 +1545,6 @@ export class TailorMatesService {
   static async sendFriendMessage(friendId: string, content: string): Promise<FriendMessage | null> {
     try {
       const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
 
       const { data, error } = await supabase
         .rpc('send_friend_message', {
