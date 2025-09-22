@@ -897,7 +897,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                           if (!friend || !friend.id) return null;
                           
                           return (
-                            <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                            <div 
+                              key={friend.id} 
+                              className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 cursor-pointer hover:bg-white/15 transition-all duration-300"
+                              onClick={() => {
+                                // Start a conversation with this friend
+                                setShowFriendsMessaging(true);
+                                // You could also pass the friend ID to the messaging component
+                              }}
+                            >
                               <div className="flex items-center space-x-3 mb-3">
                                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                                   {friend.friendImageUrl ? (
@@ -927,6 +935,12 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                 </span>
                                 <span className="text-white/50">
                                   {friend.createdAt ? TailorMatesService.formatDate(friend.createdAt) : 'Unknown date'}
+                                </span>
+                              </div>
+                              <div className="mt-2 text-center">
+                                <span className="text-white/60 text-xs flex items-center justify-center space-x-1">
+                                  <MessageCircle className="w-3 h-3" />
+                                  <span>Click to message</span>
                                 </span>
                               </div>
                             </div>

@@ -23,7 +23,7 @@ CREATE OR REPLACE FUNCTION get_friend_conversations(
     friend_image_url TEXT,
     last_message TEXT,
     last_message_at TIMESTAMP WITH TIME ZONE,
-    unread_count BIGINT,
+    unread_count INTEGER,
     created_at TIMESTAMP WITH TIME ZONE
 ) AS $$
 DECLARE
