@@ -878,7 +878,10 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </h3>
                     {safeFriendConnections.filter(f => f.status === 'accepted').length > 0 && (
                       <button
-                        onClick={() => setShowFriendsMessaging(true)}
+                        onClick={() => {
+                          setSelectedFriendForMessaging(null);
+                          setShowFriendsMessaging(true);
+                        }}
                         className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
                       >
                         <MessageCircle className="w-4 h-4" />

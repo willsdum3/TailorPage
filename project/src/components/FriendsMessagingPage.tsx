@@ -55,10 +55,12 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   // Auto-select conversation when a friend is passed from Friends tab
   useEffect(() => {
     if (selectedFriend && conversations.length > 0) {
+      console.log('Auto-selecting conversation for selectedFriend:', selectedFriend.friendName);
       const matchingConversation = conversations.find(conv => 
         conv.friendId === selectedFriend.friendId
       );
       if (matchingConversation) {
+        console.log('Found matching conversation:', matchingConversation.friendName);
         setSelectedConversation(matchingConversation);
       }
     }
