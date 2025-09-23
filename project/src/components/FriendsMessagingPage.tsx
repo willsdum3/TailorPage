@@ -76,6 +76,9 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       
       // Mark conversation as read when loading messages
       await TailorMatesService.markConversationAsRead(conversationId);
+      
+      // Refresh conversations to update unread count
+      await loadConversations();
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -373,9 +376,9 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                         >
                           <div className={`max-w-xs lg:max-w-md ${
                             message.senderId === user?.id
-                              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
-                              : 'bg-white/10 text-white border border-white/20'
-                          } rounded-2xl p-4`}>
+                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                              : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
+                          } rounded-2xl p-4 shadow-lg`}>
                             {message.messageType === 'book_recommendation' && message.bookRecommendation ? (
                               <div className="space-y-3">
                                 <div className="flex items-center space-x-2 text-amber-400">
@@ -403,9 +406,14 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                             ) : (
                               <p>{message.content}</p>
                             )}
-                            <p className="text-xs opacity-60 mt-2">
-                              {TailorMatesService.formatDate(message.createdAt)}
-                            </p>
+                            <div className="flex justify-between items-center mt-2">
+                              <p className="text-xs opacity-60">
+                                {message.senderId === user?.id ? 'You' : message.senderName}
+                              </p>
+                              <p className="text-xs opacity-60">
+                                {TailorMatesService.formatDate(message.createdAt)}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       ))}
