@@ -42,9 +42,18 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   }, [user]);
 
   useEffect(() => {
+    console.log('selectedConversation changed:', selectedConversation ? {
+      id: selectedConversation.id,
+      friendName: selectedConversation.friendName,
+      friendId: selectedConversation.friendId
+    } : 'null');
+    
     if (selectedConversation) {
       console.log('Loading messages for conversation:', selectedConversation.id, selectedConversation.friendName);
       loadMessages(selectedConversation.id);
+    } else {
+      console.log('No conversation selected, clearing messages');
+      setMessages([]);
     }
   }, [selectedConversation]);
 
@@ -54,6 +63,15 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
   // Auto-select conversation when a friend is passed from Friends tab
   useEffect(() => {
+    console.log('selectedFriend useEffect triggered:', {
+      selectedFriend: selectedFriend ? {
+        friendName: selectedFriend.friendName,
+        friendId: selectedFriend.friendId
+      } : 'null',
+      conversationsLength: conversations.length,
+      currentSelectedConversation: selectedConversation ? selectedConversation.friendName : 'null'
+    });
+    
     if (selectedFriend && conversations.length > 0) {
       console.log('Auto-selecting conversation for selectedFriend:', selectedFriend.friendName);
       const matchingConversation = conversations.find(conv => 
@@ -61,8 +79,13 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       );
       if (matchingConversation) {
         console.log('Found matching conversation:', matchingConversation.friendName);
+        console.log('Setting selectedConversation to:', matchingConversation.friendName);
         setSelectedConversation(matchingConversation);
+      } else {
+        console.log('No matching conversation found for selectedFriend');
       }
+    } else {
+      console.log('Not auto-selecting - selectedFriend:', !!selectedFriend, 'conversations:', conversations.length);
     }
   }, [selectedFriend, conversations]);
 
@@ -75,6 +98,11 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     try {
       setIsLoading(true);
       const conversationsData = await TailorMatesService.getFriendConversations();
+      console.log('Loaded conversations:', conversationsData.map(conv => ({
+        id: conv.id,
+        friendName: conv.friendName,
+        friendId: conv.friendId
+      })));
       setConversations(conversationsData);
     } catch (error) {
       console.error('Error loading conversations:', error);
