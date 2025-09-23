@@ -163,8 +163,19 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
         setShowBookRecommendation(false);
         // Reload messages after sending
         await loadMessages(selectedConversation.id);
-        // Refresh conversations to update last message
-        await loadConversations();
+        // Update conversations to show new last message without full reload
+        setConversations(prevConversations => 
+          prevConversations.map(conv => 
+            conv.id === selectedConversation.id 
+              ? { 
+                  ...conv, 
+                  lastMessage: messageResult.content,
+                  lastMessageAt: messageResult.createdAt,
+                  unreadCount: 0
+                }
+              : conv
+          )
+        );
       } else {
         alert('Failed to send book recommendation. Please try again.');
       }
