@@ -58,6 +58,8 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   }, [selectedConversation]);
 
   useEffect(() => {
+    console.log('Messages state changed, re-rendering messages component:', messages.length, 'messages');
+    console.log('Current messages:', messages);
     scrollToBottom();
   }, [messages]);
 
@@ -116,7 +118,9 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       console.log('Loading messages for conversation ID:', conversationId);
       const messagesData = await TailorMatesService.getFriendMessages(conversationId);
       console.log('Messages loaded:', messagesData.length, 'messages');
+      console.log('Messages data:', messagesData);
       setMessages(messagesData);
+      console.log('setMessages called with:', messagesData.length, 'messages');
       
       // Mark conversation as read when loading messages
       await TailorMatesService.markConversationAsRead(conversationId);
@@ -444,14 +448,17 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
                 {/* Messages */}
                 <div className="flex-1 p-6 overflow-y-auto max-h-96">
-                  {messages.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                      <p className="text-white/60">No messages yet</p>
-                      <p className="text-white/40 text-sm">Start the conversation!</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
+                  {(() => {
+                    console.log('Rendering messages section - messages.length:', messages.length);
+                    console.log('Selected conversation:', selectedConversation ? selectedConversation.friendName : 'none');
+                    return messages.length === 0 ? (
+                      <div className="text-center py-12">
+                        <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                        <p className="text-white/60">No messages yet</p>
+                        <p className="text-white/40 text-sm">Start the conversation!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
                       {messages.map((message) => {
                         const isCurrentUser = message.senderId === currentInternalUserId;
                         console.log('Message debug:', { 
@@ -512,7 +519,8 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                       })}
                       <div ref={messagesEndRef} />
                     </div>
-                  )}
+                    );
+                  })()}
                 </div>
 
                 {/* Message Input */}
