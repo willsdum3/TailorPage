@@ -42,52 +42,26 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   }, [user]);
 
   useEffect(() => {
-    console.log('selectedConversation changed:', selectedConversation ? {
-      id: selectedConversation.id,
-      friendName: selectedConversation.friendName,
-      friendId: selectedConversation.friendId
-    } : 'null');
-    
     if (selectedConversation) {
-      console.log('Loading messages for conversation:', selectedConversation.id, selectedConversation.friendName);
       loadMessages(selectedConversation.id);
     } else {
-      console.log('No conversation selected, clearing messages');
       setMessages([]);
     }
   }, [selectedConversation]);
 
   useEffect(() => {
-    console.log('Messages state changed, re-rendering messages component:', messages.length, 'messages');
-    console.log('Current messages:', messages);
     scrollToBottom();
   }, [messages]);
 
   // Auto-select conversation when a friend is passed from Friends tab
   useEffect(() => {
-    console.log('selectedFriend useEffect triggered:', {
-      selectedFriend: selectedFriend ? {
-        friendName: selectedFriend.friendName,
-        friendId: selectedFriend.friendId
-      } : 'null',
-      conversationsLength: conversations.length,
-      currentSelectedConversation: selectedConversation ? selectedConversation.friendName : 'null'
-    });
-    
     if (selectedFriend && conversations.length > 0) {
-      console.log('Auto-selecting conversation for selectedFriend:', selectedFriend.friendName);
       const matchingConversation = conversations.find(conv => 
         conv.friendId === selectedFriend.friendId
       );
       if (matchingConversation) {
-        console.log('Found matching conversation:', matchingConversation.friendName);
-        console.log('Setting selectedConversation to:', matchingConversation.friendName);
         setSelectedConversation(matchingConversation);
-      } else {
-        console.log('No matching conversation found for selectedFriend');
       }
-    } else {
-      console.log('Not auto-selecting - selectedFriend:', !!selectedFriend, 'conversations:', conversations.length);
     }
   }, [selectedFriend, conversations]);
 
@@ -100,11 +74,6 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     try {
       setIsLoading(true);
       const conversationsData = await TailorMatesService.getFriendConversations();
-      console.log('Loaded conversations:', conversationsData.map(conv => ({
-        id: conv.id,
-        friendName: conv.friendName,
-        friendId: conv.friendId
-      })));
       setConversations(conversationsData);
     } catch (error) {
       console.error('Error loading conversations:', error);
@@ -115,12 +84,8 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
   const loadMessages = async (conversationId: string) => {
     try {
-      console.log('Loading messages for conversation ID:', conversationId);
       const messagesData = await TailorMatesService.getFriendMessages(conversationId);
-      console.log('Messages loaded:', messagesData.length, 'messages');
-      console.log('Messages data:', messagesData);
       setMessages(messagesData);
-      console.log('setMessages called with:', messagesData.length, 'messages');
       
       // Mark conversation as read when loading messages
       await TailorMatesService.markConversationAsRead(conversationId);
@@ -333,19 +298,10 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                   <p className="text-white/40 text-sm">Start chatting with your friends!</p>
                 </div>
               ) : (
-                (() => {
-                  console.log('Rendering conversations:', filteredConversations.map(conv => ({
-                    id: conv.id,
-                    friendName: conv.friendName,
-                    friendId: conv.friendId
-                  })));
-                  return filteredConversations.map((conversation) => (
+                filteredConversations.map((conversation) => (
                   <div
                     key={conversation.id}
-                    onClick={() => {
-                      console.log('Clicking conversation:', conversation.id, conversation.friendName);
-                      setSelectedConversation(conversation);
-                    }}
+                    onClick={() => setSelectedConversation(conversation)}
                     className={`p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                       selectedConversation?.id === conversation.id
                         ? 'bg-pink-500/20 border border-pink-500/30'
@@ -394,8 +350,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                       </div>
                     </div>
                   </div>
-                ));
-                })()
+                ))
               )}
             </div>
           </div>
@@ -448,25 +403,16 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
                 {/* Messages */}
                 <div className="flex-1 p-6 overflow-y-auto max-h-96">
-                  {(() => {
-                    console.log('Rendering messages section - messages.length:', messages.length);
-                    console.log('Selected conversation:', selectedConversation ? selectedConversation.friendName : 'none');
-                    return messages.length === 0 ? (
-                      <div className="text-center py-12">
-                        <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                        <p className="text-white/60">No messages yet</p>
-                        <p className="text-white/40 text-sm">Start the conversation!</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
+                  {messages.length === 0 ? (
+                    <div className="text-center py-12">
+                      <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                      <p className="text-white/60">No messages yet</p>
+                      <p className="text-white/40 text-sm">Start the conversation!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
                       {messages.map((message) => {
                         const isCurrentUser = message.senderId === currentInternalUserId;
-                        console.log('Message debug:', { 
-                          messageSenderId: message.senderId, 
-                          currentInternalUserId: currentInternalUserId, 
-                          isCurrentUser,
-                          senderName: message.senderName 
-                        });
                         
                         return (
                         <div
@@ -519,8 +465,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                       })}
                       <div ref={messagesEndRef} />
                     </div>
-                    );
-                  })()}
+                  )}
                 </div>
 
                 {/* Message Input */}
