@@ -369,13 +369,22 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {messages.map((message) => (
+                      {messages.map((message) => {
+                        const isCurrentUser = message.senderId === user?.id;
+                        console.log('Message debug:', { 
+                          messageSenderId: message.senderId, 
+                          userId: user?.id, 
+                          isCurrentUser,
+                          senderName: message.senderName 
+                        });
+                        
+                        return (
                         <div
                           key={message.id}
-                          className={`flex ${message.senderId === user?.id ? 'justify-end' : 'justify-start'}`}
+                          className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                         >
                           <div className={`max-w-xs lg:max-w-md ${
-                            message.senderId === user?.id
+                            isCurrentUser
                               ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
                               : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
                           } rounded-2xl p-4 shadow-lg`}>
@@ -408,15 +417,16 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                             )}
                             <div className="flex justify-between items-center mt-2">
                               <p className="text-xs opacity-60">
-                                {message.senderId === user?.id ? 'You' : message.senderName}
+                                {isCurrentUser ? 'You' : message.senderName}
                               </p>
-                              <p className="text-xs opacity-60">
+                              <p className="text-xs opacity-60 ml-2">
                                 {TailorMatesService.formatDate(message.createdAt)}
                               </p>
                             </div>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                       <div ref={messagesEndRef} />
                     </div>
                   )}
