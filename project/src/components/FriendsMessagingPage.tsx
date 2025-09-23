@@ -329,7 +329,13 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                   <p className="text-white/40 text-sm">Start chatting with your friends!</p>
                 </div>
               ) : (
-                filteredConversations.map((conversation) => (
+                (() => {
+                  console.log('Rendering conversations:', filteredConversations.map(conv => ({
+                    id: conv.id,
+                    friendName: conv.friendName,
+                    friendId: conv.friendId
+                  })));
+                  return filteredConversations.map((conversation) => (
                   <div
                     key={conversation.id}
                     onClick={() => {
@@ -384,7 +390,8 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                       </div>
                     </div>
                   </div>
-                ))
+                ));
+                })()
               )}
             </div>
           </div>
