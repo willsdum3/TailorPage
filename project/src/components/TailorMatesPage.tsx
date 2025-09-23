@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send, User as UserIcon, Clock, Crown } from 'lucide-react';
+import { Home, ArrowLeft, Users, MessageCircle, BookOpen, Heart, Star, Search, Filter, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, Send, User as UserIcon, Clock, Crown, UserMinus } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub, Discussion, FriendConnection, FriendRecommendation, User, CreateBookClubServiceData } from '../types';
@@ -293,6 +293,46 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     } catch (error) {
       console.error('Error generating recommendations:', error);
       alert('Failed to generate recommendations. Please try again.');
+    }
+  };
+
+  const handleRemoveFriend = async (friendId: string) => {
+    if (!confirm('Are you sure you want to remove this friend? This will delete your conversation history.')) {
+      return;
+    }
+
+    try {
+      const result = await TailorMatesService.removeFriend(friendId);
+      
+      if (result.success) {
+        await loadData(); // Refresh the friends list
+        alert('Friend removed successfully.');
+      } else {
+        alert(result.error || 'Failed to remove friend.');
+      }
+    } catch (error) {
+      console.error('Error removing friend:', error);
+      alert('Failed to remove friend. Please try again.');
+    }
+  };
+
+  const handleBlockFriend = async (friendId: string) => {
+    if (!confirm('Are you sure you want to block this friend? This will prevent them from messaging you.')) {
+      return;
+    }
+
+    try {
+      const result = await TailorMatesService.blockFriend(friendId);
+      
+      if (result.success) {
+        await loadData(); // Refresh the friends list
+        alert('Friend blocked successfully.');
+      } else {
+        alert(result.error || 'Failed to block friend.');
+      }
+    } catch (error) {
+      console.error('Error blocking friend:', error);
+      alert('Failed to block friend. Please try again.');
     }
   };
 
@@ -946,11 +986,29 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                   {friend.createdAt ? TailorMatesService.formatDate(friend.createdAt) : 'Unknown date'}
                                 </span>
                               </div>
-                              <div className="mt-2 text-center">
-                                <span className="text-white/60 text-xs flex items-center justify-center space-x-1">
-                                  <MessageCircle className="w-3 h-3" />
-                                  <span>Click to message</span>
-                                </span>
+                              <div className="mt-3 space-y-2">
+                                <div className="text-center">
+                                  <span className="text-white/60 text-xs flex items-center justify-center space-x-1">
+                                    <MessageCircle className="w-3 h-3" />
+                                    <span>Click to message</span>
+                                  </span>
+                                </div>
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => handleRemoveFriend(friend.friendId)}
+                                    className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 rounded-lg transition-colors py-2 px-3 text-xs font-medium flex items-center justify-center space-x-1"
+                                  >
+                                    <UserMinus className="w-3 h-3" />
+                                    <span>Remove</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleBlockFriend(friend.friendId)}
+                                    className="flex-1 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 rounded-lg transition-colors py-2 px-3 text-xs font-medium flex items-center justify-center space-x-1"
+                                  >
+                                    <UserX className="w-3 h-3" />
+                                    <span>Block</span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           );

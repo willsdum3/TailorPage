@@ -193,51 +193,6 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     }
   };
 
-  const handleRemoveFriend = async (friendId: string) => {
-    if (!confirm('Are you sure you want to remove this friend? This will delete your conversation history.')) {
-      return;
-    }
-
-    try {
-      const result = await TailorMatesService.removeFriend(friendId);
-      
-      if (result.success) {
-        // Refresh conversations
-        await loadConversations();
-        setSelectedConversation(null);
-        setMessages([]);
-        alert('Friend removed successfully.');
-      } else {
-        alert(result.error || 'Failed to remove friend.');
-      }
-    } catch (error) {
-      console.error('Error removing friend:', error);
-      alert('Failed to remove friend. Please try again.');
-    }
-  };
-
-  const handleBlockFriend = async (friendId: string) => {
-    if (!confirm('Are you sure you want to block this friend? This will prevent them from messaging you.')) {
-      return;
-    }
-
-    try {
-      const result = await TailorMatesService.blockFriend(friendId);
-      
-      if (result.success) {
-        // Refresh conversations
-        await loadConversations();
-        setSelectedConversation(null);
-        setMessages([]);
-        alert('Friend blocked successfully.');
-      } else {
-        alert(result.error || 'Failed to block friend.');
-      }
-    } catch (error) {
-      console.error('Error blocking friend:', error);
-      alert('Failed to block friend. Please try again.');
-    }
-  };
 
   const filteredConversations = conversations.filter(conv =>
     conv.friendName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -385,22 +340,6 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                       </div>
                     </div>
                     
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleRemoveFriend(selectedConversation.friendId)}
-                        className="p-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 rounded-lg transition-colors"
-                        title="Remove Friend"
-                      >
-                        <UserMinus className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleBlockFriend(selectedConversation.friendId)}
-                        className="p-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 rounded-lg transition-colors"
-                        title="Block Friend"
-                      >
-                        <UserX className="w-4 h-4" />
-                      </button>
-                    </div>
                   </div>
                 </div>
 
