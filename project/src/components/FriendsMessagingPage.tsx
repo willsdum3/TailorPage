@@ -83,7 +83,9 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
   const loadMessages = async (conversationId: string) => {
     try {
+      console.log('Loading messages for conversation ID:', conversationId);
       const messagesData = await TailorMatesService.getFriendMessages(conversationId);
+      console.log('Messages loaded:', messagesData.length, 'messages');
       setMessages(messagesData);
       
       // Mark conversation as read when loading messages
@@ -99,6 +101,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       );
     } catch (error) {
       console.error('Error loading messages:', error);
+      // Don't clear messages on error - keep existing messages
     }
   };
 
@@ -299,7 +302,10 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                 filteredConversations.map((conversation) => (
                   <div
                     key={conversation.id}
-                    onClick={() => setSelectedConversation(conversation)}
+                    onClick={() => {
+                      console.log('Clicking conversation:', conversation.id, conversation.friendName);
+                      setSelectedConversation(conversation);
+                    }}
                     className={`p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                       selectedConversation?.id === conversation.id
                         ? 'bg-pink-500/20 border border-pink-500/30'

@@ -1532,7 +1532,7 @@ export class TailorMatesService {
         senderImageUrl: message.sender_image_url,
         content: message.content,
         messageType: message.message_type,
-        bookRecommendation: message.book_recommendation ? JSON.parse(message.book_recommendation) : null,
+        bookRecommendation: message.book_recommendation || null,
         createdAt: message.created_at,
         isEdited: message.is_edited || false
       }));
