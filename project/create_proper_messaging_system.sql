@@ -46,8 +46,8 @@ BEGIN
     
     -- Check if this conversation exists in friend_messages table
     SELECT EXISTS(
-        SELECT 1 FROM friend_messages 
-        WHERE conversation_id = p_conversation_id
+        SELECT 1 FROM friend_messages fm
+        WHERE fm.conversation_id = p_conversation_id
     ) INTO v_conversation_exists;
     
     -- If no messages exist, return a welcome message
