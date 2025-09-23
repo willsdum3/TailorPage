@@ -328,6 +328,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         }}
         user={user}
         selectedFriend={selectedFriendForMessaging}
+        onClearSelectedFriend={() => setSelectedFriendForMessaging(null)}
       />
     );
   }

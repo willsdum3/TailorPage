@@ -7,9 +7,10 @@ interface FriendsMessagingPageProps {
   onBack: () => void;
   user: UserType | null;
   selectedFriend?: FriendConnection | null;
+  onClearSelectedFriend?: () => void;
 }
 
-const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user, selectedFriend }) => {
+const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user, selectedFriend, onClearSelectedFriend }) => {
   const [conversations, setConversations] = useState<FriendConversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<FriendConversation | null>(null);
   const [messages, setMessages] = useState<FriendMessage[]>([]);
@@ -61,9 +62,11 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       );
       if (matchingConversation) {
         setSelectedConversation(matchingConversation);
+        // Clear selectedFriend after auto-selection to prevent interference with manual clicks
+        onClearSelectedFriend?.();
       }
     }
-  }, [selectedFriend, conversations]);
+  }, [selectedFriend, conversations, onClearSelectedFriend]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
