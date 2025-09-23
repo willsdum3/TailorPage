@@ -113,10 +113,10 @@ BEGIN
         v_user_id as sender_id,
         'System' as sender_name,
         'system' as sender_username,
-        NULL as sender_image_url,
+        NULL::TEXT as sender_image_url,
         'Start the conversation!' as content,
         'text' as message_type,
-        NULL as book_recommendation,
+        NULL::JSONB as book_recommendation,
         NOW() as created_at,
         false as is_edited;
 END;
