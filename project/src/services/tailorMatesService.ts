@@ -1683,14 +1683,18 @@ export class TailorMatesService {
       await this.ensureUserExists(authUserId);
 
       // Get the friend's auth_user_id from their internal ID
+      console.log('Looking up friend with internal ID:', friendId);
       const { data: friendData, error: friendError } = await supabase
         .from('users')
-        .select('auth_user_id')
+        .select('auth_user_id, name, username')
         .eq('id', friendId)
         .single();
 
+      console.log('Friend lookup result:', { friendData, friendError });
+
       if (friendError || !friendData) {
         console.error('Error getting friend auth_user_id:', friendError);
+        console.error('Friend data:', friendData);
         return { success: false, error: 'Friend not found' };
       }
 
