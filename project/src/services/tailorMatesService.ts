@@ -1682,29 +1682,13 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
-      // Get the friend's auth_user_id from their internal ID
-      console.log('Looking up friend with internal ID:', friendId);
-      const { data: friendData, error: friendError } = await supabase
-        .from('users')
-        .select('auth_user_id, name, username')
-        .eq('id', friendId)
-        .single();
+      console.log('Removing friend with internal ID:', friendId);
 
-      console.log('Friend lookup result:', { friendData, friendError });
-
-      if (friendError || !friendData) {
-        console.error('Error getting friend auth_user_id:', friendError);
-        console.error('Friend data:', friendData);
-        return { success: false, error: 'Friend not found' };
-      }
-
-      const friendAuthUserId = friendData.auth_user_id;
-      console.log('Friend internal ID:', friendId, 'Friend auth_user_id:', friendAuthUserId);
-
+      // Use the new function that handles user ID lookup internally
       const { data, error } = await supabase
-        .rpc('remove_friend', {
+        .rpc('remove_friend_by_internal_id', {
           p_auth_user_id: authUserId,
-          p_friend_id: friendAuthUserId
+          p_friend_internal_id: friendId
         });
 
       if (error) {
@@ -1714,6 +1698,7 @@ export class TailorMatesService {
 
       // Parse JSON response
       const result = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log('Remove friend result:', result);
       
       if (result.success) {
         return { success: true };
@@ -1731,25 +1716,13 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
-      // Get the friend's auth_user_id from their internal ID
-      const { data: friendData, error: friendError } = await supabase
-        .from('users')
-        .select('auth_user_id')
-        .eq('id', friendId)
-        .single();
+      console.log('Blocking friend with internal ID:', friendId);
 
-      if (friendError || !friendData) {
-        console.error('Error getting friend auth_user_id:', friendError);
-        return { success: false, error: 'Friend not found' };
-      }
-
-      const friendAuthUserId = friendData.auth_user_id;
-      console.log('Blocking friend - internal ID:', friendId, 'auth_user_id:', friendAuthUserId);
-
+      // Use the new function that handles user ID lookup internally
       const { data, error } = await supabase
-        .rpc('block_friend', {
+        .rpc('block_friend_by_internal_id', {
           p_auth_user_id: authUserId,
-          p_friend_id: friendAuthUserId
+          p_friend_internal_id: friendId
         });
 
       if (error) {
@@ -1759,6 +1732,7 @@ export class TailorMatesService {
 
       // Parse JSON response
       const result = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log('Block friend result:', result);
       
       if (result.success) {
         return { success: true };
