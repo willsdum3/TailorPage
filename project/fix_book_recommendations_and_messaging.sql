@@ -1,6 +1,10 @@
 -- Fix book recommendations and messaging functions
 -- This script adds the missing send_book_recommendation function and fixes send_friend_message
 
+-- Drop existing functions to avoid conflicts
+DROP FUNCTION IF EXISTS send_book_recommendation(uuid,uuid,text,text,text,text,text);
+DROP FUNCTION IF EXISTS send_friend_message(uuid,uuid,text);
+
 -- First, let's fix the send_friend_message function to actually insert messages
 CREATE OR REPLACE FUNCTION send_friend_message(
     p_auth_user_id UUID,
