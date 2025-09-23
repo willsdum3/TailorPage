@@ -14,7 +14,12 @@ SELECT
     parameter_mode
 FROM information_schema.parameters 
 WHERE specific_schema = 'public' 
-AND routine_name = 'remove_friend'
+AND specific_name IN (
+    SELECT specific_name 
+    FROM information_schema.routines 
+    WHERE routine_schema = 'public' 
+    AND routine_name = 'remove_friend'
+)
 ORDER BY ordinal_position;
 
 -- Test the function with dummy data (this will fail but shows the function exists)
