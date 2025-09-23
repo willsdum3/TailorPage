@@ -88,8 +88,14 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       // Mark conversation as read when loading messages
       await TailorMatesService.markConversationAsRead(conversationId);
       
-      // Refresh conversations to update unread count
-      await loadConversations();
+      // Update conversations state to reflect read status without full reload
+      setConversations(prevConversations => 
+        prevConversations.map(conv => 
+          conv.id === conversationId 
+            ? { ...conv, unreadCount: 0 }
+            : conv
+        )
+      );
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -109,8 +115,19 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
         setNewMessage('');
         // Reload messages after sending
         await loadMessages(selectedConversation.id);
-        // Refresh conversations to update last message and unread count
-        await loadConversations();
+        // Update conversations to show new last message without full reload
+        setConversations(prevConversations => 
+          prevConversations.map(conv => 
+            conv.id === selectedConversation.id 
+              ? { 
+                  ...conv, 
+                  lastMessage: messageResult.content,
+                  lastMessageAt: messageResult.createdAt,
+                  unreadCount: 0
+                }
+              : conv
+          )
+        );
       } else {
         alert('Failed to send message. Please try again.');
       }
