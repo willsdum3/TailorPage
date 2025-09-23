@@ -968,15 +968,16 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                           if (!friend || !friend.id) return null;
                           
                           return (
-                            <div 
-                              key={friend.id} 
-                              className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 cursor-pointer hover:bg-white/15 transition-all duration-300"
-                              onClick={() => {
-                                // Start a conversation with this friend
-                                setSelectedFriendForMessaging(friend);
-                                setShowFriendsMessaging(true);
-                              }}
-                            >
+                            <div key={friend.id} className="space-y-3">
+                              {/* Friend Card - Clickable for messaging */}
+                              <div 
+                                className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 cursor-pointer hover:bg-white/15 transition-all duration-300"
+                                onClick={() => {
+                                  // Start a conversation with this friend
+                                  setSelectedFriendForMessaging(friend);
+                                  setShowFriendsMessaging(true);
+                                }}
+                              >
                               <div className="flex items-center space-x-3 mb-3">
                                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                                   {friend.friendImageUrl ? (
@@ -1025,23 +1026,30 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                   {friend.createdAt ? TailorMatesService.formatDate(friend.createdAt) : 'Unknown date'}
                                 </span>
                               </div>
-                              <div className="mt-3">
-                                <div className="flex space-x-2">
-                                  <button
-                                    onClick={() => handleRemoveFriend(friend.friendId)}
-                                    className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 rounded-lg transition-colors py-2 px-3 text-xs font-medium flex items-center justify-center space-x-1"
-                                  >
-                                    <UserMinus className="w-3 h-3" />
-                                    <span>Remove</span>
-                                  </button>
-                                  <button
-                                    onClick={() => handleBlockFriend(friend.friendId)}
-                                    className="flex-1 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 rounded-lg transition-colors py-2 px-3 text-xs font-medium flex items-center justify-center space-x-1"
-                                  >
-                                    <UserX className="w-3 h-3" />
-                                    <span>Block</span>
-                                  </button>
-                                </div>
+                              </div>
+                              
+                              {/* Action Buttons - Outside the clickable card */}
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveFriend(friend.friendId);
+                                  }}
+                                  className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 rounded-lg transition-colors py-2 px-3 text-xs font-medium flex items-center justify-center space-x-1"
+                                >
+                                  <UserMinus className="w-3 h-3" />
+                                  <span>Remove</span>
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleBlockFriend(friend.friendId);
+                                  }}
+                                  className="flex-1 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 rounded-lg transition-colors py-2 px-3 text-xs font-medium flex items-center justify-center space-x-1"
+                                >
+                                  <UserX className="w-3 h-3" />
+                                  <span>Block</span>
+                                </button>
                               </div>
                             </div>
                           );
