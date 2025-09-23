@@ -302,12 +302,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
+      console.log('Attempting to remove friend with ID:', friendId);
       const result = await TailorMatesService.removeFriend(friendId);
+      console.log('Remove friend result:', result);
       
       if (result.success) {
         await loadData(); // Refresh the friends list
         alert('Friend removed successfully.');
       } else {
+        console.error('Remove friend failed:', result.error);
         alert(result.error || 'Failed to remove friend.');
       }
     } catch (error) {
@@ -974,8 +977,22 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                   </div>
                                 </div>
                                 <div className="flex-1">
-                                  <h4 className="text-white font-medium">{friend.friendName || 'Unknown'}</h4>
-                                  <p className="text-white/60 text-sm">@{friend.friendUsername || 'unknown'}</p>
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <h4 className="text-white font-medium">{friend.friendName || 'Unknown'}</h4>
+                                      <p className="text-white/60 text-sm">@{friend.friendUsername || 'unknown'}</p>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedFriendForMessaging(friend);
+                                        setShowFriendsMessaging(true);
+                                      }}
+                                      className="text-white/60 hover:text-white text-xs flex items-center space-x-1 transition-colors"
+                                    >
+                                      <MessageCircle className="w-3 h-3" />
+                                      <span>Message</span>
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                               <div className="flex items-center justify-between text-sm">
@@ -986,13 +1003,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                   {friend.createdAt ? TailorMatesService.formatDate(friend.createdAt) : 'Unknown date'}
                                 </span>
                               </div>
-                              <div className="mt-3 space-y-2">
-                                <div className="text-center">
-                                  <span className="text-white/60 text-xs flex items-center justify-center space-x-1">
-                                    <MessageCircle className="w-3 h-3" />
-                                    <span>Click to message</span>
-                                  </span>
-                                </div>
+                              <div className="mt-3">
                                 <div className="flex space-x-2">
                                   <button
                                     onClick={() => handleRemoveFriend(friend.friendId)}
