@@ -73,6 +73,9 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     try {
       const messagesData = await TailorMatesService.getFriendMessages(conversationId);
       setMessages(messagesData);
+      
+      // Mark conversation as read when loading messages
+      await TailorMatesService.markConversationAsRead(conversationId);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -92,7 +95,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
         setNewMessage('');
         // Reload messages after sending
         await loadMessages(selectedConversation.id);
-        // Refresh conversations to update last message
+        // Refresh conversations to update last message and unread count
         await loadConversations();
       } else {
         alert('Failed to send message. Please try again.');

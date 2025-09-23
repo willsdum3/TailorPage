@@ -1573,6 +1573,28 @@ export class TailorMatesService {
     }
   }
 
+  static async markConversationAsRead(conversationId: string): Promise<boolean> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+
+      const { data, error } = await supabase
+        .rpc('mark_conversation_as_read', {
+          p_auth_user_id: authUserId,
+          p_conversation_id: conversationId
+        });
+
+      if (error) {
+        console.error('Error marking conversation as read:', error);
+        return false;
+      }
+
+      return data?.success || false;
+    } catch (error) {
+      console.error('Error in markConversationAsRead:', error);
+      return false;
+    }
+  }
+
   static async sendBookRecommendation(
     friendId: string, 
     bookTitle: string, 
