@@ -303,11 +303,30 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
 
     try {
       console.log('Attempting to remove friend with ID:', friendId);
+      console.log('Current friend connections before removal:', friendConnections);
+      
       const result = await TailorMatesService.removeFriend(friendId);
       console.log('Remove friend result:', result);
       
       if (result.success) {
-        await loadData(); // Refresh the friends list
+        console.log('Friend removal successful, refreshing data...');
+        
+        // Small delay to ensure database has processed the removal
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Force refresh of friends data specifically
+        if (activeTab === 'friends') {
+          console.log('Refreshing friends data...');
+          const connections = await TailorMatesService.getFriendConnections().catch(err => {
+            console.error('Error loading friend connections after removal:', err);
+            return [];
+          });
+          console.log('Friend connections after removal:', connections);
+          setFriendConnections(connections);
+        } else {
+          await loadData(); // Refresh all data if not on friends tab
+        }
+        
         alert('Friend removed successfully.');
       } else {
         console.error('Remove friend failed:', result.error);
