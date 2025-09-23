@@ -16,6 +16,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [currentInternalUserId, setCurrentInternalUserId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showBookRecommendation, setShowBookRecommendation] = useState(false);
   const [bookRecommendation, setBookRecommendation] = useState({
@@ -28,6 +29,16 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
   useEffect(() => {
     loadConversations();
+    // Fetch current user's internal ID for message comparison
+    const fetchCurrentInternalUserId = async () => {
+      try {
+        const internalUserId = await TailorMatesService.getCurrentInternalUserId();
+        setCurrentInternalUserId(internalUserId);
+      } catch (error) {
+        console.error('Error fetching current internal user ID:', error);
+      }
+    };
+    fetchCurrentInternalUserId();
   }, [user]);
 
   useEffect(() => {
@@ -360,7 +371,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 p-6 overflow-y-auto">
+                <div className="flex-1 p-6 overflow-y-auto max-h-96">
                   {messages.length === 0 ? (
                     <div className="text-center py-12">
                       <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
@@ -370,10 +381,10 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                   ) : (
                     <div className="space-y-4">
                       {messages.map((message) => {
-                        const isCurrentUser = message.senderId === user?.id;
+                        const isCurrentUser = message.senderId === currentInternalUserId;
                         console.log('Message debug:', { 
                           messageSenderId: message.senderId, 
-                          userId: user?.id, 
+                          currentInternalUserId: currentInternalUserId, 
                           isCurrentUser,
                           senderName: message.senderName 
                         });
