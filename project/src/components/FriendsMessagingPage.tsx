@@ -43,6 +43,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
   useEffect(() => {
     if (selectedConversation) {
+      console.log('Loading messages for conversation:', selectedConversation.id, selectedConversation.friendName);
       loadMessages(selectedConversation.id);
     }
   }, [selectedConversation]);
@@ -473,89 +474,32 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
                 {/* Message Input */}
                 <div className="p-6 border-t border-white/10">
-                  {showBookRecommendation ? (
-                    <form onSubmit={handleSendBookRecommendation} className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-white font-medium flex items-center space-x-2">
-                          <Book className="w-4 h-4" />
-                          <span>Recommend a Book</span>
-                        </h4>
-                        <button
-                          type="button"
-                          onClick={() => setShowBookRecommendation(false)}
-                          className="text-white/60 hover:text-white"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <input
-                          type="text"
-                          placeholder="Book title *"
-                          value={bookRecommendation.title}
-                          onChange={(e) => setBookRecommendation({...bookRecommendation, title: e.target.value})}
-                          className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
-                          required
-                        />
-                        <input
-                          type="text"
-                          placeholder="Author *"
-                          value={bookRecommendation.author}
-                          onChange={(e) => setBookRecommendation({...bookRecommendation, author: e.target.value})}
-                          className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
-                          required
-                        />
-                      </div>
-                      <textarea
-                        placeholder="Why do you recommend this book? (optional)"
-                        value={bookRecommendation.description}
-                        onChange={(e) => setBookRecommendation({...bookRecommendation, description: e.target.value})}
-                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 resize-none"
-                        rows={2}
-                      />
+                  <div className="space-y-3">
+                    <form onSubmit={handleSendMessage} className="flex space-x-3">
                       <input
-                        type="url"
-                        placeholder="Amazon link (optional)"
-                        value={bookRecommendation.amazonUrl}
-                        onChange={(e) => setBookRecommendation({...bookRecommendation, amazonUrl: e.target.value})}
-                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type your message..."
+                        className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                        disabled={isSending}
                       />
                       <button
                         type="submit"
-                        disabled={isSending || !bookRecommendation.title || !bookRecommendation.author}
-                        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white py-2 rounded-xl font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={!newMessage.trim() || isSending}
+                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white p-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {isSending ? 'Sending...' : 'Send Recommendation'}
+                        <Send className="w-5 h-5" />
                       </button>
                     </form>
-                  ) : (
-                    <div className="space-y-3">
-                      <form onSubmit={handleSendMessage} className="flex space-x-3">
-                        <input
-                          type="text"
-                          value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
-                          placeholder="Type your message..."
-                          className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
-                          disabled={isSending}
-                        />
-                        <button
-                          type="submit"
-                          disabled={!newMessage.trim() || isSending}
-                          className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white p-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Send className="w-5 h-5" />
-                        </button>
-                      </form>
-                      <button
-                        onClick={() => setShowBookRecommendation(true)}
-                        className="flex items-center space-x-2 text-amber-400 hover:text-amber-300 text-sm transition-colors"
-                      >
-                        <Book className="w-4 h-4" />
-                        <span>Recommend a book</span>
-                      </button>
-                    </div>
-                  )}
+                    <button
+                      onClick={() => setShowBookRecommendation(true)}
+                      className="flex items-center space-x-2 text-amber-400 hover:text-amber-300 text-sm transition-colors"
+                    >
+                      <Book className="w-4 h-4" />
+                      <span>Recommend a book</span>
+                    </button>
+                  </div>
                 </div>
               </>
             ) : (
@@ -570,6 +514,79 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
           </div>
         </div>
       </div>
+
+      {/* Book Recommendation Modal */}
+      {showBookRecommendation && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 w-full max-w-md border border-white/10">
+            <form onSubmit={handleSendBookRecommendation} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-white font-medium flex items-center space-x-2">
+                  <Book className="w-5 h-5" />
+                  <span>Recommend a Book</span>
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setShowBookRecommendation(false)}
+                  className="text-white/60 hover:text-white text-xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Book title *"
+                  value={bookRecommendation.title}
+                  onChange={(e) => setBookRecommendation({...bookRecommendation, title: e.target.value})}
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Author *"
+                  value={bookRecommendation.author}
+                  onChange={(e) => setBookRecommendation({...bookRecommendation, author: e.target.value})}
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  required
+                />
+                <textarea
+                  placeholder="Why do you recommend this book? (optional)"
+                  value={bookRecommendation.description}
+                  onChange={(e) => setBookRecommendation({...bookRecommendation, description: e.target.value})}
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 resize-none"
+                  rows={3}
+                />
+                <input
+                  type="url"
+                  placeholder="Amazon link (optional)"
+                  value={bookRecommendation.amazonUrl}
+                  onChange={(e) => setBookRecommendation({...bookRecommendation, amazonUrl: e.target.value})}
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                />
+              </div>
+              
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowBookRecommendation(false)}
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-medium transition-all duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSending || !bookRecommendation.title || !bookRecommendation.author}
+                  className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSending ? 'Sending...' : 'Send Recommendation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
