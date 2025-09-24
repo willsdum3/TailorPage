@@ -1700,6 +1700,8 @@ export class TailorMatesService {
         });
 
       console.log('RPC response - data:', data, 'error:', error);
+      console.log('RPC response - data type:', typeof data);
+      console.log('RPC response - data keys:', data ? Object.keys(data) : 'null');
 
       if (error) {
         console.error('Error removing friend:', error);
@@ -1708,10 +1710,14 @@ export class TailorMatesService {
 
       // Handle response data
       console.log('Remove friend result:', data);
+      console.log('Remove friend result.success:', data?.success);
+      console.log('Remove friend result.error:', data?.error);
       
-      if (data && data.success) {
+      if (data && data.success === true) {
+        console.log('Returning success: true');
         return { success: true };
       } else {
+        console.log('Returning success: false, error:', data?.error || 'Unknown error');
         return { success: false, error: data?.error || 'Unknown error' };
       }
     } catch (error) {
