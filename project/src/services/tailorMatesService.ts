@@ -1692,6 +1692,8 @@ export class TailorMatesService {
 
       // Use the new function that handles user ID lookup internally
       console.log('Calling RPC with params:', { p_auth_user_id: authUserId, p_friend_internal_id: friendId });
+      console.log('authUserId type:', typeof authUserId, 'value:', authUserId);
+      console.log('friendId type:', typeof friendId, 'value:', friendId);
       
       const { data, error } = await supabase
         .rpc('remove_friend_by_internal_id', {
