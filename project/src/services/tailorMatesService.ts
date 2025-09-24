@@ -936,11 +936,14 @@ export class TailorMatesService {
   static async getFriendConnections(): Promise<FriendConnection[]> {
     try {
       const currentUserId = await this.getCurrentInternalUserId();
+      console.log('getFriendConnections - currentUserId:', currentUserId);
 
       const { data, error } = await supabase
         .rpc('get_friend_connections', {
           p_auth_user_id: currentUserId
         });
+
+      console.log('getFriendConnections - RPC response:', { data, error });
 
       if (error) {
         console.error('Error getting friend connections:', error);
@@ -948,7 +951,7 @@ export class TailorMatesService {
       }
 
       // Map snake_case database fields to camelCase frontend fields
-      return (data || []).map((connection: any) => ({
+      const mappedData = (data || []).map((connection: any) => ({
         id: connection.id,
         friendId: connection.friend_id,
         friendName: connection.friend_name,
@@ -958,6 +961,9 @@ export class TailorMatesService {
         personalityMatchScore: connection.personality_match_score,
         createdAt: connection.created_at
       }));
+
+      console.log('getFriendConnections - mapped data:', mappedData);
+      return mappedData;
     } catch (error) {
       console.error('Error in getFriendConnections:', error);
       return [];
