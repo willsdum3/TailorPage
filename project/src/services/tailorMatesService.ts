@@ -1706,14 +1706,13 @@ export class TailorMatesService {
         return { success: false, error: error.message };
       }
 
-      // Parse JSON response
-      const result = typeof data === 'string' ? JSON.parse(data) : data;
-      console.log('Remove friend result:', result);
+      // Handle response data
+      console.log('Remove friend result:', data);
       
-      if (result.success) {
+      if (data && data.success) {
         return { success: true };
       } else {
-        return { success: false, error: result.error };
+        return { success: false, error: data?.error || 'Unknown error' };
       }
     } catch (error) {
       console.error('Error in removeFriend:', error);
