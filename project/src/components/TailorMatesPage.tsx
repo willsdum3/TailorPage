@@ -969,6 +969,8 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                           // Safety check for friend object
                           if (!friend || !friend.id) return null;
                           
+                          console.log('Rendering individual friend:', friend);
+                          
                           return (
                             <div key={friend.id} className="space-y-3">
                               {/* Friend Card - Clickable for messaging */}
