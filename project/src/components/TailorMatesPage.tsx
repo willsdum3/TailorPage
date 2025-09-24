@@ -127,6 +127,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           setFriendRecommendations(recommendations);
           setFriendRequests(requests);
           console.log('Loaded friends data successfully:', { connections, recommendations, requests });
+          console.log('Setting friendConnections state to:', connections);
         } catch (error) {
           console.error('Error loading friends data:', error);
           // Set empty arrays to prevent blank page
@@ -960,9 +961,11 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {safeFriendConnections
-                        .filter(f => f && f.status === 'accepted')
-                        .map((friend) => {
+                      {(() => {
+                        const acceptedFriends = safeFriendConnections.filter(f => f && f.status === 'accepted');
+                        console.log('Rendering friends - safeFriendConnections:', safeFriendConnections);
+                        console.log('Rendering friends - acceptedFriends:', acceptedFriends);
+                        return acceptedFriends.map((friend) => {
                           // Safety check for friend object
                           if (!friend || !friend.id) return null;
                           
@@ -1052,7 +1055,8 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                               </div>
                             </div>
                           );
-                        })}
+                        });
+                      })()}
                     </div>
                   )}
                 </div>
