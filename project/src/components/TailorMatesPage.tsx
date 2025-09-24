@@ -315,17 +315,16 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Force refresh of friends data specifically
-        if (activeTab === 'friends') {
-          console.log('Refreshing friends data...');
-          const connections = await TailorMatesService.getFriendConnections().catch(err => {
-            console.error('Error loading friend connections after removal:', err);
-            return [];
-          });
-          console.log('Friend connections after removal:', connections);
-          setFriendConnections(connections);
-        } else {
-          await loadData(); // Refresh all data if not on friends tab
-        }
+        console.log('Refreshing friends data...');
+        const connections = await TailorMatesService.getFriendConnections().catch(err => {
+          console.error('Error loading friend connections after removal:', err);
+          return [];
+        });
+        console.log('Friend connections after removal:', connections);
+        setFriendConnections(connections);
+        
+        // Also refresh all data to ensure consistency
+        await loadData();
         
         alert('Friend removed successfully.');
       } else {
