@@ -925,10 +925,6 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 <div className="mb-6">
                   <h2 className="text-3xl font-bold text-white mb-2">Friends</h2>
                   <p className="text-white/70">Connect with fellow book lovers and share recommendations</p>
-                  {/* Debug info */}
-                  <div className="text-xs text-white/40 mt-2">
-                    Debug: connections={safeFriendConnections?.length || 0}, recommendations={safeFriendRecommendations?.length || 0}, requests={safeFriendRequests?.length || 0}
-                  </div>
                 </div>
                 
                 {/* Error fallback */}
@@ -1030,10 +1026,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                   </div>
                                 </div>
                               </div>
-                              <div className="flex items-center justify-between text-sm">
-                                <span className={`${TailorMatesService.getMatchScoreColor(friend.personalityMatchScore || 0)} font-medium`}>
-                                  {Math.round((friend.personalityMatchScore || 0) * 100)}% Match
-                                </span>
+                              <div className="flex items-center justify-end text-sm">
                                 <span className="text-white/50">
                                   {friend.createdAt ? TailorMatesService.formatDate(friend.createdAt) : 'Unknown date'}
                                 </span>
