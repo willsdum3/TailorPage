@@ -94,6 +94,14 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     try {
       setIsLoading(true);
       
+      // Force clear any cached data for friends tab
+      if (activeTab === 'friends') {
+        console.log('Force clearing friends data before reload...');
+        setFriendConnections([]);
+        setFriendRecommendations([]);
+        setFriendRequests([]);
+      }
+      
       // Load data for the current active tab
       if (activeTab === 'clubs') {
         await loadBookClubsData();
@@ -960,7 +968,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                       <p className="text-white/50 text-sm">Check out the recommendations below to find reading buddies!</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div key={`friends-${safeFriendConnections.length}-${Date.now()}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {(() => {
                         const acceptedFriends = safeFriendConnections.filter(f => f && f.status === 'accepted');
                         console.log('Rendering friends - safeFriendConnections:', safeFriendConnections);
