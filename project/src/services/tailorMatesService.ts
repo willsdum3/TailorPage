@@ -972,7 +972,7 @@ export class TailorMatesService {
 
   static async generateFriendRecommendations(): Promise<number> {
     try {
-      const currentUserId = await this.getCurrentInternalUserId();
+      const currentUserId = await this.getCurrentUserId();
 
       const { data, error } = await supabase
         .rpc('generate_friend_recommendations', {
@@ -993,7 +993,7 @@ export class TailorMatesService {
 
   static async getFriendRecommendations(): Promise<FriendRecommendation[]> {
     try {
-      const currentUserId = await this.getCurrentInternalUserId();
+      const currentUserId = await this.getCurrentUserId();
 
       const { data, error } = await supabase
         .rpc('get_friend_recommendations', {

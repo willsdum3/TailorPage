@@ -1261,7 +1261,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                             <div className="mb-3">
                               <div className="flex items-center justify-between text-sm mb-2">
                                 <span className={`${TailorMatesService.getMatchScoreColor(recommendation.matchScore || 0)} font-medium`}>
-                                  {Math.round((recommendation.matchScore || 0) * 100)}% Match
+                                  {Math.round(recommendation.matchScore || 0)}% Match
                                 </span>
                                 <span className="text-white/50">
                                   {TailorMatesService.getMatchScoreLabel(recommendation.matchScore || 0)}
