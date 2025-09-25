@@ -3,6 +3,7 @@ import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as 
 import { Discussion, DiscussionMessage, User as UserType } from '../types';
 import { TailorMatesService } from '../services/tailorMatesService';
 import AddFriendModal from './AddFriendModal';
+import UserActionModal from './UserActionModal';
 
 interface DiscussionDetailPageProps {
   discussionId: string;
@@ -10,9 +11,10 @@ interface DiscussionDetailPageProps {
   user: UserType | null;
   onDiscussionDeleted?: () => void;
   onDiscussionLeft?: () => void;
+  onNavigateToFriends?: (friendId: string) => Promise<void>;
 }
 
-const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionId, onBack, user, onDiscussionDeleted, onDiscussionLeft }) => {
+const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionId, onBack, user, onDiscussionDeleted, onDiscussionLeft, onNavigateToFriends }) => {
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [messages, setMessages] = useState<DiscussionMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -27,9 +29,22 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     username: string;
     imageUrl?: string;
   } | null>(null);
+  
+  // User Action Modal state
+  const [showUserActionModal, setShowUserActionModal] = useState(false);
+  const [selectedUserForAction, setSelectedUserForAction] = useState<{
+    id: string;
+    name: string;
+    username: string;
+    avatarUrl?: string;
+  } | null>(null);
+  
+  // Friend connections state
+  const [friendConnections, setFriendConnections] = useState<any[]>([]);
 
   useEffect(() => {
     loadDiscussion();
+    loadFriendConnections();
   }, [discussionId]);
 
   useEffect(() => {
@@ -66,6 +81,16 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
       console.error('Error loading discussion:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadFriendConnections = async () => {
+    try {
+      const connections = await TailorMatesService.getFriendConnections();
+      setFriendConnections(connections);
+    } catch (error) {
+      console.error('Error loading friend connections:', error);
+      setFriendConnections([]);
     }
   };
 
@@ -196,13 +221,86 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
       return;
     }
     
-    setSelectedUserForFriend({
+    // Show the UserActionModal immediately
+    setSelectedUserForAction({
       id: userId,
       name: userName,
       username: userUsername,
-      imageUrl: userImageUrl
+      avatarUrl: userImageUrl
     });
-    setShowAddFriendModal(true);
+    setShowUserActionModal(true);
+  };
+
+  // User Action Modal handlers
+  const handleUserActionSendFriendRequest = async () => {
+    if (!selectedUserForAction) return;
+    
+    try {
+      const result = await TailorMatesService.sendFriendRequest(selectedUserForAction.id);
+      
+      if (result.success) {
+        alert('Friend request sent successfully!');
+        setShowUserActionModal(false);
+        setSelectedUserForAction(null);
+        // Refresh friend connections to update the UI
+        await loadFriendConnections();
+      } else {
+        alert(result.error || 'Failed to send friend request. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending friend request:', error);
+      alert('Failed to send friend request. Please try again.');
+    }
+  };
+
+  const handleUserActionBlockUser = async () => {
+    if (!selectedUserForAction) return;
+    
+    try {
+      const result = await TailorMatesService.blockFriend(selectedUserForAction.id);
+      
+      if (result.success) {
+        alert('User blocked successfully!');
+        setShowUserActionModal(false);
+        setSelectedUserForAction(null);
+        // Refresh friend connections to update the UI
+        await loadFriendConnections();
+      } else {
+        alert(result.error || 'Failed to block user. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error blocking user:', error);
+      alert('Failed to block user. Please try again.');
+    }
+  };
+
+  const handleUserActionSendMessage = async () => {
+    console.log('handleUserActionSendMessage called');
+    console.log('selectedUserForAction:', selectedUserForAction);
+    console.log('onNavigateToFriends available:', !!onNavigateToFriends);
+    
+    if (!selectedUserForAction) {
+      console.log('No selectedUserForAction, returning');
+      return;
+    }
+    
+    // Close the modal first
+    setShowUserActionModal(false);
+    setSelectedUserForAction(null);
+    
+    // Navigate to Friends tab and open conversation
+    if (onNavigateToFriends) {
+      console.log('Calling onNavigateToFriends with ID:', selectedUserForAction.id);
+      await onNavigateToFriends(selectedUserForAction.id);
+    } else {
+      console.log('onNavigateToFriends not available');
+    }
+  };
+
+  const isUserFriend = (userId: string) => {
+    return friendConnections.some(friend => 
+      friend.friendId === userId && friend.status === 'accepted'
+    );
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -499,6 +597,23 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
           onFriendRequestSent={() => {
             // Optionally refresh friend connections or show success message
           }}
+        />
+      )}
+
+      {/* User Action Modal */}
+      {selectedUserForAction && (
+        <UserActionModal
+          isOpen={showUserActionModal}
+          onClose={() => {
+            setShowUserActionModal(false);
+            setSelectedUserForAction(null);
+          }}
+          user={selectedUserForAction}
+          isFriend={isUserFriend(selectedUserForAction.id)}
+          onSendFriendRequest={handleUserActionSendFriendRequest}
+          onBlockUser={handleUserActionBlockUser}
+          onSendMessage={handleUserActionSendMessage}
+          isCurrentUser={selectedUserForAction.id === currentUserId}
         />
       )}
     </div>

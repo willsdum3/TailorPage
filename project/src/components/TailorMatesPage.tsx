@@ -28,11 +28,86 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [friendConnections, setFriendConnections] = useState<FriendConnection[]>([]);
   const [friendRecommendations, setFriendRecommendations] = useState<FriendRecommendation[]>([]);
   const [friendRequests, setFriendRequests] = useState<FriendConnection[]>([]);
+  const [blockedUsers, setBlockedUsers] = useState<FriendConnection[]>([]);
   
   // Ensure arrays are never undefined and have proper structure
   const safeFriendConnections = Array.isArray(friendConnections) ? friendConnections : [];
   const safeFriendRecommendations = Array.isArray(friendRecommendations) ? friendRecommendations : [];
   const safeFriendRequests = Array.isArray(friendRequests) ? friendRequests : [];
+  const safeBlockedUsers = Array.isArray(blockedUsers) ? blockedUsers : [];
+
+  // Filter data based on search term and selected filter
+  const filteredBookClubs = bookClubs.filter(club => {
+    const matchesSearch = searchTerm === '' || 
+      club.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      club.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      club.currentBookTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      club.currentBookAuthor?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = selectedFilter === 'All' || 
+      (selectedFilter === 'Book Clubs' && true) ||
+      (selectedFilter === 'My Clubs' && club.isMember) ||
+      (selectedFilter === 'Admin Clubs' && (club.userRole === 'admin' || club.userRole === 'owner'));
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const filteredDiscussions = discussions.filter(discussion => {
+    const matchesSearch = searchTerm === '' || 
+      discussion.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      discussion.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      discussion.bookTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      discussion.bookAuthor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      discussion.creatorName?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = selectedFilter === 'All' || 
+      (selectedFilter === 'Discussions' && true) ||
+      (selectedFilter === 'My Discussions' && discussion.isParticipant) ||
+      (selectedFilter === 'Created by Me' && discussion.isCreatedByUser);
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const filteredFriends = safeFriendConnections.filter(friend => {
+    const matchesSearch = searchTerm === '' || 
+      friend.friendName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      friend.friendUsername?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = selectedFilter === 'All' || 
+      (selectedFilter === 'Friends' && friend.status === 'accepted') ||
+      (selectedFilter === 'Pending' && friend.status === 'pending');
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const filteredBlockedUsers = safeBlockedUsers.filter(blocked => {
+    const matchesSearch = searchTerm === '' || 
+      blocked.friendName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      blocked.friendUsername?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesSearch;
+  });
+
+  const filteredFriendRecommendations = safeFriendRecommendations.filter(recommendation => {
+    const matchesSearch = searchTerm === '' || 
+      recommendation.recommendedUserName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recommendation.recommendedUserUsername?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Filter out users who are already friends or have pending requests
+    const isAlreadyFriend = safeFriendConnections.some(friend => 
+      friend.friendId === recommendation.recommendedUserId && friend.status === 'accepted'
+    );
+    
+    const hasPendingRequest = safeFriendConnections.some(friend => 
+      friend.friendId === recommendation.recommendedUserId && friend.status === 'pending'
+    );
+    
+    const hasOutgoingRequest = safeFriendRequests.some(request => 
+      request.friendId === recommendation.recommendedUserId
+    );
+    
+    return matchesSearch && !isAlreadyFriend && !hasPendingRequest && !hasOutgoingRequest;
+  });
   
   // UI states
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +117,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
   const [showFriendsMessaging, setShowFriendsMessaging] = useState(false);
   const [selectedFriendForMessaging, setSelectedFriendForMessaging] = useState<FriendConnection | null>(null);
+  
   
   // Scroll to top when component mounts
   useScrollToTopInstant([]);
@@ -100,6 +176,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         setFriendConnections([]);
         setFriendRecommendations([]);
         setFriendRequests([]);
+        setBlockedUsers([]);
       }
       
       // Load data for the current active tab
@@ -131,9 +208,17 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           });
           console.log('Friend requests result:', requests);
           
-          setFriendConnections(connections);
-          setFriendRecommendations(recommendations);
+          console.log('Calling getBlockedUsers...');
+          const blocked = await TailorMatesService.getBlockedUsers().catch(err => {
+            console.error('Error loading blocked users:', err);
+            return [];
+          });
+          console.log('Blocked users result:', blocked);
+          
+        setFriendConnections(connections);
+        setFriendRecommendations(recommendations);
           setFriendRequests(requests);
+          setBlockedUsers(blocked);
           console.log('Loaded friends data successfully:', { connections, recommendations, requests });
           console.log('Setting friendConnections state to:', connections);
         } catch (error) {
@@ -157,6 +242,70 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     setSearchTerm('');
     setSelectedFilter('All');
     // loadData will be called automatically by useEffect when activeTab changes
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    setSelectedFilter('All');
+  };
+
+
+
+
+  // Navigation handler for opening Friends conversation from detail pages
+  const handleNavigateToFriends = async (friendId: string) => {
+    console.log('handleNavigateToFriends called with friendId:', friendId);
+    console.log('Current friend connections:', safeFriendConnections);
+    
+    // If friend connections are empty, try to load them first
+    if (safeFriendConnections.length === 0) {
+      console.log('Friend connections empty, loading fresh data...');
+      try {
+        const freshConnections = await TailorMatesService.getFriendConnections();
+        console.log('Fresh friend connections loaded:', freshConnections);
+        
+        // Find the friend connection for this user
+        const friendConnection = freshConnections.find(friend => 
+          friend.friendId === friendId && friend.status === 'accepted'
+        );
+        
+        console.log('Found friend connection in fresh data:', friendConnection);
+        
+        if (friendConnection) {
+          console.log('Setting up navigation to Friends...');
+          // Set the selected friend for messaging
+          setSelectedFriendForMessaging(friendConnection);
+          // Switch to Friends tab
+          setActiveTab('friends');
+          // Show the messaging interface
+          setShowFriendsMessaging(true);
+          console.log('Navigation setup complete');
+          return;
+        }
+      } catch (error) {
+        console.error('Error loading fresh friend connections:', error);
+      }
+    }
+    
+    // Find the friend connection for this user in existing data
+    const friendConnection = safeFriendConnections.find(friend => 
+      friend.friendId === friendId && friend.status === 'accepted'
+    );
+    
+    console.log('Found friend connection:', friendConnection);
+    
+    if (friendConnection) {
+      console.log('Setting up navigation to Friends...');
+      // Set the selected friend for messaging
+      setSelectedFriendForMessaging(friendConnection);
+      // Switch to Friends tab
+      setActiveTab('friends');
+      // Show the messaging interface
+      setShowFriendsMessaging(true);
+      console.log('Navigation setup complete');
+    } else {
+      console.log('No friend connection found for user:', friendId);
+    }
   };
 
   const handleCreateClub = async (clubData: any) => {
@@ -244,8 +393,22 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
 
     try {
-      await TailorMatesService.sendFriendRequest(friendClerkId);
-      await loadData(); // Refresh the list
+      const result = await TailorMatesService.sendFriendRequest(friendClerkId);
+      
+      if (result.success) {
+        // Show success message
+        alert('Friend request sent successfully!');
+        
+        // Remove the user from recommendations immediately
+        setFriendRecommendations(prev => 
+          prev.filter(rec => rec.recommendedUserId !== friendClerkId)
+        );
+        
+        // Refresh the data to get updated friend requests
+        await loadData();
+      } else {
+        alert(result.error || 'Failed to send friend request. Please try again.');
+      }
     } catch (error) {
       console.error('Error sending friend request:', error);
       alert('Failed to send friend request. Please try again.');
@@ -261,7 +424,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     try {
       const result = await TailorMatesService.acceptFriendRequest(friendClerkId);
       if (result.success) {
-        await loadData(); // Refresh the list
+        // Show success message
+        alert('Friend request accepted successfully!');
+        
+        // Remove the user from recommendations immediately
+        setFriendRecommendations(prev => 
+          prev.filter(rec => rec.recommendedUserId !== friendClerkId)
+        );
+        
+      await loadData(); // Refresh the list
       } else {
         alert(result.error || 'Failed to accept friend request.');
       }
@@ -280,6 +451,8 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     try {
       const result = await TailorMatesService.rejectFriendRequest(friendClerkId);
       if (result.success) {
+        // Show success message
+        alert('Friend request rejected successfully!');
         await loadData(); // Refresh the list
       } else {
         alert(result.error || 'Failed to reject friend request.');
@@ -414,6 +587,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           // Refresh book clubs list after deletion
           loadBookClubsData();
         }}
+        onNavigateToFriends={handleNavigateToFriends}
       />
     );
   }
@@ -433,6 +607,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           // Refresh discussions list after leaving
           loadDiscussionsData();
         }}
+        onNavigateToFriends={handleNavigateToFriends}
       />
     );
   }
@@ -558,20 +733,52 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
               placeholder="Search book clubs, discussions, or friends..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+              className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-12 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
             />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
           <select
             value={selectedFilter}
             onChange={(e) => setSelectedFilter(e.target.value)}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+            className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50 w-full md:w-auto md:min-w-[200px] appearance-none cursor-pointer"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundPosition: 'right 12px center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '16px'
+            }}
           >
-            <option value="All">All Categories</option>
-            <option value="Fantasy">Fantasy</option>
-            <option value="Thriller">Thriller</option>
-            <option value="Romance">Romance</option>
-            <option value="Self-Help">Self-Help</option>
-            <option value="Historical Fiction">Historical Fiction</option>
+            <option value="All" className="bg-slate-800 text-white py-2 px-3">All Categories</option>
+            {activeTab === 'clubs' && (
+              <>
+                <option value="Book Clubs" className="bg-slate-800 text-white py-2 px-3">All Book Clubs</option>
+                <option value="My Clubs" className="bg-slate-800 text-white py-2 px-3">My Clubs</option>
+                <option value="Admin Clubs" className="bg-slate-800 text-white py-2 px-3">Admin Clubs</option>
+              </>
+            )}
+            {activeTab === 'discussions' && (
+              <>
+                <option value="Discussions" className="bg-slate-800 text-white py-2 px-3">All Discussions</option>
+                <option value="My Discussions" className="bg-slate-800 text-white py-2 px-3">My Discussions</option>
+                <option value="Created by Me" className="bg-slate-800 text-white py-2 px-3">Created by Me</option>
+              </>
+            )}
+            {activeTab === 'friends' && (
+              <>
+                <option value="Friends" className="bg-slate-800 text-white py-2 px-3">All Friends</option>
+                <option value="Pending" className="bg-slate-800 text-white py-2 px-3">Pending Requests</option>
+                <option value="Blocked" className="bg-slate-800 text-white py-2 px-3">Blocked Users</option>
+              </>
+            )}
           </select>
         </div>
 
@@ -583,22 +790,30 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
                 <p className="text-white/70 mt-4">Loading book clubs...</p>
               </div>
-            ) : bookClubs.length === 0 ? (
+            ) : filteredBookClubs.length === 0 ? (
               <div className="col-span-full text-center py-20">
                 <BookOpen className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">No Book Clubs Yet</h3>
-                <p className="text-white/70 mb-6">Be the first to create a book club!</p>
-                <p className="text-white/50 text-sm mb-4">Debug: bookClubs.length = {bookClubs.length}</p>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  {searchTerm ? 'No Book Clubs Found' : 'No Book Clubs Yet'}
+                </h3>
+                <p className="text-white/70 mb-6">
+                  {searchTerm 
+                    ? `No book clubs match "${searchTerm}". Try a different search term.`
+                    : 'Be the first to create a book club!'
+                  }
+                </p>
+                {!searchTerm && (
                 <button
                   onClick={() => setShowCreateClubModal(true)}
                   className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
                 >
                   Create First Club
                 </button>
+                )}
               </div>
             ) : (
               <>
-                {bookClubs
+                {filteredBookClubs
                   .sort((a, b) => {
                     // Sort priority: 1. Admin clubs, 2. Member clubs, 3. Other clubs
                     const aIsAdmin = a.userRole === 'admin' || a.userRole === 'owner';
@@ -769,22 +984,30 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
                 <p className="text-white/70 mt-4">Loading discussions...</p>
               </div>
-            ) : discussions.length === 0 ? (
+            ) : filteredDiscussions.length === 0 ? (
               <div className="text-center py-20">
                 <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">No Discussions Yet</h3>
-                <p className="text-white/70 mb-6">Be the first to start a discussion!</p>
-                <p className="text-white/50 text-sm mb-4">Debug: discussions.length = {discussions.length}</p>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  {searchTerm ? 'No Discussions Found' : 'No Discussions Yet'}
+                </h3>
+                <p className="text-white/70 mb-6">
+                  {searchTerm 
+                    ? `No discussions match "${searchTerm}". Try a different search term.`
+                    : 'Be the first to start a discussion!'
+                  }
+                </p>
+                {!searchTerm && (
                 <button
                   onClick={() => setShowCreateDiscussionModal(true)}
                   className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
                 >
                   Start First Discussion
                 </button>
+                )}
               </div>
             ) : (
               <>
-                {discussions
+                {filteredDiscussions
                   .sort((a, b) => {
                     // Sort priority: 1. Created by user, 2. Participated discussions, 3. Other discussions
                     if (a.isCreatedByUser && !b.isCreatedByUser) return -1;
@@ -940,10 +1163,10 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
-                      <UserCheck className="w-6 h-6 text-green-400" />
-                      <span>Your Friends ({safeFriendConnections.filter(f => f.status === 'accepted').length})</span>
-                    </h3>
-                    {safeFriendConnections.filter(f => f.status === 'accepted').length > 0 && (
+                    <UserCheck className="w-6 h-6 text-green-400" />
+                      <span>Your Friends ({filteredFriends.filter(f => f.status === 'accepted').length})</span>
+                  </h3>
+                    {filteredFriends.filter(f => f.status === 'accepted').length > 0 && (
                       <button
                         onClick={() => {
                           setSelectedFriendForMessaging(null);
@@ -957,16 +1180,20 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     )}
                   </div>
                   
-                  {safeFriendConnections.filter(f => f.status === 'accepted').length === 0 ? (
+                  {filteredFriends.filter(f => f.status === 'accepted').length === 0 ? (
                     <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
                       <UserCheck className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                      <p className="text-white/70 mb-4">You haven't connected with any friends yet.</p>
-                      <p className="text-white/50 text-sm">Check out the recommendations below to find reading buddies!</p>
+                      <p className="text-white/70 mb-4">
+                        {searchTerm ? `No friends match "${searchTerm}".` : "You haven't connected with any friends yet."}
+                      </p>
+                      <p className="text-white/50 text-sm">
+                        {searchTerm ? "Try a different search term." : "Check out the recommendations below to find reading buddies!"}
+                      </p>
                     </div>
                   ) : (
-                    <div key={`friends-${safeFriendConnections.length}-${Date.now()}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div key={`friends-${filteredFriends.length}-${Date.now()}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {(() => {
-                        const acceptedFriends = safeFriendConnections.filter(f => f && f.status === 'accepted');
+                        const acceptedFriends = filteredFriends.filter(f => f && f.status === 'accepted');
                         console.log('Rendering friends - safeFriendConnections:', safeFriendConnections);
                         console.log('Rendering friends - acceptedFriends:', acceptedFriends);
                         return acceptedFriends.map((friend) => {
@@ -986,7 +1213,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                   setShowFriendsMessaging(true);
                                 }}
                               >
-                              <div className="flex items-center space-x-3 mb-3">
+                            <div className="flex items-center space-x-3 mb-3">
                                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                                   {friend.friendImageUrl ? (
                                     <img 
@@ -1004,15 +1231,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                     />
                                   ) : null}
                                   <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${friend.friendImageUrl ? 'hidden' : 'flex'}`}>
-                                    <UserIcon className="w-6 h-6 text-white" />
+                                <UserIcon className="w-6 h-6 text-white" />
                                   </div>
-                                </div>
-                                <div className="flex-1">
+                              </div>
+                              <div className="flex-1">
                                   <div className="flex items-center justify-between">
                                     <div>
                                       <h4 className="text-white font-medium">{friend.friendName || 'Unknown'}</h4>
                                       <p className="text-white/60 text-sm">@{friend.friendUsername || 'unknown'}</p>
-                                    </div>
+                              </div>
                                     <button
                                       onClick={() => {
                                         setSelectedFriendForMessaging(friend);
@@ -1023,15 +1250,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                       <MessageCircle className="w-3 h-3" />
                                       <span>Message</span>
                                     </button>
-                                  </div>
+                            </div>
                                 </div>
                               </div>
                               <div className="flex items-center justify-end text-sm">
-                                <span className="text-white/50">
+                              <span className="text-white/50">
                                   {friend.createdAt ? TailorMatesService.formatDate(friend.createdAt) : 'Unknown date'}
-                                </span>
-                              </div>
-                              </div>
+                              </span>
+                            </div>
+                          </div>
                               
                               {/* Action Buttons - Outside the clickable card */}
                               <div className="flex space-x-2">
@@ -1065,22 +1292,22 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 </div>
 
                 {/* Pending Friend Requests */}
-                {safeFriendConnections.filter(f => f && f.status === 'pending').length > 0 && (
+                {filteredFriends.filter(f => f && f.status === 'pending').length > 0 && (
                   <div>
                     <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
                       <Clock className="w-5 h-5 text-yellow-400" />
-                      <span>Pending Requests ({safeFriendConnections.filter(f => f && f.status === 'pending').length})</span>
+                      <span>Pending Requests ({filteredFriends.filter(f => f && f.status === 'pending').length})</span>
                     </h3>
                     <div className="space-y-3">
-                      {safeFriendConnections
+                      {filteredFriends
                         .filter(f => f && f.status === 'pending')
                         .map((friend) => {
                           if (!friend || !friend.id) return null;
                           
                           return (
-                            <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
+                          <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
                                   <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                                     {friend.friendImageUrl ? (
                                       <img 
@@ -1097,27 +1324,27 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                       />
                                     ) : null}
                                     <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${friend.friendImageUrl ? 'hidden' : 'flex'}`}>
-                                      <UserIcon className="w-5 h-5 text-white" />
+                                  <UserIcon className="w-5 h-5 text-white" />
                                     </div>
-                                  </div>
-                                  <div>
+                                </div>
+                                <div>
                                     <h4 className="text-white font-medium">{friend.friendName || 'Unknown'}</h4>
                                     <p className="text-white/60 text-sm">@{friend.friendUsername || 'unknown'}</p>
-                                  </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                  <button
-                                    onClick={() => handleAcceptFriendRequest(friend.friendId)}
-                                    className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
-                                  >
-                                    Accept
-                                  </button>
-                                  <button className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors">
-                                    Decline
-                                  </button>
                                 </div>
                               </div>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleAcceptFriendRequest(friend.friendId)}
+                                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                                >
+                                  Accept
+                                </button>
+                                <button className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors">
+                                  Decline
+                                </button>
+                              </div>
                             </div>
+                          </div>
                           );
                         })}
                     </div>
@@ -1185,12 +1412,83 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   </div>
                 )}
 
+                {/* Blocked Users */}
+                {selectedFilter === 'Blocked' && (
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                      <UserX className="w-5 h-5 text-red-400" />
+                      <span>Blocked Users ({filteredBlockedUsers.length})</span>
+                    </h3>
+                    {filteredBlockedUsers.length === 0 ? (
+                      <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                        <UserX className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                        <p className="text-white/70 mb-4">
+                          {searchTerm ? `No blocked users match "${searchTerm}".` : "You haven't blocked any users."}
+                        </p>
+                        <p className="text-white/50 text-sm">
+                          {searchTerm ? "Try a different search term." : "Blocked users will appear here."}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {filteredBlockedUsers.map((blocked) => {
+                          if (!blocked || !blocked.id) return null;
+                          
+                          return (
+                            <div key={blocked.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                                    {blocked.friendImageUrl ? (
+                                      <img
+                                        src={blocked.friendImageUrl}
+                                        alt={blocked.friendName || 'Blocked User'}
+                                        className="w-12 h-12 rounded-full object-cover"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            parent.innerHTML = `<span class="text-red-400 font-bold text-lg">${(blocked.friendName || 'B').charAt(0).toUpperCase()}</span>`;
+                                          }
+                                        }}
+                                      />
+                                    ) : (
+                                      <span className="text-red-400 font-bold text-lg">
+                                        {(blocked.friendName || 'B').charAt(0).toUpperCase()}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h4 className="text-white font-medium">{blocked.friendName || 'Unknown User'}</h4>
+                                    <p className="text-white/60 text-sm">@{blocked.friendUsername || 'unknown'}</p>
+                                    <p className="text-red-400/70 text-xs">Blocked on {blocked.createdAt ? TailorMatesService.formatDate(blocked.createdAt) : 'Unknown date'}</p>
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={() => {
+                                    // TODO: Implement unblock functionality
+                                    alert('Unblock functionality coming soon!');
+                                  }}
+                                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                                >
+                                  Unblock
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Friend Recommendations */}
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
                       <Sparkles className="w-6 h-6 text-amber-400" />
-                      <span>Recommended Friends ({safeFriendRecommendations.length})</span>
+                      <span>Recommended Friends ({filteredFriendRecommendations.length})</span>
                     </h3>
                     <button
                       onClick={handleGenerateRecommendations}
@@ -1214,25 +1512,29 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         Take Personality Quiz
                       </button>
                     </div>
-                  ) : safeFriendRecommendations.length === 0 ? (
+                  ) : filteredFriendRecommendations.length === 0 ? (
                     <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
                       <Sparkles className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                      <p className="text-white/70 mb-4">No recommendations available.</p>
+                      <p className="text-white/70 mb-4">
+                        {searchTerm ? `No recommendations match "${searchTerm}".` : "No recommendations available."}
+                      </p>
+                      {!searchTerm && (
                       <button
                         onClick={handleGenerateRecommendations}
                         className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
                       >
                         Generate Recommendations
                       </button>
+                      )}
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {safeFriendRecommendations.map((recommendation) => {
+                      {filteredFriendRecommendations.map((recommendation) => {
                         if (!recommendation || !recommendation.id) return null;
                         
                         return (
-                          <div key={recommendation.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
-                            <div className="flex items-center space-x-3 mb-3">
+                        <div key={recommendation.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                          <div className="flex items-center space-x-3 mb-3">
                               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                                 {recommendation.recommendedUserImageUrl ? (
                                   <img 
@@ -1249,48 +1551,48 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                   />
                                 ) : null}
                                 <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${recommendation.recommendedUserImageUrl ? 'hidden' : 'flex'}`}>
-                                  <UserIcon className="w-6 h-6 text-white" />
+                              <UserIcon className="w-6 h-6 text-white" />
                                 </div>
-                              </div>
-                              <div className="flex-1">
+                            </div>
+                            <div className="flex-1">
                                 <h4 className="text-white font-medium">{recommendation.recommendedUserName || 'Unknown'}</h4>
                                 <p className="text-white/60 text-sm">@{recommendation.recommendedUserUsername || 'unknown'}</p>
-                              </div>
                             </div>
-                            
-                            <div className="mb-3">
-                              <div className="flex items-center justify-between text-sm mb-2">
+                          </div>
+                          
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between text-sm mb-2">
                                 <span className={`${TailorMatesService.getMatchScoreColor(recommendation.matchScore || 0)} font-medium`}>
                                   {Math.round(recommendation.matchScore || 0)}% Match
-                                </span>
-                                <span className="text-white/50">
+                              </span>
+                              <span className="text-white/50">
                                   {TailorMatesService.getMatchScoreLabel(recommendation.matchScore || 0)}
-                                </span>
-                              </div>
-                              
+                              </span>
+                            </div>
+                            
                               {recommendation.matchReasons && Array.isArray(recommendation.matchReasons) && recommendation.matchReasons.length > 0 && (
-                                <div className="space-y-1">
+                              <div className="space-y-1">
                                   <p className="text-white/60 text-xs font-medium mb-1">Why you might connect:</p>
-                                  {recommendation.matchReasons
-                                    .filter(reason => reason)
+                                {recommendation.matchReasons
+                                  .filter(reason => reason)
                                     .slice(0, 3)
-                                    .map((reason, index) => (
+                                  .map((reason, index) => (
                                       <p key={index} className="text-white/70 text-xs flex items-center space-x-1">
                                         <span className="w-1 h-1 bg-pink-400 rounded-full flex-shrink-0"></span>
                                         <span>{reason || 'Unknown reason'}</span>
                                       </p>
-                                    ))}
-                                </div>
-                              )}
-                            </div>
-                          
-                            <button
-                              onClick={() => handleSendFriendRequest(recommendation.recommendedUserId)}
-                              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300"
-                            >
-                              Send Friend Request
-                            </button>
+                                  ))}
+                              </div>
+                            )}
                           </div>
+                          
+                          <button
+                            onClick={() => handleSendFriendRequest(recommendation.recommendedUserId)}
+                            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                          >
+                            Send Friend Request
+                          </button>
+                        </div>
                         );
                       })}
                     </div>
@@ -1314,6 +1616,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         onClose={() => setShowCreateDiscussionModal(false)}
         onSubmit={handleCreateDiscussion}
       />
+
 
     </div>
   );

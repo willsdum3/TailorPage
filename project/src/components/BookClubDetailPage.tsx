@@ -8,15 +8,17 @@ import EditClubModal from './EditClubModal';
 import PollVotingInterface from './PollVotingInterface';
 import ClubInvitationsManager from './ClubInvitationsManager';
 import AddFriendModal from './AddFriendModal';
+import UserActionModal from './UserActionModal';
 
 interface BookClubDetailPageProps {
   clubId: string;
   onBack: () => void;
   user: any;
   onBookClubDeleted?: () => void;
+  onNavigateToFriends?: (friendId: string) => Promise<void>;
 }
 
-const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack, user, onBookClubDeleted }) => {
+const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack, user, onBookClubDeleted, onNavigateToFriends }) => {
   const [club, setClub] = useState<BookClub | null>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
@@ -36,9 +38,22 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     username: string;
     imageUrl?: string;
   } | null>(null);
+  
+  // User Action Modal state
+  const [showUserActionModal, setShowUserActionModal] = useState(false);
+  const [selectedUserForAction, setSelectedUserForAction] = useState<{
+    id: string;
+    name: string;
+    username: string;
+    avatarUrl?: string;
+  } | null>(null);
+  
+  // Friend connections state
+  const [friendConnections, setFriendConnections] = useState<any[]>([]);
 
   useEffect(() => {
     loadClubData();
+    loadFriendConnections();
   }, [clubId]);
 
   useEffect(() => {
@@ -69,6 +84,16 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
       console.error('Error loading club data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadFriendConnections = async () => {
+    try {
+      const connections = await TailorMatesService.getFriendConnections();
+      setFriendConnections(connections);
+    } catch (error) {
+      console.error('Error loading friend connections:', error);
+      setFriendConnections([]);
     }
   };
 
@@ -195,13 +220,86 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
       return;
     }
     
-    setSelectedUserForFriend({
+    // Show the UserActionModal immediately
+    setSelectedUserForAction({
       id: userId,
       name: userName,
       username: userUsername,
-      imageUrl: userImageUrl
+      avatarUrl: userImageUrl
     });
-    setShowAddFriendModal(true);
+    setShowUserActionModal(true);
+  };
+
+  // User Action Modal handlers
+  const handleUserActionSendFriendRequest = async () => {
+    if (!selectedUserForAction) return;
+    
+    try {
+      const result = await TailorMatesService.sendFriendRequest(selectedUserForAction.id);
+      
+      if (result.success) {
+        alert('Friend request sent successfully!');
+        setShowUserActionModal(false);
+        setSelectedUserForAction(null);
+        // Refresh friend connections to update the UI
+        await loadFriendConnections();
+      } else {
+        alert(result.error || 'Failed to send friend request. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending friend request:', error);
+      alert('Failed to send friend request. Please try again.');
+    }
+  };
+
+  const handleUserActionBlockUser = async () => {
+    if (!selectedUserForAction) return;
+    
+    try {
+      const result = await TailorMatesService.blockFriend(selectedUserForAction.id);
+      
+      if (result.success) {
+        alert('User blocked successfully!');
+        setShowUserActionModal(false);
+        setSelectedUserForAction(null);
+        // Refresh friend connections to update the UI
+        await loadFriendConnections();
+      } else {
+        alert(result.error || 'Failed to block user. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error blocking user:', error);
+      alert('Failed to block user. Please try again.');
+    }
+  };
+
+  const handleUserActionSendMessage = async () => {
+    console.log('handleUserActionSendMessage called');
+    console.log('selectedUserForAction:', selectedUserForAction);
+    console.log('onNavigateToFriends available:', !!onNavigateToFriends);
+    
+    if (!selectedUserForAction) {
+      console.log('No selectedUserForAction, returning');
+      return;
+    }
+    
+    // Close the modal first
+    setShowUserActionModal(false);
+    setSelectedUserForAction(null);
+    
+    // Navigate to Friends tab and open conversation
+    if (onNavigateToFriends) {
+      console.log('Calling onNavigateToFriends with ID:', selectedUserForAction.id);
+      await onNavigateToFriends(selectedUserForAction.id);
+    } else {
+      console.log('onNavigateToFriends not available');
+    }
+  };
+
+  const isUserFriend = (userId: string) => {
+    return friendConnections.some(friend => 
+      friend.friendId === userId && friend.status === 'accepted'
+    );
   };
 
   const renderPersonalityTags = (traits: string[]) => {
@@ -404,12 +502,30 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                     )}
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <span className="text-white font-medium">{member.name}</span>
+                        {member.user_id === currentUserId ? (
+                          <span className="text-white font-medium">{member.name}</span>
+                        ) : (
+                          <button
+                            onClick={() => handleUserClick(member.user_id, member.name, member.username, member.avatar_url)}
+                            className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer"
+                          >
+                            {member.name}
+                          </button>
+                        )}
                         {member.role === 'admin' && (
                           <Crown className="w-4 h-4 text-yellow-400" />
                         )}
                       </div>
-                      <p className="text-white/60 text-sm">@{member.username}</p>
+                      {member.user_id === currentUserId ? (
+                        <p className="text-white/60 text-sm">@{member.username}</p>
+                      ) : (
+                        <button
+                          onClick={() => handleUserClick(member.user_id, member.name, member.username, member.avatar_url)}
+                          className="text-white/60 hover:text-pink-400/70 text-sm transition-colors cursor-pointer"
+                        >
+                          @{member.username}
+                        </button>
+                      )}
                     </div>
                     <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
                       member.role === 'admin' 
@@ -620,6 +736,23 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
           onFriendRequestSent={() => {
             // Optionally refresh friend connections or show success message
           }}
+        />
+      )}
+
+      {/* User Action Modal */}
+      {selectedUserForAction && (
+        <UserActionModal
+          isOpen={showUserActionModal}
+          onClose={() => {
+            setShowUserActionModal(false);
+            setSelectedUserForAction(null);
+          }}
+          user={selectedUserForAction}
+          isFriend={isUserFriend(selectedUserForAction.id)}
+          onSendFriendRequest={handleUserActionSendFriendRequest}
+          onBlockUser={handleUserActionBlockUser}
+          onSendMessage={handleUserActionSendMessage}
+          isCurrentUser={selectedUserForAction.id === currentUserId}
         />
       )}
     </div>

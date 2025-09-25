@@ -1762,6 +1762,45 @@ export class TailorMatesService {
     }
   }
 
+  static async getBlockedUsers(): Promise<FriendConnection[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      console.log('Getting blocked users for auth user ID:', authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_blocked_users', {
+          p_auth_user_id: authUserId
+        });
+
+      if (error) {
+        console.error('Error getting blocked users:', error);
+        return [];
+      }
+
+      console.log('Blocked users data:', data);
+
+      // Transform the data to match FriendConnection interface
+      const blockedUsers: FriendConnection[] = (data || []).map((blocked: any) => ({
+        id: blocked.id,
+        friendId: blocked.id,
+        friendName: blocked.blocked_user_name || 'Unknown',
+        friendUsername: blocked.blocked_user_username || 'unknown',
+        friendImageUrl: blocked.blocked_user_image_url || null,
+        status: 'blocked' as const,
+        personalityMatchScore: 0,
+        createdAt: blocked.blocked_at || new Date().toISOString()
+      }));
+
+      console.log('Transformed blocked users:', blockedUsers);
+      return blockedUsers;
+    } catch (error) {
+      console.error('Error in getBlockedUsers:', error);
+      return [];
+    }
+  }
+
   // =====================================================
   // NOTIFICATIONS SYSTEM
   // =====================================================
