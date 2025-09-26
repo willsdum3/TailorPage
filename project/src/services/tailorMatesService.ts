@@ -1771,36 +1771,17 @@ export class TailorMatesService {
       console.log('Blocking friend with ID:', friendId);
       console.log('Current user auth ID:', authUserId);
 
-      // Check if friendId is an internal ID or auth user ID
+      // Convert friendId to auth user ID if it's an internal ID
       let blockedAuthUserId = friendId;
       
-      // First, try to find the user by internal ID
-      const { data: friendDataByInternalId, error: friendErrorByInternalId } = await supabase
-        .from('users')
-        .select('auth_user_id')
-        .eq('id', friendId)
-        .single();
-
-      if (!friendErrorByInternalId && friendDataByInternalId) {
-        // friendId was an internal ID, use the auth_user_id
-        blockedAuthUserId = friendDataByInternalId.auth_user_id;
+      // Try to get auth_user_id assuming friendId is an internal ID
+      const authUserIdFromInternal = await this.getAuthUserIdFromInternalId(friendId);
+      if (authUserIdFromInternal) {
+        blockedAuthUserId = authUserIdFromInternal;
         console.log('Converted internal ID to auth user ID:', blockedAuthUserId);
       } else {
-        // Try to find the user by auth_user_id to verify it exists
-        const { data: friendDataByAuthId, error: friendErrorByAuthId } = await supabase
-          .from('users')
-          .select('auth_user_id')
-          .eq('auth_user_id', friendId)
-          .single();
-
-        if (!friendErrorByAuthId && friendDataByAuthId) {
-          // friendId is already an auth user ID
-          blockedAuthUserId = friendId;
-          console.log('Using friendId as auth user ID:', friendId);
-        } else {
-          console.error('User not found with either internal ID or auth user ID:', friendId);
-          return { success: false, error: 'User not found' };
-        }
+        // If conversion fails, assume friendId is already an auth user ID
+        console.log('Using friendId as auth user ID:', friendId);
       }
 
       // Use the enhanced function that includes automatic removal
