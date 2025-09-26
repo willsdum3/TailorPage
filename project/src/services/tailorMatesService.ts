@@ -1771,24 +1771,11 @@ export class TailorMatesService {
       console.log('Blocking friend with ID:', friendId);
       console.log('Current user auth ID:', authUserId);
 
-      // Convert friendId to auth user ID if it's an internal ID
-      let blockedAuthUserId = friendId;
-      
-      // Try to get auth_user_id assuming friendId is an internal ID
-      const authUserIdFromInternal = await this.getAuthUserIdFromInternalId(friendId);
-      if (authUserIdFromInternal) {
-        blockedAuthUserId = authUserIdFromInternal;
-        console.log('Converted internal ID to auth user ID:', blockedAuthUserId);
-      } else {
-        // If conversion fails, assume friendId is already an auth user ID
-        console.log('Using friendId as auth user ID:', friendId);
-      }
-
-      // Use the enhanced function that includes automatic removal
+      // Use the flexible function that can handle both internal IDs and auth user IDs
       const { data, error } = await supabase
-        .rpc('block_friend_with_removal', {
+        .rpc('block_friend_flexible', {
           p_blocker_auth_user_id: authUserId,
-          p_blocked_auth_user_id: blockedAuthUserId
+          p_blocked_user_id: friendId
         });
 
       if (error) {
