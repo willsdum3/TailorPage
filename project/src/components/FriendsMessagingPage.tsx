@@ -112,6 +112,25 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     
     if (!newMessage.trim() || !selectedConversation || !user || isSending) return;
 
+    // Check if current user is blocked by the friend
+    try {
+      const isBlocked = await TailorMatesService.isCurrentUserBlockedBy(selectedConversation.friendId);
+      if (isBlocked) {
+        alert('You cannot send messages to this user. You have been blocked.');
+        return;
+      }
+
+      // Check if current user has blocked the friend
+      const hasBlocked = await TailorMatesService.hasCurrentUserBlocked(selectedConversation.friendId);
+      if (hasBlocked) {
+        alert('You cannot send messages to this user. You have blocked them.');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking blocking status:', error);
+      // Continue with message sending if blocking check fails
+    }
+
     try {
       setIsSending(true);
       

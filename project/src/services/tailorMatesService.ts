@@ -962,8 +962,35 @@ export class TailorMatesService {
         createdAt: connection.created_at
       }));
 
-      console.log('getFriendConnections - mapped data:', mappedData);
-      return mappedData;
+      // Filter out blocked users
+      const filteredData = [];
+      const currentAuthUserId = await this.getCurrentUserId();
+      
+      for (const connection of mappedData) {
+        if (connection.status === 'accepted') {
+          // Check if this friend is blocked by current user or has blocked current user
+          // Note: connection.friendId is an internal ID, we need to get the auth_user_id
+          const friendAuthUserId = await this.getAuthUserIdFromInternalId(connection.friendId);
+          
+          if (friendAuthUserId) {
+            const isBlocked = await this.isUserBlocked(currentAuthUserId, friendAuthUserId);
+            const isBlockedBy = await this.isUserBlocked(friendAuthUserId, currentAuthUserId);
+            
+            if (!isBlocked && !isBlockedBy) {
+              filteredData.push(connection);
+            }
+          } else {
+            // If we can't find the friend's auth_user_id, include them (fallback)
+            filteredData.push(connection);
+          }
+        } else {
+          // Keep non-accepted connections (pending requests, etc.)
+          filteredData.push(connection);
+        }
+      }
+
+      console.log('getFriendConnections - filtered data:', filteredData);
+      return filteredData;
     } catch (error) {
       console.error('Error in getFriendConnections:', error);
       return [];
@@ -1733,13 +1760,46 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
-      console.log('Blocking friend with internal ID:', friendId);
+      console.log('Blocking friend with ID:', friendId);
+      console.log('Current user auth ID:', authUserId);
 
-      // Use the new function that handles user ID lookup internally
+      // Check if friendId is an internal ID or auth user ID
+      let blockedAuthUserId = friendId;
+      
+      // First, try to find the user by internal ID
+      const { data: friendDataByInternalId, error: friendErrorByInternalId } = await supabase
+        .from('users')
+        .select('auth_user_id')
+        .eq('id', friendId)
+        .single();
+
+      if (!friendErrorByInternalId && friendDataByInternalId) {
+        // friendId was an internal ID, use the auth_user_id
+        blockedAuthUserId = friendDataByInternalId.auth_user_id;
+        console.log('Converted internal ID to auth user ID:', blockedAuthUserId);
+      } else {
+        // Try to find the user by auth_user_id to verify it exists
+        const { data: friendDataByAuthId, error: friendErrorByAuthId } = await supabase
+          .from('users')
+          .select('auth_user_id')
+          .eq('auth_user_id', friendId)
+          .single();
+
+        if (!friendErrorByAuthId && friendDataByAuthId) {
+          // friendId is already an auth user ID
+          blockedAuthUserId = friendId;
+          console.log('Using friendId as auth user ID:', friendId);
+        } else {
+          console.error('User not found with either internal ID or auth user ID:', friendId);
+          return { success: false, error: 'User not found' };
+        }
+      }
+
+      // Use the enhanced function that includes automatic removal
       const { data, error } = await supabase
-        .rpc('block_friend_by_internal_id', {
-          p_auth_user_id: authUserId,
-          p_friend_internal_id: friendId
+        .rpc('block_friend_with_removal', {
+          p_blocker_auth_user_id: authUserId,
+          p_blocked_auth_user_id: blockedAuthUserId
         });
 
       if (error) {
@@ -1752,6 +1812,7 @@ export class TailorMatesService {
       console.log('Block friend result:', result);
       
       if (result.success) {
+        console.log('Blocking and removal completed:', result);
         return { success: true };
       } else {
         return { success: false, error: result.error };
@@ -1790,7 +1851,7 @@ export class TailorMatesService {
         friendImageUrl: blocked.blocked_user_image_url || null,
         status: 'blocked' as const,
         personalityMatchScore: 0,
-        createdAt: blocked.blocked_at || new Date().toISOString()
+        createdAt: blocked.created_at || new Date().toISOString()
       }));
 
       console.log('Transformed blocked users:', blockedUsers);
@@ -1798,6 +1859,165 @@ export class TailorMatesService {
     } catch (error) {
       console.error('Error in getBlockedUsers:', error);
       return [];
+    }
+  }
+
+  // Helper function to convert auth user ID to internal user ID
+  static async getInternalUserId(authUserId: string): Promise<string | null> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_user_id', authUserId)
+        .single();
+
+      if (error) {
+        console.error('Error getting internal user ID:', error);
+        return null;
+      }
+
+      return data?.id || null;
+    } catch (error) {
+      console.error('Error in getInternalUserId:', error);
+      return null;
+    }
+  }
+
+  // Helper function to convert internal user ID to auth user ID
+  static async getAuthUserIdFromInternalId(internalId: string): Promise<string | null> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('auth_user_id')
+        .eq('id', internalId)
+        .single();
+
+      if (error) {
+        console.error('Error getting auth user ID from internal ID:', error);
+        return null;
+      }
+
+      return data?.auth_user_id || null;
+    } catch (error) {
+      console.error('Error in getAuthUserIdFromInternalId:', error);
+      return null;
+    }
+  }
+
+  // Check if a user is blocked by another user
+  static async isUserBlocked(blockerUserId: string, blockedUserId: string): Promise<boolean> {
+    try {
+      // Convert auth user IDs to internal IDs if needed
+      const blockerInternalId = await this.getInternalUserId(blockerUserId);
+      const blockedInternalId = await this.getInternalUserId(blockedUserId);
+
+      if (!blockerInternalId || !blockedInternalId) {
+        console.error('Could not find internal IDs for blocking check');
+        return false;
+      }
+
+      const { data, error } = await supabase
+        .from('blocked_users')
+        .select('id')
+        .eq('blocker_id', blockerInternalId)
+        .eq('blocked_id', blockedInternalId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+        console.error('Error checking if user is blocked:', error);
+        return false;
+      }
+
+      return !!data;
+    } catch (error) {
+      console.error('Error in isUserBlocked:', error);
+      return false;
+    }
+  }
+
+  // Check if current user is blocked by another user
+  static async isCurrentUserBlockedBy(otherUserId: string): Promise<boolean> {
+    try {
+      const currentUserId = await this.getCurrentUserId();
+      return await this.isUserBlocked(otherUserId, currentUserId);
+    } catch (error) {
+      console.error('Error in isCurrentUserBlockedBy:', error);
+      return false;
+    }
+  }
+
+  // Check if current user has blocked another user
+  static async hasCurrentUserBlocked(otherUserId: string): Promise<boolean> {
+    try {
+      const currentUserId = await this.getCurrentUserId();
+      return await this.isUserBlocked(currentUserId, otherUserId);
+    } catch (error) {
+      console.error('Error in hasCurrentUserBlocked:', error);
+      return false;
+    }
+  }
+
+  // Remove blocked user from book clubs and discussions where blocker is admin/creator
+  static async removeBlockedUserFromClubsAndDiscussions(blockerUserId: string, blockedUserId: string): Promise<void> {
+    try {
+      console.log('Removing blocked user from clubs and discussions...');
+      console.log('Blocker user ID:', blockerUserId);
+      console.log('Blocked user ID:', blockedUserId);
+
+      // First get the club IDs where blocker is admin/owner
+      const { data: adminClubs, error: clubQueryError } = await supabase
+        .from('club_memberships')
+        .select('club_id')
+        .eq('user_id', blockerUserId)
+        .in('role', ['admin', 'owner']);
+
+      if (clubQueryError) {
+        console.error('Error querying admin clubs:', clubQueryError);
+      } else if (adminClubs && adminClubs.length > 0) {
+        const clubIds = adminClubs.map(club => club.club_id);
+        
+        // Remove from book clubs where blocker is admin/owner
+        const { error: clubError } = await supabase
+          .from('club_memberships')
+          .delete()
+          .eq('user_id', blockedUserId)
+          .in('club_id', clubIds);
+
+        if (clubError) {
+          console.error('Error removing from book clubs:', clubError);
+        } else {
+          console.log('Successfully removed from book clubs');
+        }
+      }
+
+      // Get discussion IDs where blocker is creator
+      const { data: createdDiscussions, error: discussionQueryError } = await supabase
+        .from('discussions')
+        .select('id')
+        .eq('created_by', blockerUserId);
+
+      if (discussionQueryError) {
+        console.error('Error querying created discussions:', discussionQueryError);
+      } else if (createdDiscussions && createdDiscussions.length > 0) {
+        const discussionIds = createdDiscussions.map(discussion => discussion.id);
+        
+        // Remove from discussions where blocker is creator
+        const { error: discussionError } = await supabase
+          .from('discussion_participants')
+          .delete()
+          .eq('user_id', blockedUserId)
+          .in('discussion_id', discussionIds);
+
+        if (discussionError) {
+          console.error('Error removing from discussions:', discussionError);
+        } else {
+          console.log('Successfully removed from discussions');
+        }
+      }
+
+    } catch (error) {
+      console.error('Error in removeBlockedUserFromClubsAndDiscussions:', error);
+      throw error;
     }
   }
 

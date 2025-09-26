@@ -117,6 +117,21 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
   const handleSendMessage = async () => {
     if (!newMessage.trim() || isSending) return;
 
+    // Check if current user is blocked by any admin of the club
+    try {
+      const adminMembers = members.filter(member => member.role === 'admin' || member.role === 'owner');
+      for (const admin of adminMembers) {
+        const isBlocked = await TailorMatesService.isCurrentUserBlockedBy(admin.user_id);
+        if (isBlocked) {
+          alert(`You cannot send messages to this book club. You have been blocked by ${admin.name}.`);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking blocking status for book club messaging:', error);
+      // Continue with message sending if blocking check fails
+    }
+
     try {
       setIsSending(true);
       const messageId = await TailorMatesService.addBookClubMessage(clubId, newMessage.trim());
@@ -152,6 +167,21 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
 
   const handleJoinClub = async () => {
     if (!club) return;
+    
+    // Check if current user is blocked by any admin of the club
+    try {
+      const adminMembers = members.filter(member => member.role === 'admin' || member.role === 'owner');
+      for (const admin of adminMembers) {
+        const isBlocked = await TailorMatesService.isCurrentUserBlockedBy(admin.user_id);
+        if (isBlocked) {
+          alert(`You cannot join this book club. You have been blocked by ${admin.name}.`);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking blocking status for book club:', error);
+      // Continue with join attempt if blocking check fails
+    }
     
     try {
       const success = await TailorMatesService.joinBookClub(clubId);

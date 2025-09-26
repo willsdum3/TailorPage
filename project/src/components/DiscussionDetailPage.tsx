@@ -100,6 +100,20 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
       return;
     }
 
+    // Check if current user is blocked by the discussion creator
+    try {
+      if (discussion && discussion.createdBy) {
+        const isBlocked = await TailorMatesService.isCurrentUserBlockedBy(discussion.createdBy);
+        if (isBlocked) {
+          alert('You cannot join this discussion. You have been blocked by the discussion creator.');
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking blocking status for discussion:', error);
+      // Continue with join attempt if blocking check fails
+    }
+
     try {
       await TailorMatesService.joinDiscussion(discussionId);
       
@@ -307,6 +321,20 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     e.preventDefault();
     
     if (!newMessage.trim() || !isParticipant || !user) return;
+
+    // Check if current user is blocked by the discussion creator
+    try {
+      if (discussion && discussion.createdBy) {
+        const isBlocked = await TailorMatesService.isCurrentUserBlockedBy(discussion.createdBy);
+        if (isBlocked) {
+          alert('You cannot send messages to this discussion. You have been blocked by the discussion creator.');
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking blocking status for discussion messaging:', error);
+      // Continue with message sending if blocking check fails
+    }
 
     try {
       setIsSending(true);
