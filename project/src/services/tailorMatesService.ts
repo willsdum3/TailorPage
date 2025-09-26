@@ -968,19 +968,27 @@ export class TailorMatesService {
       
       for (const connection of mappedData) {
         if (connection.status === 'accepted') {
-          // Check if this friend is blocked by current user or has blocked current user
-          // Note: connection.friendId is an internal ID, we need to get the auth_user_id
-          const friendAuthUserId = await this.getAuthUserIdFromInternalId(connection.friendId);
-          
-          if (friendAuthUserId) {
+          try {
+            // Check if this friend is blocked by current user or has blocked current user
+            // Try to determine if friendId is internal ID or auth user ID
+            let friendAuthUserId = connection.friendId;
+            
+            // First, try to get auth_user_id assuming friendId is an internal ID
+            const authUserIdFromInternal = await this.getAuthUserIdFromInternalId(connection.friendId);
+            if (authUserIdFromInternal) {
+              friendAuthUserId = authUserIdFromInternal;
+            }
+            // If that fails, assume friendId is already an auth user ID
+            
             const isBlocked = await this.isUserBlocked(currentAuthUserId, friendAuthUserId);
             const isBlockedBy = await this.isUserBlocked(friendAuthUserId, currentAuthUserId);
             
             if (!isBlocked && !isBlockedBy) {
               filteredData.push(connection);
             }
-          } else {
-            // If we can't find the friend's auth_user_id, include them (fallback)
+          } catch (error) {
+            console.error('Error checking blocking status for friend:', connection.friendId, error);
+            // If blocking check fails, include the friend (fallback)
             filteredData.push(connection);
           }
         } else {
@@ -1904,31 +1912,21 @@ export class TailorMatesService {
     }
   }
 
-  // Check if a user is blocked by another user
+  // Check if a user is blocked by another user using database function
   static async isUserBlocked(blockerUserId: string, blockedUserId: string): Promise<boolean> {
     try {
-      // Convert auth user IDs to internal IDs if needed
-      const blockerInternalId = await this.getInternalUserId(blockerUserId);
-      const blockedInternalId = await this.getInternalUserId(blockedUserId);
-
-      if (!blockerInternalId || !blockedInternalId) {
-        console.error('Could not find internal IDs for blocking check');
-        return false;
-      }
-
       const { data, error } = await supabase
-        .from('blocked_users')
-        .select('id')
-        .eq('blocker_id', blockerInternalId)
-        .eq('blocked_id', blockedInternalId)
-        .single();
+        .rpc('is_user_blocked', {
+          p_blocker_auth_user_id: blockerUserId,
+          p_blocked_auth_user_id: blockedUserId
+        });
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+      if (error) {
         console.error('Error checking if user is blocked:', error);
         return false;
       }
 
-      return !!data;
+      return data || false;
     } catch (error) {
       console.error('Error in isUserBlocked:', error);
       return false;
