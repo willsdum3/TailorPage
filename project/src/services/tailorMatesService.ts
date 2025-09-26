@@ -970,18 +970,9 @@ export class TailorMatesService {
         if (connection.status === 'accepted') {
           try {
             // Check if this friend is blocked by current user or has blocked current user
-            // Try to determine if friendId is internal ID or auth user ID
-            let friendAuthUserId = connection.friendId;
-            
-            // First, try to get auth_user_id assuming friendId is an internal ID
-            const authUserIdFromInternal = await this.getAuthUserIdFromInternalId(connection.friendId);
-            if (authUserIdFromInternal) {
-              friendAuthUserId = authUserIdFromInternal;
-            }
-            // If that fails, assume friendId is already an auth user ID
-            
-            const isBlocked = await this.isUserBlocked(currentAuthUserId, friendAuthUserId);
-            const isBlockedBy = await this.isUserBlocked(friendAuthUserId, currentAuthUserId);
+            // Use the flexible blocking check that handles both ID types
+            const isBlocked = await this.isUserBlocked(currentAuthUserId, connection.friendId);
+            const isBlockedBy = await this.isUserBlocked(connection.friendId, currentAuthUserId);
             
             if (!isBlocked && !isBlockedBy) {
               filteredData.push(connection);
@@ -1880,13 +1871,13 @@ export class TailorMatesService {
     }
   }
 
-  // Check if a user is blocked by another user using database function
+  // Check if a user is blocked by another user using flexible database function
   static async isUserBlocked(blockerUserId: string, blockedUserId: string): Promise<boolean> {
     try {
       const { data, error } = await supabase
-        .rpc('is_user_blocked', {
-          p_blocker_auth_user_id: blockerUserId,
-          p_blocked_auth_user_id: blockedUserId
+        .rpc('is_user_blocked_flexible', {
+          p_blocker_user_id: blockerUserId,
+          p_blocked_user_id: blockedUserId
         });
 
       if (error) {
