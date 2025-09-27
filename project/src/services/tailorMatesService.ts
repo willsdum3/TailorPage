@@ -1834,8 +1834,11 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
+      console.log('=== UNBLOCK DEBUG ===');
       console.log('Unblocking friend with ID:', friendId);
+      console.log('Friend ID type:', typeof friendId);
       console.log('Current user auth ID:', authUserId);
+      console.log('Current user auth ID type:', typeof authUserId);
 
       // Use the unblock function
       const { data, error } = await supabase
@@ -1852,6 +1855,9 @@ export class TailorMatesService {
       // Parse JSON response
       const result = typeof data === 'string' ? JSON.parse(data) : data;
       console.log('Unblock friend result:', result);
+      console.log('Raw data from RPC:', data);
+      console.log('RPC error:', error);
+      console.log('=== END UNBLOCK DEBUG ===');
       
       if (result.success) {
         console.log('Unblocking completed:', result);
