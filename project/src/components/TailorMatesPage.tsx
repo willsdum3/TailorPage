@@ -1159,26 +1159,170 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   </div>
                 )}
                 
-                {/* Friend Connections */}
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
-                    <UserCheck className="w-6 h-6 text-green-400" />
-                      <span>Your Friends ({filteredFriends.filter(f => f.status === 'accepted').length})</span>
-                  </h3>
-                    {filteredFriends.filter(f => f.status === 'accepted').length > 0 && (
-                      <button
-                        onClick={() => {
-                          setSelectedFriendForMessaging(null);
-                          setShowFriendsMessaging(true);
-                        }}
-                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                        <span>Messages</span>
-                      </button>
+                {/* Show different content based on selected filter */}
+                {selectedFilter === 'Blocked' ? (
+                  /* Blocked Users Only */
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                      <UserX className="w-5 h-5 text-red-400" />
+                      <span>Blocked Users ({filteredBlockedUsers.length})</span>
+                    </h3>
+                    {filteredBlockedUsers.length === 0 ? (
+                      <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                        <UserX className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                        <p className="text-white/70 mb-4">
+                          {searchTerm ? `No blocked users match "${searchTerm}".` : "You haven't blocked any users."}
+                        </p>
+                        <p className="text-white/50 text-sm">
+                          {searchTerm ? "Try a different search term." : "Blocked users will appear here."}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {filteredBlockedUsers.map((blocked) => {
+                          if (!blocked || !blocked.id) return null;
+                          
+                          return (
+                            <div key={blocked.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                                    {blocked.friendImageUrl ? (
+                                      <img
+                                        src={blocked.friendImageUrl}
+                                        alt={blocked.friendName || 'Blocked User'}
+                                        className="w-12 h-12 rounded-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display = 'none';
+                                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                          if (nextElement) {
+                                            nextElement.style.display = 'flex';
+                                          }
+                                        }}
+                                      />
+                                    ) : null}
+                                    <div className={`w-full h-full bg-gradient-to-r from-red-500 to-pink-600 flex items-center justify-center ${blocked.friendImageUrl ? 'hidden' : 'flex'}`}>
+                                      <span className="text-white font-bold text-lg">
+                                        {(blocked.friendName || 'B').charAt(0).toUpperCase()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h4 className="text-white font-medium">{blocked.friendName || 'Unknown User'}</h4>
+                                    <p className="text-white/60 text-sm">@{blocked.friendUsername || 'unknown'}</p>
+                                    <p className="text-red-400/70 text-xs">Blocked on {blocked.createdAt ? TailorMatesService.formatDate(blocked.createdAt) : 'Unknown date'}</p>
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={() => {
+                                    // TODO: Implement unblock functionality
+                                    alert('Unblock functionality coming soon!');
+                                  }}
+                                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                                >
+                                  Unblock
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
+                ) : selectedFilter === 'Pending' ? (
+                  /* Pending Requests Only */
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                      <UserPlus className="w-5 h-5 text-blue-400" />
+                      <span>Friend Requests ({safeFriendRequests.length})</span>
+                    </h3>
+                    {safeFriendRequests.length === 0 ? (
+                      <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                        <UserPlus className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                        <p className="text-white/70 mb-4">
+                          {searchTerm ? `No friend requests match "${searchTerm}".` : "No pending friend requests."}
+                        </p>
+                        <p className="text-white/50 text-sm">
+                          {searchTerm ? "Try a different search term." : "Friend requests will appear here."}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {safeFriendRequests.map((request) => {
+                          if (!request || !request.id) return null;
+                          
+                          return (
+                            <div key={request.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                                    {request.friendImageUrl ? (
+                                      <img 
+                                        src={request.friendImageUrl} 
+                                        alt={`${request.friendName || 'User'}'s profile`}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display = 'none';
+                                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                          if (nextElement) {
+                                            nextElement.style.display = 'flex';
+                                          }
+                                        }}
+                                      />
+                                    ) : null}
+                                    <div className={`w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center ${request.friendImageUrl ? 'hidden' : 'flex'}`}>
+                                      <UserIcon className="w-5 h-5 text-white" />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h4 className="text-white font-medium">{request.friendName || 'Unknown'}</h4>
+                                    <p className="text-white/60 text-sm">@{request.friendUsername || 'unknown'}</p>
+                                  </div>
+                                </div>
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => handleAcceptFriendRequest(request.friendId)}
+                                    className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                                  >
+                                    Accept
+                                  </button>
+                                  <button 
+                                    onClick={() => handleRejectFriendRequest(request.friendId)}
+                                    className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                                  >
+                                    Decline
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Default: All Friends and Recommendations */
+                  <>
+                    {/* Friend Connections */}
+                    <div>
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                        <UserCheck className="w-6 h-6 text-green-400" />
+                          <span>Your Friends ({filteredFriends.filter(f => f.status === 'accepted').length})</span>
+                      </h3>
+                        {filteredFriends.filter(f => f.status === 'accepted').length > 0 && (
+                          <button
+                            onClick={() => {
+                              setSelectedFriendForMessaging(null);
+                              setShowFriendsMessaging(true);
+                            }}
+                            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            <span>Messages</span>
+                          </button>
+                        )}
+                      </div>
                   
                   {filteredFriends.filter(f => f.status === 'accepted').length === 0 ? (
                     <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
@@ -1291,28 +1435,63 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   )}
                 </div>
 
-                {/* Pending Friend Requests */}
-                {filteredFriends.filter(f => f && f.status === 'pending').length > 0 && (
-                  <div>
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-                      <Clock className="w-5 h-5 text-yellow-400" />
-                      <span>Pending Requests ({filteredFriends.filter(f => f && f.status === 'pending').length})</span>
-                    </h3>
-                    <div className="space-y-3">
-                      {filteredFriends
-                        .filter(f => f && f.status === 'pending')
-                        .map((friend) => {
-                          if (!friend || !friend.id) return null;
-                          
-                          return (
-                          <div key={friend.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                                    {friend.friendImageUrl ? (
+                    {/* Friend Recommendations */}
+                    <div>
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                          <Sparkles className="w-6 h-6 text-amber-400" />
+                          <span>Recommended Friends ({filteredFriendRecommendations.length})</span>
+                        </h3>
+                        <button
+                          onClick={handleGenerateRecommendations}
+                          className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                        >
+                          Refresh
+                        </button>
+                      </div>
+                      
+                      {!hasCompletedQuiz ? (
+                        <div className="text-center py-12 bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-sm border border-pink-500/30 rounded-2xl">
+                          <Sparkles className="w-16 h-16 text-pink-400 mx-auto mb-4" />
+                          <h4 className="text-xl font-bold text-white mb-2">Complete Your Personality Quiz</h4>
+                          <p className="text-white/80 mb-4">
+                            Take our personality quiz to get matched with readers who share your traits!
+                          </p>
+                          <button
+                            onClick={onStartQuiz}
+                            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                          >
+                            Take Personality Quiz
+                          </button>
+                        </div>
+                      ) : filteredFriendRecommendations.length === 0 ? (
+                        <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                          <Sparkles className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                          <p className="text-white/70 mb-4">
+                            {searchTerm ? `No recommendations match "${searchTerm}".` : "No recommendations available."}
+                          </p>
+                          {!searchTerm && (
+                          <button
+                            onClick={handleGenerateRecommendations}
+                            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
+                          >
+                            Generate Recommendations
+                          </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {filteredFriendRecommendations.map((recommendation) => {
+                            if (!recommendation || !recommendation.id) return null;
+                            
+                            return (
+                            <div key={recommendation.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                              <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                                    {recommendation.recommendedUserImageUrl ? (
                                       <img 
-                                        src={friend.friendImageUrl} 
-                                        alt={`${friend.friendName || 'User'}'s profile`}
+                                        src={recommendation.recommendedUserImageUrl} 
+                                        alt={`${recommendation.recommendedUserName || 'User'}'s profile`}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
                                           e.currentTarget.style.display = 'none';
@@ -1323,281 +1502,56 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                                         }}
                                       />
                                     ) : null}
-                                    <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${friend.friendImageUrl ? 'hidden' : 'flex'}`}>
-                                  <UserIcon className="w-5 h-5 text-white" />
+                                    <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${recommendation.recommendedUserImageUrl ? 'hidden' : 'flex'}`}>
+                                  <UserIcon className="w-6 h-6 text-white" />
                                     </div>
                                 </div>
-                                <div>
-                                    <h4 className="text-white font-medium">{friend.friendName || 'Unknown'}</h4>
-                                    <p className="text-white/60 text-sm">@{friend.friendUsername || 'unknown'}</p>
+                                <div className="flex-1">
+                                    <h4 className="text-white font-medium">{recommendation.recommendedUserName || 'Unknown'}</h4>
+                                    <p className="text-white/60 text-sm">@{recommendation.recommendedUserUsername || 'unknown'}</p>
                                 </div>
                               </div>
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => handleAcceptFriendRequest(friend.friendId)}
-                                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
-                                >
-                                  Accept
-                                </button>
-                                <button className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors">
-                                  Decline
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                          );
-                        })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Incoming Friend Requests */}
-                {safeFriendRequests.length > 0 && (
-                  <div>
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-                      <UserPlus className="w-5 h-5 text-blue-400" />
-                      <span>Friend Requests ({safeFriendRequests.length})</span>
-                    </h3>
-                    <div className="space-y-3">
-                      {safeFriendRequests.map((request) => {
-                        if (!request || !request.id) return null;
-                        
-                        return (
-                          <div key={request.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                                  {request.friendImageUrl ? (
-                                    <img 
-                                      src={request.friendImageUrl} 
-                                      alt={`${request.friendName || 'User'}'s profile`}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        e.currentTarget.style.display = 'none';
-                                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                        if (nextElement) {
-                                          nextElement.style.display = 'flex';
-                                        }
-                                      }}
-                                    />
-                                  ) : null}
-                                  <div className={`w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center ${request.friendImageUrl ? 'hidden' : 'flex'}`}>
-                                    <UserIcon className="w-5 h-5 text-white" />
+                              
+                              <div className="mb-3">
+                                <div className="flex items-center justify-between text-sm mb-2">
+                                    <span className={`${TailorMatesService.getMatchScoreColor(recommendation.matchScore || 0)} font-medium`}>
+                                      {Math.round(recommendation.matchScore || 0)}% Match
+                                    </span>
+                                    <span className="text-white/50">
+                                        {TailorMatesService.getMatchScoreLabel(recommendation.matchScore || 0)}
+                                    </span>
                                   </div>
+                                  
+                                    {recommendation.matchReasons && Array.isArray(recommendation.matchReasons) && recommendation.matchReasons.length > 0 && (
+                                    <div className="space-y-1">
+                                        <p className="text-white/60 text-xs font-medium mb-1">Why you might connect:</p>
+                                      {recommendation.matchReasons
+                                        .filter(reason => reason)
+                                          .slice(0, 3)
+                                        .map((reason, index) => (
+                                            <p key={index} className="text-white/70 text-xs flex items-center space-x-1">
+                                              <span className="w-1 h-1 bg-pink-400 rounded-full flex-shrink-0"></span>
+                                              <span>{reason || 'Unknown reason'}</span>
+                                            </p>
+                                        ))}
+                                    </div>
+                                  )}
                                 </div>
-                                <div>
-                                  <h4 className="text-white font-medium">{request.friendName || 'Unknown'}</h4>
-                                  <p className="text-white/60 text-sm">@{request.friendUsername || 'unknown'}</p>
-                                </div>
-                              </div>
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => handleAcceptFriendRequest(request.friendId)}
-                                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
-                                >
-                                  Accept
-                                </button>
-                                <button 
-                                  onClick={() => handleRejectFriendRequest(request.friendId)}
-                                  className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors"
-                                >
-                                  Decline
-                                </button>
-                              </div>
+                              
+                              <button
+                                onClick={() => handleSendFriendRequest(recommendation.recommendedUserId)}
+                                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300"
+                              >
+                                Send Friend Request
+                              </button>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Blocked Users */}
-                {selectedFilter === 'Blocked' && (
-                  <div>
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-                      <UserX className="w-5 h-5 text-red-400" />
-                      <span>Blocked Users ({filteredBlockedUsers.length})</span>
-                    </h3>
-                    {filteredBlockedUsers.length === 0 ? (
-                      <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
-                        <UserX className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                        <p className="text-white/70 mb-4">
-                          {searchTerm ? `No blocked users match "${searchTerm}".` : "You haven't blocked any users."}
-                        </p>
-                        <p className="text-white/50 text-sm">
-                          {searchTerm ? "Try a different search term." : "Blocked users will appear here."}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {filteredBlockedUsers.map((blocked) => {
-                          if (!blocked || !blocked.id) return null;
-                          
-                          return (
-                            <div key={blocked.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                                    {blocked.friendImageUrl ? (
-                                      <img
-                                        src={blocked.friendImageUrl}
-                                        alt={blocked.friendName || 'Blocked User'}
-                                        className="w-12 h-12 rounded-full object-cover"
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.style.display = 'none';
-                                          const parent = target.parentElement;
-                                          if (parent) {
-                                            parent.innerHTML = `<span class="text-red-400 font-bold text-lg">${(blocked.friendName || 'B').charAt(0).toUpperCase()}</span>`;
-                                          }
-                                        }}
-                                      />
-                                    ) : (
-                                      <span className="text-red-400 font-bold text-lg">
-                                        {(blocked.friendName || 'B').charAt(0).toUpperCase()}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <h4 className="text-white font-medium">{blocked.friendName || 'Unknown User'}</h4>
-                                    <p className="text-white/60 text-sm">@{blocked.friendUsername || 'unknown'}</p>
-                                    <p className="text-red-400/70 text-xs">Blocked on {blocked.createdAt ? TailorMatesService.formatDate(blocked.createdAt) : 'Unknown date'}</p>
-                                  </div>
-                                </div>
-                                <button 
-                                  onClick={() => {
-                                    // TODO: Implement unblock functionality
-                                    alert('Unblock functionality coming soon!');
-                                  }}
-                                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
-                                >
-                                  Unblock
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Friend Recommendations */}
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
-                      <Sparkles className="w-6 h-6 text-amber-400" />
-                      <span>Recommended Friends ({filteredFriendRecommendations.length})</span>
-                    </h3>
-                    <button
-                      onClick={handleGenerateRecommendations}
-                      className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300"
-                    >
-                      Refresh
-                    </button>
-                  </div>
-                  
-                  {!hasCompletedQuiz ? (
-                    <div className="text-center py-12 bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-sm border border-pink-500/30 rounded-2xl">
-                      <Sparkles className="w-16 h-16 text-pink-400 mx-auto mb-4" />
-                      <h4 className="text-xl font-bold text-white mb-2">Complete Your Personality Quiz</h4>
-                      <p className="text-white/80 mb-4">
-                        Take our personality quiz to get matched with readers who share your traits!
-                      </p>
-                      <button
-                        onClick={onStartQuiz}
-                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
-                      >
-                        Take Personality Quiz
-                      </button>
-                    </div>
-                  ) : filteredFriendRecommendations.length === 0 ? (
-                    <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
-                      <Sparkles className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                      <p className="text-white/70 mb-4">
-                        {searchTerm ? `No recommendations match "${searchTerm}".` : "No recommendations available."}
-                      </p>
-                      {!searchTerm && (
-                      <button
-                        onClick={handleGenerateRecommendations}
-                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
-                      >
-                        Generate Recommendations
-                      </button>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredFriendRecommendations.map((recommendation) => {
-                        if (!recommendation || !recommendation.id) return null;
-                        
-                        return (
-                        <div key={recommendation.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
-                          <div className="flex items-center space-x-3 mb-3">
-                              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                                {recommendation.recommendedUserImageUrl ? (
-                                  <img 
-                                    src={recommendation.recommendedUserImageUrl} 
-                                    alt={`${recommendation.recommendedUserName || 'User'}'s profile`}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = 'none';
-                                      const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                      if (nextElement) {
-                                        nextElement.style.display = 'flex';
-                                      }
-                                    }}
-                                  />
-                                ) : null}
-                                <div className={`w-full h-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center ${recommendation.recommendedUserImageUrl ? 'hidden' : 'flex'}`}>
-                              <UserIcon className="w-6 h-6 text-white" />
-                                </div>
-                            </div>
-                            <div className="flex-1">
-                                <h4 className="text-white font-medium">{recommendation.recommendedUserName || 'Unknown'}</h4>
-                                <p className="text-white/60 text-sm">@{recommendation.recommendedUserUsername || 'unknown'}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="mb-3">
-                            <div className="flex items-center justify-between text-sm mb-2">
-                                <span className={`${TailorMatesService.getMatchScoreColor(recommendation.matchScore || 0)} font-medium`}>
-                                  {Math.round(recommendation.matchScore || 0)}% Match
-                              </span>
-                              <span className="text-white/50">
-                                  {TailorMatesService.getMatchScoreLabel(recommendation.matchScore || 0)}
-                              </span>
-                            </div>
-                            
-                              {recommendation.matchReasons && Array.isArray(recommendation.matchReasons) && recommendation.matchReasons.length > 0 && (
-                              <div className="space-y-1">
-                                  <p className="text-white/60 text-xs font-medium mb-1">Why you might connect:</p>
-                                {recommendation.matchReasons
-                                  .filter(reason => reason)
-                                    .slice(0, 3)
-                                  .map((reason, index) => (
-                                      <p key={index} className="text-white/70 text-xs flex items-center space-x-1">
-                                        <span className="w-1 h-1 bg-pink-400 rounded-full flex-shrink-0"></span>
-                                        <span>{reason || 'Unknown reason'}</span>
-                                      </p>
-                                  ))}
-                              </div>
-                            )}
-                          </div>
-                          
-                          <button
-                            onClick={() => handleSendFriendRequest(recommendation.recommendedUserId)}
-                            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300"
-                          >
-                            Send Friend Request
-                          </button>
-                        </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                  </>
+                )}
               </div>
             )}
           </div>
