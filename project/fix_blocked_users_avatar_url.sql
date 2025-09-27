@@ -1,6 +1,9 @@
 -- Fix the get_blocked_users function to include avatar_url
 -- This will allow blocked users' profile pictures to display correctly
 
+-- Drop the existing function first
+DROP FUNCTION IF EXISTS get_blocked_users(UUID);
+
 CREATE OR REPLACE FUNCTION get_blocked_users(
     p_auth_user_id UUID
 ) RETURNS TABLE(
