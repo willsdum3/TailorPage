@@ -1829,6 +1829,42 @@ export class TailorMatesService {
     }
   }
 
+  static async unblockFriend(friendId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      console.log('Unblocking friend with ID:', friendId);
+      console.log('Current user auth ID:', authUserId);
+
+      // Use the unblock function
+      const { data, error } = await supabase
+        .rpc('unblock_friend', {
+          p_blocker_auth_user_id: authUserId,
+          p_blocked_user_id: friendId
+        });
+
+      if (error) {
+        console.error('Error unblocking friend:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log('Unblock friend result:', result);
+      
+      if (result.success) {
+        console.log('Unblocking completed:', result);
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in unblockFriend:', error);
+      return { success: false, error: 'Failed to unblock friend' };
+    }
+  }
+
   // Helper function to convert auth user ID to internal user ID
   static async getInternalUserId(authUserId: string): Promise<string | null> {
     try {
