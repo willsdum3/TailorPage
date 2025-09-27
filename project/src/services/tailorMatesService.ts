@@ -1811,14 +1811,14 @@ export class TailorMatesService {
 
       // Transform the data to match FriendConnection interface
       const blockedUsers: FriendConnection[] = (data || []).map((blocked: any) => ({
-        id: blocked.id,
-        friendId: blocked.id,
+        id: blocked.blocked_user_id,  // Use the actual blocked user's ID
+        friendId: blocked.blocked_user_id,  // Use the actual blocked user's ID
         friendName: blocked.blocked_user_name || 'Unknown',
         friendUsername: blocked.blocked_user_username || 'unknown',
         friendImageUrl: blocked.blocked_user_image_url || null,
         status: 'blocked' as const,
         personalityMatchScore: 0,
-        createdAt: blocked.created_at || new Date().toISOString()
+        createdAt: blocked.blocked_at || new Date().toISOString()
       }));
 
       console.log('Transformed blocked users:', blockedUsers);
