@@ -44,9 +44,9 @@ class BookCoverService {
     cacheExpiry: 48, // Increased to 48 hours
     enableProgressiveLoading: true,
     enableOfflineSupport: true,
-    batchSize: 8, // Increased to 8 concurrent requests for better performance
-    retryAttempts: 2, // Reduced from 3 to 2 for faster fallback
-    retryDelay: 500 // Reduced from 1000ms to 500ms
+    batchSize: 6, // Reduced to 6 concurrent requests to prevent overwhelming servers
+    retryAttempts: 1, // Reduced to 1 retry for faster fallback
+    retryDelay: 300 // Reduced to 300ms for faster fallback
   };
 
   private readonly GOOGLE_BOOKS_API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
@@ -242,7 +242,7 @@ class BookCoverService {
       const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${this.GOOGLE_BOOKS_API_KEY}&maxResults=1`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced timeout to 5 seconds
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduced timeout to 3 seconds for faster fallback
       
       const response = await fetch(url, { 
         signal: controller.signal,
@@ -326,7 +326,7 @@ class BookCoverService {
           const url = `https://openlibrary.org/search.json?q=${encodedQuery}&limit=3&fields=key,title,author_name,cover_i`; // Reduced limit to 3
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 4000); // Reduced timeout to 4 seconds
+          const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduced timeout to 3 seconds for faster fallback
           
           const response = await fetch(url, { 
             signal: controller.signal,
@@ -548,10 +548,29 @@ class BookCoverService {
   private async cacheInBrowser(data: BookCoverData): Promise<void> {
     try {
       const cache = await caches.open('book-covers-v3');
-      const response = await fetch(data.coverUrl);
-      await cache.put(data.coverUrl, response);
+      
+      // Add timeout and abort controller for browser caching
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout for caching
+      
+      const response = await fetch(data.coverUrl, { 
+        signal: controller.signal,
+        headers: {
+          'Accept': 'image/*',
+          'User-Agent': 'TailorPage/1.0'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        await cache.put(data.coverUrl, response);
+      }
     } catch (error) {
-      console.warn('Failed to cache cover in browser:', error);
+      // Silently fail for caching - don't log warnings for timeout errors
+      if (!error.message?.includes('timeout') && !error.message?.includes('aborted')) {
+        console.warn('Failed to cache cover in browser:', error);
+      }
     }
   }
 
@@ -627,6 +646,22 @@ class BookCoverService {
         console.log('Performance Metrics:', this.performanceMetrics);
       }
     }, 60000); // Log every minute instead of every 30 seconds
+  }
+
+  private isProblematicUrl(url: string): boolean {
+    // Check for known problematic domains that often timeout
+    const problematicDomains = [
+      'archive.org',
+      'books.google.com',
+      'gstatic.com'
+    ];
+    
+    try {
+      const parsedUrl = new URL(url);
+      return problematicDomains.some(domain => parsedUrl.hostname.includes(domain));
+    } catch {
+      return false;
+    }
   }
 
   private updatePerformanceMetrics(responseTime: number): void {

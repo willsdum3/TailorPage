@@ -136,7 +136,7 @@ export const BookCover: React.FC<BookCoverProps> = React.memo(({
     try {
       // Reduced timeout for faster fallback
       const timeoutPromise = new Promise<never>((_, reject) => {
-        loadTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 8000);
+        loadTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 5000);
       });
 
       const result = await Promise.race([
