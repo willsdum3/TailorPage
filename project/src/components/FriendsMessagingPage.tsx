@@ -8,9 +8,10 @@ interface FriendsMessagingPageProps {
   user: UserType | null;
   selectedFriend?: FriendConnection | null;
   onClearSelectedFriend?: () => void;
+  onUnreadCountUpdate?: () => void;
 }
 
-const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user, selectedFriend, onClearSelectedFriend }) => {
+const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user, selectedFriend, onClearSelectedFriend, onUnreadCountUpdate }) => {
   const [conversations, setConversations] = useState<FriendConversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<FriendConversation | null>(null);
   const [messages, setMessages] = useState<FriendMessage[]>([]);
@@ -101,6 +102,9 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
             : conv
         )
       );
+      
+      // Notify parent component to update unread count
+      onUnreadCountUpdate?.();
     } catch (error) {
       console.error('Error loading messages:', error);
       // Don't clear messages on error - keep existing messages

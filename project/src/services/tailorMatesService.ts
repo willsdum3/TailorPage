@@ -1871,6 +1871,29 @@ export class TailorMatesService {
     }
   }
 
+  static async getTotalUnreadMessageCount(): Promise<number> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      // Use the database function to get unread count
+      const { data, error } = await supabase
+        .rpc('get_total_unread_message_count', {
+          p_auth_user_id: authUserId
+        });
+
+      if (error) {
+        console.error('Error getting unread message count:', error);
+        return 0;
+      }
+
+      return data || 0;
+    } catch (error) {
+      console.error('Error in getTotalUnreadMessageCount:', error);
+      return 0;
+    }
+  }
+
   // Helper function to convert auth user ID to internal user ID
   static async getInternalUserId(authUserId: string): Promise<string | null> {
     try {

@@ -29,6 +29,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [friendRecommendations, setFriendRecommendations] = useState<FriendRecommendation[]>([]);
   const [friendRequests, setFriendRequests] = useState<FriendConnection[]>([]);
   const [blockedUsers, setBlockedUsers] = useState<FriendConnection[]>([]);
+  const [unreadMessageCount, setUnreadMessageCount] = useState<number>(0);
   
   // Ensure arrays are never undefined and have proper structure
   const safeFriendConnections = Array.isArray(friendConnections) ? friendConnections : [];
@@ -215,10 +216,18 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           });
           console.log('Blocked users result:', blocked);
           
+          console.log('Calling getTotalUnreadMessageCount...');
+          const unreadCount = await TailorMatesService.getTotalUnreadMessageCount().catch(err => {
+            console.error('Error loading unread message count:', err);
+            return 0;
+          });
+          console.log('Unread message count result:', unreadCount);
+          
         setFriendConnections(connections);
         setFriendRecommendations(recommendations);
           setFriendRequests(requests);
           setBlockedUsers(blocked);
+          setUnreadMessageCount(unreadCount);
           console.log('Loaded friends data successfully:', { connections, recommendations, requests });
           console.log('Setting friendConnections state to:', connections);
         } catch (error) {
@@ -559,6 +568,16 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
   };
 
+  const loadUnreadMessageCount = async () => {
+    try {
+      const count = await TailorMatesService.getTotalUnreadMessageCount();
+      setUnreadMessageCount(count);
+    } catch (error) {
+      console.error('Error loading unread message count:', error);
+      setUnreadMessageCount(0);
+    }
+  };
+
   const renderPersonalityTags = (traits: string[]) => {
     return traits.map((trait, index) => (
       <span
@@ -592,6 +611,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         user={user}
         selectedFriend={selectedFriendForMessaging}
         onClearSelectedFriend={() => setSelectedFriendForMessaging(null)}
+        onUnreadCountUpdate={loadUnreadMessageCount}
       />
     );
   }
@@ -1333,10 +1353,15 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                               setSelectedFriendForMessaging(null);
                               setShowFriendsMessaging(true);
                             }}
-                            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+                            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 relative"
                           >
                             <MessageCircle className="w-4 h-4" />
                             <span>Messages</span>
+                            {unreadMessageCount > 0 && (
+                              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center font-bold">
+                                {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
+                              </span>
+                            )}
                           </button>
                         )}
                       </div>
