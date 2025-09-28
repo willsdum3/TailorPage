@@ -8,7 +8,6 @@ import {
   FriendConversation,
   FriendMessage,
   Notification,
-  CreateBookClubData,
   CreateBookClubServiceData,
   CreateDiscussionData,
   ClubInvitation,
@@ -45,7 +44,7 @@ export class TailorMatesService {
   static async ensureUserExists(authUserId: string): Promise<boolean> {
     try {
       // Check if user exists in our users table
-      const { data: existingUser, error: checkError } = await supabase
+      const { data: existingUser } = await supabase
         .from('users')
         .select('id')
         .eq('auth_user_id', authUserId)
@@ -68,7 +67,7 @@ export class TailorMatesService {
   static async checkTablesExist(): Promise<boolean> {
     try {
       // Try to query the book_clubs table
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('book_clubs')
         .select('id')
         .limit(1);
@@ -333,7 +332,7 @@ export class TailorMatesService {
     }
   }
 
-  static async getBookClubMessages(clubId: string, limit: number = 50, offset: number = 0): Promise<any[]> {
+  static async getBookClubMessages(clubId: string, _limit: number = 50, _offset: number = 0): Promise<any[]> {
     try {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
@@ -2183,28 +2182,6 @@ export class TailorMatesService {
     } catch (error) {
       console.error('Error in deleteNotification:', error);
       return { success: false, error: 'Failed to delete notification' };
-    }
-  }
-
-  static async getUnreadNotificationCount(): Promise<number> {
-    try {
-      const authUserId = await this.getCurrentUserId();
-      await this.ensureUserExists(authUserId);
-
-      const { data, error } = await supabase
-        .rpc('get_unread_notification_count', {
-          p_auth_user_id: authUserId
-        });
-
-      if (error) {
-        console.error('Error getting unread notification count:', error);
-        return 0;
-      }
-
-      return data || 0;
-    } catch (error) {
-      console.error('Error in getUnreadNotificationCount:', error);
-      return 0;
     }
   }
 }
