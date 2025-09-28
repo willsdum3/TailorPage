@@ -33,7 +33,11 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_i
 -- Enable RLS
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies
+-- Create RLS policies (drop existing ones first)
+DROP POLICY IF EXISTS "Users can view their own notifications" ON notifications;
+DROP POLICY IF EXISTS "Users can update their own notifications" ON notifications;
+DROP POLICY IF EXISTS "Users can delete their own notifications" ON notifications;
+
 CREATE POLICY "Users can view their own notifications" ON notifications
     FOR SELECT USING (user_id = auth.uid()::uuid);
 
@@ -44,6 +48,7 @@ CREATE POLICY "Users can delete their own notifications" ON notifications
     FOR DELETE USING (user_id = auth.uid()::uuid);
 
 -- Function to get notifications for a user
+DROP FUNCTION IF EXISTS get_notifications(UUID, INTEGER, INTEGER, BOOLEAN);
 CREATE OR REPLACE FUNCTION get_notifications(
     p_auth_user_id UUID,
     p_limit INTEGER DEFAULT 50,
@@ -92,6 +97,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to mark notification as read
+DROP FUNCTION IF EXISTS mark_notification_as_read(UUID, UUID);
 CREATE OR REPLACE FUNCTION mark_notification_as_read(
     p_auth_user_id UUID,
     p_notification_id UUID
@@ -126,6 +132,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to mark all notifications as read
+DROP FUNCTION IF EXISTS mark_all_notifications_as_read(UUID);
 CREATE OR REPLACE FUNCTION mark_all_notifications_as_read(
     p_auth_user_id UUID
 )
@@ -159,6 +166,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to delete notification
+DROP FUNCTION IF EXISTS delete_notification(UUID, UUID);
 CREATE OR REPLACE FUNCTION delete_notification(
     p_auth_user_id UUID,
     p_notification_id UUID
@@ -189,6 +197,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get unread notification count
+DROP FUNCTION IF EXISTS get_unread_notification_count(UUID);
 CREATE OR REPLACE FUNCTION get_unread_notification_count(
     p_auth_user_id UUID
 )
@@ -216,6 +225,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to create a notification
+DROP FUNCTION IF EXISTS create_notification(UUID, TEXT, TEXT, TEXT, UUID, TEXT);
 CREATE OR REPLACE FUNCTION create_notification(
     p_user_id UUID,
     p_type TEXT,
