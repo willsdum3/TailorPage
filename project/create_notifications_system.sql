@@ -82,9 +82,9 @@ BEGIN
         n.id,
         n.type::TEXT,
         n.title::TEXT,
-        n.message,
+        n.message::TEXT,
         n.related_id,
-        n.related_name,
+        n.related_name::TEXT,
         n.is_read,
         n.created_at
     FROM notifications n
