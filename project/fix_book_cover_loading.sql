@@ -1,2 +1,0 @@
--- This is a placeholder file for the book cover loading fix
--- The actual fix will be in the TypeScript files

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Book, Users, Heart, Brain, Star, ArrowRight, Sparkles, Target, Zap, BookOpen, UserCheck, Bell } from 'lucide-react';
 import Logo from './Logo';
 import NotificationsPanel from './NotificationsPanel';
+import { TailorMatesService } from '../services/tailorMatesService';
 
 interface WelcomePageProps {
   onStartQuiz: () => void;
@@ -39,6 +40,31 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   user
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  
+  // Load notification count when user is logged in
+  useEffect(() => {
+    const loadNotificationCount = async () => {
+      if (isLoggedIn && user) {
+        try {
+          const count = await TailorMatesService.getUnreadNotificationCount();
+          setUnreadNotificationCount(count);
+        } catch (error) {
+          console.error('Error loading notification count:', error);
+          setUnreadNotificationCount(0);
+        }
+      } else {
+        setUnreadNotificationCount(0);
+      }
+    };
+
+    loadNotificationCount();
+    
+    // Refresh notification count every 30 seconds
+    const interval = setInterval(loadNotificationCount, 30000);
+    
+    return () => clearInterval(interval);
+  }, [isLoggedIn, user]);
   
   // Debug logging to understand the state
   console.log('WelcomePage render - isLoggedIn:', isLoggedIn, 'hasCompletedQuiz:', hasCompletedQuiz, 'hasQuizProgress:', hasQuizProgress);
@@ -67,10 +93,10 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
           <Bell 
             className="w-6 h-6 text-white group-hover:text-amber-400 transition-colors duration-200" 
           />
-          {/* Mock notification badge - will be dynamic when connected to backend */}
-          {isLoggedIn && (
+          {/* Real notification badge */}
+          {isLoggedIn && unreadNotificationCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
-              3
+              {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
             </span>
           )}
         </button>
@@ -225,7 +251,15 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
       {/* Notifications Panel */}
       <NotificationsPanel
         isOpen={showNotifications}
-        onClose={() => setShowNotifications(false)}
+        onClose={() => {
+          setShowNotifications(false);
+          // Refresh notification count when panel is closed
+          if (isLoggedIn && user) {
+            TailorMatesService.getUnreadNotificationCount()
+              .then(count => setUnreadNotificationCount(count))
+              .catch(error => console.error('Error refreshing notification count:', error));
+          }
+        }}
         user={user}
       />
     </div>
