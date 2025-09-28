@@ -2,6 +2,7 @@
 -- Since we can't easily trigger on message insertions, we'll create functions to call manually
 
 -- Function to create book club message notification
+DROP FUNCTION IF EXISTS create_club_message_notification(UUID, UUID, TEXT);
 CREATE OR REPLACE FUNCTION create_club_message_notification(
     p_club_id UUID,
     p_sender_id UUID,
@@ -52,6 +53,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to create discussion message notification
+DROP FUNCTION IF EXISTS create_discussion_message_notification(UUID, UUID, TEXT);
 CREATE OR REPLACE FUNCTION create_discussion_message_notification(
     p_discussion_id UUID,
     p_sender_id UUID,
@@ -102,6 +104,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to create friend message notification
+DROP FUNCTION IF EXISTS create_friend_message_notification(UUID, UUID, TEXT);
 CREATE OR REPLACE FUNCTION create_friend_message_notification(
     p_conversation_id UUID,
     p_sender_id UUID,
@@ -149,6 +152,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to manually create admin promotion notification
+DROP FUNCTION IF EXISTS create_admin_promotion_notification(UUID, UUID, TEXT);
 CREATE OR REPLACE FUNCTION create_admin_promotion_notification(
     p_promoted_user_id UUID,
     p_club_id UUID,
