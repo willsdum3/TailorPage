@@ -57,7 +57,7 @@ CREATE OR REPLACE FUNCTION get_notifications(
 )
 RETURNS TABLE(
     id UUID,
-    type CHARACTER VARYING(50),
+    type TEXT,
     title TEXT,
     message TEXT,
     related_id UUID,
@@ -80,8 +80,8 @@ BEGIN
     RETURN QUERY
     SELECT 
         n.id,
-        n.type,
-        n.title,
+        n.type::TEXT,
+        n.title::TEXT,
         n.message,
         n.related_id,
         n.related_name,
