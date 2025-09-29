@@ -2,6 +2,7 @@
 -- This script updates the existing message functions to create notifications
 
 -- 1. Update add_book_club_message function to create notifications
+DROP FUNCTION IF EXISTS add_book_club_message(UUID, UUID, TEXT);
 CREATE OR REPLACE FUNCTION add_book_club_message(
     auth_user_id UUID,
     club_id_param UUID,
@@ -58,6 +59,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 2. Update add_discussion_message function to create notifications
+DROP FUNCTION IF EXISTS add_discussion_message(UUID, UUID, TEXT);
 CREATE OR REPLACE FUNCTION add_discussion_message(
     auth_user_id UUID,
     discussion_id_param UUID,
@@ -114,6 +116,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 3. Update send_friend_message function to create notifications
+DROP FUNCTION IF EXISTS send_friend_message(UUID, TEXT, TEXT);
 CREATE OR REPLACE FUNCTION send_friend_message(
     auth_user_id UUID,
     friend_id_param TEXT,

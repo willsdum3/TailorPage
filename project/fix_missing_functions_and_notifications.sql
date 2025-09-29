@@ -2,6 +2,7 @@
 -- This script creates the missing functions and integrates notification calls
 
 -- 1. Create invite_user_to_club function
+DROP FUNCTION IF EXISTS invite_user_to_club(UUID, UUID, TEXT, TEXT);
 CREATE OR REPLACE FUNCTION invite_user_to_club(
     auth_user_id UUID,
     club_id_param UUID,
@@ -75,6 +76,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 2. Create promote_user_to_admin function
+DROP FUNCTION IF EXISTS promote_user_to_admin(UUID, UUID, TEXT);
 CREATE OR REPLACE FUNCTION promote_user_to_admin(
     promoter_auth_user_id UUID,
     club_id_param UUID,
@@ -168,6 +170,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 3. Create join_book_club function
+DROP FUNCTION IF EXISTS join_book_club(UUID, UUID);
 CREATE OR REPLACE FUNCTION join_book_club(
     auth_user_id UUID,
     club_id_param UUID
