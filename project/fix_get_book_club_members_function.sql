@@ -11,7 +11,10 @@ FROM information_schema.routines
 WHERE routine_schema = 'public'
 AND routine_name = 'get_book_club_members';
 
--- If the function doesn't exist, let's create it
+-- Drop the existing function first to avoid return type conflicts
+DROP FUNCTION IF EXISTS get_book_club_members(UUID, UUID);
+
+-- Create the function with correct return type
 CREATE OR REPLACE FUNCTION get_book_club_members(
     auth_user_id UUID,
     club_id_param UUID
