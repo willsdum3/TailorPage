@@ -156,7 +156,12 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
       try {
         const success = await TailorMatesService.leaveBookClub(clubId);
         if (success) {
-          onBack(); // Go back to the main Tailor Mates page
+          // Show success message
+          alert('Successfully left the book club!');
+          // Go back to the main Tailor Mates page
+          onBack();
+        } else {
+          alert('Failed to leave club. Please try again.');
         }
       } catch (error) {
         console.error('Error leaving club:', error);
