@@ -51,7 +51,7 @@ BEGIN
     -- Get the internal user ID from auth_user_id
     SELECT id INTO user_internal_id
     FROM users
-    WHERE auth_user_id = create_book_club.auth_user_id;
+    WHERE users.auth_user_id = create_book_club.auth_user_id;
     
     IF user_internal_id IS NULL THEN
         RAISE EXCEPTION 'User not found';
