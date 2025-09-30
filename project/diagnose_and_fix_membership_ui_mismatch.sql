@@ -98,7 +98,7 @@ DO $$
 DECLARE
     pauline_user_id UUID;
     pauline_auth_user_id UUID;
-    club_id UUID := 'b2391fc3-cd68-472d-a9a8-10c4353af145'::UUID;
+    v_club_id UUID := 'b2391fc3-cd68-472d-a9a8-10c4353af145'::UUID;
 BEGIN
     -- Get Pauline's user ID
     SELECT id, auth_user_id INTO pauline_user_id, pauline_auth_user_id
@@ -109,17 +109,17 @@ BEGIN
         -- Update the club to have Pauline as creator
         UPDATE book_clubs 
         SET creator_id = pauline_user_id
-        WHERE id = club_id;
+        WHERE id = v_club_id;
         
         -- Ensure Pauline is a member with admin role
         INSERT INTO book_club_members (club_id, user_id, role, joined_at)
-        VALUES (club_id, pauline_user_id, 'admin', NOW())
+        VALUES (v_club_id, pauline_user_id, 'admin', NOW())
         ON CONFLICT (club_id, user_id) 
         DO UPDATE SET 
             role = 'admin',
             joined_at = COALESCE(book_club_members.joined_at, NOW());
         
-        RAISE NOTICE 'Pauline Dumbili set as creator and admin for club %', club_id;
+        RAISE NOTICE 'Pauline Dumbili set as creator and admin for club %', v_club_id;
     ELSE
         RAISE NOTICE 'Pauline Dumbili not found in users table';
     END IF;
@@ -130,7 +130,7 @@ DO $$
 DECLARE
     william_user_id UUID;
     william_auth_user_id UUID;
-    club_id UUID := 'b2391fc3-cd68-472d-a9a8-10c4353af145'::UUID;
+    v_club_id UUID := 'b2391fc3-cd68-472d-a9a8-10c4353af145'::UUID;
 BEGIN
     -- Get William's user ID
     SELECT id, auth_user_id INTO william_user_id, william_auth_user_id
@@ -140,13 +140,13 @@ BEGIN
     IF william_user_id IS NOT NULL THEN
         -- Ensure William is a member
         INSERT INTO book_club_members (club_id, user_id, role, joined_at)
-        VALUES (club_id, william_user_id, 'member', NOW())
+        VALUES (v_club_id, william_user_id, 'member', NOW())
         ON CONFLICT (club_id, user_id) 
         DO UPDATE SET 
             role = 'member',
             joined_at = COALESCE(book_club_members.joined_at, NOW());
         
-        RAISE NOTICE 'William Dumbili set as member for club %', club_id;
+        RAISE NOTICE 'William Dumbili set as member for club %', v_club_id;
     ELSE
         RAISE NOTICE 'William Dumbili not found in users table';
     END IF;
