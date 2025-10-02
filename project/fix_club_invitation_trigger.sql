@@ -11,8 +11,8 @@ FROM information_schema.triggers
 WHERE event_object_schema = 'public'
 AND event_object_table = 'club_invitations';
 
--- 2. Drop the problematic trigger function
-DROP FUNCTION IF EXISTS notify_club_invitation();
+-- 2. Drop the problematic trigger function with CASCADE to handle dependencies
+DROP FUNCTION IF EXISTS notify_club_invitation() CASCADE;
 
 -- 3. Create the corrected trigger function using the correct field names
 CREATE OR REPLACE FUNCTION notify_club_invitation()
@@ -46,11 +46,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 4. Recreate the trigger (it should automatically recreate if it was dropped with the function)
--- But let's be explicit and drop/recreate it
-DROP TRIGGER IF EXISTS trigger_notify_club_invitation ON club_invitations;
-
-CREATE TRIGGER trigger_notify_club_invitation
+-- 4. Recreate the trigger with the correct name (from the error message)
+CREATE TRIGGER trigger_club_invitation_notification
     AFTER INSERT ON club_invitations
     FOR EACH ROW
     EXECUTE FUNCTION notify_club_invitation();
