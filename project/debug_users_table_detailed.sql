@@ -62,3 +62,6 @@ BEGIN
         RAISE NOTICE 'Cannot check users data - table does not exist';
     END IF;
 END $$;
+
+
+

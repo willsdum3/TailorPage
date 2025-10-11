@@ -141,3 +141,11 @@ SELECT
     member_count
 FROM get_book_clubs('ee11bb62-0684-4293-a77a-d385c9a070f9'::UUID)
 ORDER BY is_member DESC, name;
+
+
+
+
+
+
+
+

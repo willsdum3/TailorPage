@@ -134,3 +134,11 @@ FROM book_clubs bc
 LEFT JOIN users u ON bc.creator_id = u.id
 WHERE bc.creator_id IS NOT NULL AND u.id IS NULL
 ORDER BY bc.created_at;
+
+
+
+
+
+
+
+

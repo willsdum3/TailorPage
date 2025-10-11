@@ -88,3 +88,10 @@ FROM information_schema.routines
 WHERE routine_schema = 'public'
 AND (routine_name ILIKE '%invite%' OR routine_name ILIKE '%promote%')
 ORDER BY routine_name, specific_name;
+
+
+
+
+
+
+

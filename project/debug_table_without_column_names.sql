@@ -50,3 +50,11 @@ ORDER BY attnum;
 -- Check the table definition
 SELECT 
     pg_get_tabledef('club_invitations'::regclass) as table_definition;
+
+
+
+
+
+
+
+

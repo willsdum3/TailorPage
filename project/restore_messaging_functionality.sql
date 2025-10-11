@@ -208,3 +208,10 @@ FROM information_schema.routines
 WHERE routine_schema = 'public'
 AND routine_name IN ('add_book_club_message', 'add_discussion_message', 'send_friend_message')
 ORDER BY routine_name;
+
+
+
+
+
+
+

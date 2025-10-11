@@ -184,3 +184,11 @@ SELECT
 FROM pg_policies 
 WHERE tablename IN ('book_clubs', 'book_club_members', 'book_club_messages', 'discussions', 'discussion_members', 'discussion_messages', 'club_invitations')
 ORDER BY tablename, policyname;
+
+
+
+
+
+
+
+

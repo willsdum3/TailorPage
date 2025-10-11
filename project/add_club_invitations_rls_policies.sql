@@ -47,3 +47,11 @@ BEGIN
         RAISE NOTICE 'Users table does not exist. RLS policies not created.';
     END IF;
 END $$;
+
+
+
+
+
+
+
+

@@ -50,3 +50,11 @@ SELECT * FROM club_invitations LIMIT 1;
 -- Check the table definition
 SELECT 
     pg_get_tabledef('club_invitations'::regclass) as table_definition;
+
+
+
+
+
+
+
+

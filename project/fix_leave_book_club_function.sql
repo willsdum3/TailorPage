@@ -131,3 +131,11 @@ JOIN users u ON bcm.user_id = u.id
 JOIN book_clubs bc ON bcm.club_id = bc.id
 WHERE u.username = 'hereistand'
 AND bc.name = 'yjgbbu';
+
+
+
+
+
+
+
+

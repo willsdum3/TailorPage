@@ -52,3 +52,5 @@ CREATE POLICY "Club admins can create invitations" ON club_invitations
 DROP POLICY IF EXISTS "Users can update their own invitations" ON club_invitations;
 CREATE POLICY "Users can update their own invitations" ON club_invitations
     FOR UPDATE USING (invited_user_id = (SELECT id FROM users WHERE auth_user_id = auth.uid()));
+
+

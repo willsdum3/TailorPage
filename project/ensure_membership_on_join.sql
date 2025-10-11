@@ -109,3 +109,11 @@ BEGIN
         RAISE NOTICE 'No users found in database';
     END IF;
 END $$;
+
+
+
+
+
+
+
+

@@ -65,3 +65,11 @@ SELECT
 FROM pg_indexes 
 WHERE tablename = 'club_invitations' 
 AND schemaname = 'public';
+
+
+
+
+
+
+
+

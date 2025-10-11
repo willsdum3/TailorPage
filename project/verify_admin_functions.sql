@@ -102,3 +102,11 @@ FROM information_schema.columns
 WHERE table_schema = 'public'
 AND table_name = 'club_invitations'
 ORDER BY ordinal_position;
+
+
+
+
+
+
+
+

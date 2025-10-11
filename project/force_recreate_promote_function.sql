@@ -113,3 +113,10 @@ ORDER BY ordinal_position;
 SELECT 
     'Function Signature Test' as check_type,
     'Function should now be callable with: promote_user_to_admin(auth_user_id, club_id_param, user_to_promote_id)' as expected_signature;
+
+
+
+
+
+
+

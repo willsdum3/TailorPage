@@ -37,3 +37,6 @@ SELECT
         THEN 'EXISTS' 
         ELSE 'MISSING' 
     END as club_invitations_table_status;
+
+
+

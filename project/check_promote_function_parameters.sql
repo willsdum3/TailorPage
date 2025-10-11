@@ -26,3 +26,10 @@ AND specific_name = 'promote_user_to_admin_94393';
 SELECT 
     'Function Call Test' as check_type,
     'Testing function signature' as test_description;
+
+
+
+
+
+
+

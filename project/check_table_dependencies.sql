@@ -75,3 +75,11 @@ SELECT
 FROM pg_tables 
 WHERE tablename = 'club_invitations' 
 AND schemaname = 'public';
+
+
+
+
+
+
+
+

@@ -24,3 +24,6 @@ SELECT
 FROM information_schema.columns 
 WHERE table_name = 'book_club_members' 
 ORDER BY ordinal_position;
+
+
+

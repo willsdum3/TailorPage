@@ -240,3 +240,11 @@ SELECT
         'ca692e7f-6522-4295-86cd-592d7fd754b5'::UUID,  -- Tracey Beaker's auth_user_id (admin)
         'b2391fc3-cd68-472d-a9a8-10c4353af145'::UUID   -- yjgbbu club ID
     ) as result;
+
+
+
+
+
+
+
+

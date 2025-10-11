@@ -123,3 +123,11 @@ LIMIT 1;
 -- Clean up the test club
 DELETE FROM book_club_members WHERE club_id IN (SELECT id FROM book_clubs WHERE name = 'Test Club Corrected');
 DELETE FROM book_clubs WHERE name = 'Test Club Corrected';
+
+
+
+
+
+
+
+

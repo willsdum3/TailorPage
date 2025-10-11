@@ -62,3 +62,10 @@ WHERE routine_name = 'promote_user_to_admin';
 SELECT 
     'Direct Function Test' as check_type,
     'Attempting to call function directly' as test_description;
+
+
+
+
+
+
+

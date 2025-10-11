@@ -481,3 +481,11 @@ LEFT JOIN book_club_members bcm ON bc.id = bcm.club_id
 LEFT JOIN users u ON bcm.user_id = u.id
 GROUP BY bc.id, bc.name, bc.creator_id
 ORDER BY bc.name;
+
+
+
+
+
+
+
+

@@ -81,3 +81,11 @@ JOIN book_clubs bc ON bcm.club_id = bc.id
 JOIN users u ON bcm.user_id = u.id
 WHERE bc.name = 'yjgbbu'
 ORDER BY u.name;
+
+
+
+
+
+
+
+

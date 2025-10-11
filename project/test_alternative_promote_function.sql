@@ -194,3 +194,10 @@ FROM information_schema.routines
 WHERE routine_schema = 'public'
 AND routine_name IN ('promote_user_to_admin', 'promote_member_to_admin')
 ORDER BY routine_name;
+
+
+
+
+
+
+

@@ -48,3 +48,11 @@ END $$;
 
 -- Show sample data from public.users (if it exists)
 SELECT * FROM public.users LIMIT 3;
+
+
+
+
+
+
+
+

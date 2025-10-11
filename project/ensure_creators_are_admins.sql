@@ -91,3 +91,11 @@ SELECT
     action_statement
 FROM information_schema.triggers 
 WHERE trigger_name = 'trigger_add_creator_as_admin';
+
+
+
+
+
+
+
+

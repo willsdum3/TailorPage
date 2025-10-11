@@ -58,3 +58,11 @@ SELECT
 FROM pg_attribute 
 WHERE attrelid = 'club_invitations'::regclass 
 ORDER BY attnum;
+
+
+
+
+
+
+
+

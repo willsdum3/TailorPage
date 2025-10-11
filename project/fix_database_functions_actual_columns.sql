@@ -97,3 +97,11 @@ BEGIN
     RAISE NOTICE 'The function now uses only the columns that actually exist in the table';
     RAISE NOTICE 'Columns used: club_id, invitee_id, inviter_id, message, status';
 END $$;
+
+
+
+
+
+
+
+

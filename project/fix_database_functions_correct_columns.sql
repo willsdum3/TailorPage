@@ -105,3 +105,11 @@ BEGIN
     RAISE NOTICE 'invite_user_to_club function has been updated with correct column names';
     RAISE NOTICE 'The function now uses invitee_id and inviter_id instead of invited_user_id and invited_by_user_id';
 END $$;
+
+
+
+
+
+
+
+

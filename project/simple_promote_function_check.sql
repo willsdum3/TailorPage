@@ -46,3 +46,10 @@ SELECT
 FROM information_schema.routines 
 WHERE routine_schema = 'public'
 AND routine_name = 'promote_user_to_admin';
+
+
+
+
+
+
+

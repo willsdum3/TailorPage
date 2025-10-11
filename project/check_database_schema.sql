@@ -86,3 +86,11 @@ SELECT
         THEN 'EXISTS' 
         ELSE 'MISSING' 
     END as discussion_messages_status;
+
+
+
+
+
+
+
+

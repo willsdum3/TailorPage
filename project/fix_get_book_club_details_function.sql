@@ -137,3 +137,11 @@ FROM book_club_members bcm
 JOIN users u ON bcm.user_id = u.id
 WHERE bcm.club_id = 'b2391fc3-cd68-472d-a9a8-10c4353af145'::UUID
 ORDER BY bcm.role, u.username;
+
+
+
+
+
+
+
+

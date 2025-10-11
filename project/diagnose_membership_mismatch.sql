@@ -125,3 +125,11 @@ LEFT JOIN book_clubs bc ON bcm.club_id = bc.id
 LEFT JOIN users u ON bcm.user_id = u.id
 WHERE bc.id IS NULL
 ORDER BY bcm.club_id;
+
+
+
+
+
+
+
+

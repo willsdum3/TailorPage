@@ -75,3 +75,6 @@ BEGIN
         FOREIGN KEY (invited_by_user_id) REFERENCES users(id) ON DELETE CASCADE;
     END IF;
 END $$;
+
+
+

@@ -174,3 +174,4 @@ CREATE TRIGGER trigger_user_joined_club_notification
 SELECT 
     'Test Notification Triggers' as test_type,
     'Triggers created successfully' as result;
+

@@ -251,3 +251,10 @@ FROM information_schema.routines
 WHERE routine_schema = 'public'
 AND routine_name IN ('promote_user_to_admin', 'invite_user_to_club', 'respond_to_club_invitation')
 ORDER BY routine_name;
+
+
+
+
+
+
+

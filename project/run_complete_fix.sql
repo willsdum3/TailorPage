@@ -99,3 +99,11 @@ BEGIN
         RAISE NOTICE '⚠️ No admin members found - this may be normal if no valid creators exist';
     END IF;
 END $$;
+
+
+
+
+
+
+
+
