@@ -289,11 +289,16 @@ ORDER BY routine_name;
 -- Also show the exact parameter information
 SELECT 
     'Function Parameters' as info,
-    p.routine_name,
+    p.specific_name,
     p.parameter_name,
     p.data_type,
     p.ordinal_position
 FROM information_schema.parameters p
 WHERE p.specific_schema = 'public'
-AND p.routine_name IN ('request_to_join_club', 'get_club_join_requests', 'process_join_request')
-ORDER BY p.routine_name, p.ordinal_position;
+AND p.specific_name IN (
+    SELECT specific_name 
+    FROM information_schema.routines r 
+    WHERE r.routine_name IN ('request_to_join_club', 'get_club_join_requests', 'process_join_request')
+    AND r.routine_schema = 'public'
+)
+ORDER BY p.specific_name, p.ordinal_position;
