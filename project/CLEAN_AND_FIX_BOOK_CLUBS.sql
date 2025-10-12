@@ -327,7 +327,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Final verification
-SELECT 'CLEAN FUNCTIONS CREATED' as status, routine_name, 
+SELECT 'CLEAN FUNCTIONS CREATED' as status, p.proname as function_name, 
        pg_get_function_arguments(p.oid) as arguments
 FROM pg_proc p
 JOIN pg_namespace n ON p.pronamespace = n.oid
