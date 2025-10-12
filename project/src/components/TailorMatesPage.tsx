@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Users, MessageCircle, BookOpen, Search, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, User as UserIcon, Clock, Crown, UserMinus, Lock } from 'lucide-react';
+import { Home, Users, MessageCircle, BookOpen, Search, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, User as UserIcon, Crown, UserMinus, Lock } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub, Discussion, FriendConnection, FriendRecommendation, User, CreateBookClubServiceData } from '../types';
@@ -913,7 +913,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                           {club.name}
                         </button>
                         {/* Private Badge */}
-                        {!club.isPublic && (
+                        {club.isPrivate && (
                           <div className="flex items-center space-x-1 bg-red-500/30 border border-red-400/50 text-red-200 px-2 py-1 rounded-full text-xs font-medium">
                             <Lock className="w-3 h-3" />
                             <span>Private</span>
@@ -997,7 +997,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                       >
                         {club.memberCount >= club.maxMembers 
                           ? 'Club Full' 
-                          : club.isPublic 
+                          : !club.isPrivate 
                             ? 'Join Club' 
                             : 'Request to Join Club'
                         }
