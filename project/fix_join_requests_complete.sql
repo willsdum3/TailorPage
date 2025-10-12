@@ -26,33 +26,35 @@ ALTER TABLE club_join_requests ENABLE ROW LEVEL SECURITY;
 -- RLS Policies for club_join_requests
 DROP POLICY IF EXISTS "Users can view their own join requests" ON club_join_requests;
 CREATE POLICY "Users can view their own join requests" ON club_join_requests
-    FOR SELECT USING (auth.uid()::text IN (SELECT auth_user_id FROM users WHERE id = user_id));
+    FOR SELECT USING (user_id = (SELECT id FROM users WHERE auth_user_id = auth.uid()::text));
 
 DROP POLICY IF EXISTS "Users can create join requests" ON club_join_requests;
 CREATE POLICY "Users can create join requests" ON club_join_requests
-    FOR INSERT WITH CHECK (auth.uid()::text IN (SELECT auth_user_id FROM users WHERE id = user_id));
+    FOR INSERT WITH CHECK (user_id = (SELECT id FROM users WHERE auth_user_id = auth.uid()::text));
 
 DROP POLICY IF EXISTS "Admins can view join requests for their clubs" ON club_join_requests;
 CREATE POLICY "Admins can view join requests for their clubs" ON club_join_requests
     FOR SELECT USING (
-        auth.uid()::text IN (
-            SELECT u.auth_user_id 
+        EXISTS (
+            SELECT 1 
             FROM users u 
             JOIN book_club_members bcm ON u.id = bcm.user_id 
             WHERE bcm.club_id = club_join_requests.club_id 
             AND bcm.role IN ('admin', 'owner')
+            AND u.auth_user_id = auth.uid()::text
         )
     );
 
 DROP POLICY IF EXISTS "Admins can update join requests for their clubs" ON club_join_requests;
 CREATE POLICY "Admins can update join requests for their clubs" ON club_join_requests
     FOR UPDATE USING (
-        auth.uid()::text IN (
-            SELECT u.auth_user_id 
+        EXISTS (
+            SELECT 1 
             FROM users u 
             JOIN book_club_members bcm ON u.id = bcm.user_id 
             WHERE bcm.club_id = club_join_requests.club_id 
             AND bcm.role IN ('admin', 'owner')
+            AND u.auth_user_id = auth.uid()::text
         )
     );
 
@@ -84,7 +86,7 @@ RETURNS UUID AS $$
 DECLARE
     internal_id UUID;
 BEGIN
-    SELECT id INTO internal_id FROM users WHERE users.auth_user_id = get_user_internal_id.auth_user_id;
+    SELECT id INTO internal_id FROM users WHERE users.auth_user_id = auth_user_id::text;
     RETURN internal_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
