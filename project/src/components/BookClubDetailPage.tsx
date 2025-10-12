@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus, Trash2, Lock } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub } from '../types';
 import AdminPanel from './AdminPanel';
@@ -190,10 +190,17 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     }
     
     try {
-      const success = await TailorMatesService.joinBookClub(clubId);
-      if (success) {
+      const result = await TailorMatesService.joinBookClub(clubId);
+      if (result.success) {
+        if (result.requiresApproval) {
+          alert('Join request sent successfully! An admin will review your request.');
+        } else {
+          alert('Successfully joined the club!');
+        }
         // Reload club data to update membership status
         await loadClubData();
+      } else {
+        alert(result.message || 'Failed to join club. Please try again.');
       }
     } catch (error) {
       console.error('Error joining club:', error);
@@ -418,6 +425,13 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
             <div className="flex items-center space-x-3">
               <BookOpen className="w-8 h-8 text-pink-400" />
               <h1 className="text-3xl font-bold text-white">{club.name}</h1>
+              {/* Private Badge */}
+              {club.isPrivate && (
+                <div className="flex items-center space-x-1 bg-red-500/30 border border-red-400/50 text-red-200 px-3 py-1 rounded-full text-sm font-medium">
+                  <Lock className="w-4 h-4" />
+                  <span>Private</span>
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-2 text-white/60">
               <Users className="w-5 h-5" />
@@ -506,7 +520,7 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   onClick={handleJoinClub}
                   className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
                 >
-                  Join Club
+                  {club.isPrivate ? 'Request to Join Club' : 'Join Club'}
                 </button>
               )}
             </div>
