@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Users, MessageCircle, BookOpen, Search, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, User as UserIcon, Clock, Crown, UserMinus } from 'lucide-react';
+import { Home, Users, MessageCircle, BookOpen, Search, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, User as UserIcon, Clock, Crown, UserMinus, Lock } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub, Discussion, FriendConnection, FriendRecommendation, User, CreateBookClubServiceData } from '../types';
@@ -912,6 +912,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         >
                           {club.name}
                         </button>
+                        {/* Private Badge */}
+                        {!club.isPublic && (
+                          <div className="flex items-center space-x-1 bg-red-500/30 border border-red-400/50 text-red-200 px-2 py-1 rounded-full text-xs font-medium">
+                            <Lock className="w-3 h-3" />
+                            <span>Private</span>
+                          </div>
+                        )}
                         {/* Role Badge */}
                         {(club.userRole === 'admin' || club.userRole === 'owner') && (
                           <div className="flex items-center space-x-1 bg-amber-500/30 border border-amber-400/50 text-amber-200 px-2 py-1 rounded-full text-xs font-medium">
@@ -988,7 +995,12 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         disabled={club.memberCount >= club.maxMembers}
                         className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {club.memberCount >= club.maxMembers ? 'Club Full' : 'Join Club'}
+                        {club.memberCount >= club.maxMembers 
+                          ? 'Club Full' 
+                          : club.isPublic 
+                            ? 'Join Club' 
+                            : 'Request to Join Club'
+                        }
                       </button>
                     )}
                   </div>

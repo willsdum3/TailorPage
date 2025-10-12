@@ -7,6 +7,7 @@ import CreatePollModal from './CreatePollModal';
 import EditClubModal from './EditClubModal';
 import PollVotingInterface from './PollVotingInterface';
 import ClubInvitationsManager from './ClubInvitationsManager';
+import ClubRequestsManager from './ClubRequestsManager';
 import AddFriendModal from './AddFriendModal';
 import UserActionModal from './UserActionModal';
 
@@ -603,17 +604,30 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   <span>Polls</span>
                 </button>
                 {isUserAdmin() && (
-                  <button
-                    className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
-                      activeTab === 'invitations' 
-                        ? 'text-amber-400 border-b-2 border-amber-400' 
-                        : 'text-white/70 hover:text-white'
-                    }`}
-                    onClick={() => setActiveTab('invitations')}
-                  >
-                    <UserPlus className="w-5 h-5" />
-                    <span>Invitations</span>
-                  </button>
+                  <>
+                    <button
+                      className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
+                        activeTab === 'requests'
+                          ? 'text-amber-400 border-b-2 border-amber-400' 
+                          : 'text-white/70 hover:text-white'
+                      }`}
+                      onClick={() => setActiveTab('requests')}
+                    >
+                      <Users className="w-5 h-5" />
+                      <span>Club Requests</span>
+                    </button>
+                    <button
+                      className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
+                        activeTab === 'invitations'
+                          ? 'text-amber-400 border-b-2 border-amber-400' 
+                          : 'text-white/70 hover:text-white'
+                      }`}
+                      onClick={() => setActiveTab('invitations')}
+                    >
+                      <UserPlus className="w-5 h-5" />
+                      <span>Invitations</span>
+                    </button>
+                  </>
                 )}
               </div>
 
@@ -707,6 +721,16 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   <PollVotingInterface 
                     clubId={clubId} 
                     onPollUpdate={loadClubData}
+                  />
+                </div>
+              )}
+
+              {activeTab === 'requests' && isUserAdmin() && (
+                <div className="flex-1 overflow-y-auto">
+                  <ClubRequestsManager
+                    clubId={clubId}
+                    clubName={club?.name || ''}
+                    isAdmin={isUserAdmin()}
                   />
                 </div>
               )}

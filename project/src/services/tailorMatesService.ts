@@ -163,26 +163,32 @@ export class TailorMatesService {
     }
   }
 
-  static async joinBookClub(clubId: string): Promise<boolean> {
+  static async joinBookClub(clubId: string, message?: string): Promise<{ success: boolean; message: string; requiresApproval: boolean }> {
     try {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
       const { data, error } = await supabase
-        .rpc('join_book_club', {
+        .rpc('request_to_join_club', {
           auth_user_id: authUserId,
-          club_id: clubId
+          club_id_param: clubId,
+          message_param: message || null
         });
 
       if (error) {
-        console.error('Error joining book club:', error);
-        return false;
+        console.error('Error requesting to join book club:', error);
+        return { success: false, message: 'Failed to join club', requiresApproval: false };
       }
 
-      return data;
+      const result = data[0] || { success: false, message: 'Unknown error', requires_approval: false };
+      return {
+        success: result.success,
+        message: result.message,
+        requiresApproval: result.requires_approval
+      };
     } catch (error) {
       console.error('Error in joinBookClub:', error);
-      return false;
+      return { success: false, message: 'Failed to join club', requiresApproval: false };
     }
   }
 
@@ -206,6 +212,66 @@ export class TailorMatesService {
     } catch (error) {
       console.error('Error in leaveBookClub:', error);
       return false;
+    }
+  }
+
+  // =====================================================
+  // CLUB JOIN REQUEST FUNCTIONS
+  // =====================================================
+
+  static async getClubJoinRequests(clubId: string): Promise<any[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_club_join_requests', {
+          auth_user_id: authUserId,
+          club_id_param: clubId
+        });
+
+      if (error) {
+        console.error('Error getting club join requests:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getClubJoinRequests:', error);
+      return [];
+    }
+  }
+
+  static async processJoinRequest(
+    requestId: string, 
+    approve: boolean, 
+    message?: string
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('process_join_request', {
+          auth_user_id: authUserId,
+          request_id: requestId,
+          approve: approve,
+          message_param: message || null
+        });
+
+      if (error) {
+        console.error('Error processing join request:', error);
+        return { success: false, message: 'Failed to process request' };
+      }
+
+      const result = data[0] || { success: false, message: 'Unknown error' };
+      return {
+        success: result.success,
+        message: result.message
+      };
+    } catch (error) {
+      console.error('Error in processJoinRequest:', error);
+      return { success: false, message: 'Failed to process request' };
     }
   }
 
