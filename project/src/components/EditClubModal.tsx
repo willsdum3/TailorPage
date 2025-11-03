@@ -78,9 +78,9 @@ const EditClubModal: React.FC<EditClubModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 rounded-2xl border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-slate-900 rounded-2xl border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10 flex-shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center space-x-3">
             <BookOpen className="w-6 h-6 text-pink-400" />
             <h2 className="text-2xl font-bold text-white">Edit Club Details</h2>
@@ -93,8 +93,8 @@ const EditClubModal: React.FC<EditClubModalProps> = ({
           </button>
         </div>
 
-        {/* Content - Scrollable area */}
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Content */}
+        <div className="p-6 max-h-[70vh] overflow-y-auto">
           {message && (
             <div className={`mb-4 p-4 rounded-lg ${
               message.type === 'success' 
@@ -193,8 +193,8 @@ const EditClubModal: React.FC<EditClubModalProps> = ({
           </div>
         </div>
 
-        {/* Footer - Fixed at bottom */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-white/10 flex-shrink-0">
+        {/* Footer */}
+        <div className="flex items-center justify-end space-x-3 p-6 border-t border-white/10">
           <button
             onClick={onClose}
             className="px-6 py-3 text-white/60 hover:text-white transition-colors"

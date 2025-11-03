@@ -81,3 +81,9 @@ WHERE tablename = 'club_invitations' AND schemaname = 'public';
 
 
 
+
+
+
+
+
+

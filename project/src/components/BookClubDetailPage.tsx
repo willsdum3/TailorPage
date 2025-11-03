@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus, Trash2, Lock } from 'lucide-react';
+import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus, Trash2 } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub } from '../types';
 import AdminPanel from './AdminPanel';
@@ -7,7 +7,6 @@ import CreatePollModal from './CreatePollModal';
 import EditClubModal from './EditClubModal';
 import PollVotingInterface from './PollVotingInterface';
 import ClubInvitationsManager from './ClubInvitationsManager';
-import ClubRequestsManager from './ClubRequestsManager';
 import AddFriendModal from './AddFriendModal';
 import UserActionModal from './UserActionModal';
 
@@ -190,17 +189,10 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     }
     
     try {
-      const result = await TailorMatesService.joinBookClub(clubId);
-      if (result.success) {
-        if (result.requiresApproval) {
-          alert('Join request sent successfully! An admin will review your request.');
-        } else {
-          alert('Successfully joined the club!');
-        }
+      const success = await TailorMatesService.joinBookClub(clubId);
+      if (success) {
         // Reload club data to update membership status
         await loadClubData();
-      } else {
-        alert(result.message || 'Failed to join club. Please try again.');
       }
     } catch (error) {
       console.error('Error joining club:', error);
@@ -425,13 +417,6 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
             <div className="flex items-center space-x-3">
               <BookOpen className="w-8 h-8 text-pink-400" />
               <h1 className="text-3xl font-bold text-white">{club.name}</h1>
-              {/* Private Badge */}
-              {club.isPrivate && (
-                <div className="flex items-center space-x-1 bg-red-500/30 border border-red-400/50 text-red-200 px-3 py-1 rounded-full text-sm font-medium">
-                  <Lock className="w-4 h-4" />
-                  <span>Private</span>
-                </div>
-              )}
             </div>
             <div className="flex items-center space-x-2 text-white/60">
               <Users className="w-5 h-5" />
@@ -520,7 +505,7 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   onClick={handleJoinClub}
                   className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-4 py-2 rounded-xl font-medium transition-all duration-300"
                 >
-                  {club.isPrivate ? 'Request to Join Club' : 'Join Club'}
+                  Join Club
                 </button>
               )}
             </div>
@@ -618,30 +603,17 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   <span>Polls</span>
                 </button>
                 {isUserAdmin() && (
-                  <>
-                    <button
-                      className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
-                        activeTab === 'requests'
-                          ? 'text-amber-400 border-b-2 border-amber-400' 
-                          : 'text-white/70 hover:text-white'
-                      }`}
-                      onClick={() => setActiveTab('requests')}
-                    >
-                      <Users className="w-5 h-5" />
-                      <span>Club Requests</span>
-                    </button>
-                    <button
-                      className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
-                        activeTab === 'invitations'
-                          ? 'text-amber-400 border-b-2 border-amber-400' 
-                          : 'text-white/70 hover:text-white'
-                      }`}
-                      onClick={() => setActiveTab('invitations')}
-                    >
-                      <UserPlus className="w-5 h-5" />
-                      <span>Invitations</span>
-                    </button>
-                  </>
+                  <button
+                    className={`px-4 py-2 text-lg font-medium flex items-center space-x-2 ${
+                      activeTab === 'invitations' 
+                        ? 'text-amber-400 border-b-2 border-amber-400' 
+                        : 'text-white/70 hover:text-white'
+                    }`}
+                    onClick={() => setActiveTab('invitations')}
+                  >
+                    <UserPlus className="w-5 h-5" />
+                    <span>Invitations</span>
+                  </button>
                 )}
               </div>
 
@@ -735,16 +707,6 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                   <PollVotingInterface 
                     clubId={clubId} 
                     onPollUpdate={loadClubData}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'requests' && isUserAdmin() && (
-                <div className="flex-1 overflow-y-auto">
-                  <ClubRequestsManager
-                    clubId={clubId}
-                    clubName={club?.name || ''}
-                    isAdmin={isUserAdmin()}
                   />
                 </div>
               )}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Service Code</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test Service Code</h1>
+    <div id="output"></div>
+    
+    <script>
+        // Initialize Supabase (replace with your actual URL and key)
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Test function to call get_book_clubs
+        async function testGetBookClubs() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<p>Testing get_book_clubs function...</p>';
+            
+            try {
+                // Test with the test user ID
+                const testAuthUserId = '00000000-0000-0000-0000-000000000001';
+                
+                const { data, error } = await supabase
+                    .rpc('get_book_clubs', {
+                        p_auth_user_id: testAuthUserId
+                    });
+                
+                if (error) {
+                    output.innerHTML += `<p style="color: red;">Error: ${JSON.stringify(error)}</p>`;
+                } else {
+                    output.innerHTML += `<p style="color: green;">Success! Data: ${JSON.stringify(data)}</p>`;
+                    output.innerHTML += `<p>Number of clubs: ${data ? data.length : 0}</p>`;
+                }
+            } catch (err) {
+                output.innerHTML += `<p style="color: red;">Exception: ${err.message}</p>`;
+            }
+        }
+        
+        // Test function to call get_discussions
+        async function testGetDiscussions() {
+            const output = document.getElementById('output');
+            output.innerHTML += '<p>Testing get_discussions function...</p>';
+            
+            try {
+                // Test with the test user ID
+                const testAuthUserId = '00000000-0000-0000-0000-000000000001';
+                
+                const { data, error } = await supabase
+                    .rpc('get_discussions', {
+                        p_auth_user_id: testAuthUserId
+                    });
+                
+                if (error) {
+                    output.innerHTML += `<p style="color: red;">Error: ${JSON.stringify(error)}</p>`;
+                } else {
+                    output.innerHTML += `<p style="color: green;">Success! Data: ${JSON.stringify(data)}</p>`;
+                    output.innerHTML += `<p>Number of discussions: ${data ? data.length : 0}</p>`;
+                }
+            } catch (err) {
+                output.innerHTML += `<p style="color: red;">Exception: ${err.message}</p>`;
+            }
+        }
+        
+        // Run tests when page loads
+        window.onload = function() {
+            testGetBookClubs();
+            setTimeout(testGetDiscussions, 1000);
+        };
+    </script>
+</body>
+</html>

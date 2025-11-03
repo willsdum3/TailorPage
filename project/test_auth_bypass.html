@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Auth Bypass</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test Authentication Bypass</h1>
+    <div id="output"></div>
+    
+    <script>
+        // Initialize Supabase (replace with your actual URL and key)
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Test function to simulate authentication
+        async function testWithAuthBypass() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<p>Testing with auth bypass...</p>';
+            
+            try {
+                // Test with different user IDs
+                const testUsers = [
+                    '00000000-0000-0000-0000-000000000001',
+                    '00000000-0000-0000-0000-000000000002',
+                    '00000000-0000-0000-0000-000000000003'
+                ];
+                
+                for (const authUserId of testUsers) {
+                    output.innerHTML += `<h3>Testing with user: ${authUserId}</h3>`;
+                    
+                    // Test get_book_clubs
+                    const { data: clubs, error: clubsError } = await supabase
+                        .rpc('get_book_clubs', {
+                            p_auth_user_id: authUserId
+                        });
+                    
+                    if (clubsError) {
+                        output.innerHTML += `<p style="color: red;">Clubs Error: ${JSON.stringify(clubsError)}</p>`;
+                    } else {
+                        output.innerHTML += `<p style="color: green;">Clubs Success: ${clubs ? clubs.length : 0} clubs found</p>`;
+                        if (clubs && clubs.length > 0) {
+                            output.innerHTML += `<p>First club: ${clubs[0].name}</p>`;
+                        }
+                    }
+                    
+                    // Test get_discussions
+                    const { data: discussions, error: discussionsError } = await supabase
+                        .rpc('get_discussions', {
+                            p_auth_user_id: authUserId
+                        });
+                    
+                    if (discussionsError) {
+                        output.innerHTML += `<p style="color: red;">Discussions Error: ${JSON.stringify(discussionsError)}</p>`;
+                    } else {
+                        output.innerHTML += `<p style="color: green;">Discussions Success: ${discussions ? discussions.length : 0} discussions found</p>`;
+                        if (discussions && discussions.length > 0) {
+                            output.innerHTML += `<p>First discussion: ${discussions[0].title}</p>`;
+                        }
+                    }
+                    
+                    output.innerHTML += '<hr>';
+                }
+                
+            } catch (err) {
+                output.innerHTML += `<p style="color: red;">Exception: ${err.message}</p>`;
+            }
+        }
+        
+        // Run test when page loads
+        window.onload = function() {
+            testWithAuthBypass();
+        };
+    </script>
+</body>
+</html>
