@@ -115,23 +115,18 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     }
 
     try {
-      await TailorMatesService.joinDiscussion(discussionId);
+      const success = await TailorMatesService.joinDiscussion(discussionId);
       
-      // Immediate UI update
-      setIsParticipant(true);
-      
-      // Update local discussion state
-      if (discussion) {
-        setDiscussion({
-          ...discussion,
-          participantCount: discussion.participantCount + 1,
-          isParticipant: true
-        });
-      }
-      
-      // Notify parent component to refresh discussions list
-      if (onDiscussionLeft) {
-        onDiscussionLeft(); // Reusing this callback for any participation change
+      if (success) {
+        // Reload discussion data to get accurate participant status from database
+        await loadDiscussion();
+        
+        // Notify parent component to refresh discussions list
+        if (onDiscussionLeft) {
+          onDiscussionLeft(); // Reusing this callback for any participation change
+        }
+      } else {
+        alert('Failed to join discussion. Please try again.');
       }
     } catch (error) {
       console.error('Error joining discussion:', error);
@@ -536,12 +531,27 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
                     {message.userImageUrl ? (
                       <img 
                         src={message.userImageUrl} 
-                        alt={message.userName} 
+                        alt={message.userName || 'User'} 
                         className="w-8 h-8 rounded-full object-cover border border-white/20"
+                        onError={(e) => {
+                          // Hide broken image and show fallback
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent && !parent.querySelector('.avatar-fallback')) {
+                            const fallback = document.createElement('div');
+                            fallback.className = 'w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center avatar-fallback';
+                            const initial = (message.userName || message.userUsername || 'U').charAt(0).toUpperCase();
+                            fallback.innerHTML = `<span class="text-white font-semibold text-xs">${initial}</span>`;
+                            parent.appendChild(fallback);
+                          }
+                        }}
                       />
                     ) : (
                       <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <UserIcon className="w-4 h-4 text-white" />
+                        <span className="text-white font-semibold text-xs">
+                          {(message.userName || message.userUsername || 'U').charAt(0).toUpperCase()}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -550,14 +560,14 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
                       <div className="flex items-center space-x-2">
                         {message.userId === currentUserId ? (
                           <span className="text-white font-medium">
-                            {message.userName}
+                            {message.userName || 'You'}
                           </span>
                         ) : (
                           <button
-                            onClick={() => handleUserClick(message.userId, message.userName, message.userUsername || '', message.userImageUrl)}
+                            onClick={() => handleUserClick(message.userId, message.userName || 'User', message.userUsername || '', message.userImageUrl)}
                             className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer"
                           >
-                            {message.userName}
+                            {message.userName || 'User'}
                           </button>
                         )}
                         {message.userUsername && (
@@ -567,7 +577,7 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
                             </span>
                           ) : (
                             <button
-                              onClick={() => handleUserClick(message.userId, message.userName, message.userUsername, message.userImageUrl)}
+                              onClick={() => handleUserClick(message.userId, message.userName || 'User', message.userUsername, message.userImageUrl)}
                               className="text-white/60 hover:text-pink-400/70 text-sm transition-colors cursor-pointer"
                             >
                               @{message.userUsername}
@@ -576,10 +586,12 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
                         )}
                       </div>
                       <span className="text-white/50 text-sm">
-                        {TailorMatesService.formatDate(message.createdAt)}
+                        {message.createdAt ? TailorMatesService.formatDate(message.createdAt) : ''}
                       </span>
                     </div>
-                    <p className="text-white/90 leading-relaxed">{message.content}</p>
+                    {message.content && (
+                      <p className="text-white/90 leading-relaxed">{message.content}</p>
+                    )}
                   </div>
                 </div>
               ))

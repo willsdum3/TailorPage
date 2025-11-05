@@ -680,8 +680,16 @@ export class TailorMatesService {
         return null;
       }
 
-      console.log('Discussion created successfully:', data);
-      return data;
+      // Handle JSONB response - Supabase may return it as an object or array
+      const createdDiscussion = Array.isArray(data) ? data[0] : data;
+      
+      if (!createdDiscussion) {
+        console.error('No discussion data returned from create_discussion');
+        return null;
+      }
+
+      console.log('Discussion created successfully:', createdDiscussion);
+      return createdDiscussion as Discussion;
     } catch (error) {
       console.error('Error in createDiscussion:', error);
       return null;
@@ -736,7 +744,7 @@ export class TailorMatesService {
       const { data, error } = await supabase
         .rpc('join_discussion', {
           auth_user_id: authUserId,
-          discussion_id: discussionId
+          p_discussion_id: discussionId
         });
 
       if (error) {
@@ -744,7 +752,18 @@ export class TailorMatesService {
         return false;
       }
 
-      return data;
+      // Handle boolean response - Supabase may return it directly or wrapped
+      if (data === true || data === false) {
+        return data as boolean;
+      }
+      
+      // If data is an array, get the first element
+      if (Array.isArray(data) && data.length > 0) {
+        return data[0] as boolean;
+      }
+      
+      // Default to true if we get here (successful call but unexpected format)
+      return true;
     } catch (error) {
       console.error('Error in joinDiscussion:', error);
       return false;
@@ -855,25 +874,36 @@ export class TailorMatesService {
         return [];
       }
 
-      // Debug logging (simplified)
-      console.log('getDiscussionMessages response:', data, 'type:', typeof data);
-
-      // Parse JSON response from database function
-      if (data && typeof data === 'string') {
-        try {
-          const parsed = JSON.parse(data);
-          console.log('getDiscussionMessages parsed result:', parsed);
-          return parsed;
-        } catch (parseError) {
-          console.error('Error parsing discussion messages JSON:', parseError);
-          return [];
-        }
+      if (!data || (Array.isArray(data) && data.length === 0)) {
+        return [];
       }
+
+      // Transform database field names to match DiscussionMessage interface
+      const messages = Array.isArray(data) ? data : [data];
       
-      // If data is already an array, return it directly
-      const result = Array.isArray(data) ? data : (data ? [data] : []);
-      console.log('getDiscussionMessages final result:', result);
-      return result;
+      return messages.map((msg: any) => {
+        // Validate and clean username
+        let username = msg.userUsername || msg.user_username || '';
+        if (username && typeof username === 'string') {
+          username = username.trim();
+          if (username === '') {
+            username = '';
+          }
+        } else {
+          username = '';
+        }
+        
+        return {
+          id: msg.id,
+          content: msg.content || msg.message || '', // Handle both field names
+          createdAt: msg.createdAt || msg.created_at,
+          userId: msg.userId || msg.user_id,
+          userName: msg.userName || msg.user_name || 'User',
+          userUsername: username,
+          userImageUrl: msg.userImageUrl || msg.user_image_url || msg.avatar_url || null,
+          isEdited: msg.isEdited || msg.is_edited || false
+        };
+      });
     } catch (error) {
       console.error('Error in getDiscussionMessages:', error);
       return [];
