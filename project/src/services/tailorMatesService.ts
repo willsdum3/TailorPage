@@ -306,7 +306,35 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Transform database field names to component-friendly names
+      const transformed = (data || []).map((member: any) => {
+        // Clean and validate username - handle null, undefined, and empty strings
+        let cleanUsername = null;
+        
+        if (member.user_username) {
+          const trimmed = String(member.user_username).trim();
+          if (trimmed.length > 0) {
+            cleanUsername = trimmed;
+          }
+        }
+        
+        // Debug logging (remove in production if needed)
+        if (!cleanUsername && member.user_name) {
+          console.log(`[getBookClubMembers] User "${member.user_name}" has no username (user_username: ${JSON.stringify(member.user_username)})`);
+        }
+        
+        return {
+          id: member.id,
+          user_id: member.user_id,
+          role: member.role,
+          joined_at: member.joined_at,
+          name: member.user_name || null, // Transform 'user_name' to 'name'
+          username: cleanUsername, // Transform 'user_username' to 'username' with validation
+          avatar_url: member.avatar_url || null
+        };
+      });
+      
+      return transformed;
     } catch (error) {
       console.error('Error in getBookClubMembers:', error);
       return [];
@@ -353,7 +381,16 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      // Transform database field names to component-friendly names
+      return (data || []).map((msg: any) => ({
+        id: msg.id,
+        user_id: msg.user_id,
+        content: msg.message, // Transform 'message' to 'content'
+        created_at: msg.created_at,
+        name: msg.user_name, // Transform 'user_name' to 'name'
+        username: msg.user_username, // Transform 'user_username' to 'username'
+        avatar_url: msg.avatar_url
+      }));
     } catch (error) {
       console.error('Error in getBookClubMessages:', error);
       return [];

@@ -522,55 +522,75 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
               </h3>
               
               <div className="space-y-3">
-                {members.map((member) => (
+                {members.map((member) => {
+                  const avatarInitial = (member.name || member.username || 'U').charAt(0).toUpperCase();
+                  
+                  return (
                   <div key={member.user_id} className="flex items-center space-x-3 p-3 bg-white/5 rounded-xl">
                     {member.avatar_url ? (
                       <img 
                         src={member.avatar_url} 
-                        alt={member.name || member.username} 
-                        className="w-10 h-10 rounded-full object-cover border border-white/20"
+                        alt={member.name || member.username || 'User'} 
+                        className="w-10 h-10 rounded-full object-cover border border-white/20 flex-shrink-0"
+                        onError={(e) => {
+                          // Replace broken image with fallback avatar
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent && !parent.querySelector('.avatar-fallback')) {
+                            const fallback = document.createElement('div');
+                            fallback.className = 'w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 avatar-fallback';
+                            fallback.innerHTML = `<span class="text-white font-semibold text-sm">${avatarInitial}</span>`;
+                            parent.appendChild(fallback);
+                          }
+                        }}
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-white" />
+                      <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-semibold text-sm">
+                          {avatarInitial}
+                        </span>
                       </div>
                     )}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
                         {member.user_id === currentUserId ? (
-                          <span className="text-white font-medium">{member.name}</span>
+                          <span className="text-white font-medium truncate">{member.name || 'You'}</span>
                         ) : (
                           <button
-                            onClick={() => handleUserClick(member.user_id, member.name, member.username, member.avatar_url)}
-                            className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer"
+                            onClick={() => handleUserClick(member.user_id, member.name || 'User', member.username || '', member.avatar_url)}
+                            className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer truncate"
                           >
-                            {member.name}
+                            {member.name || 'User'}
                           </button>
                         )}
-                        {member.role === 'admin' && (
-                          <Crown className="w-4 h-4 text-yellow-400" />
+                        {(member.role === 'admin' || member.role === 'owner') && (
+                          <Crown className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                         )}
                       </div>
-                      {member.user_id === currentUserId ? (
-                        <p className="text-white/60 text-sm">@{member.username}</p>
-                      ) : (
-                        <button
-                          onClick={() => handleUserClick(member.user_id, member.name, member.username, member.avatar_url)}
-                          className="text-white/60 hover:text-pink-400/70 text-sm transition-colors cursor-pointer"
-                        >
-                          @{member.username}
-                        </button>
-                      )}
+                      {member.username ? (
+                        member.user_id === currentUserId ? (
+                          <p className="text-white/60 text-sm truncate">@{member.username}</p>
+                        ) : (
+                          <button
+                            onClick={() => handleUserClick(member.user_id, member.name || 'User', member.username, member.avatar_url)}
+                            className="text-white/60 hover:text-pink-400/70 text-sm transition-colors cursor-pointer truncate"
+                          >
+                            @{member.username}
+                          </button>
+                        )
+                      ) : null}
                     </div>
-                    <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                      member.role === 'admin' 
+                    <span className={`px-2 py-1 rounded-lg text-xs font-medium flex-shrink-0 ${
+                      member.role === 'admin' || member.role === 'owner'
                         ? 'bg-yellow-500/20 text-yellow-300' 
                         : 'bg-blue-500/20 text-blue-300'
                     }`}>
-                      {member.role}
+                      {member.role || 'member'}
                     </span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -633,7 +653,7 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                           {message.avatar_url ? (
                             <img 
                               src={message.avatar_url} 
-                              alt={message.name || message.username} 
+                              alt={message.name || message.username || 'User'} 
                               className="w-8 h-8 rounded-full object-cover border border-white/20 flex-shrink-0"
                             />
                           ) : (
@@ -645,33 +665,37 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                             <div className="flex items-center space-x-2 mb-1">
                               {message.user_id === currentUserId ? (
                                 <span className="text-white font-medium">
-                                  {message.name}
+                                  {message.name || 'You'}
                                 </span>
                               ) : (
                                 <button
-                                  onClick={() => handleUserClick(message.user_id, message.name, message.username, message.avatar_url)}
+                                  onClick={() => handleUserClick(message.user_id, message.name || 'User', message.username || '', message.avatar_url)}
                                   className="text-white font-medium hover:text-pink-400 transition-colors cursor-pointer"
                                 >
-                                  {message.name}
+                                  {message.name || 'User'}
                                 </button>
                               )}
-                              {message.user_id === currentUserId ? (
-                                <span className="text-white/50 text-xs">
-                                  @{message.username}
-                                </span>
-                              ) : (
-                                <button
-                                  onClick={() => handleUserClick(message.user_id, message.name, message.username, message.avatar_url)}
-                                  className="text-white/50 hover:text-pink-400/70 text-xs transition-colors cursor-pointer"
-                                >
-                                  @{message.username}
-                                </button>
+                              {message.username && (
+                                message.user_id === currentUserId ? (
+                                  <span className="text-white/50 text-xs">
+                                    @{message.username}
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={() => handleUserClick(message.user_id, message.name || 'User', message.username, message.avatar_url)}
+                                    className="text-white/50 hover:text-pink-400/70 text-xs transition-colors cursor-pointer"
+                                  >
+                                    @{message.username}
+                                  </button>
+                                )
                               )}
                               <span className="text-white/40 text-xs">
-                                {new Date(message.created_at).toLocaleString()}
+                                {message.created_at ? new Date(message.created_at).toLocaleString() : ''}
                               </span>
                             </div>
-                            <p className="text-white/90 bg-white/5 rounded-lg p-3">{message.content}</p>
+                            {message.content && (
+                              <p className="text-white/90 bg-white/5 rounded-lg p-3">{message.content}</p>
+                            )}
                           </div>
                         </div>
                       ))
