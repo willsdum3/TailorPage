@@ -39,7 +39,13 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({
         }
         onClose();
       } else {
-        alert(result.error || 'Failed to send friend request.');
+        // Provide helpful error message
+        const errorMessage = result.error || 'Failed to send friend request.';
+        if (errorMessage.includes('already sent')) {
+          alert(`${errorMessage}\n\nYou can cancel it from the "Pending" filter in the Friends section.`);
+        } else {
+          alert(errorMessage);
+        }
       }
     } catch (error) {
       console.error('Error sending friend request:', error);

@@ -28,6 +28,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const [friendConnections, setFriendConnections] = useState<FriendConnection[]>([]);
   const [friendRecommendations, setFriendRecommendations] = useState<FriendRecommendation[]>([]);
   const [friendRequests, setFriendRequests] = useState<FriendConnection[]>([]);
+  const [outgoingFriendRequests, setOutgoingFriendRequests] = useState<FriendConnection[]>([]);
   const [blockedUsers, setBlockedUsers] = useState<FriendConnection[]>([]);
   const [unreadMessageCount, setUnreadMessageCount] = useState<number>(0);
   
@@ -209,6 +210,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           });
           console.log('Friend requests result:', requests);
           
+          console.log('Calling getOutgoingFriendRequests...');
+          const outgoingRequests = await TailorMatesService.getOutgoingFriendRequests().catch(err => {
+            console.error('Error loading outgoing friend requests:', err);
+            return [];
+          });
+          console.log('Outgoing friend requests result:', outgoingRequests);
+          
           console.log('Calling getBlockedUsers...');
           const blocked = await TailorMatesService.getBlockedUsers().catch(err => {
             console.error('Error loading blocked users:', err);
@@ -225,17 +233,26 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           
         setFriendConnections(connections);
         setFriendRecommendations(recommendations);
-          setFriendRequests(requests);
-          setBlockedUsers(blocked);
-          setUnreadMessageCount(unreadCount);
-          console.log('Loaded friends data successfully:', { connections, recommendations, requests });
-          console.log('Setting friendConnections state to:', connections);
+        setFriendRequests(requests);
+        setOutgoingFriendRequests(outgoingRequests);
+        setBlockedUsers(blocked);
+        setUnreadMessageCount(unreadCount);
+          console.log('Loaded friends data successfully:', { 
+            connections: connections?.length || 0, 
+            recommendations: recommendations?.length || 0, 
+            requests: requests?.length || 0,
+            blocked: blocked?.length || 0
+          });
+          console.log('Friend requests array:', requests);
+          console.log('Friend requests length:', requests?.length);
+          console.log('Setting friendRequests state to:', requests);
         } catch (error) {
           console.error('Error loading friends data:', error);
           // Set empty arrays to prevent blank page
           setFriendConnections([]);
           setFriendRecommendations([]);
           setFriendRequests([]);
+          setOutgoingFriendRequests([]);
         }
       }
     } catch (error) {
@@ -416,7 +433,13 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         // Refresh the data to get updated friend requests
         await loadData();
       } else {
-        alert(result.error || 'Failed to send friend request. Please try again.');
+        // Provide helpful error message
+        const errorMessage = result.error || 'Failed to send friend request. Please try again.';
+        if (errorMessage.includes('already sent')) {
+          alert(`${errorMessage}\n\nYou can cancel it from the "Pending" filter in the Friends section.`);
+        } else {
+          alert(errorMessage);
+        }
       }
     } catch (error) {
       console.error('Error sending friend request:', error);
@@ -448,6 +471,26 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     } catch (error) {
       console.error('Error accepting friend request:', error);
       alert('Failed to accept friend request. Please try again.');
+    }
+  };
+
+  const handleCancelFriendRequest = async (friendId: string) => {
+    if (!user) {
+      alert('Please log in to cancel friend requests.');
+      return;
+    }
+
+    try {
+      const result = await TailorMatesService.cancelFriendRequest(friendId);
+      if (result.success) {
+        alert('Friend request cancelled successfully!');
+        await loadData(); // Refresh the list
+      } else {
+        alert(result.error || 'Failed to cancel friend request.');
+      }
+    } catch (error) {
+      console.error('Error cancelling friend request:', error);
+      alert('Failed to cancel friend request. Please try again.');
     }
   };
 
@@ -1267,75 +1310,134 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   )}
                 </div>
                 ) : selectedFilter === 'Pending' ? (
-                  /* Pending Requests Only */
-                  <div>
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-                      <UserPlus className="w-5 h-5 text-blue-400" />
-                      <span>Friend Requests ({safeFriendRequests.length})</span>
-                    </h3>
-                    {safeFriendRequests.length === 0 ? (
-                      <div className="text-center py-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
-                        <UserPlus className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                        <p className="text-white/70 mb-4">
-                          {searchTerm ? `No friend requests match "${searchTerm}".` : "No pending friend requests."}
-                        </p>
-                        <p className="text-white/50 text-sm">
-                          {searchTerm ? "Try a different search term." : "Friend requests will appear here."}
-                        </p>
-                      </div>
-                    ) : (
-                    <div className="space-y-3">
-                        {safeFriendRequests.map((request) => {
-                          if (!request || !request.id) return null;
-                          
-                          return (
-                            <div key={request.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                                    {request.friendImageUrl ? (
-                                      <img 
-                                        src={request.friendImageUrl} 
-                                        alt={`${request.friendName || 'User'}'s profile`}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          e.currentTarget.style.display = 'none';
-                                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                          if (nextElement) {
-                                            nextElement.style.display = 'flex';
-                                          }
-                                        }}
-                                      />
-                                    ) : null}
-                                    <div className={`w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center ${request.friendImageUrl ? 'hidden' : 'flex'}`}>
-                                  <UserIcon className="w-5 h-5 text-white" />
+                  /* Pending Requests Only - Shows both incoming and outgoing */
+                  <div className="space-y-6">
+                    {/* Incoming Requests */}
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                        <UserPlus className="w-5 h-5 text-blue-400" />
+                        <span>Incoming Requests ({safeFriendRequests.length})</span>
+                      </h3>
+                      {safeFriendRequests.length === 0 ? (
+                        <div className="text-center py-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                          <p className="text-white/70 text-sm">No incoming friend requests.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {safeFriendRequests.map((request) => {
+                            if (!request || !request.id) return null;
+                            
+                            return (
+                              <div key={request.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                                      {request.friendImageUrl ? (
+                                        <img 
+                                          src={request.friendImageUrl} 
+                                          alt={`${request.friendName || 'User'}'s profile`}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                            const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                            if (nextElement) {
+                                              nextElement.style.display = 'flex';
+                                            }
+                                          }}
+                                        />
+                                      ) : null}
+                                      <div className={`w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center ${request.friendImageUrl ? 'hidden' : 'flex'}`}>
+                                        <UserIcon className="w-5 h-5 text-white" />
+                                      </div>
                                     </div>
-                                </div>
-                                <div>
-                                    <h4 className="text-white font-medium">{request.friendName || 'Unknown'}</h4>
-                                    <p className="text-white/60 text-sm">@{request.friendUsername || 'unknown'}</p>
+                                    <div>
+                                      <h4 className="text-white font-medium">{request.friendName || 'Unknown'}</h4>
+                                      <p className="text-white/60 text-sm">@{request.friendUsername || 'unknown'}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex space-x-2">
+                                    <button
+                                      onClick={() => handleAcceptFriendRequest(request.friendId)}
+                                      className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                                    >
+                                      Accept
+                                    </button>
+                                    <button 
+                                      onClick={() => handleRejectFriendRequest(request.friendId)}
+                                      className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors"
+                                    >
+                                      Decline
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
-                              <div className="flex space-x-2">
-                                <button
-                                    onClick={() => handleAcceptFriendRequest(request.friendId)}
-                                  className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 px-3 py-1 rounded-lg text-sm transition-colors"
-                                >
-                                  Accept
-                                </button>
-                                  <button 
-                                    onClick={() => handleRejectFriendRequest(request.friendId)}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Outgoing Requests */}
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                        <UserPlus className="w-5 h-5 text-yellow-400" />
+                        <span>Sent Requests ({outgoingFriendRequests.length})</span>
+                      </h3>
+                      {outgoingFriendRequests.length === 0 ? (
+                        <div className="text-center py-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                          <p className="text-white/70 text-sm">No outgoing friend requests.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {outgoingFriendRequests.map((request) => {
+                            if (!request || !request.id) return null;
+                            
+                            return (
+                              <div key={request.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                                      {request.friendImageUrl ? (
+                                        <img 
+                                          src={request.friendImageUrl} 
+                                          alt={`${request.friendName || 'User'}'s profile`}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                            const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                            if (nextElement) {
+                                              nextElement.style.display = 'flex';
+                                            }
+                                          }}
+                                        />
+                                      ) : null}
+                                      <div className={`w-full h-full bg-gradient-to-r from-yellow-500 to-orange-600 flex items-center justify-center ${request.friendImageUrl ? 'hidden' : 'flex'}`}>
+                                        <UserIcon className="w-5 h-5 text-white" />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <h4 className="text-white font-medium">{request.friendName || 'User'}</h4>
+                                      {request.friendUsername ? (
+                                        <p className="text-white/60 text-sm">@{request.friendUsername}</p>
+                                      ) : (
+                                        <p className="text-white/40 text-xs italic">No username</p>
+                                      )}
+                                      <p className="text-white/40 text-xs mt-1">Waiting for response...</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => handleCancelFriendRequest(request.friendId)}
                                     className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 py-1 rounded-lg text-sm transition-colors"
                                   >
-                                  Decline
-                                </button>
+                                    Cancel
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                    )}
                   </div>
                 ) : (
                   /* Default: All Friends and Recommendations */

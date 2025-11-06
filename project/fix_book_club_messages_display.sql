@@ -71,3 +71,4 @@ GRANT EXECUTE ON FUNCTION get_book_club_messages(UUID, UUID) TO anon;
 
 SELECT '=== BOOK CLUB MESSAGES DISPLAY FUNCTION UPDATED ===' as header;
 
+

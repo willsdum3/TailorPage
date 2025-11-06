@@ -116,3 +116,4 @@ ORDER BY ordinal_position;
 
 SELECT '=== GET_DISCUSSIONS PARTICIPANT STATUS FIX COMPLETE ===' as header;
 
+

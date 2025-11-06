@@ -106,3 +106,8 @@ WHERE table_name = 'club_invitations' AND table_schema = 'public';
 
 
 
+
+
+
+
+

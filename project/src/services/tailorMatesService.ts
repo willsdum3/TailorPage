@@ -917,44 +917,136 @@ export class TailorMatesService {
 
   static async getFriendRequests(): Promise<FriendConnection[]> {
     try {
-      const currentUserId = await this.getCurrentInternalUserId();
+      const currentUserId = await this.getCurrentUserId();
+      console.log('getFriendRequests - currentUserId:', currentUserId);
 
       const { data, error } = await supabase
         .rpc('get_friend_requests', {
           p_auth_user_id: currentUserId
         });
 
+      console.log('getFriendRequests - RPC response:', { data, error });
+
       if (error) {
         console.error('Error getting friend requests:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return [];
       }
 
+      if (!data) {
+        console.log('getFriendRequests - No data returned');
+        return [];
+      }
+
+      console.log('getFriendRequests - Raw data:', data);
+
       // Map snake_case database fields to camelCase frontend fields
-      return (data || []).map((request: any) => ({
-        id: request.id,
-        friendId: request.friend_id,
-        friendName: request.friend_name,
-        friendUsername: request.friend_username,
-        friendImageUrl: request.friend_image_url,
-        status: request.status,
-        personalityMatchScore: request.personality_match_score,
-        createdAt: request.created_at
-      }));
+      const mapped = (data || []).map((request: any) => {
+        // Ensure username is properly handled (trim and validate)
+        let username = request.friend_username || '';
+        if (username && typeof username === 'string') {
+          username = username.trim();
+        } else {
+          username = '';
+        }
+        
+        // Ensure name is properly handled
+        let name = request.friend_name || 'User';
+        if (name && typeof name === 'string') {
+          name = name.trim();
+          if (name === '') {
+            name = 'User';
+          }
+        } else {
+          name = 'User';
+        }
+        
+        const mappedRequest = {
+          id: request.id,
+          friendId: request.friend_id || request.user_id, // friend_id is the requester's ID (the person who sent the request)
+          friendName: name,
+          friendUsername: username,
+          friendImageUrl: request.friend_image_url || request.avatar_url || null,
+          status: request.status || 'pending',
+          personalityMatchScore: request.personality_match_score || 0,
+          createdAt: request.created_at
+        };
+        console.log('getFriendRequests - Mapped request:', mappedRequest);
+        return mappedRequest;
+      });
+
+      console.log('getFriendRequests - Mapped requests:', mapped);
+      console.log('getFriendRequests - Returning', mapped.length, 'requests');
+      return mapped;
     } catch (error) {
       console.error('Error in getFriendRequests:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       return [];
     }
   }
 
   static async acceptFriendRequest(requesterUserId: string): Promise<{success: boolean, error?: string}> {
     try {
-      const currentUserId = await this.getCurrentInternalUserId();
+      const currentUserId = await this.getCurrentUserId();
+      console.log('acceptFriendRequest - currentUserId (auth):', currentUserId);
+      console.log('acceptFriendRequest - requesterUserId (input):', requesterUserId);
+      
+      // Get requester's internal ID
+      // The requesterUserId from get_friend_requests is the requester's internal ID
+      // But we should verify it's correct
+      let requesterInternalId: string | null = null;
+      
+      // Method 1: Try to use as internal ID first (most common case from get_friend_requests)
+      try {
+        const { data: requesterById, error: idError } = await supabase
+          .from('users')
+          .select('id, auth_user_id')
+          .eq('id', requesterUserId)
+          .single();
+        
+        if (!idError && requesterById) {
+          requesterInternalId = requesterById.id;
+          console.log('acceptFriendRequest - Found requester by internal ID:', requesterInternalId);
+        }
+      } catch (e) {
+        console.log('acceptFriendRequest - Not found by internal ID, trying auth_user_id');
+      }
+      
+      // Method 2: If not found, try to find by auth_user_id
+      if (!requesterInternalId) {
+        try {
+          const { data: requesterByAuth, error: authError } = await supabase
+            .from('users')
+            .select('id, auth_user_id')
+            .eq('auth_user_id', requesterUserId)
+            .single();
+          
+          if (!authError && requesterByAuth) {
+            requesterInternalId = requesterByAuth.id;
+            console.log('acceptFriendRequest - Found requester by auth_user_id:', requesterInternalId);
+          }
+        } catch (e) {
+          console.log('acceptFriendRequest - Not found by auth_user_id either');
+        }
+      }
+      
+      if (!requesterInternalId) {
+        console.error('acceptFriendRequest - Requester not found:', requesterUserId);
+        return { success: false, error: 'Requester not found' };
+      }
+      
+      console.log('acceptFriendRequest - Calling RPC with:', {
+        p_auth_user_id: currentUserId,
+        p_requester_user_id: requesterInternalId
+      });
 
       const { data, error } = await supabase
         .rpc('accept_friend_request', {
           p_auth_user_id: currentUserId,
-          p_requester_user_id: requesterUserId
+          p_requester_user_id: requesterInternalId
         });
+
+      console.log('acceptFriendRequest - RPC response:', { data, error });
 
       if (error) {
         console.error('Error accepting friend request:', error);
@@ -963,6 +1055,7 @@ export class TailorMatesService {
 
       // Parse JSON response
       const result = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log('acceptFriendRequest - Parsed result:', result);
       
       if (result.success) {
         return { success: true };
@@ -977,7 +1070,7 @@ export class TailorMatesService {
 
   static async rejectFriendRequest(requesterUserId: string): Promise<{success: boolean, error?: string}> {
     try {
-      const currentUserId = await this.getCurrentInternalUserId();
+      const currentUserId = await this.getCurrentUserId();
 
       const { data, error } = await supabase
         .rpc('reject_friend_request', {
@@ -1006,7 +1099,7 @@ export class TailorMatesService {
 
   static async getFriendConnections(): Promise<FriendConnection[]> {
     try {
-      const currentUserId = await this.getCurrentInternalUserId();
+      const currentUserId = await this.getCurrentUserId();
       console.log('getFriendConnections - currentUserId:', currentUserId);
 
       const { data, error } = await supabase
@@ -1025,11 +1118,11 @@ export class TailorMatesService {
       const mappedData = (data || []).map((connection: any) => ({
         id: connection.id,
         friendId: connection.friend_id,
-        friendName: connection.friend_name,
-        friendUsername: connection.friend_username,
-        friendImageUrl: connection.friend_image_url,
+        friendName: connection.friend_name || 'User',
+        friendUsername: connection.friend_username || '',
+        friendImageUrl: connection.friend_image_url || connection.avatar_url || null,
         status: connection.status,
-        personalityMatchScore: connection.personality_match_score,
+        personalityMatchScore: connection.personality_match_score || 0,
         createdAt: connection.created_at
       }));
 
@@ -1926,22 +2019,185 @@ export class TailorMatesService {
 
   static async sendFriendRequest(targetUserId: string, message?: string): Promise<{success: boolean, error?: string}> {
     try {
-      const currentUserId = await this.getCurrentInternalUserId();
+      const currentUserId = await this.getCurrentUserId();
+      console.log('sendFriendRequest - currentUserId (auth):', currentUserId);
+      console.log('sendFriendRequest - targetUserId (input):', targetUserId);
+      
+      // Get target user's internal ID
+      // Try multiple methods to ensure we get the correct internal ID
+      let targetInternalId: string | null = null;
+      
+      // Method 1: Try to find by auth_user_id first (most common case)
+      try {
+        const { data: targetUserByAuth, error: authError } = await supabase
+          .from('users')
+          .select('id, auth_user_id')
+          .eq('auth_user_id', targetUserId)
+          .single();
+        
+        if (!authError && targetUserByAuth) {
+          targetInternalId = targetUserByAuth.id;
+          console.log('sendFriendRequest - Found target by auth_user_id:', targetInternalId);
+        }
+      } catch (e) {
+        console.log('sendFriendRequest - Not found by auth_user_id, trying other methods');
+      }
+      
+      // Method 2: If not found, try to find by internal ID (UUID format)
+      if (!targetInternalId) {
+        try {
+          const { data: targetUserById, error: idError } = await supabase
+            .from('users')
+            .select('id, auth_user_id')
+            .eq('id', targetUserId)
+            .single();
+          
+          if (!idError && targetUserById) {
+            targetInternalId = targetUserById.id;
+            console.log('sendFriendRequest - Found target by internal ID:', targetInternalId);
+          }
+        } catch (e) {
+          console.log('sendFriendRequest - Not found by internal ID either');
+        }
+      }
+      
+      if (!targetInternalId) {
+        console.error('sendFriendRequest - Target user not found:', targetUserId);
+        return { success: false, error: 'Target user not found' };
+      }
+      
+      // Get current user's internal ID for comparison
+      const currentInternalId = await this.getCurrentInternalUserId();
+      console.log('sendFriendRequest - currentInternalId:', currentInternalId);
+      console.log('sendFriendRequest - targetInternalId:', targetInternalId);
       
       // Prevent users from sending friend requests to themselves
-      if (currentUserId === targetUserId) {
+      if (currentInternalId === targetInternalId) {
         return { success: false, error: 'You cannot send a friend request to yourself' };
       }
+
+      console.log('sendFriendRequest - Calling RPC with:', {
+        p_auth_user_id: currentUserId,
+        p_target_user_id: targetInternalId,
+        p_message: message
+      });
 
       const { data, error } = await supabase
         .rpc('send_friend_request', {
           p_auth_user_id: currentUserId,
-          p_target_user_id: targetUserId,
+          p_target_user_id: targetInternalId,
           p_message: message
         });
 
+      console.log('sendFriendRequest - RPC response:', { data, error });
+
       if (error) {
         console.error('Error sending friend request:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log('sendFriendRequest - Parsed result:', result);
+      
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in sendFriendRequest:', error);
+      return { success: false, error: 'Failed to send friend request' };
+    }
+  }
+
+  static async getOutgoingFriendRequests(): Promise<FriendConnection[]> {
+    try {
+      const currentUserId = await this.getCurrentUserId();
+      console.log('getOutgoingFriendRequests - currentUserId:', currentUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_outgoing_friend_requests', {
+          p_auth_user_id: currentUserId
+        });
+
+      console.log('getOutgoingFriendRequests - RPC response:', { data, error });
+
+      if (error) {
+        console.error('Error getting outgoing friend requests:', error);
+        return [];
+      }
+
+      if (!data) {
+        return [];
+      }
+
+      // Map snake_case database fields to camelCase frontend fields
+      return (data || []).map((request: any) => {
+        // Ensure username is properly handled (trim and validate)
+        let username = request.friend_username || '';
+        if (username && typeof username === 'string') {
+          username = username.trim();
+        } else {
+          username = '';
+        }
+        
+        // Ensure name is properly handled
+        let name = request.friend_name || 'User';
+        if (name && typeof name === 'string') {
+          name = name.trim();
+          if (name === '') {
+            name = 'User';
+          }
+        } else {
+          name = 'User';
+        }
+        
+        return {
+          id: request.id,
+          friendId: request.friend_id || request.user_id,
+          friendName: name,
+          friendUsername: username,
+          friendImageUrl: request.friend_image_url || request.avatar_url || null,
+          status: request.status || 'pending',
+          personalityMatchScore: request.personality_match_score || 0,
+          createdAt: request.created_at
+        };
+      });
+    } catch (error) {
+      console.error('Error in getOutgoingFriendRequests:', error);
+      return [];
+    }
+  }
+
+  static async cancelFriendRequest(targetUserId: string): Promise<{success: boolean, error?: string}> {
+    try {
+      const currentUserId = await this.getCurrentUserId();
+      
+      // Get target user's internal ID
+      let targetInternalId = targetUserId;
+      try {
+        const { data: targetUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('auth_user_id', targetUserId)
+          .single();
+        if (targetUser) {
+          targetInternalId = targetUser.id;
+        }
+      } catch (e) {
+        // If not found by auth_user_id, assume targetUserId is already an internal ID
+        targetInternalId = targetUserId;
+      }
+
+      const { data, error } = await supabase
+        .rpc('cancel_friend_request', {
+          p_auth_user_id: currentUserId,
+          p_target_user_id: targetInternalId
+        });
+
+      if (error) {
+        console.error('Error cancelling friend request:', error);
         return { success: false, error: error.message };
       }
 
@@ -1954,8 +2210,8 @@ export class TailorMatesService {
         return { success: false, error: result.error };
       }
     } catch (error) {
-      console.error('Error in sendFriendRequest:', error);
-      return { success: false, error: 'Failed to send friend request' };
+      console.error('Error in cancelFriendRequest:', error);
+      return { success: false, error: 'Failed to cancel friend request' };
     }
   }
 
