@@ -16,7 +16,7 @@ DROP FUNCTION IF EXISTS get_book_clubs(UUID);
 
 -- Create the function with correct return type
 CREATE OR REPLACE FUNCTION get_book_clubs(
-    auth_user_id UUID
+    p_auth_user_id UUID
 )
 RETURNS TABLE (
     id UUID,
@@ -56,19 +56,22 @@ BEGIN
         EXISTS (
             SELECT 1 FROM book_club_members bcm
             JOIN users u ON bcm.user_id = u.id
-            WHERE u.auth_user_id = get_book_clubs.auth_user_id
+            WHERE u.auth_user_id = get_book_clubs.p_auth_user_id
             AND bcm.club_id = bc.id
         ) as is_member,
         -- Get the user's role in the club
         COALESCE((
             SELECT bcm.role FROM book_club_members bcm
             JOIN users u ON bcm.user_id = u.id
-            WHERE u.auth_user_id = get_book_clubs.auth_user_id
+            WHERE u.auth_user_id = get_book_clubs.p_auth_user_id
             AND bcm.club_id = bc.id
         ), '') as user_role,
         -- Get creator name
         COALESCE((
-            SELECT u.name FROM users u
+            SELECT NULLIF(TRIM(u.name), '') FROM users u
+            WHERE u.id = bc.created_by
+        ), (
+            SELECT NULLIF(TRIM(u.username), '') FROM users u
             WHERE u.id = bc.created_by
         ), 'Unknown') as creator_name,
         -- Get member count

@@ -16,8 +16,8 @@ DROP FUNCTION IF EXISTS get_book_club_details(UUID, UUID);
 
 -- Create the function with correct return type
 CREATE OR REPLACE FUNCTION get_book_club_details(
-    auth_user_id UUID,
-    club_id_param UUID
+    p_auth_user_id UUID,
+    p_club_id UUID
 )
 RETURNS TABLE (
     id UUID,
@@ -57,25 +57,28 @@ BEGIN
         EXISTS (
             SELECT 1 FROM book_club_members bcm
             JOIN users u ON bcm.user_id = u.id
-            WHERE u.auth_user_id = get_book_club_details.auth_user_id
-            AND bcm.club_id = get_book_club_details.club_id_param
+            WHERE u.auth_user_id = get_book_club_details.p_auth_user_id
+            AND bcm.club_id = get_book_club_details.p_club_id
         ) as is_member,
         -- Get the user's role in the club
         COALESCE((
             SELECT bcm.role FROM book_club_members bcm
             JOIN users u ON bcm.user_id = u.id
-            WHERE u.auth_user_id = get_book_club_details.auth_user_id
-            AND bcm.club_id = get_book_club_details.club_id_param
+            WHERE u.auth_user_id = get_book_club_details.p_auth_user_id
+            AND bcm.club_id = get_book_club_details.p_club_id
         ), '') as user_role,
         -- Get creator name
         COALESCE((
-            SELECT u.name FROM users u
+            SELECT NULLIF(TRIM(u.name), '') FROM users u
+            WHERE u.id = bc.created_by
+        ), (
+            SELECT NULLIF(TRIM(u.username), '') FROM users u
             WHERE u.id = bc.created_by
         ), 'Unknown') as creator_name,
         -- Get member count
-        (SELECT COUNT(*) FROM book_club_members WHERE club_id = get_book_club_details.club_id_param) as member_count
+        (SELECT COUNT(*) FROM book_club_members WHERE club_id = get_book_club_details.p_club_id) as member_count
     FROM book_clubs bc
-    WHERE bc.id = get_book_club_details.club_id_param;
+    WHERE bc.id = get_book_club_details.p_club_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

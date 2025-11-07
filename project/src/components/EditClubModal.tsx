@@ -78,7 +78,7 @@ const EditClubModal: React.FC<EditClubModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 rounded-2xl border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-hidden">
+      <div className="bg-slate-900 rounded-2xl border border-white/20 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center space-x-3">
@@ -94,7 +94,7 @@ const EditClubModal: React.FC<EditClubModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 flex-1 overflow-y-auto">
           {message && (
             <div className={`mb-4 p-4 rounded-lg ${
               message.type === 'success' 
@@ -194,17 +194,17 @@ const EditClubModal: React.FC<EditClubModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-white/10">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 p-6 border-t border-white/10 bg-white/3">
           <button
             onClick={onClose}
-            className="px-6 py-3 text-white/60 hover:text-white transition-colors"
+            className="px-6 py-3 rounded-lg text-white/60 hover:text-white/80 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="flex items-center space-x-2 px-6 py-3 bg-pink-500 hover:bg-pink-600 disabled:opacity-50 text-white rounded-lg transition-colors"
+            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-pink-500 via-purple-500 to-fuchsia-600 hover:from-pink-500/90 hover:via-purple-500/90 hover:to-fuchsia-600/90 shadow-lg shadow-pink-500/30 focus:outline-none focus:ring-2 focus:ring-pink-400/60 focus:ring-offset-2 focus:ring-offset-indigo-900 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
             <span>{isLoading ? 'Saving...' : 'Save Changes'}</span>

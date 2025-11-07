@@ -581,9 +581,9 @@ export class TailorMatesService {
 
       const { data, error } = await supabase
         .rpc('vote_on_poll', {
-          auth_user_id: authUserId,
-          poll_id_param: pollId,
-          option_index: optionIndex
+          p_auth_user_id: authUserId,
+          p_poll_id: pollId,
+          p_option_index: optionIndex
         });
 
       console.log('Vote response:', { data, error });
@@ -626,7 +626,33 @@ export class TailorMatesService {
         return [];
       }
 
-      return data || [];
+      const normalized = (data || []).map((poll: any) => {
+        const optionsArray = Array.isArray(poll.options)
+          ? poll.options.map((option: any) => ({
+              optionIndex: option?.option_index ?? null,
+              title: option?.title || '',
+              author: option?.author || '',
+              coverUrl: option?.coverUrl || '',
+              description: option?.description || ''
+            }))
+          : [];
+
+        const voteCounts = Array.isArray(poll.vote_counts)
+          ? poll.vote_counts.map((vc: any) => ({
+              option_index: typeof vc?.option_index === 'number' ? vc.option_index : null,
+              vote_count: typeof vc?.vote_count === 'number' ? vc.vote_count : 0
+            }))
+          : [];
+
+        return {
+          ...poll,
+          options: optionsArray,
+          vote_counts: voteCounts,
+          user_vote: poll.user_vote === null ? null : Number(poll.user_vote)
+        };
+      });
+
+      return normalized;
     } catch (error) {
       console.error('Error in getClubPolls:', error);
       return [];

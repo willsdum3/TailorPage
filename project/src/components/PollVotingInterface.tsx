@@ -104,6 +104,23 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
     return 'Active';
   };
 
+  const getNormalizedOptions = (poll: Poll) => {
+    const rawOptions = Array.isArray(poll.options) ? poll.options : [];
+    return rawOptions.map((option: any, index: number) => ({
+      optionIndex: typeof option?.optionIndex === 'number' ? option.optionIndex : index,
+      title: option?.title || '',
+      author: option?.author || '',
+      coverUrl: option?.coverUrl || '',
+      description: option?.description || ''
+    }));
+  };
+
+  const findOptionByIndex = (poll: Poll, optionIndex: number | null) => {
+    if (optionIndex === null || optionIndex === undefined) return null;
+    const options = getNormalizedOptions(poll);
+    return options.find((option) => option.optionIndex === optionIndex) || null;
+  };
+
   const getVotePercentage = (poll: Poll, optionIndex: number) => {
     if (poll.total_votes === 0) return 0;
     
@@ -200,113 +217,53 @@ const PollVotingInterface: React.FC<PollVotingInterfaceProps> = ({ clubId, onPol
           </div>
 
           <div className="space-y-3">
-            {(() => {
-              try {
-                const options = Array.isArray(poll.options) ? poll.options : JSON.parse(poll.options || '[]');
-                return options.map((option, index) => {
-              const isVoted = poll.user_vote === index;
+            {getNormalizedOptions(poll).map((option) => {
+              const isVoted = poll.user_vote === option.optionIndex;
               const isVoting = votingPollId === poll.id;
               const canVote = isPollActive(poll) && poll.user_vote === null;
-              
+
               return (
-                <div key={index} className="relative">
+                <div key={`${poll.id}-${option.optionIndex}`} className="relative">
                   <button
-                    onClick={() => canVote && handleVote(poll.id, index)}
+                    onClick={() => canVote && handleVote(poll.id, option.optionIndex)}
                     disabled={!canVote || isVoting}
                     className={`w-full p-4 rounded-xl border transition-all duration-300 text-left ${
                       isVoted
                         ? 'bg-green-500/20 border-green-500/50 text-green-300'
                         : canVote
                         ? 'bg-white/5 border-white/20 hover:bg-white/10 hover:border-white/30 text-white'
-                        : 'bg-white/5 border-white/10 text-white/50 cursor-not-allowed'
-                    }`}
+                        : 'bg-white/5 border-white/10 text-white/60'
+                    } ${isVoting ? 'opacity-70 cursor-wait' : ''}`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0">
-                        {isVoted ? (
-                          <CheckCircle className="w-5 h-5 text-green-400" />
-                        ) : (
-                          <div className="w-5 h-5 rounded-full border-2 border-white/30 flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-white/30"></div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center space-x-2">
-                            <BookOpen className="w-4 h-4 text-pink-400" />
-                            <h4 className="font-medium">{option.title}</h4>
-                          </div>
-                          {poll.total_votes > 0 && (
-                            <div className="flex items-center space-x-2 text-sm">
-                              <span className="text-white/70">
-                                {getVoteCount(poll, index)} vote{getVoteCount(poll, index) !== 1 ? 's' : ''}
-                              </span>
-                              <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded-lg text-xs font-medium">
-                                {getVotePercentage(poll, index)}%
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-sm text-white/70 mb-2">by {option.author}</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-lg">{option.title}</p>
+                        <p className="text-sm text-white/60">{option.author}</p>
                         {option.description && (
-                          <p className="text-xs text-white/50">{option.description}</p>
-                        )}
-                        {option.coverUrl && (
-                          <div className="mt-2">
-                            <img
-                              src={option.coverUrl}
-                              alt={`${option.title} cover`}
-                              className="w-12 h-16 object-cover rounded border border-white/20"
-                            />
-                          </div>
-                        )}
-                        {/* Progress bar for visual representation */}
-                        {poll.total_votes > 0 && (
-                          <div className="mt-2 w-full bg-white/10 rounded-full h-1.5">
-                            <div 
-                              className="bg-gradient-to-r from-amber-400 to-amber-500 h-1.5 rounded-full transition-all duration-500"
-                              style={{ width: `${getVotePercentage(poll, index)}%` }}
-                            ></div>
-                          </div>
+                          <p className="text-xs text-white/40 mt-2">{option.description}</p>
                         )}
                       </div>
-                      {isVoting && (
-                        <div className="flex-shrink-0">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-400"></div>
+                      {poll.total_votes > 0 && (
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-white">
+                            {getVotePercentage(poll, option.optionIndex)}%
+                          </p>
+                          <p className="text-xs text-white/50">{getVoteCount(poll, option.optionIndex)} votes</p>
                         </div>
                       )}
                     </div>
                   </button>
                 </div>
               );
-            });
-              } catch (error) {
-                console.error('Error parsing poll options:', error);
-                return (
-                  <div className="text-center text-white/60 py-4">
-                    <p>Error loading poll options</p>
-                  </div>
-                );
-              }
-            })()}
+            })}
           </div>
 
-          {poll.user_vote !== null && (() => {
-            try {
-              const options = Array.isArray(poll.options) ? poll.options : JSON.parse(poll.options || '[]');
-              return (
-                <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                  <div className="flex items-center space-x-2 text-green-300 text-sm">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>You voted for: {options[poll.user_vote]?.title}</span>
-                  </div>
-                </div>
-              );
-            } catch (error) {
-              return null;
-            }
-          })()}
+          {poll.user_vote !== null && (
+            <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-200 flex items-center space-x-2">
+              <CheckCircle className="w-4 h-4" />
+              <span>You voted for: {findOptionByIndex(poll, poll.user_vote)?.title || 'Unknown option'}</span>
+            </div>
+          )}
 
           {!isPollActive(poll) && poll.user_vote === null && (
             <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
