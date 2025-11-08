@@ -198,8 +198,8 @@ export class TailorMatesService {
 
       const { data, error } = await supabase
         .rpc('leave_book_club', {
-          auth_user_id: authUserId,
-          club_id: clubId
+          p_auth_user_id: authUserId,
+          p_club_id: clubId
         });
 
       if (error) {
@@ -207,7 +207,23 @@ export class TailorMatesService {
         return false;
       }
 
-      return data;
+      const result = Array.isArray(data) ? data[0] : data;
+
+      if (typeof result === 'boolean') {
+        return result;
+      }
+
+      if (result && typeof result === 'object') {
+        if (typeof result.success === 'boolean') {
+          if (!result.success) {
+            console.error('Failed to leave book club:', result.error);
+          }
+          return result.success;
+        }
+      }
+
+      // If we reach here, fallback to truthiness of result
+      return !!result;
     } catch (error) {
       console.error('Error in leaveBookClub:', error);
       return false;
@@ -1608,7 +1624,7 @@ export class TailorMatesService {
 
       const { data, error } = await supabase
         .rpc('get_user_club_invitations', {
-          auth_user_id: authUserId
+          p_auth_user_id: authUserId
         });
 
       if (error) {
@@ -1621,9 +1637,10 @@ export class TailorMatesService {
         id: invitation.id,
         clubId: invitation.club_id,
         clubName: invitation.club_name,
-        clubDescription: invitation.club_description,
+        clubDescription: invitation.club_description || '',
         inviterName: invitation.inviter_name,
         inviterUsername: invitation.inviter_username,
+        inviterAvatarUrl: invitation.inviter_avatar_url || null,
         message: invitation.message,
         createdAt: invitation.created_at,
         expiresAt: invitation.expires_at,
@@ -1647,9 +1664,9 @@ export class TailorMatesService {
 
       const { data, error } = await supabase
         .rpc('respond_to_club_invitation', {
-          auth_user_id: authUserId,
-          invitation_id_param: invitationId,
-          response: response
+          p_auth_user_id: authUserId,
+          p_invitation_id: invitationId,
+          p_response: response
         });
 
       console.log('Respond to invitation response:', { data, error });
@@ -1659,18 +1676,21 @@ export class TailorMatesService {
         return { success: false, message: `Failed to respond to invitation: ${error.message}` };
       }
 
-      if (data && data.success) {
-        return { 
-          success: true, 
-          message: data.message || `Invitation ${response} successfully!`,
-          data: data
-        };
-      } else {
-        return { 
-          success: false, 
-          message: data?.error || 'Failed to respond to invitation' 
+      const result = Array.isArray(data) ? data[0] : data;
+
+      if (result && typeof result.success === 'boolean') {
+        return {
+          success: result.success,
+          message: result.message || `Invitation ${response} successfully!`,
+          data: result
         };
       }
+
+      return { 
+        success: false, 
+        message: 'Failed to respond to invitation',
+        data: result 
+      };
     } catch (error) {
       console.error('Error in respondToClubInvitation:', error);
       return { success: false, message: 'Failed to respond to invitation' };
@@ -1697,12 +1717,16 @@ export class TailorMatesService {
       // Transform database data to match UI interface
       const transformedData: SentInvitation[] = (data || []).map((invitation: any) => ({
         id: invitation.id,
+        clubId: invitation.club_id,
+        clubName: invitation.club_name || 'Unknown Club',
         inviteeUsername: invitation.invitee_username,
         inviteeName: invitation.invitee_name,
+        inviteeEmail: invitation.invitee_email || null,
         message: invitation.message,
         status: invitation.status,
         createdAt: invitation.created_at,
-        expiresAt: invitation.expires_at
+        expiresAt: invitation.expires_at,
+        respondedAt: invitation.responded_at || null
       }));
 
       return transformedData;

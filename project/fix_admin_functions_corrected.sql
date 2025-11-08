@@ -89,11 +89,13 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 4. Create invite_user_to_club with correct field names (NOT "invited_by", use "inviter_id")
+DROP FUNCTION IF EXISTS invite_user_to_club(UUID, UUID, TEXT, TEXT);
+
 CREATE OR REPLACE FUNCTION invite_user_to_club(
-    auth_user_id UUID,
-    club_id_param UUID,
-    username_param TEXT,
-    message_param TEXT DEFAULT NULL
+    p_auth_user_id UUID,
+    p_club_id UUID,
+    p_username TEXT,
+    p_message TEXT DEFAULT NULL
 )
 RETURNS JSON AS $$
 DECLARE
@@ -105,7 +107,7 @@ BEGIN
     -- Get the internal user ID of the admin
     SELECT id INTO admin_internal_id
     FROM users
-    WHERE users.auth_user_id = invite_user_to_club.auth_user_id;
+    WHERE auth_user_id = p_auth_user_id;
     
     IF admin_internal_id IS NULL THEN
         RETURN json_build_object('success', false, 'error', 'Admin user not found');
@@ -114,7 +116,7 @@ BEGIN
     -- Get the internal user ID of the user to invite
     SELECT id INTO invitee_internal_id
     FROM users
-    WHERE users.username = invite_user_to_club.username_param;
+    WHERE LOWER(username) = LOWER(TRIM(p_username));
     
     IF invitee_internal_id IS NULL THEN
         RETURN json_build_object('success', false, 'error', 'User not found');
@@ -122,10 +124,11 @@ BEGIN
     
     -- Check if the admin is actually an admin of the club
     SELECT EXISTS (
-        SELECT 1 FROM book_club_members 
-        WHERE book_club_members.user_id = admin_internal_id 
-        AND book_club_members.club_id = invite_user_to_club.club_id_param
-        AND book_club_members.role IN ('admin', 'owner')
+        SELECT 1
+        FROM book_club_members bcm
+        WHERE bcm.user_id = admin_internal_id 
+          AND bcm.club_id = p_club_id
+          AND bcm.role IN ('admin', 'owner')
     ) INTO is_admin;
     
     IF NOT is_admin THEN
@@ -134,22 +137,22 @@ BEGIN
     
     -- Check if the user is already a member
     IF EXISTS (
-        SELECT 1 FROM book_club_members 
-        WHERE book_club_members.user_id = invitee_internal_id 
-        AND book_club_members.club_id = invite_user_to_club.club_id_param
+        SELECT 1
+        FROM book_club_members bcm
+        WHERE bcm.user_id = invitee_internal_id
+          AND bcm.club_id = p_club_id
     ) THEN
         RETURN json_build_object('success', false, 'error', 'User is already a member of this club');
     END IF;
     
     -- Check if there's already a pending invitation
-    SELECT EXISTS (
-        SELECT 1 FROM club_invitations 
-        WHERE club_invitations.invitee_id = invitee_internal_id 
-        AND club_invitations.club_id = invite_user_to_club.club_id_param
-        AND club_invitations.status = 'pending'
-    ) INTO invitation_exists;
-    
-    IF invitation_exists THEN
+    IF EXISTS (
+        SELECT 1
+        FROM club_invitations ci
+        WHERE ci.invitee_id = invitee_internal_id 
+          AND ci.club_id = p_club_id
+          AND LOWER(TRIM(ci.status)) = 'pending'
+    ) THEN
         RETURN json_build_object('success', false, 'error', 'User already has a pending invitation');
     END IF;
     
@@ -160,13 +163,17 @@ BEGIN
         invitee_id,
         message,
         status,
+        created_at,
+        updated_at,
         expires_at
     ) VALUES (
-        invite_user_to_club.club_id_param,
+        p_club_id,
         admin_internal_id,
         invitee_internal_id,
-        message_param,
+        p_message,
         'pending',
+        NOW(),
+        NOW(),
         NOW() + INTERVAL '7 days'
     );
     
@@ -183,9 +190,9 @@ BEGIN
             invitee_internal_id,
             'club_invitation',
             'You have been invited!',
-            COALESCE(message_param, 'You have been invited to join a book club'),
-            invite_user_to_club.club_id_param,
-            (SELECT name FROM book_clubs WHERE id = invite_user_to_club.club_id_param)
+            COALESCE(p_message, 'You have been invited to join a book club'),
+            p_club_id,
+            (SELECT name FROM book_clubs WHERE id = p_club_id)
         );
     EXCEPTION
         WHEN OTHERS THEN
@@ -237,6 +244,7 @@ AND specific_name IN (
     AND routine_name = 'invite_user_to_club'
 )
 ORDER BY ordinal_position;
+
 
 
 

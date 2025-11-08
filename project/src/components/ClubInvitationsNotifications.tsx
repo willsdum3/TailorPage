@@ -5,10 +5,20 @@ import { ClubInvitation } from '../types';
 
 interface ClubInvitationsNotificationsProps {
   onInvitationResponse?: () => void;
+  refreshToken?: any;
+  showEmptyState?: boolean;
+  title?: string;
+  subtitle?: string;
+  className?: string;
 }
 
 const ClubInvitationsNotifications: React.FC<ClubInvitationsNotificationsProps> = ({ 
-  onInvitationResponse 
+  onInvitationResponse,
+  refreshToken,
+  showEmptyState = false,
+  title = 'Club Invitations',
+  subtitle,
+  className = ''
 }) => {
   const [invitations, setInvitations] = useState<ClubInvitation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +26,8 @@ const ClubInvitationsNotifications: React.FC<ClubInvitationsNotificationsProps> 
 
   useEffect(() => {
     loadInvitations();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshToken]);
 
   const loadInvitations = async () => {
     try {
@@ -78,7 +89,7 @@ const ClubInvitationsNotifications: React.FC<ClubInvitationsNotificationsProps> 
 
   if (isLoading) {
     return (
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
+      <div className={`bg-white border border-gray-200 rounded-xl p-6 ${className}`}>
         <div className="flex items-center justify-center">
           <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full"></div>
           <span className="ml-3 text-gray-600">Loading invitations...</span>
@@ -88,21 +99,36 @@ const ClubInvitationsNotifications: React.FC<ClubInvitationsNotificationsProps> 
   }
 
   if (invitations.length === 0) {
-    return null; // Don't show anything if no invitations
+    if (!showEmptyState) {
+      return null; // Silent mode for inline banner
+    }
+
+    return (
+      <div className={`bg-white border border-gray-200 rounded-xl p-8 text-center ${className}`}>
+        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-8 h-8 text-blue-500" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">No Invitations Yet</h3>
+        <p className="text-gray-600 max-w-md mx-auto">
+          When another reader invites you to a club, it will appear here so you can accept or decline with a single click.
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      {/* Header */}
+    <div className={`bg-white border border-gray-200 rounded-xl overflow-hidden ${className}`}>
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <Mail className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Club Invitations</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
             <p className="text-sm text-gray-600">
-              You have {invitations.length} pending invitation{invitations.length !== 1 ? 's' : ''}
+              {subtitle
+                ? subtitle
+                : `You have ${invitations.length} pending invitation${invitations.length !== 1 ? 's' : ''}`}
             </p>
           </div>
         </div>
@@ -116,19 +142,30 @@ const ClubInvitationsNotifications: React.FC<ClubInvitationsNotificationsProps> 
               <div className="flex-1">
                 {/* Club Info */}
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
-                  </div>
+                  {invitation.inviterAvatarUrl ? (
+                    <img
+                      src={invitation.inviterAvatarUrl}
+                      alt={invitation.inviterName || 'Club invitation'}
+                      className="w-12 h-12 rounded-xl object-cover border border-white shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                  )}
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900">{invitation.clubName}</h4>
                     <p className="text-sm text-gray-600">
-                      Invited by @{invitation.inviterUsername} ({invitation.inviterName})
+                      Invited by @{invitation.inviterUsername || 'unknown'}
+                      {invitation.inviterName ? ` (${invitation.inviterName})` : ''}
                     </p>
                   </div>
                 </div>
 
                 {/* Club Description */}
-                <p className="text-gray-700 mb-3 line-clamp-2">{invitation.clubDescription}</p>
+                <p className="text-gray-700 mb-3 line-clamp-2">
+                  {invitation.clubDescription || 'This club has not provided a description yet.'}
+                </p>
 
                 {/* Personal Message */}
                 {invitation.message && (

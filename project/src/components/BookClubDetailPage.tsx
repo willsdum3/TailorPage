@@ -7,6 +7,7 @@ import CreatePollModal from './CreatePollModal';
 import EditClubModal from './EditClubModal';
 import PollVotingInterface from './PollVotingInterface';
 import ClubInvitationsManager from './ClubInvitationsManager';
+import AdminSentInvitationsOverview from './AdminSentInvitationsOverview';
 import AddFriendModal from './AddFriendModal';
 import UserActionModal from './UserActionModal';
 
@@ -735,13 +736,27 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
                 </div>
               )}
 
-              {activeTab === 'invitations' && isUserAdmin() && (
-                <div className="flex-1 overflow-y-auto">
-                  <ClubInvitationsManager
-                    clubId={clubId}
-                    clubName={club?.name || ''}
-                    isAdmin={isUserAdmin()}
-                  />
+              {activeTab === 'invitations' && (
+                <div className="flex-1 overflow-y-auto space-y-6">
+                  {isUserAdmin() ? (
+                    <>
+                      <AdminSentInvitationsOverview
+                        clubId={clubId}
+                        clubName={club?.name || ''}
+                        memberCount={club?.memberCount ?? members.length}
+                        refreshToken={`${clubId}-${members.length}`}
+                      />
+                      <ClubInvitationsManager
+                        clubId={clubId}
+                        clubName={club?.name || ''}
+                        isAdmin={isUserAdmin()}
+                      />
+                    </>
+                  ) : (
+                    <div className="bg-white/10 border border-white/20 rounded-xl p-6 text-center text-white/70">
+                      Only club admins can view sent invitations.
+                    </div>
+                  )}
                 </div>
               )}
             </div>

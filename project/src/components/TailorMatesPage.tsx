@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Users, MessageCircle, BookOpen, Search, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, User as UserIcon, Clock, Crown, UserMinus } from 'lucide-react';
+import { Home, Users, MessageCircle, BookOpen, Search, Plus, UserPlus, Book, Sparkles, UserCheck, UserX, User as UserIcon, Clock, Crown, UserMinus, Mail } from 'lucide-react';
 import { useScrollToTopInstant } from '../hooks/useScrollToTop';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub, Discussion, FriendConnection, FriendRecommendation, User, CreateBookClubServiceData } from '../types';
@@ -18,7 +18,7 @@ interface TailorMatesPageProps {
 }
 
 const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz, user }) => {
-  const [activeTab, setActiveTab] = useState<'clubs' | 'discussions' | 'friends'>('clubs');
+  const [activeTab, setActiveTab] = useState<'clubs' | 'discussions' | 'friends' | 'invitations'>('clubs');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
   
@@ -184,6 +184,9 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       // Load data for the current active tab
       if (activeTab === 'clubs') {
         await loadBookClubsData();
+      } else if (activeTab === 'invitations') {
+        setIsLoading(false);
+        return;
       } else if (activeTab === 'discussions') {
         await loadDiscussionsData();
       } else if (activeTab === 'friends') {
@@ -262,7 +265,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     }
   };
 
-  const handleTabChange = (tab: 'clubs' | 'discussions' | 'friends') => {
+  const handleTabChange = (tab: 'clubs' | 'discussions' | 'friends' | 'invitations') => {
     console.log('Changing tab to:', tab);
     setActiveTab(tab);
     setSearchTerm('');
@@ -273,6 +276,11 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   const clearSearch = () => {
     setSearchTerm('');
     setSelectedFilter('All');
+  };
+
+  const handleInvitationResponse = async () => {
+    await loadBookClubsData();
+    await loadData();
   };
 
 
@@ -748,18 +756,6 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           )}
         </div>
 
-        {/* Club Invitations Notifications */}
-        {user && (
-          <div className="mb-8">
-            <ClubInvitationsNotifications 
-              onInvitationResponse={() => {
-                // Refresh data after responding to an invitation
-                loadData();
-              }}
-            />
-          </div>
-        )}
-
         {/* Navigation Tabs */}
         <div className="flex justify-center mb-8">
           <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-2">
@@ -791,6 +787,19 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                 </div>
               </button>
               <button
+                onClick={() => handleTabChange('invitations')}
+                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  activeTab === 'invitations'
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Mail className="w-4 h-4" />
+                  <span>Invitations</span>
+                </div>
+              </button>
+              <button
                 onClick={() => handleTabChange('friends')}
                 className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
                   activeTab === 'friends'
@@ -808,6 +817,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         </div>
 
         {/* Search and Filter */}
+        {activeTab !== 'invitations' && (
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50 w-5 h-5" />
@@ -864,8 +874,22 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
             )}
           </select>
         </div>
+        )}
 
         {/* Content based on active tab */}
+        {activeTab === 'invitations' && (
+          <div className="max-w-3xl mx-auto">
+            <ClubInvitationsNotifications
+              onInvitationResponse={handleInvitationResponse}
+              refreshToken={`${activeTab}-${user?.id || 'guest'}`}
+              showEmptyState
+              title="Pending Club Invitations"
+              subtitle="Review invitations from club admins and join with a single click."
+              className="shadow-lg"
+            />
+          </div>
+        )}
+
         {activeTab === 'clubs' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {isLoading ? (

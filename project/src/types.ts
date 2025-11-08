@@ -202,6 +202,7 @@ export interface ClubInvitation {
   clubDescription: string;
   inviterName: string;
   inviterUsername: string;
+  inviterAvatarUrl?: string | null;
   message?: string;
   createdAt: string;
   expiresAt: string;
@@ -219,10 +220,14 @@ export interface SentInvitation {
   id: string;
   inviteeUsername: string;
   inviteeName: string;
+  inviteeEmail?: string | null;
   message?: string;
   status: 'pending' | 'accepted' | 'declined' | 'cancelled';
   createdAt: string;
   expiresAt: string;
+  respondedAt?: string | null;
+  clubId: string;
+  clubName: string;
 }
 
 export interface CreateBookClubData {
