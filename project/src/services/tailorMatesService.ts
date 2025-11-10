@@ -486,18 +486,17 @@ export class TailorMatesService {
         return { success: false, message: `Failed to promote user: ${error.message}` };
       }
 
-      // Handle JSON response from the new database function
-      if (data && data.success) {
-        return { 
-          success: true, 
-          message: data.message || 'User promoted to admin successfully!'
-        };
-      } else {
-        return { 
-          success: false, 
-          message: data?.error || 'Failed to promote user' 
+      const rawResult = Array.isArray(data) ? data[0] : data;
+      const result = typeof rawResult === 'string' ? JSON.parse(rawResult) : rawResult;
+
+      if (result && typeof result.success === 'boolean') {
+        return {
+          success: result.success,
+          message: result.message || (result.success ? 'User promoted to admin successfully!' : 'Failed to promote user')
         };
       }
+
+      return { success: false, message: 'Failed to promote user' };
     } catch (error) {
       console.error('Error in promoteUserToAdmin:', error);
       return { success: false, message: 'Failed to promote user' };
@@ -1983,8 +1982,8 @@ export class TailorMatesService {
         return null;
       }
 
-      // Parse JSON response
-      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      const payload = Array.isArray(data) ? data[0] : data;
+      const result = typeof payload === 'string' ? JSON.parse(payload) : payload;
       
       if (result.success) {
         return result.message;
@@ -2048,8 +2047,8 @@ export class TailorMatesService {
         return null;
       }
 
-      // Parse JSON response
-      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      const payload = Array.isArray(data) ? data[0] : data;
+      const result = typeof payload === 'string' ? JSON.parse(payload) : payload;
       
       if (result.success) {
         return result.message;

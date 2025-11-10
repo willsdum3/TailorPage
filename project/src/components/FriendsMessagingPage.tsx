@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Send, Book, Search, Users, MessageCircle, UserX, UserMinus, Plus, Star } from 'lucide-react';
-import { FriendConversation, FriendMessage, User as UserType } from '../types';
+import { FriendConnection, FriendConversation, FriendMessage, User as UserType } from '../types';
 import { TailorMatesService } from '../services/tailorMatesService';
 
 interface FriendsMessagingPageProps {
@@ -14,12 +14,14 @@ interface FriendsMessagingPageProps {
 const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user, selectedFriend, onClearSelectedFriend, onUnreadCountUpdate }) => {
   const [conversations, setConversations] = useState<FriendConversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<FriendConversation | null>(null);
+  const [pendingFriend, setPendingFriend] = useState<FriendConnection | null>(null);
   const [messages, setMessages] = useState<FriendMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [currentInternalUserId, setCurrentInternalUserId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [friends, setFriends] = useState<FriendConnection[]>([]);
   const [showBookRecommendation, setShowBookRecommendation] = useState(false);
   const [bookRecommendation, setBookRecommendation] = useState({
     title: '',
@@ -31,6 +33,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
   useEffect(() => {
     loadConversations();
+    loadFriends();
     // Fetch current user's internal ID for message comparison
     const fetchCurrentInternalUserId = async () => {
       try {
@@ -57,13 +60,19 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
 
   // Auto-select conversation when a friend is passed from Friends tab
   useEffect(() => {
-    if (selectedFriend && conversations.length > 0) {
+    if (selectedFriend) {
       const matchingConversation = conversations.find(conv => 
         conv.friendId === selectedFriend.friendId
       );
+
       if (matchingConversation) {
+        setPendingFriend(null);
         setSelectedConversation(matchingConversation);
-        // Clear selectedFriend after auto-selection to prevent interference with manual clicks
+        onClearSelectedFriend?.();
+      } else {
+        setSelectedConversation(null);
+        setPendingFriend(selectedFriend);
+        setMessages([]);
         onClearSelectedFriend?.();
       }
     }
@@ -83,6 +92,17 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       console.error('Error loading conversations:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadFriends = async () => {
+    if (!user) return;
+    try {
+      const friendsData = await TailorMatesService.getFriendConnections();
+      const acceptedFriends = (friendsData || []).filter(friend => friend.status === 'accepted');
+      setFriends(acceptedFriends);
+    } catch (error) {
+      console.error('Error loading friends:', error);
     }
   };
 
@@ -114,18 +134,19 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || !selectedConversation || !user || isSending) return;
+    const targetFriendId = selectedConversation?.friendId || pendingFriend?.friendId;
+    if (!newMessage.trim() || !targetFriendId || !user || isSending) return;
 
     // Check if current user is blocked by the friend
     try {
-      const isBlocked = await TailorMatesService.isCurrentUserBlockedBy(selectedConversation.friendId);
+      const isBlocked = await TailorMatesService.isCurrentUserBlockedBy(targetFriendId);
       if (isBlocked) {
         alert('You cannot send messages to this user. You have been blocked.');
         return;
       }
 
       // Check if current user has blocked the friend
-      const hasBlocked = await TailorMatesService.hasCurrentUserBlocked(selectedConversation.friendId);
+      const hasBlocked = await TailorMatesService.hasCurrentUserBlocked(targetFriendId);
       if (hasBlocked) {
         alert('You cannot send messages to this user. You have blocked them.');
         return;
@@ -138,25 +159,34 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
     try {
       setIsSending(true);
       
-      const messageResult = await TailorMatesService.sendFriendMessage(selectedConversation.friendId, newMessage.trim());
+      const messageResult = await TailorMatesService.sendFriendMessage(targetFriendId, newMessage.trim());
       
       if (messageResult) {
         setNewMessage('');
-        // Reload messages after sending
-        await loadMessages(selectedConversation.id);
-        // Update conversations to show new last message without full reload
-        setConversations(prevConversations => 
-          prevConversations.map(conv => 
-            conv.id === selectedConversation.id 
-              ? { 
-                  ...conv, 
-                  lastMessage: messageResult.content,
-                  lastMessageAt: messageResult.createdAt,
-                  unreadCount: 0
-                }
-              : conv
-          )
-        );
+        if (selectedConversation) {
+          await loadMessages(selectedConversation.id);
+          setConversations(prevConversations => 
+            prevConversations.map(conv => 
+              conv.id === selectedConversation.id 
+                ? { 
+                    ...conv, 
+                    lastMessage: messageResult.content,
+                    lastMessageAt: messageResult.createdAt,
+                    unreadCount: 0
+                  }
+                : conv
+            )
+          );
+        } else {
+          const refreshedConversations = await TailorMatesService.getFriendConversations();
+          setConversations(refreshedConversations);
+          const newConversation = refreshedConversations.find(conv => conv.friendId === targetFriendId);
+          if (newConversation) {
+            setPendingFriend(null);
+            setSelectedConversation(newConversation);
+            await loadMessages(newConversation.id);
+          }
+        }
       } else {
         alert('Failed to send message. Please try again.');
       }
@@ -171,7 +201,9 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   const handleSendBookRecommendation = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!bookRecommendation.title || !bookRecommendation.author || !selectedConversation || !user || isSending) {
+    const targetFriendId = selectedConversation?.friendId || pendingFriend?.friendId;
+
+    if (!bookRecommendation.title || !bookRecommendation.author || !targetFriendId || !user || isSending) {
       alert('Please fill in at least the book title and author.');
       return;
     }
@@ -180,7 +212,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       setIsSending(true);
       
       const messageResult = await TailorMatesService.sendBookRecommendation(
-        selectedConversation.friendId,
+        targetFriendId,
         bookRecommendation.title,
         bookRecommendation.author,
         bookRecommendation.description || undefined,
@@ -191,20 +223,30 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
         setBookRecommendation({ title: '', author: '', description: '', amazonUrl: '' });
         setShowBookRecommendation(false);
         // Reload messages after sending
-        await loadMessages(selectedConversation.id);
-        // Update conversations to show new last message without full reload
-        setConversations(prevConversations => 
-          prevConversations.map(conv => 
-            conv.id === selectedConversation.id 
-              ? { 
-                  ...conv, 
-                  lastMessage: messageResult.content,
-                  lastMessageAt: messageResult.createdAt,
-                  unreadCount: 0
-                }
-              : conv
-          )
-        );
+        if (selectedConversation) {
+          await loadMessages(selectedConversation.id);
+          setConversations(prevConversations => 
+            prevConversations.map(conv => 
+              conv.id === selectedConversation.id 
+                ? { 
+                    ...conv, 
+                    lastMessage: messageResult.content,
+                    lastMessageAt: messageResult.createdAt,
+                    unreadCount: 0
+                  }
+                : conv
+            )
+          );
+        } else {
+          const refreshedConversations = await TailorMatesService.getFriendConversations();
+          setConversations(refreshedConversations);
+          const newConversation = refreshedConversations.find(conv => conv.friendId === targetFriendId);
+          if (newConversation) {
+            setPendingFriend(null);
+            setSelectedConversation(newConversation);
+            await loadMessages(newConversation.id);
+          }
+        }
       } else {
         alert('Failed to send book recommendation. Please try again.');
       }
@@ -217,10 +259,28 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   };
 
 
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+
   const filteredConversations = conversations.filter(conv =>
-    conv.friendName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conv.friendUsername.toLowerCase().includes(searchTerm.toLowerCase())
+    normalizedSearch === '' ||
+    conv.friendName.toLowerCase().includes(normalizedSearch) ||
+    conv.friendUsername.toLowerCase().includes(normalizedSearch)
   );
+
+  const conversationFriendIds = new Set(conversations.map(conv => conv.friendId));
+
+  const filteredFriendResults = friends.filter(friend => {
+    const matchesSearch = normalizedSearch === '' ||
+      (friend.friendName || '').toLowerCase().includes(normalizedSearch) ||
+      (friend.friendUsername || '').toLowerCase().includes(normalizedSearch);
+    return matchesSearch && !conversationFriendIds.has(friend.friendId);
+  });
+
+  const startConversationWithFriend = (friend: FriendConnection) => {
+    setSelectedConversation(null);
+    setPendingFriend(friend);
+    setMessages([]);
+  };
 
   return (
     <div className="min-h-screen py-8 px-4 relative overflow-hidden">
@@ -266,100 +326,144 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
             </div>
 
             {/* Conversations */}
-            <div className="flex-1 overflow-y-auto space-y-2">
+            <div className="flex-1 overflow-y-auto space-y-4">
               {isLoading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-400 mx-auto"></div>
                   <p className="text-white/60 mt-2">Loading conversations...</p>
                 </div>
-              ) : filteredConversations.length === 0 ? (
+              ) : filteredConversations.length === 0 && filteredFriendResults.length === 0 ? (
                 <div className="text-center py-8">
                   <MessageCircle className="w-12 h-12 text-white/30 mx-auto mb-3" />
                   <p className="text-white/60">No conversations yet</p>
                   <p className="text-white/40 text-sm">Start chatting with your friends!</p>
                 </div>
               ) : (
-                filteredConversations.map((conversation) => (
-                  <div
-                    key={conversation.id}
-                    onClick={() => setSelectedConversation(conversation)}
-                    className={`p-3 rounded-xl cursor-pointer transition-all duration-200 ${
-                      selectedConversation?.id === conversation.id
-                        ? 'bg-pink-500/20 border border-pink-500/30'
-                        : 'bg-white/5 hover:bg-white/10 border border-white/10'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        {conversation.friendImageUrl ? (
-                          <img 
-                            src={conversation.friendImageUrl} 
-                            alt={conversation.friendName}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm font-medium">
-                              {conversation.friendName.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                        {conversation.isOnline && (
-                          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border border-slate-900"></div>
-                        )}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-white font-medium truncate">
-                            {conversation.friendName}
-                          </h3>
-                          {conversation.unreadCount > 0 && (
-                            <span className="bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
-                              {conversation.unreadCount}
-                            </span>
+                <>
+                  {filteredConversations.map((conversation) => (
+                    <div
+                      key={conversation.id}
+                      onClick={() => {
+                        setPendingFriend(null);
+                        setSelectedConversation(conversation);
+                      }}
+                      className={`p-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                        selectedConversation?.id === conversation.id
+                          ? 'bg-pink-500/20 border border-pink-500/30'
+                          : 'bg-white/5 hover:bg-white/10 border border-white/10'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="relative">
+                          {conversation.friendImageUrl ? (
+                            <img 
+                              src={conversation.friendImageUrl} 
+                              alt={conversation.friendName}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                              <span className="text-white text-sm font-medium">
+                                {conversation.friendName.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          {conversation.isOnline && (
+                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border border-slate-900"></div>
                           )}
                         </div>
-                        <p className="text-white/60 text-sm truncate">
-                          {conversation.lastMessage || 'No messages yet'}
-                        </p>
-                        {conversation.lastMessageAt && (
-                          <p className="text-white/40 text-xs">
-                            {TailorMatesService.formatDate(conversation.lastMessageAt)}
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-white font-medium truncate">
+                              {conversation.friendName}
+                            </h3>
+                            {conversation.unreadCount > 0 && (
+                              <span className="bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                                {conversation.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-white/60 text-sm truncate">
+                            {conversation.lastMessage || 'No messages yet'}
                           </p>
-                        )}
+                          {conversation.lastMessageAt && (
+                            <p className="text-white/40 text-xs">
+                              {TailorMatesService.formatDate(conversation.lastMessageAt)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+
+                  {filteredFriendResults.length > 0 && (
+                    <div className="space-y-2">
+                      <div className={`text-white/60 text-xs uppercase tracking-wide ${filteredConversations.length > 0 ? 'pt-3 border-t border-white/10' : ''}`}>
+                        Start a new conversation
+                      </div>
+                      {filteredFriendResults.map((friend) => (
+                        <div
+                          key={friend.friendId}
+                          onClick={() => startConversationWithFriend(friend)}
+                          className={`p-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                            pendingFriend?.friendId === friend.friendId && !selectedConversation
+                              ? 'bg-pink-500/20 border border-pink-500/30'
+                              : 'bg-white/5 hover:bg-white/10 border border-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            {friend.friendImageUrl ? (
+                              <img
+                                src={friend.friendImageUrl}
+                                alt={friend.friendName || 'Friend'}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                                <span className="text-white text-sm font-medium">
+                                  {(friend.friendName || friend.friendUsername || '?').charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-white font-medium truncate">{friend.friendName || 'Unknown'}</h3>
+                              <p className="text-white/60 text-sm truncate">@{friend.friendUsername || 'unknown'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
 
           {/* Chat Area */}
           <div className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex flex-col">
-            {selectedConversation ? (
+            {selectedConversation || pendingFriend ? (
               <>
                 {/* Chat Header */}
                 <div className="p-6 border-b border-white/10">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      {selectedConversation.friendImageUrl ? (
+                      {selectedConversation?.friendImageUrl || pendingFriend?.friendImageUrl ? (
                         <img 
-                          src={selectedConversation.friendImageUrl} 
-                          alt={selectedConversation.friendName}
+                          src={selectedConversation?.friendImageUrl || pendingFriend?.friendImageUrl || ''}
+                          alt={selectedConversation?.friendName || pendingFriend?.friendName || 'Friend'}
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
                           <span className="text-white font-medium">
-                            {selectedConversation.friendName.charAt(0).toUpperCase()}
+                            {(selectedConversation?.friendName || pendingFriend?.friendName || selectedConversation?.friendUsername || pendingFriend?.friendUsername || '?').charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
                       <div>
-                        <h3 className="text-white font-medium">{selectedConversation.friendName}</h3>
-                        <p className="text-white/60 text-sm">@{selectedConversation.friendUsername}</p>
+                        <h3 className="text-white font-medium">{selectedConversation?.friendName || pendingFriend?.friendName || 'Friend'}</h3>
+                        <p className="text-white/60 text-sm">@{selectedConversation?.friendUsername || pendingFriend?.friendUsername || 'unknown'}</p>
                       </div>
                     </div>
                     
@@ -443,11 +547,11 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Type your message..."
                         className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
-                        disabled={isSending}
+                        disabled={!(selectedConversation || pendingFriend) || isSending}
                       />
                       <button
                         type="submit"
-                        disabled={!newMessage.trim() || isSending}
+                        disabled={!(selectedConversation || pendingFriend) || isSending}
                         className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white p-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Send className="w-5 h-5" />
@@ -464,12 +568,12 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-white mb-2">Select a Conversation</h3>
-                  <p className="text-white/60">Choose a friend to start messaging</p>
-                </div>
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-12 text-white/60">
+                <MessageCircle className="w-20 h-20 text-white/30 mb-6" />
+                <h3 className="text-2xl font-bold text-white mb-2">Select a Conversation</h3>
+                <p className="max-w-md">
+                  Choose a friend to start messaging. Your conversations will appear here once you begin chatting.
+                </p>
               </div>
             )}
           </div>
