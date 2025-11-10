@@ -1913,7 +1913,7 @@ export class TailorMatesService {
 
       // Map snake_case database fields to camelCase frontend fields
       return (data || []).map((conversation: any) => ({
-        id: conversation.id,
+        id: conversation.conversation_id ?? conversation.id,
         friendId: conversation.friend_id,
         friendName: conversation.friend_name,
         friendUsername: conversation.friend_username,
@@ -2050,12 +2050,29 @@ export class TailorMatesService {
       const payload = Array.isArray(data) ? data[0] : data;
       const result = typeof payload === 'string' ? JSON.parse(payload) : payload;
       
-      if (result.success) {
-        return result.message;
-      } else {
-        console.error('Failed to send book recommendation:', result.error);
-        return null;
+      if (result && result.success) {
+        const messagePayload = result.message;
+        if (!messagePayload) {
+          return null;
+        }
+
+        return {
+          id: messagePayload.id,
+          conversationId: messagePayload.conversationId,
+          senderId: messagePayload.senderId,
+          senderName: messagePayload.senderName,
+          senderUsername: messagePayload.senderUsername,
+          senderImageUrl: messagePayload.senderImageUrl,
+          content: messagePayload.content,
+          messageType: messagePayload.messageType,
+          bookRecommendation: messagePayload.bookRecommendation || null,
+          createdAt: messagePayload.createdAt,
+          isEdited: messagePayload.isEdited || false
+        } as FriendMessage;
       }
+
+      console.error('Failed to send book recommendation:', result?.error);
+      return null;
     } catch (error) {
       console.error('Error in sendBookRecommendation:', error);
       return null;

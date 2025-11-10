@@ -73,7 +73,6 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
         setSelectedConversation(null);
         setPendingFriend(selectedFriend);
         setMessages([]);
-        onClearSelectedFriend?.();
       }
     }
   }, [selectedFriend, conversations, onClearSelectedFriend]);
@@ -163,15 +162,29 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       
       if (messageResult) {
         setNewMessage('');
-        if (selectedConversation) {
-          await loadMessages(selectedConversation.id);
+        const normalizedMessage: FriendMessage = {
+          id: messageResult.id,
+          conversationId: messageResult.conversationId,
+          senderId: messageResult.senderId,
+          senderName: messageResult.senderName,
+          senderUsername: messageResult.senderUsername,
+          senderImageUrl: messageResult.senderImageUrl,
+          content: messageResult.content,
+          messageType: messageResult.messageType,
+          bookRecommendation: messageResult.bookRecommendation || null,
+          createdAt: messageResult.createdAt,
+          isEdited: messageResult.isEdited || false
+        };
+
+        if (selectedConversation && selectedConversation.id === normalizedMessage.conversationId) {
+          setMessages(prev => [...prev, normalizedMessage]);
           setConversations(prevConversations => 
             prevConversations.map(conv => 
               conv.id === selectedConversation.id 
                 ? { 
                     ...conv, 
-                    lastMessage: messageResult.content,
-                    lastMessageAt: messageResult.createdAt,
+                    lastMessage: normalizedMessage.content,
+                    lastMessageAt: normalizedMessage.createdAt,
                     unreadCount: 0
                   }
                 : conv
@@ -184,7 +197,23 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
           if (newConversation) {
             setPendingFriend(null);
             setSelectedConversation(newConversation);
-            await loadMessages(newConversation.id);
+            const initialMessages = await TailorMatesService.getFriendMessages(newConversation.id);
+            setMessages(initialMessages);
+          } else if (normalizedMessage.conversationId) {
+            setPendingFriend(null);
+            const initialMessages = await TailorMatesService.getFriendMessages(normalizedMessage.conversationId);
+            setSelectedConversation({
+              id: normalizedMessage.conversationId,
+              friendId: targetFriendId,
+              friendName: pendingFriend?.friendName || messageResult.senderName,
+              friendUsername: pendingFriend?.friendUsername || messageResult.senderUsername,
+              friendImageUrl: pendingFriend?.friendImageUrl,
+              lastMessage: normalizedMessage.content,
+              lastMessageAt: normalizedMessage.createdAt,
+              unreadCount: 0,
+              isOnline: false
+            });
+            setMessages(initialMessages);
           }
         }
       } else {
@@ -222,16 +251,29 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       if (messageResult) {
         setBookRecommendation({ title: '', author: '', description: '', amazonUrl: '' });
         setShowBookRecommendation(false);
-        // Reload messages after sending
-        if (selectedConversation) {
-          await loadMessages(selectedConversation.id);
+        const normalizedMessage: FriendMessage = {
+          id: messageResult.id,
+          conversationId: messageResult.conversationId,
+          senderId: messageResult.senderId,
+          senderName: messageResult.senderName,
+          senderUsername: messageResult.senderUsername,
+          senderImageUrl: messageResult.senderImageUrl,
+          content: messageResult.content,
+          messageType: messageResult.messageType,
+          bookRecommendation: messageResult.bookRecommendation || null,
+          createdAt: messageResult.createdAt,
+          isEdited: messageResult.isEdited || false
+        };
+
+        if (selectedConversation && selectedConversation.id === normalizedMessage.conversationId) {
+          setMessages(prev => [...prev, normalizedMessage]);
           setConversations(prevConversations => 
             prevConversations.map(conv => 
               conv.id === selectedConversation.id 
                 ? { 
                     ...conv, 
-                    lastMessage: messageResult.content,
-                    lastMessageAt: messageResult.createdAt,
+                    lastMessage: normalizedMessage.content,
+                    lastMessageAt: normalizedMessage.createdAt,
                     unreadCount: 0
                   }
                 : conv
@@ -244,7 +286,23 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
           if (newConversation) {
             setPendingFriend(null);
             setSelectedConversation(newConversation);
-            await loadMessages(newConversation.id);
+            const initialMessages = await TailorMatesService.getFriendMessages(newConversation.id);
+            setMessages(initialMessages);
+          } else if (normalizedMessage.conversationId) {
+            setPendingFriend(null);
+            const initialMessages = await TailorMatesService.getFriendMessages(normalizedMessage.conversationId);
+            setSelectedConversation({
+              id: normalizedMessage.conversationId,
+              friendId: targetFriendId,
+              friendName: pendingFriend?.friendName || messageResult.senderName,
+              friendUsername: pendingFriend?.friendUsername || messageResult.senderUsername,
+              friendImageUrl: pendingFriend?.friendImageUrl,
+              lastMessage: normalizedMessage.content,
+              lastMessageAt: normalizedMessage.createdAt,
+              unreadCount: 0,
+              isOnline: false
+            });
+            setMessages(initialMessages);
           }
         }
       } else {
@@ -482,54 +540,56 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                     <div className="space-y-4">
                       {messages.map((message) => {
                         const isCurrentUser = message.senderId === currentInternalUserId;
-                        
+
                         return (
-                        <div
-                          key={message.id}
-                          className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div className={`max-w-xs lg:max-w-md ${
-                            isCurrentUser
-                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                              : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
-                          } rounded-2xl p-4 shadow-lg`}>
-                            {message.messageType === 'book_recommendation' && message.bookRecommendation ? (
-                              <div className="space-y-3">
-                                <div className="flex items-center space-x-2 text-amber-400">
-                                  <Book className="w-4 h-4" />
-                                  <span className="text-sm font-medium">Book Recommendation</span>
+                          <div
+                            key={message.id}
+                            className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div
+                              className={`max-w-xs lg:max-w-md ${
+                                isCurrentUser
+                                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                                  : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
+                              } rounded-2xl p-4 shadow-lg`}
+                            >
+                              {message.messageType === 'book_recommendation' && message.bookRecommendation ? (
+                                <div className="space-y-3">
+                                  <div className="flex items-center space-x-2 text-amber-400">
+                                    <Book className="w-4 h-4" />
+                                    <span className="text-sm font-medium">Book Recommendation</span>
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium">{message.bookRecommendation.title}</h4>
+                                    <p className="text-sm opacity-80">by {message.bookRecommendation.author}</p>
+                                    {message.bookRecommendation.description && (
+                                      <p className="text-sm mt-2 opacity-90">{message.bookRecommendation.description}</p>
+                                    )}
+                                    {message.bookRecommendation.amazonUrl && (
+                                      <a
+                                        href={message.bookRecommendation.amazonUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-block mt-2 text-sm underline hover:no-underline"
+                                      >
+                                        View on Amazon
+                                      </a>
+                                    )}
+                                  </div>
                                 </div>
-                                <div>
-                                  <h4 className="font-medium">{message.bookRecommendation.title}</h4>
-                                  <p className="text-sm opacity-80">by {message.bookRecommendation.author}</p>
-                                  {message.bookRecommendation.description && (
-                                    <p className="text-sm mt-2 opacity-90">{message.bookRecommendation.description}</p>
-                                  )}
-                                  {message.bookRecommendation.amazonUrl && (
-                                    <a
-                                      href={message.bookRecommendation.amazonUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-block mt-2 text-sm underline hover:no-underline"
-                                    >
-                                      View on Amazon
-                                    </a>
-                                  )}
-                                </div>
+                              ) : (
+                                <p>{message.content}</p>
+                              )}
+                              <div className="flex justify-between items-center mt-2">
+                                <p className="text-xs opacity-60">
+                                  {isCurrentUser ? 'You' : message.senderName}
+                                </p>
+                                <p className="text-xs opacity-60 ml-2">
+                                  {TailorMatesService.formatDate(message.createdAt)}
+                                </p>
                               </div>
-                            ) : (
-                              <p>{message.content}</p>
-                            )}
-                            <div className="flex justify-between items-center mt-2">
-                              <p className="text-xs opacity-60">
-                                {isCurrentUser ? 'You' : message.senderName}
-                              </p>
-                              <p className="text-xs opacity-60 ml-2">
-                                {TailorMatesService.formatDate(message.createdAt)}
-                              </p>
                             </div>
                           </div>
-                        </div>
                         );
                       })}
                       <div ref={messagesEndRef} />
@@ -551,7 +611,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                       />
                       <button
                         type="submit"
-                        disabled={!(selectedConversation || pendingFriend) || isSending}
+                        disabled={!newMessage.trim() || isSending || !(selectedConversation || pendingFriend)}
                         className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white p-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Send className="w-5 h-5" />
@@ -560,6 +620,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                     <button
                       onClick={() => setShowBookRecommendation(true)}
                       className="flex items-center space-x-2 text-amber-400 hover:text-amber-300 text-sm transition-colors"
+                      disabled={!(selectedConversation || pendingFriend)}
                     >
                       <Book className="w-4 h-4" />
                       <span>Recommend a book</span>
@@ -568,12 +629,12 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-12 text-white/60">
-                <MessageCircle className="w-20 h-20 text-white/30 mb-6" />
-                <h3 className="text-2xl font-bold text-white mb-2">Select a Conversation</h3>
-                <p className="max-w-md">
-                  Choose a friend to start messaging. Your conversations will appear here once you begin chatting.
-                </p>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                  <h3 className="text-xl font-medium text-white mb-2">Select a Conversation</h3>
+                  <p className="text-white/60">Choose a friend to start messaging</p>
+                </div>
               </div>
             )}
           </div>
@@ -595,16 +656,16 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                   onClick={() => setShowBookRecommendation(false)}
                   className="text-white/60 hover:text-white text-xl"
                 >
-                  ×
+                  ✕
                 </button>
               </div>
-              
+
               <div className="space-y-3">
                 <input
                   type="text"
                   placeholder="Book title *"
                   value={bookRecommendation.title}
-                  onChange={(e) => setBookRecommendation({...bookRecommendation, title: e.target.value})}
+                  onChange={(e) => setBookRecommendation({ ...bookRecommendation, title: e.target.value })}
                   className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
                   required
                 />
@@ -612,14 +673,14 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                   type="text"
                   placeholder="Author *"
                   value={bookRecommendation.author}
-                  onChange={(e) => setBookRecommendation({...bookRecommendation, author: e.target.value})}
+                  onChange={(e) => setBookRecommendation({ ...bookRecommendation, author: e.target.value })}
                   className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
                   required
                 />
                 <textarea
                   placeholder="Why do you recommend this book? (optional)"
                   value={bookRecommendation.description}
-                  onChange={(e) => setBookRecommendation({...bookRecommendation, description: e.target.value})}
+                  onChange={(e) => setBookRecommendation({ ...bookRecommendation, description: e.target.value })}
                   className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 resize-none"
                   rows={3}
                 />
@@ -627,11 +688,11 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                   type="url"
                   placeholder="Amazon link (optional)"
                   value={bookRecommendation.amazonUrl}
-                  onChange={(e) => setBookRecommendation({...bookRecommendation, amazonUrl: e.target.value})}
+                  onChange={(e) => setBookRecommendation({ ...bookRecommendation, amazonUrl: e.target.value })}
                   className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
                 />
               </div>
-              
+
               <div className="flex space-x-3">
                 <button
                   type="button"
