@@ -98,7 +98,8 @@ BEGIN
             'messageType', v_message_record.message_type,
             'bookRecommendation', v_message_record.book_recommendation,
             'createdAt', v_message_record.created_at,
-            'isEdited', COALESCE(v_message_record.is_edited, FALSE)
+            'isEdited', COALESCE(v_message_record.is_edited, FALSE),
+            'isRead', TRUE
         )
     );
 END;

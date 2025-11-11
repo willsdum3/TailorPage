@@ -87,6 +87,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       setIsLoading(true);
       const conversationsData = await TailorMatesService.getFriendConversations();
       setConversations(conversationsData);
+      onUnreadCountUpdate?.();
     } catch (error) {
       console.error('Error loading conversations:', error);
     } finally {

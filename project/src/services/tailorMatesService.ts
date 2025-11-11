@@ -942,7 +942,8 @@ export class TailorMatesService {
           userName: msg.userName || msg.user_name || 'User',
           userUsername: username,
           userImageUrl: msg.userImageUrl || msg.user_image_url || msg.avatar_url || null,
-          isEdited: msg.isEdited || msg.is_edited || false
+          isEdited: msg.isEdited || msg.is_edited || false,
+          isRead: typeof msg.is_read === 'boolean' ? msg.is_read : false
         };
       });
     } catch (error) {
@@ -1920,8 +1921,7 @@ export class TailorMatesService {
         friendImageUrl: conversation.friend_image_url,
         lastMessage: conversation.last_message,
         lastMessageAt: conversation.last_message_at,
-        unreadCount: conversation.unread_count,
-        createdAt: conversation.created_at
+        unreadCount: Number(conversation.unread_count) || 0
       }));
     } catch (error) {
       console.error('Error in getFriendConversations:', error);
@@ -1958,7 +1958,8 @@ export class TailorMatesService {
         messageType: message.message_type,
         bookRecommendation: message.book_recommendation || null,
         createdAt: message.created_at,
-        isEdited: message.is_edited || false
+        isEdited: message.is_edited || false,
+        isRead: typeof message.is_read === 'boolean' ? message.is_read : false
       }));
     } catch (error) {
       console.error('Error in getFriendMessages:', error);
@@ -2012,7 +2013,10 @@ export class TailorMatesService {
         return false;
       }
 
-      return data?.success || false;
+      const payload = Array.isArray(data) ? data[0] : data;
+      const result = typeof payload === 'string' ? JSON.parse(payload) : payload;
+
+      return !!result?.success;
     } catch (error) {
       console.error('Error in markConversationAsRead:', error);
       return false;
