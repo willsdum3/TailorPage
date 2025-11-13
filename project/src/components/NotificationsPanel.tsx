@@ -190,7 +190,10 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose
             <div className="divide-y divide-white/10">
               {filteredNotifications.map((notification) => {
                 const isClickable = (notification.type === 'friend_message' && notification.relatedId) ||
-                                   (notification.type === 'friend_request' && notification.relatedId);
+                                   (notification.type === 'friend_request' && notification.relatedId) ||
+                                   (notification.type === 'club_invitation' && notification.relatedId) ||
+                                   (notification.type === 'club_message' && notification.relatedId) ||
+                                   (notification.type === 'discussion_message' && notification.relatedId);
                 return (
                 <div
                   key={notification.id}

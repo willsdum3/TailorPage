@@ -17,9 +17,12 @@ interface TailorMatesPageProps {
   user: User | null;
   initialConversationId?: string;
   showPendingRequests?: boolean;
+  showInvitations?: boolean;
+  initialClubId?: string;
+  initialDiscussionId?: string;
 }
 
-const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz, user, initialConversationId, showPendingRequests }) => {
+const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz, user, initialConversationId, showPendingRequests, showInvitations, initialClubId, initialDiscussionId }) => {
   const [activeTab, setActiveTab] = useState<'clubs' | 'discussions' | 'friends' | 'invitations'>('clubs');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -147,6 +150,30 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       setSelectedFilter('Pending');
     }
   }, [showPendingRequests, user]);
+
+  // Handle show invitations from notification click
+  useEffect(() => {
+    if (showInvitations && user) {
+      // Switch to invitations tab
+      setActiveTab('invitations');
+    }
+  }, [showInvitations, user]);
+
+  // Handle initial club ID from notification click
+  useEffect(() => {
+    if (initialClubId && user) {
+      // Open the book club detail page
+      setSelectedClubId(initialClubId);
+    }
+  }, [initialClubId, user]);
+
+  // Handle initial discussion ID from notification click
+  useEffect(() => {
+    if (initialDiscussionId && user) {
+      // Open the discussion detail page
+      setSelectedDiscussionId(initialDiscussionId);
+    }
+  }, [initialDiscussionId, user]);
 
   const loadDiscussionsData = async () => {
     if (!user) {

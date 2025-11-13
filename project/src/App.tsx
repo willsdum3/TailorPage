@@ -342,6 +342,9 @@ function App() {
   const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
   const [initialConversationId, setInitialConversationId] = useState<string | undefined>(undefined);
   const [showPendingRequests, setShowPendingRequests] = useState<boolean>(false);
+  const [showInvitations, setShowInvitations] = useState<boolean>(false);
+  const [initialClubId, setInitialClubId] = useState<string | undefined>(undefined);
+  const [initialDiscussionId, setInitialDiscussionId] = useState<string | undefined>(undefined);
 
   // Check if we're on a reset password page
   useEffect(() => {
@@ -894,6 +897,30 @@ function App() {
             }}
             onNavigateToPendingRequests={() => {
               setShowPendingRequests(true);
+              setShowInvitations(false);
+              setInitialConversationId(undefined);
+              setCurrentPage('tailor-mates');
+            }}
+            onNavigateToInvitations={() => {
+              setShowInvitations(true);
+              setShowPendingRequests(false);
+              setInitialConversationId(undefined);
+              setInitialClubId(undefined);
+              setCurrentPage('tailor-mates');
+            }}
+            onNavigateToClub={(clubId) => {
+              setInitialClubId(clubId);
+              setShowInvitations(false);
+              setShowPendingRequests(false);
+              setInitialConversationId(undefined);
+              setInitialDiscussionId(undefined);
+              setCurrentPage('tailor-mates');
+            }}
+            onNavigateToDiscussion={(discussionId) => {
+              setInitialDiscussionId(discussionId);
+              setInitialClubId(undefined);
+              setShowInvitations(false);
+              setShowPendingRequests(false);
               setInitialConversationId(undefined);
               setCurrentPage('tailor-mates');
             }}
@@ -984,12 +1011,18 @@ function App() {
           onBack={() => {
             setInitialConversationId(undefined);
             setShowPendingRequests(false);
+            setShowInvitations(false);
+            setInitialClubId(undefined);
+            setInitialDiscussionId(undefined);
             setCurrentPage('welcome');
           }}
           hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
           user={user}
           initialConversationId={initialConversationId}
           showPendingRequests={showPendingRequests}
+          showInvitations={showInvitations}
+          initialClubId={initialClubId}
+          initialDiscussionId={initialDiscussionId}
         />
       )}
       {currentPage === 'favourites' && (

@@ -881,16 +881,23 @@ export class TailorMatesService {
         return null;
       }
 
-      // Debug logging (simplified)
-      console.log('addDiscussionMessage response:', data);
+      // Parse JSON response if needed
+      const messageData = typeof data === 'string' ? JSON.parse(data) : data;
 
-      // Parse JSON response from database function
-      if (data && typeof data === 'object' && data.error) {
-        console.error('Database function returned error:', data.error);
+      // Check for error in response
+      if (messageData && typeof messageData === 'object' && messageData.error) {
+        console.error('Database function returned error:', messageData.error);
         return null;
       }
 
-      return data;
+      // Check if response has success field (error case)
+      if (messageData && typeof messageData === 'object' && messageData.success === false) {
+        console.error('Database function returned error:', messageData.error);
+        return null;
+      }
+
+      // Return the message object (should be in DiscussionMessage format)
+      return messageData as DiscussionMessage;
     } catch (error) {
       console.error('Error in addDiscussionMessage:', error);
       return null;

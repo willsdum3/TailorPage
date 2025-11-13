@@ -18,6 +18,9 @@ interface WelcomePageProps {
   onNavigateToProfile?: () => void;
   onNavigateToMessages?: (conversationId?: string) => void;
   onNavigateToPendingRequests?: () => void;
+  onNavigateToInvitations?: () => void;
+  onNavigateToClub?: (clubId?: string) => void;
+  onNavigateToDiscussion?: (discussionId?: string) => void;
   user?: {
     id: string;
     name: string;
@@ -41,6 +44,9 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   onNavigateToProfile,
   onNavigateToMessages,
   onNavigateToPendingRequests,
+  onNavigateToInvitations,
+  onNavigateToClub,
+  onNavigateToDiscussion,
   user
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -281,6 +287,12 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
             onNavigateToMessages?.(notification.relatedId);
           } else if (notification.type === 'friend_request' && notification.relatedId) {
             onNavigateToPendingRequests?.();
+          } else if (notification.type === 'club_invitation' && notification.relatedId) {
+            onNavigateToInvitations?.();
+          } else if (notification.type === 'club_message' && notification.relatedId) {
+            onNavigateToClub?.(notification.relatedId);
+          } else if (notification.type === 'discussion_message' && notification.relatedId) {
+            onNavigateToDiscussion?.(notification.relatedId);
           }
         }}
       />
