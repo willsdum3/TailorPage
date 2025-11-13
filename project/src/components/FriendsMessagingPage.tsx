@@ -9,9 +9,10 @@ interface FriendsMessagingPageProps {
   selectedFriend?: FriendConnection | null;
   onClearSelectedFriend?: () => void;
   onUnreadCountUpdate?: () => void;
+  initialConversationId?: string;
 }
 
-const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user, selectedFriend, onClearSelectedFriend, onUnreadCountUpdate }) => {
+const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, user, selectedFriend, onClearSelectedFriend, onUnreadCountUpdate, initialConversationId }) => {
   const [conversations, setConversations] = useState<FriendConversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<FriendConversation | null>(null);
   const [pendingFriend, setPendingFriend] = useState<FriendConnection | null>(null);
@@ -76,6 +77,17 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       }
     }
   }, [selectedFriend, conversations, onClearSelectedFriend]);
+
+  // Auto-select conversation when initialConversationId is provided (from notification click)
+  useEffect(() => {
+    if (initialConversationId && conversations.length > 0) {
+      const matchingConversation = conversations.find(conv => conv.id === initialConversationId);
+      if (matchingConversation) {
+        setPendingFriend(null);
+        setSelectedConversation(matchingConversation);
+      }
+    }
+  }, [initialConversationId, conversations]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

@@ -340,6 +340,8 @@ function App() {
   // Use Supabase authentication
   const { user: supabaseUser, session, loading: authLoading, signOut, fixExistingUserUsernames } = useAuth();
   const [currentPage, setCurrentPage] = useState<AppPage>('welcome');
+  const [initialConversationId, setInitialConversationId] = useState<string | undefined>(undefined);
+  const [showPendingRequests, setShowPendingRequests] = useState<boolean>(false);
 
   // Check if we're on a reset password page
   useEffect(() => {
@@ -885,6 +887,16 @@ function App() {
             onSignUp={() => handleAuthPrompt('signup', 'access features')}
             onAuthPrompt={handleAuthPrompt}
             onNavigateToProfile={() => setCurrentPage('profile')}
+            onNavigateToMessages={(conversationId) => {
+              setInitialConversationId(conversationId);
+              setShowPendingRequests(false);
+              setCurrentPage('tailor-mates');
+            }}
+            onNavigateToPendingRequests={() => {
+              setShowPendingRequests(true);
+              setInitialConversationId(undefined);
+              setCurrentPage('tailor-mates');
+            }}
             user={user ? {
               id: user.id,
               name: user.name,
@@ -969,9 +981,15 @@ function App() {
       )}
       {currentPage === 'tailor-mates' && (
         <TailorMatesPage
-          onBack={() => setCurrentPage('welcome')}
+          onBack={() => {
+            setInitialConversationId(undefined);
+            setShowPendingRequests(false);
+            setCurrentPage('welcome');
+          }}
           hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
           user={user}
+          initialConversationId={initialConversationId}
+          showPendingRequests={showPendingRequests}
         />
       )}
       {currentPage === 'favourites' && (

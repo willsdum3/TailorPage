@@ -7,9 +7,10 @@ interface NotificationsPanelProps {
   isOpen: boolean;
   onClose: () => void;
   user: UserType | null;
+  onNotificationClick?: (notification: Notification) => void;
 }
 
-const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose, user }) => {
+const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose, user, onNotificationClick }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
@@ -187,12 +188,38 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose
             </div>
           ) : (
             <div className="divide-y divide-white/10">
-              {filteredNotifications.map((notification) => (
+              {filteredNotifications.map((notification) => {
+                const isClickable = (notification.type === 'friend_message' && notification.relatedId) ||
+                                   (notification.type === 'friend_request' && notification.relatedId);
+                return (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-white/5 transition-colors ${
+                  onClick={(e) => {
+                    // Only handle click if not clicking on action buttons
+                    const target = e.target as HTMLElement;
+                    const isButtonClick = target.closest('button') || target.tagName === 'BUTTON';
+                    
+                    if (isClickable && onNotificationClick && !isButtonClick) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onNotificationClick(notification);
+                    }
+                  }}
+                  className={`p-4 transition-all ${
+                    isClickable 
+                      ? 'cursor-pointer hover:bg-white/15 active:bg-white/20 hover:shadow-lg' 
+                      : 'hover:bg-white/5'
+                  } ${
                     !notification.isRead ? 'bg-pink-500/5 border-l-4 border-pink-500/50' : ''
                   }`}
+                  role={isClickable ? 'button' : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                  onKeyDown={(e) => {
+                    if (isClickable && onNotificationClick && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      onNotificationClick(notification);
+                    }
+                  }}
                 >
                   <div className="flex items-start space-x-3">
                     <div className="flex-shrink-0 mt-1">
@@ -222,7 +249,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose
                           </p>
                         </div>
                         
-                        <div className="flex items-center space-x-1 ml-2">
+                        <div className="flex items-center space-x-1 ml-2" onClick={(e) => e.stopPropagation()}>
                           {!notification.isRead && (
                             <button
                               onClick={() => handleMarkAsRead(notification.id)}
@@ -244,7 +271,8 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen, onClose
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

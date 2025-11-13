@@ -15,9 +15,11 @@ interface TailorMatesPageProps {
   hasCompletedQuiz: boolean;
   onStartQuiz?: () => void;
   user: User | null;
+  initialConversationId?: string;
+  showPendingRequests?: boolean;
 }
 
-const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz, user }) => {
+const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQuiz, onStartQuiz, user, initialConversationId, showPendingRequests }) => {
   const [activeTab, setActiveTab] = useState<'clubs' | 'discussions' | 'friends' | 'invitations'>('clubs');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -127,6 +129,24 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   useEffect(() => {
     loadData();
   }, [activeTab, user]);
+
+  // Handle initial conversation ID from notification click
+  useEffect(() => {
+    if (initialConversationId && user) {
+      // Switch to friends tab and open messaging
+      setActiveTab('friends');
+      setShowFriendsMessaging(true);
+    }
+  }, [initialConversationId, user]);
+
+  // Handle show pending requests from notification click
+  useEffect(() => {
+    if (showPendingRequests && user) {
+      // Switch to friends tab and show pending requests
+      setActiveTab('friends');
+      setSelectedFilter('Pending');
+    }
+  }, [showPendingRequests, user]);
 
   const loadDiscussionsData = async () => {
     if (!user) {
@@ -663,6 +683,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         selectedFriend={selectedFriendForMessaging}
         onClearSelectedFriend={() => setSelectedFriendForMessaging(null)}
         onUnreadCountUpdate={loadUnreadMessageCount}
+        initialConversationId={initialConversationId}
       />
     );
   }

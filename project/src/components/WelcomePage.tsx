@@ -16,6 +16,8 @@ interface WelcomePageProps {
   onSignUp?: () => void;
   onAuthPrompt?: (mode: 'login' | 'signup', feature?: string) => void;
   onNavigateToProfile?: () => void;
+  onNavigateToMessages?: (conversationId?: string) => void;
+  onNavigateToPendingRequests?: () => void;
   user?: {
     id: string;
     name: string;
@@ -37,6 +39,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   onSignUp,
   onAuthPrompt,
   onNavigateToProfile,
+  onNavigateToMessages,
+  onNavigateToPendingRequests,
   user
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -261,6 +265,24 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
           }
         }}
         user={user}
+        onNotificationClick={async (notification) => {
+          // Mark notification as read
+          if (!notification.isRead) {
+            try {
+              await TailorMatesService.markNotificationAsRead(notification.id);
+            } catch (error) {
+              console.error('Error marking notification as read:', error);
+            }
+          }
+          
+          setShowNotifications(false);
+          
+          if (notification.type === 'friend_message' && notification.relatedId) {
+            onNavigateToMessages?.(notification.relatedId);
+          } else if (notification.type === 'friend_request' && notification.relatedId) {
+            onNavigateToPendingRequests?.();
+          }
+        }}
       />
     </div>
   );

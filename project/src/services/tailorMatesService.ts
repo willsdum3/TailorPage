@@ -2071,7 +2071,8 @@ export class TailorMatesService {
           messageType: messagePayload.messageType,
           bookRecommendation: messagePayload.bookRecommendation || null,
           createdAt: messagePayload.createdAt,
-          isEdited: messagePayload.isEdited || false
+          isEdited: messagePayload.isEdited || false,
+          isRead: messagePayload.isRead !== undefined ? messagePayload.isRead : true
         } as FriendMessage;
       }
 
@@ -2665,8 +2666,22 @@ export class TailorMatesService {
       }
 
       // Parse JSON response if needed
-      const notifications = typeof data === 'string' ? JSON.parse(data) : data;
-      return notifications || [];
+      const rawNotifications = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      // Map database fields (snake_case) to TypeScript interface (camelCase)
+      const notifications: Notification[] = (rawNotifications || []).map((n: any) => ({
+        id: n.id,
+        userId: n.user_id || n.userId,
+        type: n.type,
+        title: n.title,
+        message: n.message,
+        relatedId: n.related_id || n.relatedId, // Map snake_case to camelCase
+        relatedName: n.related_name || n.relatedName,
+        isRead: n.is_read !== undefined ? n.is_read : n.isRead,
+        createdAt: n.created_at || n.createdAt
+      }));
+      
+      return notifications;
     } catch (error) {
       console.error('Error in getNotifications:', error);
       return [];
