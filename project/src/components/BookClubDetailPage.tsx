@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, MessageCircle, Send, BookOpen, Calendar, User, Crown, MessageSquare, Settings, BarChart3, UserPlus, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { TailorMatesService } from '../services/tailorMatesService';
 import { BookClub } from '../types';
 import AdminPanel from './AdminPanel';
@@ -51,11 +51,16 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
   
   // Friend connections state
   const [friendConnections, setFriendConnections] = useState<any[]>([]);
+  
+  // Mute state
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isLoadingMuteStatus, setIsLoadingMuteStatus] = useState<boolean>(false);
 
   useEffect(() => {
     loadClubData();
     loadFriendConnections();
-  }, [clubId]);
+    loadMuteStatus();
+  }, [clubId, user]);
 
   useEffect(() => {
     scrollToBottom();
@@ -95,6 +100,40 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     } catch (error) {
       console.error('Error loading friend connections:', error);
       setFriendConnections([]);
+    }
+  };
+
+  const loadMuteStatus = async () => {
+    if (!user || !clubId) return;
+    
+    try {
+      setIsLoadingMuteStatus(true);
+      const status = await TailorMatesService.getClubMuteStatus(clubId);
+      setIsMuted(status);
+    } catch (error) {
+      console.error('Error loading mute status:', error);
+      setIsMuted(false);
+    } finally {
+      setIsLoadingMuteStatus(false);
+    }
+  };
+
+  const handleToggleMute = async () => {
+    if (!user || !clubId || isLoadingMuteStatus) return;
+    
+    try {
+      setIsLoadingMuteStatus(true);
+      const result = await TailorMatesService.toggleClubMute(clubId);
+      if (result.success) {
+        setIsMuted(result.isMuted);
+      } else {
+        alert(result.error || 'Failed to toggle mute status');
+      }
+    } catch (error) {
+      console.error('Error toggling mute:', error);
+      alert('Failed to toggle mute status. Please try again.');
+    } finally {
+      setIsLoadingMuteStatus(false);
     }
   };
 
@@ -641,6 +680,30 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
               {/* Tab Content */}
               {activeTab === 'discussion' && (
                 <>
+                  {/* Discussion Header with Mute Button */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+                      <MessageCircle className="w-5 h-5 text-amber-400" />
+                      <span>Chat</span>
+                    </h3>
+                    <button
+                      onClick={handleToggleMute}
+                      disabled={isLoadingMuteStatus}
+                      className={`p-2 rounded-lg transition-all duration-200 ${
+                        isMuted 
+                          ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30' 
+                          : 'bg-white/10 hover:bg-white/20 text-white/80 border border-white/20'
+                      } ${isLoadingMuteStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      title={isMuted ? 'Unmute notifications for this club' : 'Mute notifications for this club'}
+                    >
+                      {isMuted ? (
+                        <VolumeX className="w-5 h-5" />
+                      ) : (
+                        <Volume2 className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                  
                   {/* Messages */}
                   <div className="flex-1 overflow-y-auto mb-4 space-y-4">
                     {messages.length === 0 ? (

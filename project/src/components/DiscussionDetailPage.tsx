@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as UserIcon, Trash2 } from 'lucide-react';
+import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as UserIcon, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { Discussion, DiscussionMessage, User as UserType } from '../types';
 import { TailorMatesService } from '../services/tailorMatesService';
 import AddFriendModal from './AddFriendModal';
@@ -41,11 +41,16 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
   
   // Friend connections state
   const [friendConnections, setFriendConnections] = useState<any[]>([]);
+  
+  // Mute state
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isLoadingMuteStatus, setIsLoadingMuteStatus] = useState<boolean>(false);
 
   useEffect(() => {
     loadDiscussion();
     loadFriendConnections();
-  }, [discussionId]);
+    loadMuteStatus();
+  }, [discussionId, user]);
 
   useEffect(() => {
     scrollToBottom();
@@ -91,6 +96,40 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     } catch (error) {
       console.error('Error loading friend connections:', error);
       setFriendConnections([]);
+    }
+  };
+
+  const loadMuteStatus = async () => {
+    if (!user || !discussionId) return;
+    
+    try {
+      setIsLoadingMuteStatus(true);
+      const status = await TailorMatesService.getDiscussionMuteStatus(discussionId);
+      setIsMuted(status);
+    } catch (error) {
+      console.error('Error loading mute status:', error);
+      setIsMuted(false);
+    } finally {
+      setIsLoadingMuteStatus(false);
+    }
+  };
+
+  const handleToggleMute = async () => {
+    if (!user || !discussionId || isLoadingMuteStatus) return;
+    
+    try {
+      setIsLoadingMuteStatus(true);
+      const result = await TailorMatesService.toggleDiscussionMute(discussionId);
+      if (result.success) {
+        setIsMuted(result.isMuted);
+      } else {
+        alert(result.error || 'Failed to toggle mute status');
+      }
+    } catch (error) {
+      console.error('Error toggling mute:', error);
+      alert('Failed to toggle mute status. Please try again.');
+    } finally {
+      setIsLoadingMuteStatus(false);
     }
   };
 
@@ -424,7 +463,35 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white mb-2">{discussion.title}</h1>
+              {/* Title and Button Row */}
+              <div className="flex items-center mb-2">
+                {/* Title on the left */}
+                <h1 className="text-2xl font-bold text-white">{discussion.title}</h1>
+                
+                {/* Button in the center */}
+                <div className="flex-1 flex justify-center">
+                  {/* Leave Discussion Button (Participants Only) */}
+                  {isParticipant && discussion && !discussion.isCreatedByUser && (
+                    <button
+                      onClick={handleLeaveDiscussion}
+                      className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+                    >
+                      <UserIcon className="w-4 h-4" />
+                      <span>Leave Discussion</span>
+                    </button>
+                  )}
+                  {/* Delete Discussion Button (Creator Only) */}
+                  {discussion && discussion.isCreatedByUser && (
+                    <button
+                      onClick={handleDeleteDiscussion}
+                      className="bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 hover:text-red-200"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete Discussion</span>
+                    </button>
+                  )}
+                </div>
+              </div>
               
               {discussion.bookTitle && (
                 <div className="flex items-center space-x-2 mb-3">
@@ -492,30 +559,23 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
               <span>Messages ({messages.length})</span>
             </h2>
             
-            {/* Discussion Actions */}
-            <div className="flex items-center space-x-3">
-              {/* Delete Discussion Button (Creator Only) */}
-              {discussion && discussion.isCreatedByUser && (
-                <button
-                  onClick={handleDeleteDiscussion}
-                  className="bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 hover:text-red-200"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Delete Discussion</span>
-                </button>
+            {/* Mute Button */}
+            <button
+              onClick={handleToggleMute}
+              disabled={isLoadingMuteStatus}
+              className={`p-2 rounded-lg transition-all duration-200 ${
+                isMuted 
+                  ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30' 
+                  : 'bg-white/10 hover:bg-white/20 text-white/80 border border-white/20'
+              } ${isLoadingMuteStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              title={isMuted ? 'Unmute notifications for this discussion' : 'Mute notifications for this discussion'}
+            >
+              {isMuted ? (
+                <VolumeX className="w-5 h-5" />
+              ) : (
+                <Volume2 className="w-5 h-5" />
               )}
-              
-              {/* Leave Discussion Button (Participants Only) */}
-              {isParticipant && discussion && !discussion.isCreatedByUser && (
-                <button
-                  onClick={handleLeaveDiscussion}
-                  className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
-                >
-                  <UserIcon className="w-4 h-4" />
-                  <span>Leave Discussion</span>
-                </button>
-              )}
-            </div>
+            </button>
           </div>
           
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">

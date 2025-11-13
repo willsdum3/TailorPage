@@ -50,11 +50,18 @@ BEGIN
     RETURNING id INTO v_message_id;
     
     -- Create notifications for all participants except the sender
+    -- Skip users who have muted this discussion
     FOR v_participant_record IN 
-        SELECT user_id 
-        FROM discussion_members 
-        WHERE discussion_id = p_discussion_id 
-        AND user_id != v_user_internal_id
+        SELECT dm.user_id 
+        FROM discussion_members dm
+        WHERE dm.discussion_id = p_discussion_id 
+        AND dm.user_id != v_user_internal_id
+        AND NOT EXISTS (
+            SELECT 1 FROM discussion_mute_preferences dmp
+            WHERE dmp.user_id = dm.user_id
+            AND dmp.discussion_id = p_discussion_id
+            AND dmp.is_muted = TRUE
+        )
     LOOP
         BEGIN
             INSERT INTO notifications (user_id, type, title, message, related_id, related_name)

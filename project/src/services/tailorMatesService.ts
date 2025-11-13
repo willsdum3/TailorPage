@@ -2783,4 +2783,124 @@ export class TailorMatesService {
       return { success: false, error: 'Failed to delete notification' };
     }
   }
+
+  static async toggleClubMute(clubId: string): Promise<{success: boolean, isMuted?: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('toggle_club_mute', {
+          p_auth_user_id: authUserId,
+          p_club_id: clubId
+        });
+
+      if (error) {
+        console.error('Error toggling club mute:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true, isMuted: result.isMuted };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in toggleClubMute:', error);
+      return { success: false, error: 'Failed to toggle mute status' };
+    }
+  }
+
+  static async getClubMuteStatus(clubId: string): Promise<boolean> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_club_mute_status', {
+          p_auth_user_id: authUserId,
+          p_club_id: clubId
+        });
+
+      if (error) {
+        console.error('Error getting club mute status:', error);
+        return false; // Default to unmuted if error
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return result.isMuted || false;
+      } else {
+        return false; // Default to unmuted if error
+      }
+    } catch (error) {
+      console.error('Error in getClubMuteStatus:', error);
+      return false; // Default to unmuted if error
+    }
+  }
+
+  static async toggleDiscussionMute(discussionId: string): Promise<{success: boolean, isMuted?: boolean, error?: string}> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('toggle_discussion_mute', {
+          p_auth_user_id: authUserId,
+          p_discussion_id: discussionId
+        });
+
+      if (error) {
+        console.error('Error toggling discussion mute:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return { success: true, isMuted: result.isMuted };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in toggleDiscussionMute:', error);
+      return { success: false, error: 'Failed to toggle mute status' };
+    }
+  }
+
+  static async getDiscussionMuteStatus(discussionId: string): Promise<boolean> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_discussion_mute_status', {
+          p_auth_user_id: authUserId,
+          p_discussion_id: discussionId
+        });
+
+      if (error) {
+        console.error('Error getting discussion mute status:', error);
+        return false; // Default to unmuted if error
+      }
+
+      // Parse JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      if (result.success) {
+        return result.isMuted || false;
+      } else {
+        return false; // Default to unmuted if error
+      }
+    } catch (error) {
+      console.error('Error in getDiscussionMuteStatus:', error);
+      return false; // Default to unmuted if error
+    }
+  }
 }

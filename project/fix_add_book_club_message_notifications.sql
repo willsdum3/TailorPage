@@ -50,11 +50,18 @@ BEGIN
     RETURNING id INTO v_message_id;
     
     -- Create notifications for all members except the sender
+    -- Skip users who have muted this club
     FOR v_member_record IN 
-        SELECT user_id 
-        FROM book_club_members 
-        WHERE club_id = p_club_id 
-        AND user_id != v_user_internal_id
+        SELECT bcm.user_id 
+        FROM book_club_members bcm
+        WHERE bcm.club_id = p_club_id 
+        AND bcm.user_id != v_user_internal_id
+        AND NOT EXISTS (
+            SELECT 1 FROM club_mute_preferences cmp
+            WHERE cmp.user_id = bcm.user_id
+            AND cmp.club_id = p_club_id
+            AND cmp.is_muted = TRUE
+        )
     LOOP
         BEGIN
             INSERT INTO notifications (user_id, type, title, message, related_id, related_name)
