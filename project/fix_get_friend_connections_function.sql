@@ -30,7 +30,7 @@ BEGIN
         RAISE EXCEPTION 'User not found';
     END IF;
     
-    -- Return friend connections with friend details
+    -- Return friend connections with friend details, excluding blocked users
     RETURN QUERY
     SELECT 
         fc.id,
@@ -46,6 +46,12 @@ BEGIN
     FROM friend_connections fc
     JOIN users u ON fc.friend_id = u.id
     WHERE fc.user_id = user_internal_id
+      AND NOT EXISTS (
+          SELECT 1
+          FROM user_blocks ub
+          WHERE (ub.blocker_id = user_internal_id AND ub.blocked_id = fc.friend_id)
+             OR (ub.blocker_id = fc.friend_id AND ub.blocked_id = user_internal_id)
+      )
     ORDER BY fc.created_at DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

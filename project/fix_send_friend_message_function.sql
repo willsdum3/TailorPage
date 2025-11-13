@@ -35,6 +35,26 @@ BEGIN
 
     v_friend_id := p_friend_id;
 
+    -- Check if sender is blocked by recipient
+    IF EXISTS (
+        SELECT 1
+        FROM user_blocks ub
+        WHERE ub.blocker_id = v_friend_id
+          AND ub.blocked_id = v_sender_id
+    ) THEN
+        RETURN jsonb_build_object('success', FALSE, 'error', 'You cannot send messages to this user. You have been blocked.');
+    END IF;
+
+    -- Check if sender has blocked the recipient
+    IF EXISTS (
+        SELECT 1
+        FROM user_blocks ub
+        WHERE ub.blocker_id = v_sender_id
+          AND ub.blocked_id = v_friend_id
+    ) THEN
+        RETURN jsonb_build_object('success', FALSE, 'error', 'You cannot send messages to this user. You have blocked them.');
+    END IF;
+
     -- Ensure they are friends (accepted status in either direction)
     IF NOT EXISTS (
         SELECT 1
