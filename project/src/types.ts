@@ -118,6 +118,13 @@ export interface Discussion {
   isCreatedByUser: boolean;
 }
 
+export interface DiscussionParticipant {
+  id: string;
+  name: string;
+  username?: string;
+  avatarUrl?: string;
+}
+
 export interface DiscussionMessage {
   id: string;
   content: string;

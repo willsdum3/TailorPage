@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as UserIcon, Trash2, Volume2, VolumeX } from 'lucide-react';
-import { Discussion, DiscussionMessage, User as UserType } from '../types';
+import { Home, ArrowLeft, MessageCircle, Send, Users, Clock, Book, Tag, User as UserIcon, Trash2, Volume2, VolumeX, X } from 'lucide-react';
+import { Discussion, DiscussionMessage, DiscussionParticipant, User as UserType } from '../types';
 import { TailorMatesService } from '../services/tailorMatesService';
 import AddFriendModal from './AddFriendModal';
 import UserActionModal from './UserActionModal';
@@ -45,6 +45,12 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
   // Mute state
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isLoadingMuteStatus, setIsLoadingMuteStatus] = useState<boolean>(false);
+
+  // Discussion participants modal state
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [participants, setParticipants] = useState<DiscussionParticipant[]>([]);
+  const [isLoadingParticipants, setIsLoadingParticipants] = useState(false);
+  const [participantsError, setParticipantsError] = useState<string | null>(null);
 
   useEffect(() => {
     loadDiscussion();
@@ -112,6 +118,28 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     } finally {
       setIsLoadingMuteStatus(false);
     }
+  };
+
+  const openParticipantsModal = async () => {
+    if (!discussionId) return;
+
+    setShowParticipantsModal(true);
+    setParticipantsError(null);
+    setIsLoadingParticipants(true);
+
+    try {
+      const participantList = await TailorMatesService.getDiscussionParticipants(discussionId);
+      setParticipants(participantList);
+    } catch (error) {
+      console.error('Error loading discussion participants:', error);
+      setParticipantsError('Failed to load participants. Please try again.');
+    } finally {
+      setIsLoadingParticipants(false);
+    }
+  };
+
+  const closeParticipantsModal = () => {
+    setShowParticipantsModal(false);
   };
 
   const handleToggleMute = async () => {
@@ -509,10 +537,13 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
             </div>
             
             <div className="text-right text-white/60 text-sm">
-              <div className="flex items-center space-x-1 mb-1">
+              <button
+                onClick={openParticipantsModal}
+                className="flex items-center space-x-1 mb-1 hover:text-white transition-colors"
+              >
                 <Users className="w-4 h-4" />
                 <span>{discussion.participantCount} participants</span>
-              </div>
+              </button>
               <div className="flex items-center space-x-1">
                 <Clock className="w-4 h-4" />
                 <span>{TailorMatesService.formatDate(discussion.lastActivity)}</span>
@@ -681,6 +712,78 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
           )}
         </div>
       </div>
+
+      {/* Participants Modal */}
+      {showParticipantsModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-slate-900/90 border border-white/10 rounded-2xl w-full max-w-xl p-6 relative">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-2xl font-bold text-white">
+                Discussion Participants
+                {!isLoadingParticipants && (
+                  <span className="text-white/60 text-sm ml-3">
+                    ({participants.length})
+                  </span>
+                )}
+              </h3>
+              <button
+                onClick={closeParticipantsModal}
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                aria-label="Close participants modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {participantsError && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-200 px-4 py-2 rounded-xl mb-4">
+                {participantsError}
+              </div>
+            )}
+
+            {isLoadingParticipants ? (
+              <div className="text-white/70 text-center py-10">Loading participants...</div>
+            ) : participants.length === 0 ? (
+              <div className="text-white/70 text-center py-10">
+                No participants found for this discussion.
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                {participants.map((participant) => (
+                  <div
+                    key={participant.id}
+                    className="flex items-center space-x-3 bg-white/5 border border-white/10 rounded-xl p-3"
+                  >
+                    {participant.avatarUrl ? (
+                      <img
+                        src={participant.avatarUrl}
+                        alt={participant.name || participant.username || 'Participant'}
+                        className="w-12 h-12 rounded-full object-cover border border-white/20"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center border border-white/10">
+                        <span className="text-white font-semibold text-lg">
+                          {(participant.name || participant.username || 'U').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-white font-semibold">{participant.name || 'Unknown'}</p>
+                      {participant.username && (
+                        <p className="text-white/60 text-sm">@{participant.username}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Add Friend Modal */}
       {showAddFriendModal && selectedUserForFriend && (

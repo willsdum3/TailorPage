@@ -3,6 +3,7 @@ import {
   BookClub, 
   Discussion, 
   DiscussionMessage, 
+  DiscussionParticipant,
   FriendConnection, 
   FriendRecommendation,
   FriendConversation,
@@ -955,6 +956,38 @@ export class TailorMatesService {
       });
     } catch (error) {
       console.error('Error in getDiscussionMessages:', error);
+      return [];
+    }
+  }
+
+  static async getDiscussionParticipants(discussionId: string): Promise<DiscussionParticipant[]> {
+    try {
+      const authUserId = await this.getCurrentUserId();
+      await this.ensureUserExists(authUserId);
+
+      const { data, error } = await supabase
+        .rpc('get_discussion_participants', {
+          p_auth_user_id: authUserId,
+          p_discussion_id: discussionId
+        });
+
+      if (error) {
+        console.error('Error getting discussion participants:', error);
+        return [];
+      }
+
+      if (!Array.isArray(data)) {
+        return [];
+      }
+
+      return data.map((participant: any) => ({
+        id: participant.user_id || participant.id,
+        name: participant.name || 'Unknown',
+        username: participant.username || '',
+        avatarUrl: participant.avatar_url || participant.avatarUrl || null
+      })) as DiscussionParticipant[];
+    } catch (error) {
+      console.error('Error in getDiscussionParticipants:', error);
       return [];
     }
   }
