@@ -156,9 +156,23 @@ const ClubInvitationsManager: React.FC<ClubInvitationsManagerProps> = ({
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                      <Users className="w-4 h-4 text-white/80" />
-                    </div>
+                    {invitation.inviteeAvatarUrl ? (
+                      <img
+                        src={invitation.inviteeAvatarUrl}
+                        alt={invitation.inviteeName || invitation.inviteeUsername || 'Invitee'}
+                        className="w-10 h-10 rounded-full object-cover border border-white/20"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center border border-white/10">
+                        <span className="text-white font-semibold">
+                          {(invitation.inviteeName || invitation.inviteeUsername || 'U').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                     <div>
                       <h4 className="font-medium text-white">@{invitation.inviteeUsername}</h4>
                       <p className="text-sm text-white/70">{invitation.inviteeName}</p>

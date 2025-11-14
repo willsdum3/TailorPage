@@ -77,6 +77,13 @@ BEGIN
         -- Get member count
         (SELECT COUNT(*) FROM book_club_members WHERE club_id = bc.id) as member_count
     FROM book_clubs bc
+    WHERE bc.is_public = TRUE
+       OR EXISTS (
+            SELECT 1 FROM book_club_members bcm
+            JOIN users u ON bcm.user_id = u.id
+            WHERE bcm.club_id = bc.id
+              AND u.auth_user_id = get_book_clubs.p_auth_user_id
+          )
     ORDER BY bc.created_at DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

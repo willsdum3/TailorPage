@@ -228,6 +228,7 @@ export interface SentInvitation {
   inviteeUsername: string;
   inviteeName: string;
   inviteeEmail?: string | null;
+  inviteeAvatarUrl?: string | null;
   message?: string;
   status: 'pending' | 'accepted' | 'declined' | 'cancelled';
   createdAt: string;

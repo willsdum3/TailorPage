@@ -1762,6 +1762,7 @@ export class TailorMatesService {
         inviteeUsername: invitation.invitee_username,
         inviteeName: invitation.invitee_name,
         inviteeEmail: invitation.invitee_email || null,
+        inviteeAvatarUrl: invitation.invitee_avatar_url || null,
         message: invitation.message,
         status: invitation.status,
         createdAt: invitation.created_at,
