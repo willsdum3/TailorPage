@@ -156,21 +156,103 @@ const ResultsPage = ({
     );
   }
 
-  // Create a simple personality description
-  const getPersonalityDescription = () => {
-    const traits = [];
-    if (profile.extraversion >= 16) traits.push('outgoing and energetic');
-    if (profile.openness >= 16) traits.push('curious about new experiences');
-    if (profile.agreeableness >= 16) traits.push('empathetic and cooperative');
-    if (profile.conscientiousness >= 16) traits.push('organized and methodical');
-    if (profile.emotionalStability >= 16) traits.push('emotionally stable');
+  // Calculate recommended genres based on personality profile (memoized)
+  const recommendedGenres = React.useMemo(() => {
+    const genreScores: { genre: string; score: number }[] = [];
+
+    // Calculate scores for each genre category using the same logic as book scoring
+    const genres = [
+      { name: 'Literary Fiction', score: profile.openness * 2.5 + profile.agreeableness * 1.5 + profile.conscientiousness * 0.5 },
+      { name: 'Fantasy', score: profile.openness * 2.2 + (25 - profile.conscientiousness) * 0.8 + profile.extraversion * 0.5 },
+      { name: 'Science Fiction', score: profile.openness * 2.0 + profile.conscientiousness * 1.5 + (25 - profile.conscientiousness) * 0.5 },
+      { name: 'Self-Help', score: profile.conscientiousness * 2.5 + profile.emotionalStability * 1.8 + profile.openness * 0.7 },
+      { name: 'Biography', score: profile.agreeableness * 1.5 + profile.openness * 1.2 + profile.extraversion * 1.0 + profile.conscientiousness * 0.8 },
+      { name: 'Psychological Thriller', score: profile.openness * 1.5 + profile.emotionalStability * 1.8 + profile.conscientiousness * 1.2 },
+      { name: 'Dystopian Fiction', score: profile.openness * 1.8 + profile.conscientiousness * 1.5 + profile.emotionalStability * 1.2 },
+      { name: 'History', score: profile.openness * 1.5 + profile.conscientiousness * 1.8 + profile.emotionalStability * 2.0 },
+      { name: 'Mystery', score: profile.conscientiousness * 1.5 + profile.openness * 1.2 + profile.emotionalStability * 1.0 + profile.agreeableness * 1.3 },
+      { name: 'Romance', score: profile.agreeableness * 2.0 + profile.extraversion * 1.5 + profile.emotionalStability * 1.2 },
+      { name: 'Young Adult', score: profile.extraversion * 1.8 + profile.openness * 1.5 + profile.agreeableness * 1.2 },
+      { name: 'Thriller', score: profile.emotionalStability * 2.0 + profile.openness * 1.3 + profile.conscientiousness * 1.0 },
+      { name: 'Philosophy', score: profile.openness * 2.5 + profile.agreeableness * 1.5 + profile.conscientiousness * 0.5 },
+      { name: 'Contemporary Fiction', score: profile.agreeableness * 2.0 + profile.extraversion * 1.5 + profile.emotionalStability * 1.2 },
+    ];
+
+    // Apply personality trait adjustments
+    genres.forEach(genre => {
+      let adjustedScore = genre.score;
+
+      // High openness adjustments
+      if (profile.openness >= 20) {
+        if (['Science Fiction', 'Fantasy', 'Philosophy', 'Literary Fiction'].includes(genre.name)) {
+          adjustedScore += 3;
+        }
+      } else if (profile.openness <= 8) {
+        if (['Romance', 'Contemporary Fiction', 'Mystery'].includes(genre.name)) {
+          adjustedScore += 2;
+        }
+      }
+
+      // High conscientiousness adjustments
+      if (profile.conscientiousness >= 20) {
+        if (['Self-Help', 'Biography', 'History'].includes(genre.name)) {
+          adjustedScore += 3;
+        }
+      } else if (profile.conscientiousness <= 8) {
+        if (['Fantasy', 'Romance', 'Thriller'].includes(genre.name)) {
+          adjustedScore += 2;
+        }
+      }
+
+      // High extraversion adjustments
+      if (profile.extraversion >= 20) {
+        if (['Romance', 'Contemporary Fiction', 'Biography'].includes(genre.name)) {
+          adjustedScore += 2;
+        }
+      } else if (profile.extraversion <= 8) {
+        if (['Literary Fiction', 'Philosophy', 'Science Fiction'].includes(genre.name)) {
+          adjustedScore += 2;
+        }
+      }
+
+      // High agreeableness adjustments
+      if (profile.agreeableness >= 20) {
+        if (['Romance', 'Contemporary Fiction', 'Self-Help'].includes(genre.name)) {
+          adjustedScore += 2;
+        }
+      } else if (profile.agreeableness <= 8) {
+        if (['Thriller', 'Dystopian Fiction'].includes(genre.name)) {
+          adjustedScore += 2;
+        }
+      }
+
+      // High emotional stability adjustments
+      if (profile.emotionalStability >= 20) {
+        if (['Thriller', 'Psychological Thriller', 'Dystopian Fiction'].includes(genre.name)) {
+          adjustedScore += 2;
+        }
+      } else if (profile.emotionalStability <= 12) {
+        if (['Romance', 'Contemporary Fiction', 'Self-Help', 'Biography'].includes(genre.name)) {
+          adjustedScore += 2;
+        }
+      }
+
+      genreScores.push({ genre: genre.name, score: adjustedScore });
+    });
+
+    // Sort by score and get top genres (those with scores above a threshold)
+    genreScores.sort((a, b) => b.score - a.score);
     
-    if (traits.length > 0) {
-      return `a ${traits.join(', ')} individual with diverse reading interests.`;
-    }
-    
-    return `a balanced individual with diverse interests and adaptable reading preferences.`;
-  };
+    // Get top genres - take genres that are within 85% of the top score
+    const topScore = genreScores[0]?.score || 0;
+    const threshold = topScore * 0.85;
+    const topGenres = genreScores
+      .filter(g => g.score >= threshold)
+      .slice(0, 3) // Limit to top 3 genres
+      .map(g => g.genre);
+
+    return topGenres.length > 0 ? topGenres : ['Contemporary Fiction']; // Fallback genre
+  }, [profile]);
 
   return (
     <div className="min-h-screen py-8 px-4 relative overflow-hidden">
@@ -197,17 +279,11 @@ const ResultsPage = ({
           </div>
           
           <div className="mb-10">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              Your Perfect
-            </h1>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-amber-400 mb-4 leading-tight drop-shadow-lg">
-              Reading List
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+              <span className="text-white">Your Perfect </span>
+              <span className="text-amber-400 drop-shadow-lg">Reading List</span>
             </h1>
           </div>
-          
-          <p className="text-lg md:text-xl text-white/90 mb-12 max-w-4xl mx-auto leading-relaxed font-medium">
-            Based on your responses, you are {getPersonalityDescription()}.
-          </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
             <button
@@ -218,34 +294,36 @@ const ResultsPage = ({
               <span>Retake Quiz</span>
             </button>
           </div>
+        </div>
 
-          {/* Sign-up encouragement for non-authenticated users */}
-          {!user && (
-            <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-8 mb-16 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-white" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Unlock Your Detailed Personality Breakdown
-                </h3>
-                <p className="text-white/80 mb-6 text-lg leading-relaxed">
-                  Sign in to access your complete personality analysis, save your favorite books, and get personalized recommendations in your profile.
-                </p>
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => onAuthPrompt?.('login', 'detailed personality breakdown')}
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2"
-                  >
-                    <span>Sign In</span>
-                    <Star className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+        {/* Genre Recommendations */}
+        <div className="text-center mb-8">
+          <p className="text-lg md:text-xl text-white/90 max-w-4xl mx-auto leading-relaxed font-medium">
+            Based on your results,{' '}
+            {recommendedGenres.map((genre, index) => {
+              const colors = ['text-amber-400', 'text-blue-400', 'text-purple-400'];
+              const colorClass = colors[index % colors.length];
+              
+              if (recommendedGenres.length === 1) {
+                return <span key={genre} className={`font-bold ${colorClass}`}>{genre}</span>;
+              } else if (index === recommendedGenres.length - 1) {
+                return (
+                  <React.Fragment key={genre}>
+                    {' and '}
+                    <span className={`font-bold ${colorClass}`}>{genre}</span>
+                  </React.Fragment>
+                );
+              } else {
+                return (
+                  <React.Fragment key={genre}>
+                    <span className={`font-bold ${colorClass}`}>{genre}</span>
+                    {index < recommendedGenres.length - 2 && ', '}
+                  </React.Fragment>
+                );
+              }
+            })}{' '}
+            themed books are likely to interest you the most.
+          </p>
         </div>
 
         {/* Book Recommendations Grid */}
@@ -318,6 +396,34 @@ const ResultsPage = ({
             </div>
           ))}
         </div>
+
+        {/* Sign-up encouragement for non-authenticated users */}
+        {!user && (
+          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-8 mb-16 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">
+                Unlock Your Detailed Personality Breakdown
+              </h3>
+              <p className="text-white/80 mb-6 text-lg leading-relaxed">
+                Sign in to access your complete personality analysis, save your favorite books, and get personalized recommendations in your profile.
+              </p>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => onAuthPrompt?.('login', 'detailed personality breakdown')}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2"
+                >
+                  <span>Sign In</span>
+                  <Star className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Share Section */}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center">
