@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { useAuth } from '../contexts/AuthContext';
 
-type AppPage = 'welcome' | 'quiz' | 'results' | 'generated' | 'celebrity-books' | 'trending-books' | 'trending-authors' | 'tailor-mates' | 'favourites' | 'learn-more' | 'profile' | 'book-cover-test' | 'reset-password';
+type AppPage = 'welcome' | 'quiz' | 'results' | 'generated' | 'tailor-mates' | 'favourites' | 'learn-more' | 'profile' | 'book-cover-test' | 'reset-password';
 
 interface ResetPasswordPageProps {
   onNavigate?: (page: AppPage) => void;

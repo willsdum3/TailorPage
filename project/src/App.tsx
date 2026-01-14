@@ -4,9 +4,6 @@ import WelcomePage from './components/WelcomePage';
 import QuizPage from './components/QuizPage';
 import ResultsPage from './components/ResultsPage';
 import GeneratedRecommendationsPage from './components/GeneratedRecommendationsPage';
-import CelebrityTesterPage from './components/CelebrityTesterPage';
-import TrendingBooksPage from './components/TrendingBooksPage';
-import TrendingAuthorsPage from './components/TrendingAuthorsPage';
 import TailorMatesPage from './components/TailorMatesPage';
 import PlaceholderPage from './components/PlaceholderPage';
 import LearnMorePage from './components/LearnMorePage';
@@ -334,7 +331,7 @@ const questions: Question[] = [
   }
 ];
 
-type AppPage = 'welcome' | 'quiz' | 'results' | 'generated' | 'celebrity-books' | 'trending-books' | 'trending-authors' | 'tailor-mates' | 'favourites' | 'learn-more' | 'profile' | 'book-cover-test' | 'reset-password';
+type AppPage = 'welcome' | 'quiz' | 'results' | 'generated' | 'tailor-mates' | 'favourites' | 'learn-more' | 'profile' | 'book-cover-test' | 'reset-password';
 
 function App() {
   // Use Supabase authentication
@@ -381,7 +378,6 @@ function App() {
   const [requestedFeature, setRequestedFeature] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<BookRecommendation[]>([]);
   const [allRecommendedIds, setAllRecommendedIds] = useState<string[]>([]);
-  const [celebrityNavigationCount, setCelebrityNavigationCount] = useState(0);
   const [favoriteLoadingStates, setFavoriteLoadingStates] = useState<Set<string>>(new Set());
   const [lastLoadedUserId, setLastLoadedUserId] = useState<string | null>(null);
 
@@ -743,9 +739,6 @@ function App() {
   };
 
   const handleNavigation = (page: string) => {
-    if (page === 'celebrity-books') {
-      setCelebrityNavigationCount(prev => prev + 1);
-    }
     setCurrentPage(page as AppPage);
   };
 
@@ -976,34 +969,6 @@ function App() {
           onToggleFavorite={handleToggleFavorite}
           user={user}
           onLoginRequired={() => setIsAuthModalOpen(true)}
-        />
-      )}
-      {currentPage === 'celebrity-books' && (
-        <CelebrityTesterPage
-          key={celebrityNavigationCount}
-          favorites={favorites}
-          onToggleFavorite={handleToggleFavorite}
-          user={user}
-          onLoginRequired={() => setIsAuthModalOpen(true)}
-          onBack={() => setCurrentPage('welcome')}
-          hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
-          favoriteLoadingStates={favoriteLoadingStates}
-        />
-      )}
-      {currentPage === 'trending-books' && (
-        <TrendingBooksPage
-          favorites={favorites}
-          onToggleFavorite={handleToggleFavorite}
-          user={user}
-          onLoginRequired={() => setIsAuthModalOpen(true)}
-          onBack={() => setCurrentPage('welcome')}
-          hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
-        />
-      )}
-      {currentPage === 'trending-authors' && (
-        <TrendingAuthorsPage
-          onBack={() => setCurrentPage('welcome')}
-          hasCompletedQuiz={isAuthenticated ? !!personalityProfile : false}
         />
       )}
       {currentPage === 'tailor-mates' && (
