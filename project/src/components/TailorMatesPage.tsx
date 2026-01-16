@@ -808,17 +808,17 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
 
           {/* CTA for users who haven't completed quiz */}
           {!hasCompletedQuiz && (
-            <div className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-sm border border-pink-500/30 rounded-2xl p-6 mb-8">
-              <div className="flex items-center justify-center space-x-3 mb-4">
-                <Sparkles className="w-6 h-6 text-pink-400" />
-                <h3 className="text-xl font-bold text-white">Complete Your Personality Quiz</h3>
+            <div className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-sm border border-pink-500/30 rounded-2xl p-4 sm:p-5 md:p-6 mb-6 sm:mb-8">
+              <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-pink-400" />
+                <h3 className="text-lg sm:text-xl font-bold text-white">Complete Your Personality Quiz</h3>
               </div>
-              <p className="text-white/80 mb-4">
+              <p className="text-sm sm:text-base text-white/80 mb-3 sm:mb-4 px-2">
                 Take our personality quiz to get matched with book clubs and readers who share your traits!
               </p>
               <button
                 onClick={onStartQuiz}
-                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105"
+                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
               >
                 Take Personality Quiz
               </button>
@@ -827,58 +827,58 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-2">
-            <div className="flex space-x-2">
+        <div className="flex justify-center mb-4 sm:mb-6 md:mb-8">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-1.5 sm:p-2 w-full sm:w-auto overflow-x-auto">
+            <div className="flex space-x-1.5 sm:space-x-2 min-w-max sm:min-w-0">
               <button
                 onClick={() => handleTabChange('clubs')}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                className={`flex-shrink-0 px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap ${
                   activeTab === 'clubs'
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="w-4 h-4" />
+                <div className="flex items-center space-x-1.5 sm:space-x-2">
+                  <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Book Clubs</span>
                 </div>
               </button>
               <button
                 onClick={() => handleTabChange('discussions')}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                className={`flex-shrink-0 px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap ${
                   activeTab === 'discussions'
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <MessageCircle className="w-4 h-4" />
+                <div className="flex items-center space-x-1.5 sm:space-x-2">
+                  <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Discussions</span>
                 </div>
               </button>
               <button
                 onClick={() => handleTabChange('invitations')}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                className={`flex-shrink-0 px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap ${
                   activeTab === 'invitations'
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <Mail className="w-4 h-4" />
+                <div className="flex items-center space-x-1.5 sm:space-x-2">
+                  <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Invitations</span>
                 </div>
               </button>
               <button
                 onClick={() => handleTabChange('friends')}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                className={`flex-shrink-0 px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap ${
                   activeTab === 'friends'
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4" />
+                <div className="flex items-center space-x-1.5 sm:space-x-2">
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Friends</span>
                 </div>
               </button>
@@ -888,22 +888,22 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
 
         {/* Search and Filter */}
         {activeTab !== 'invitations' && (
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50 w-5 h-5" />
+            <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-white/50 w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
               placeholder="Search book clubs, discussions, or friends..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl pl-12 pr-12 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+              className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
             />
             {searchTerm && (
               <button
                 onClick={clearSearch}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+                className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -912,7 +912,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
           <select
             value={selectedFilter}
             onChange={(e) => setSelectedFilter(e.target.value)}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50 w-full md:w-auto md:min-w-[200px] appearance-none cursor-pointer"
+            className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50 w-full md:w-auto md:min-w-[200px] appearance-none cursor-pointer"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
               backgroundPosition: 'right 12px center',
@@ -961,7 +961,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         )}
 
         {activeTab === 'clubs' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {isLoading ? (
               <div className="col-span-full text-center py-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto"></div>
@@ -1012,7 +1012,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   .map((club) => (
                   <div
                     key={club.id}
-                    className={`backdrop-blur-xl rounded-2xl p-6 transition-all duration-300 group relative ${
+                    className={`backdrop-blur-xl rounded-2xl p-4 sm:p-5 md:p-6 transition-all duration-300 group relative ${
                       club.userRole === 'admin' || club.userRole === 'owner'
                         ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-2 border-amber-400/50 hover:from-amber-500/30 hover:to-orange-500/30 shadow-lg shadow-amber-500/10'
                         : club.isMember
@@ -1028,9 +1028,9 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         </div>
                       </div>
                     )}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-2">
-                        <BookOpen className={`w-5 h-5 ${
+                    <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                      <div className="flex items-center space-x-1.5 sm:space-x-2 flex-1 min-w-0">
+                        <BookOpen className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${
                           club.userRole === 'admin' || club.userRole === 'owner' 
                             ? 'text-amber-400' 
                             : club.isMember 
@@ -1039,7 +1039,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         }`} />
                         <button
                           onClick={() => setSelectedClubId(club.id)}
-                          className={`text-lg font-bold transition-colors hover:underline cursor-pointer text-left ${
+                          className={`text-base sm:text-lg font-bold transition-colors hover:underline cursor-pointer text-left truncate ${
                             club.userRole === 'admin' || club.userRole === 'owner'
                               ? 'text-amber-100 group-hover:text-amber-300'
                               : club.isMember
@@ -1051,51 +1051,51 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                         </button>
                         {/* Role Badge */}
                         {(club.userRole === 'admin' || club.userRole === 'owner') && (
-                          <div className="flex items-center space-x-1 bg-amber-500/30 border border-amber-400/50 text-amber-200 px-2 py-1 rounded-full text-xs font-medium">
-                            <Crown className="w-3 h-3" />
+                          <div className="flex items-center space-x-1 bg-amber-500/30 border border-amber-400/50 text-amber-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium flex-shrink-0">
+                            <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             <span>{club.userRole === 'owner' ? 'Owner' : 'Admin'}</span>
                           </div>
                         )}
                         {club.isMember && club.userRole === 'member' && (
-                          <div className="flex items-center space-x-1 bg-blue-500/30 border border-blue-400/50 text-blue-200 px-2 py-1 rounded-full text-xs font-medium">
-                            <UserCheck className="w-3 h-3" />
+                          <div className="flex items-center space-x-1 bg-blue-500/30 border border-blue-400/50 text-blue-200 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium flex-shrink-0">
+                            <UserCheck className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             <span>Member</span>
                           </div>
                         )}
                       </div>
-                      <div className="flex items-center space-x-1 text-white/60 text-sm">
-                        <Users className="w-4 h-4" />
+                      <div className="flex items-center space-x-1 text-white/60 text-xs sm:text-sm flex-shrink-0">
+                        <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span>{club.memberCount}/{club.maxMembers}</span>
                       </div>
                     </div>
                     
-                    <p className="text-white/70 text-sm mb-4 line-clamp-2">
+                    <p className="text-white/70 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
                       {club.description}
                     </p>
                     
                     {club.currentBookTitle && (
-                      <div className="mb-4">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <Book className="w-4 h-4 text-amber-400" />
-                          <span className="text-white/80 text-sm font-medium">Currently Reading:</span>
+                      <div className="mb-3 sm:mb-4">
+                        <div className="flex items-center space-x-1.5 sm:space-x-2 mb-1.5 sm:mb-2">
+                          <Book className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 flex-shrink-0" />
+                          <span className="text-white/80 text-xs sm:text-sm font-medium">Currently Reading:</span>
                         </div>
-                        <p className="text-white font-medium">{club.currentBookTitle}</p>
+                        <p className="text-white font-medium text-sm sm:text-base">{club.currentBookTitle}</p>
                         {club.currentBookAuthor && (
-                          <p className="text-white/60 text-sm">by {club.currentBookAuthor}</p>
+                          <p className="text-white/60 text-xs sm:text-sm">by {club.currentBookAuthor}</p>
                         )}
                       </div>
                     )}
                     
-                    <div className="mb-4">
-                      <p className="text-white/60 text-sm mb-2">Personality Traits:</p>
-                      <div className="flex flex-wrap">
+                    <div className="mb-3 sm:mb-4">
+                      <p className="text-white/60 text-xs sm:text-sm mb-1.5 sm:mb-2">Personality Traits:</p>
+                      <div className="flex flex-wrap gap-1 sm:gap-1.5">
                         {renderPersonalityTags(club.personalityTraits)}
                       </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <p className="text-white/60 text-sm mb-2">Tags:</p>
-                      <div className="flex flex-wrap">
+                    <div className="mb-3 sm:mb-4">
+                      <p className="text-white/60 text-xs sm:text-sm mb-1.5 sm:mb-2">Tags:</p>
+                      <div className="flex flex-wrap gap-1 sm:gap-1.5">
                         {renderTags(club.tags)}
                       </div>
                     </div>

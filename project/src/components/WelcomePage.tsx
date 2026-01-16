@@ -81,7 +81,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   console.log('WelcomePage user data:', user);
   console.log('WelcomePage user imageUrl:', user?.imageUrl);
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 pb-20 sm:pb-8 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
       <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl hidden md:block" />
@@ -112,51 +112,61 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
         </button>
       </div>
 
-      {/* Top Center Profile Picture or Sign In Button */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 sm:top-6">
+      {/* Top Center Profile Picture or Sign In Button - Hidden on mobile, shown on desktop */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 sm:top-6 hidden sm:block">
         {isLoggedIn && user ? (
-          <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 space-x-0 sm:space-x-3">
+          <div className="flex items-center space-x-3">
             <div className="relative">
               {user.imageUrl ? (
                 <img
                   src={user.imageUrl}
                   alt={`${user.name}'s profile`}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20 object-cover"
+                  className="w-12 h-12 rounded-full border-2 border-white/20 object-cover"
                 />
               ) : (
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center border-2 border-white/20">
-                  <span className="text-white font-semibold text-base sm:text-lg">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center border-2 border-white/20">
+                  <span className="text-white font-semibold text-lg">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
             </div>
-            <div className="text-white text-center sm:text-left">
-              <div className="font-semibold text-xs sm:text-sm">{user.name}</div>
+            <div className="text-white text-left">
+              <div className="font-semibold text-sm">{user.name}</div>
               {onNavigateToProfile ? (
                 <button
                   onClick={onNavigateToProfile}
-                  className="text-[10px] sm:text-xs text-white/70 hover:text-amber-300 transition-colors duration-200 cursor-pointer"
+                  className="text-xs text-white/70 hover:text-amber-300 transition-colors duration-200 cursor-pointer"
                   title="Click to view your profile"
                 >
                   @{user.username}
                 </button>
               ) : (
-                <div className="text-[10px] sm:text-xs text-white/70">@{user.username}</div>
+                <div className="text-xs text-white/70">@{user.username}</div>
               )}
             </div>
           </div>
         ) : (
           <button
             onClick={onSignIn}
-            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105"
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-xl font-semibold text-base transition-all duration-300 transform hover:scale-105"
           >
             Sign In
           </button>
         )}
       </div>
+
+      {/* User Info - Top Right (Mobile only) */}
+      {isLoggedIn && user && (
+        <div className="fixed top-4 right-4 z-50 sm:hidden">
+          <div className="text-white text-right">
+            <div className="font-semibold text-xs truncate max-w-[120px]">{user.name}</div>
+            <div className="text-[10px] text-white/70 truncate max-w-[120px]">@{user.username}</div>
+          </div>
+        </div>
+      )}
       
-      <div className="max-w-7xl mx-auto relative z-10 w-full mt-16 sm:mt-20 md:mt-0">
+      <div className="max-w-7xl mx-auto relative z-10 w-full mt-12 sm:mt-20 md:mt-0">
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           {/* Left Content */}
           <div className="text-center sm:text-left">
