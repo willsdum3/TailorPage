@@ -99,83 +99,86 @@ const QuizPage: React.FC<QuizPageProps> = ({
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 pb-20 sm:pb-8 relative overflow-hidden">
       {/* Home Button - Top Left */}
       <button
         onClick={onHome}
-        className="fixed top-6 left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+        className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2.5 sm:p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
         aria-label="Go to Home"
       >
-        <Home className="w-6 h-6" />
+        <Home className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
 
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
-      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl hidden md:block" />
+      <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl hidden md:block" />
       
-      <div className="max-w-3xl mx-auto w-full relative z-10">
-        {/* Previous Button - Left Side */}
+      <div className="max-w-3xl mx-auto w-full relative z-10 mt-12 sm:mt-0">
+        {/* Previous Button - Left Side - Hidden on mobile, shown on desktop */}
         <button
           onClick={handlePrevious}
           disabled={currentQuestion === 0}
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-20 bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white/90 hover:text-white p-4 rounded-2xl font-medium transition-all duration-300 hover:shadow-lg"
+          className="hidden md:block absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-20 bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white/90 hover:text-white p-4 rounded-2xl font-medium transition-all duration-300 hover:shadow-lg"
         >
           <ArrowLeft className="w-7 h-7" />
         </button>
 
         {/* Progress Section */}
-        <div className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold">{currentQuestion + 1}</span>
+        <div className="mb-6 sm:mb-8 md:mb-12">
+          <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+            <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm sm:text-base">{currentQuestion + 1}</span>
               </div>
-              <div>
-                <div className="text-white font-semibold">
+              <div className="min-w-0">
+                <div className="text-white font-semibold text-sm sm:text-base truncate">
                   Question {currentQuestion + 1} of {questions.length}
                 </div>
-                <div className="text-white/70 text-sm">
+                <div className="text-white/70 text-xs sm:text-sm">
                   {Math.round(progress)}% Complete
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              {Array.from({ length: questions.length }, (_, i) => (
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+              {Array.from({ length: Math.min(questions.length, 30) }, (_, i) => (
                 <div
                   key={i}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
                     i <= currentQuestion ? 'bg-amber-400' : 'bg-white/30'
                   }`}
                 />
               ))}
+              {questions.length > 30 && (
+                <span className="text-white/50 text-xs ml-1">+{questions.length - 30}</span>
+              )}
             </div>
           </div>
           
           {/* Progress Bar */}
-          <div className="w-full bg-white/20 rounded-full h-2">
+          <div className="w-full bg-white/20 rounded-full h-1.5 sm:h-2">
             <div 
-              className="bg-gradient-to-r from-amber-500 to-orange-600 h-2 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-amber-500 to-orange-600 h-1.5 sm:h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         {/* Question Content */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 mb-8">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
           {isBookQuestion && currentBookData ? (
             // Book Question Display
             <div className="text-center">
-              <div className="mb-6">
-                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-4">
-                  <BookOpen className="w-4 h-4 text-amber-400" />
-                  <span className="text-sm font-medium text-white/80">Book Question</span>
+              <div className="mb-4 sm:mb-6">
+                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 mb-3 sm:mb-4">
+                  <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" />
+                  <span className="text-xs sm:text-sm font-medium text-white/80">Book Question</span>
                 </div>
                 
                 {/* Book Cover and Info */}
-                <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4 sm:gap-6 mb-4 sm:mb-6">
                   {/* Book Cover */}
-                  <div className="w-48 h-64 bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-white/20 rounded-lg flex items-center justify-center shadow-xl">
+                  <div className="w-32 h-44 sm:w-40 sm:h-56 md:w-48 md:h-64 bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-white/20 rounded-lg flex items-center justify-center shadow-xl flex-shrink-0">
                     {currentBookData.coverImageUrl ? (
                       <img 
                         src={currentBookData.coverImageUrl} 
@@ -189,34 +192,34 @@ const QuizPage: React.FC<QuizPageProps> = ({
                       />
                     ) : null}
                     <div className={`${currentBookData.coverImageUrl ? 'hidden' : ''} text-center p-4`}>
-                      <div className="text-4xl mb-2">📚</div>
-                      <div className="text-white/80 text-sm font-medium">{currentBookData.title}</div>
+                      <div className="text-3xl sm:text-4xl mb-2">📚</div>
+                      <div className="text-white/80 text-xs sm:text-sm font-medium">{currentBookData.title}</div>
                     </div>
                   </div>
                   
                   {/* Book Info */}
-                  <div className="text-left max-w-md">
-                    <h2 className="text-2xl font-bold text-white mb-2">{currentBookData.title}</h2>
-                    <p className="text-white/70 text-lg mb-3">by {currentBookData.author}</p>
-                    <p className="text-white/80 text-base leading-relaxed">
+                  <div className="text-center md:text-left max-w-md">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2 px-2">{currentBookData.title}</h2>
+                    <p className="text-white/70 text-base sm:text-lg mb-2 sm:mb-3">by {currentBookData.author}</p>
+                    <p className="text-white/80 text-sm sm:text-base leading-relaxed px-2">
                       {currentBookData.description}
                     </p>
                   </div>
                 </div>
               </div>
               
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-white mb-6">
+              <div className="mb-4 sm:mb-6 md:mb-8">
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6 px-2">
                   Does this sort of book interest you?
                 </h3>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                   {bookOptions.map((option) => (
                     <button
                       key={option.value}
                       onClick={() => handleBookAnswer(option.value)}
                       disabled={selectedBookAnswer !== null}
-                      className={`bg-gradient-to-r ${option.color} text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                      className={`bg-gradient-to-r ${option.color} text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none w-full sm:w-auto ${
                         selectedBookAnswer === option.value ? 'ring-4 ring-white/30' : ''
                       }`}
                     >
@@ -229,17 +232,17 @@ const QuizPage: React.FC<QuizPageProps> = ({
           ) : (
             // Regular Statement Question Display
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-8 leading-relaxed">
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-6 sm:mb-8 leading-relaxed px-2">
                 {currentQuestionData.text}
               </h2>
               
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {likertOptions.map((option) => (
                   <button
                     key={option.value}
                     onClick={() => handleAnswer(option.value)}
                     disabled={selectedAnswer !== null}
-                    className={`w-full bg-gradient-to-r ${option.color} text-white px-6 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                    className={`w-full bg-gradient-to-r ${option.color} text-white px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
                       selectedAnswer === option.value ? 'ring-4 ring-white/30' : ''
                     }`}
                   >
@@ -249,6 +252,17 @@ const QuizPage: React.FC<QuizPageProps> = ({
               </div>
             </div>
           )}
+        </div>
+
+        {/* Mobile Previous Button - Bottom Left */}
+        <div className="md:hidden fixed bottom-4 left-4 z-50">
+          <button
+            onClick={handlePrevious}
+            disabled={currentQuestion === 0}
+            className="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white/90 hover:text-white p-3 rounded-xl font-medium transition-all duration-300 shadow-lg"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
         </div>
 
 
