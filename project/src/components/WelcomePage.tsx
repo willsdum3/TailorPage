@@ -115,7 +115,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
       {/* Top Center Profile Picture or Sign In Button */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 sm:top-6">
         {isLoggedIn && user ? (
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 space-x-0 sm:space-x-3">
             <div className="relative">
               {user.imageUrl ? (
                 <img
@@ -131,18 +131,18 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
                 </div>
               )}
             </div>
-            <div className="text-white hidden sm:block">
-              <div className="font-semibold text-sm">{user.name}</div>
+            <div className="text-white text-center sm:text-left">
+              <div className="font-semibold text-xs sm:text-sm">{user.name}</div>
               {onNavigateToProfile ? (
                 <button
                   onClick={onNavigateToProfile}
-                  className="text-xs text-white/70 hover:text-amber-300 transition-colors duration-200 cursor-pointer"
+                  className="text-[10px] sm:text-xs text-white/70 hover:text-amber-300 transition-colors duration-200 cursor-pointer"
                   title="Click to view your profile"
                 >
                   @{user.username}
                 </button>
               ) : (
-                <div className="text-xs text-white/70">@{user.username}</div>
+                <div className="text-[10px] sm:text-xs text-white/70">@{user.username}</div>
               )}
             </div>
           </div>

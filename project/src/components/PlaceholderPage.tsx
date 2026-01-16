@@ -455,27 +455,47 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
         {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
         
-        <div className="max-w-6xl mx-auto relative z-10 pt-32 pb-8 px-4">
+        <div className="max-w-6xl mx-auto relative z-10 pt-20 sm:pt-24 md:pt-32 pb-8 px-4">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <button
               onClick={onBack}
-              className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center"
+              className="mb-6 sm:mb-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 text-white p-2.5 sm:p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 inline-flex items-center justify-center"
               aria-label="Go to Home"
             >
-              <Home className="w-6 h-6" />
+              <Home className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
             
-            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
-              <Brain className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-medium text-white/80">Your Personality Analysis</span>
+            {/* User Info - Top Right (Mobile only) */}
+            {user && (
+              <div className="fixed top-4 right-4 z-50 sm:hidden">
+                <div className="text-white text-right">
+                  <div className="font-semibold text-xs">{user.name || user.user_metadata?.name || 'User'}</div>
+                  <div className="text-[10px] text-white/70">@{user.user_metadata?.username || user.email?.split('@')[0] || 'user'}</div>
+                </div>
+              </div>
+            )}
+            
+            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 mb-4 sm:mb-6">
+              <Brain className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" />
+              <span className="text-xs sm:text-sm font-medium text-white/80">Your Personality Analysis</span>
             </div>
             
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
               Your <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Profile</span>
             </h1>
             
-            <p className="text-xl text-white/70 mb-8 max-w-4xl mx-auto leading-relaxed">
+            {/* User Info - Desktop (below title) */}
+            {user && (
+              <div className="hidden sm:flex items-center justify-center space-x-2 mb-4">
+                <div className="text-white text-center">
+                  <div className="font-semibold text-sm">{user.name || user.user_metadata?.name || 'User'}</div>
+                  <div className="text-xs text-white/70">@{user.user_metadata?.username || user.email?.split('@')[0] || 'user'}</div>
+                </div>
+              </div>
+            )}
+            
+            <p className="text-base sm:text-lg md:text-xl text-white/70 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-2">
               Your detailed personality breakdown and personalized reading insights.
             </p>
           </div>

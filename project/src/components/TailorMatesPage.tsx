@@ -752,7 +752,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 relative overflow-hidden">
+    <div className="min-h-screen py-6 sm:py-8 px-3 sm:px-4 pb-20 sm:pb-8 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
       <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
@@ -761,26 +761,48 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
       {/* Home Button - Top Left */}
       <button
         onClick={onBack}
-        className="fixed top-6 left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+        className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2.5 sm:p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
         aria-label="Go to Home"
       >
-        <Home className="w-6 h-6" />
+        <Home className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      {/* User Info - Top Right (Mobile) / Top Center (Desktop) */}
+      {user && (
+        <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 sm:hidden">
+          <div className="flex flex-col items-end space-y-1">
+            <div className="text-white text-right">
+              <div className="font-semibold text-xs">{user.name}</div>
+              <div className="text-[10px] text-white/70">@{user.username}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto relative z-10 px-4 sm:px-6 pt-12 sm:pt-0">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 sm:mb-12">
           
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
-            <Users className="w-4 h-4 text-pink-400" />
-            <span className="text-sm font-medium text-white/80">Virtual Book Club</span>
+          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 mb-4 sm:mb-6">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4 text-pink-400" />
+            <span className="text-xs sm:text-sm font-medium text-white/80">Virtual Book Club</span>
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
             Tailor <span className="bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">Mates</span>
           </h1>
           
-          <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto leading-relaxed">
+          {/* User Info - Desktop (below title) */}
+          {user && (
+            <div className="hidden sm:flex items-center justify-center space-x-2 mb-4">
+              <div className="text-white text-center">
+                <div className="font-semibold text-sm">{user.name}</div>
+                <div className="text-xs text-white/70">@{user.username}</div>
+              </div>
+            </div>
+          )}
+          
+          <p className="text-base sm:text-lg md:text-xl text-white/70 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-2">
             Connect with readers who share your personality traits. Join book clubs, start discussions, and make friends through the power of books.
           </p>
 
