@@ -264,41 +264,41 @@ const ResultsPage = ({
       {/* Home Button - Top Left */}
       <button
         onClick={onHome}
-        className="fixed top-6 left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+        className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2.5 sm:p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
         aria-label="Go to Home"
       >
-        <Home className="w-6 h-6" />
+        <Home className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
       
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10 px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-16 pt-12">
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-10">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-medium text-white/90">Personalised Results</span>
+        <div className="text-center mb-8 sm:mb-12 md:mb-16 pt-8 sm:pt-12">
+          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 mb-6 sm:mb-8 md:mb-10">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" />
+            <span className="text-xs sm:text-sm font-medium text-white/90">Personalised Results</span>
           </div>
           
-          <div className="mb-10">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+          <div className="mb-6 sm:mb-8 md:mb-10">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 leading-tight px-2">
               <span className="text-white">Your Perfect </span>
               <span className="text-amber-400 drop-shadow-lg">Reading List</span>
             </h1>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 md:mb-16">
             <button
               onClick={onRetakeQuiz}
-              className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2"
+              className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center space-x-2 w-full sm:w-auto justify-center"
             >
-              <RotateCcw className="w-5 h-5" />
+              <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Retake Quiz</span>
             </button>
           </div>
         </div>
 
         {/* Genre Recommendations */}
-        <div className="text-center mb-8">
-          <p className="text-lg md:text-xl text-white/90 max-w-4xl mx-auto leading-relaxed font-medium">
+        <div className="text-center mb-6 sm:mb-8 px-2">
+          <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-4xl mx-auto leading-relaxed font-medium">
             Based on your results,{' '}
             {recommendedGenres.map((genre, index) => {
               const colors = ['text-amber-400', 'text-blue-400', 'text-purple-400'];
@@ -327,9 +327,9 @@ const ResultsPage = ({
         </div>
 
         {/* Book Recommendations Grid */}
-        <div className="grid gap-12 md:grid-cols-2 xl:grid-cols-3 mb-16">
+        <div className="grid gap-6 sm:gap-8 md:gap-10 lg:gap-12 md:grid-cols-2 xl:grid-cols-3 mb-12 sm:mb-16">
           {recommendations.map((book) => (
-            <div key={book.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
+            <div key={book.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 group">
               {/* Book Cover */}
               <div className="flex justify-center mb-4">
                 <BookCover
@@ -399,26 +399,26 @@ const ResultsPage = ({
 
         {/* Sign-up encouragement for non-authenticated users */}
         {!user && (
-          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-8 mb-16 max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-6 sm:p-8 mb-12 sm:mb-16 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-white" />
+              <div className="flex justify-center mb-3 sm:mb-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 px-2">
                 Unlock Your Detailed Personality Breakdown
               </h3>
-              <p className="text-white/80 mb-6 text-lg leading-relaxed">
+              <p className="text-white/80 mb-4 sm:mb-6 text-base sm:text-lg leading-relaxed px-2">
                 Sign in to access your complete personality analysis, save your favorite books, and get personalized recommendations in your profile.
               </p>
               <div className="flex justify-center">
                 <button
                   onClick={() => onAuthPrompt?.('login', 'detailed personality breakdown')}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 w-full sm:w-auto"
                 >
                   <span>Sign In</span>
-                  <Star className="w-5 h-5" />
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
@@ -426,51 +426,51 @@ const ResultsPage = ({
         )}
 
         {/* Share Section */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-white mb-4">Share Your Results</h2>
-            <p className="text-white/70 mb-8 max-w-2xl mx-auto">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 sm:p-8 text-center">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4 px-2">Share Your Results</h2>
+            <p className="text-sm sm:text-base text-white/70 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
               Let your friends discover their perfect books too! Share your personalized recommendations and inspire others to find their next great read.
             </p>
             
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-blue-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-400/30">
-                <img src="/facebooklogo5.jpg" alt="Facebook" className="w-8 h-8 rounded-md object-cover" />
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-white/10 hover:bg-blue-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-400/30">
+                <img src="/facebooklogo5.jpg" alt="Facebook" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" />
                 <span>Facebook</span>
               </a>
-              <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-black/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-gray-400/30">
-                <img src="/xlogo2.jpg" alt="X" className="w-8 h-8 rounded-md object-cover" />
+              <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-white/10 hover:bg-black/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-gray-400/30">
+                <img src="/xlogo2.jpg" alt="X" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" />
                 <span>X</span>
               </a>
-              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-blue-600/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-500/30">
-                <img src="/linkedinlogo3.jpg" alt="LinkedIn" className="w-8 h-8 rounded-md object-cover" />
+              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-white/10 hover:bg-blue-600/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-blue-500/30">
+                <img src="/linkedinlogo3.jpg" alt="LinkedIn" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" />
                 <span>LinkedIn</span>
               </a>
-              <a href={`https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-orange-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-orange-400/30">
-                <img src="/Redditlogo5.png" alt="Reddit" className="w-8 h-8 rounded-md object-cover" />
+              <a href={`https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent('Tailor Page recommended me these books based on my personality!')}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-white/10 hover:bg-orange-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-orange-400/30">
+                <img src="/Redditlogo5.png" alt="Reddit" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" />
                 <span>Reddit</span>
               </a>
-              <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Tailor Page recommended me these books based on my personality! ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-green-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-green-400/30">
-                <img src="/whatsapplogo3.jpg" alt="WhatsApp" className="w-8 h-8 rounded-md object-cover" />
+              <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Tailor Page recommended me these books based on my personality! ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-white/10 hover:bg-green-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-green-400/30">
+                <img src="/whatsapplogo3.jpg" alt="WhatsApp" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" />
                 <span>WhatsApp</span>
               </a>
-              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-pink-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-pink-400/30">
-                <img src="/instagramlogo3.jpg" alt="Instagram" className="w-8 h-8 rounded-md object-cover" />
+              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-white/10 hover:bg-pink-500/20 transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-pink-400/30">
+                <img src="/instagramlogo3.jpg" alt="Instagram" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" />
                 <span>Instagram</span>
               </a>
             </div>
           </div>
           
-          <div className="border-t border-white/10 pt-8">
-            <h3 className="text-2xl font-bold text-white mb-4">Ready for More?</h3>
-            <p className="text-white/70 mb-6">
+          <div className="border-t border-white/10 pt-6 sm:pt-8">
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 px-2">Ready for More?</h3>
+            <p className="text-sm sm:text-base text-white/70 mb-4 sm:mb-6 px-2">
               Discover even more personalized recommendations by taking the quiz again or exploring different aspects of your reading personality.
             </p>
             <button
               onClick={onRetakeQuiz}
-              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2"
+              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center space-x-2 w-full sm:w-auto justify-center"
             >
-              <RotateCcw className="w-5 h-5" />
+              <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Take Quiz Again</span>
             </button>
           </div>

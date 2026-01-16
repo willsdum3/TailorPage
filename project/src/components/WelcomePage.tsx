@@ -81,14 +81,14 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   console.log('WelcomePage user data:', user);
   console.log('WelcomePage user imageUrl:', user?.imageUrl);
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
-      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl hidden md:block" />
+      <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl hidden md:block" />
       
       {/* Top Left Notifications Bell */}
-      <div className="absolute top-6 left-6 z-20">
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
         <button
           onClick={() => {
             if (!isLoggedIn) {
@@ -97,15 +97,15 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
               setShowNotifications(true);
             }
           }}
-          className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-200 group relative"
+          className="p-2 sm:p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-200 group relative"
           title={isLoggedIn ? "View Notifications" : "Sign in to view notifications"}
         >
           <Bell 
-            className="w-6 h-6 text-white group-hover:text-amber-400 transition-colors duration-200" 
+            className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-amber-400 transition-colors duration-200" 
           />
           {/* Real notification badge */}
           {isLoggedIn && unreadNotificationCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full min-w-[18px] sm:min-w-[20px] text-center text-[10px] sm:text-xs">
               {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
             </span>
           )}
@@ -113,25 +113,25 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
       </div>
 
       {/* Top Center Profile Picture or Sign In Button */}
-      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 sm:top-6">
         {isLoggedIn && user ? (
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="relative">
               {user.imageUrl ? (
                 <img
                   src={user.imageUrl}
                   alt={`${user.name}'s profile`}
-                  className="w-12 h-12 rounded-full border-2 border-white/20 object-cover"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20 object-cover"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center border-2 border-white/20">
-                  <span className="text-white font-semibold text-lg">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center border-2 border-white/20">
+                  <span className="text-white font-semibold text-base sm:text-lg">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
             </div>
-            <div className="text-white">
+            <div className="text-white hidden sm:block">
               <div className="font-semibold text-sm">{user.name}</div>
               {onNavigateToProfile ? (
                 <button
@@ -149,28 +149,28 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
         ) : (
           <button
             onClick={onSignIn}
-            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-xl font-semibold text-base transition-all duration-300 transform hover:scale-105"
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105"
           >
             Sign In
           </button>
         )}
       </div>
       
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-7xl mx-auto relative z-10 w-full mt-16 sm:mt-20 md:mt-0">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           {/* Left Content */}
-          <div className="text-left">
-            <div className="mb-8">
-              <div className="mb-8">
+          <div className="text-center sm:text-left">
+            <div className="mb-6 sm:mb-8">
+              <div className="mb-6 sm:mb-8 flex justify-center sm:justify-start">
                 <Logo size="lg" showText={true} />
               </div>
               
-              <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
-                <span className="block mb-2">Discover Your</span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 md:mb-8 leading-tight tracking-tight">
+                <span className="block mb-1 sm:mb-2">Discover Your</span>
                 <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 bg-clip-text text-transparent drop-shadow-sm">Perfect Books</span>
               </h1>
               
-              <p className="text-lg lg:text-xl text-white/80 mb-10 leading-relaxed max-w-2xl font-medium">
+              <p className="text-base sm:text-lg md:text-xl text-white/80 mb-6 sm:mb-8 md:mb-10 leading-relaxed max-w-2xl mx-auto sm:mx-0 font-medium px-2 sm:px-0">
                 Get personalized book recommendations tailored to your unique personality through our advanced AI-powered quiz system.
               </p>
             </div>
@@ -179,35 +179,35 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
             {/* Removed stats section */}
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center sm:justify-start">
               {isLoggedIn && hasCompletedQuiz && onGenerateNewBooks ? (
                 <button
                   onClick={onGenerateNewBooks}
-                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group"
+                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group w-full sm:w-auto"
                 >
                   <span>Generate New Books</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
               ) : hasCompletedQuiz && !isLoggedIn ? (
                 <button
                   onClick={() => onAuthPrompt?.('login', 'access profile')}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group w-full sm:w-auto"
                 >
-                  <UserCheck className="w-5 h-5" />
+                  <UserCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>View Profile</span>
                 </button>
               ) : (
                 <button
                   onClick={hasQuizProgress ? onResumeQuiz : onStartQuiz}
-                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group"
+                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center justify-center space-x-2 group w-full sm:w-auto"
                 >
                   <span>{hasQuizProgress ? 'Resume Quiz' : 'Start Discovery'}</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
               )}
               <button
                 onClick={onLearnMore}
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105"
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
               >
                 Learn More
               </button>
@@ -215,43 +215,43 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
           </div>
 
           {/* Right Content - Feature Cards */}
-          <div className="relative">
-            <div className="grid gap-6">
+          <div className="relative mt-8 lg:mt-0">
+            <div className="grid gap-4 sm:gap-6">
               {/* Main Feature Card */}
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-white" />
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 sm:p-8 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+                <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white">Smart Algorithm</h3>
-                    <p className="text-white/70">AI-powered personality analysis</p>
+                    <h3 className="text-lg sm:text-xl font-bold text-white">Smart Algorithm</h3>
+                    <p className="text-sm sm:text-base text-white/70">AI-powered personality analysis</p>
                   </div>
                 </div>
-                <p className="text-white/70 leading-relaxed">
+                <p className="text-sm sm:text-base text-white/70 leading-relaxed">
                   Our advanced algorithm analyses your personality traits to recommend books that perfectly match your reading preferences and interests.
                 </p>
               </div>
 
               {/* Secondary Feature Cards */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6 hover:bg-white/15 transition-all duration-300">
-                  <Target className="w-8 h-8 text-amber-400 mb-4" />
-                  <h4 className="font-semibold text-white mb-2">Personalised</h4>
-                  <p className="text-sm text-white/70">Tailored to your unique taste</p>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 sm:p-6 hover:bg-white/15 transition-all duration-300">
+                  <Target className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400 mb-3 sm:mb-4" />
+                  <h4 className="font-semibold text-white mb-1 sm:mb-2 text-sm sm:text-base">Personalised</h4>
+                  <p className="text-xs sm:text-sm text-white/70">Tailored to your unique taste</p>
                 </div>
                 
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6 hover:bg-white/15 transition-all duration-300">
-                  <Zap className="w-8 h-8 text-amber-400 mb-4" />
-                  <h4 className="font-semibold text-white mb-2">Instant</h4>
-                  <p className="text-sm text-white/70">Get results in seconds</p>
+                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4 sm:p-6 hover:bg-white/15 transition-all duration-300">
+                  <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400 mb-3 sm:mb-4" />
+                  <h4 className="font-semibold text-white mb-1 sm:mb-2 text-sm sm:text-base">Instant</h4>
+                  <p className="text-xs sm:text-sm text-white/70">Get results in seconds</p>
                 </div>
               </div>
             </div>
 
-            {/* Floating Elements */}
-            <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-xl" />
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-xl" />
+            {/* Floating Elements - Hidden on mobile */}
+            <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-xl hidden md:block" />
+            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-xl hidden md:block" />
           </div>
         </div>
 

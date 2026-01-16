@@ -48,10 +48,10 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
       {/* Burger Menu Button */}
       <button
         onClick={toggleMenu}
-        className="fixed top-6 right-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+        className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2.5 sm:p-3 rounded-xl transition-all duration-300 transform hover:scale-105"
         aria-label="Toggle menu"
       >
-        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
       </button>
 
       {/* Overlay */}
@@ -64,11 +64,11 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
 
       {/* Menu Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-slate-900/95 backdrop-blur-xl border-l border-white/20 z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-80 bg-slate-900/95 backdrop-blur-xl border-l border-white/20 z-40 transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-6 pt-20 h-full overflow-y-auto">
+        <div className="p-4 sm:p-6 pt-16 sm:pt-20 h-full overflow-y-auto">
           <div className="mb-8 pb-6 border-b border-white/10">
             <button 
               onClick={() => handleNavigation('welcome')}
@@ -78,9 +78,9 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
             </button>
           </div>
           
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-2">Navigation</h2>
-            <p className="text-white/70">Explore more features</p>
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">Navigation</h2>
+            <p className="text-sm sm:text-base text-white/70">Explore more features</p>
           </div>
 
           <nav className="space-y-2 flex-1">
@@ -94,7 +94,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ onNavigate, user, onLoginRequir
                 <button
                   key={item.id}
                   onClick={() => handleNavigation(item.id)}
-                  className={`w-full flex items-center space-x-4 px-5 py-4 text-left rounded-2xl transition-all duration-300 group ${
+                  className={`w-full flex items-center space-x-3 sm:space-x-4 px-4 sm:px-5 py-3 sm:py-4 text-left rounded-2xl transition-all duration-300 group ${
                     isDisabled 
                       ? 'text-white/30 cursor-not-allowed' 
                       : isTailorMates
