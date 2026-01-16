@@ -767,14 +767,12 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
         <Home className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
 
-      {/* User Info - Top Right (Mobile) / Top Center (Desktop) */}
+      {/* User Info - Top Center (Mobile only) */}
       {user && (
-        <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 sm:hidden">
-          <div className="flex flex-col items-end space-y-1">
-            <div className="text-white text-right">
-              <div className="font-semibold text-xs">{user.name}</div>
-              <div className="text-[10px] text-white/70">@{user.username}</div>
-            </div>
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 sm:hidden">
+          <div className="text-white text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
+            <div className="font-semibold text-xs">{user.name}</div>
+            <div className="text-[10px] text-white/70">@{user.username}</div>
           </div>
         </div>
       )}

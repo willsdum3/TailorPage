@@ -468,12 +468,12 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               <Home className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
             
-            {/* User Info - Top Right (Mobile only) */}
+            {/* User Info - Top Center (Mobile only) */}
             {user && (
-              <div className="fixed top-4 right-4 z-50 sm:hidden">
-                <div className="text-white text-right bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-2 py-1.5">
-                  <div className="font-semibold text-xs truncate max-w-[100px]">{user.name || user.user_metadata?.name || 'User'}</div>
-                  <div className="text-[10px] text-white/70 truncate max-w-[100px]">@{user.user_metadata?.username || user.email?.split('@')[0] || 'user'}</div>
+              <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 sm:hidden">
+                <div className="text-white text-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5">
+                  <div className="font-semibold text-xs">{user.name || user.user_metadata?.name || 'User'}</div>
+                  <div className="text-[10px] text-white/70">@{user.user_metadata?.username || user.email?.split('@')[0] || 'user'}</div>
                 </div>
               </div>
             )}
