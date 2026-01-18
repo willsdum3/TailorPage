@@ -362,22 +362,25 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 sm:mb-8">
+        <div className="flex items-center justify-between mb-4 sm:mb-8 relative">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2 sm:p-3 rounded-xl transition-all duration-300 text-sm sm:text-base"
+            className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2 sm:p-3 rounded-xl transition-all duration-300 text-sm sm:text-base z-10"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="hidden sm:inline">Back to Friends</span>
             <span className="sm:hidden">Back</span>
           </button>
           
-          <h1 className="text-xl sm:text-3xl font-bold text-white">Messages</h1>
+          <h1 className="text-xl sm:text-3xl font-bold text-white absolute left-1/2 transform -translate-x-1/2 sm:relative sm:left-auto sm:transform-none">Messages</h1>
+          
+          {/* Spacer for mobile centering */}
+          <div className="w-[60px] sm:w-0"></div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-[calc(100vh-180px)] sm:h-[calc(100vh-200px)]">
-          {/* Conversations List */}
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 flex flex-col">
+          {/* Conversations List - Hidden on mobile when conversation is selected */}
+          <div className={`bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 flex flex-col ${(selectedConversation || pendingFriend) ? 'hidden lg:flex' : 'flex'}`}>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h2 className="text-lg sm:text-xl font-bold text-white flex items-center space-x-2">
                 <Users className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -513,21 +516,12 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
           </div>
 
           {/* Chat Area */}
-          <div className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex flex-col">
+          <div className={`lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex flex-col ${(selectedConversation || pendingFriend) ? 'flex' : 'hidden lg:flex'}`}>
             {selectedConversation || pendingFriend ? (
               <>
                 {/* Chat Header */}
                 <div className="p-4 sm:p-6 border-b border-white/10">
                   <div className="flex items-center justify-between gap-2">
-                    {/* Back Button - Mobile Only */}
-                    <button
-                      onClick={onBack}
-                      className="flex items-center space-x-1 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2 rounded-xl transition-all duration-300 flex-shrink-0 sm:hidden"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span className="text-xs">Back</span>
-                    </button>
-                    
                     <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                       {selectedConversation?.friendImageUrl || pendingFriend?.friendImageUrl ? (
                         <img 
@@ -552,7 +546,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 p-4 sm:p-6 overflow-y-auto max-h-[50vh] sm:max-h-96">
+                <div className="flex-1 p-4 sm:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
                   {messages.length === 0 ? (
                     <div className="text-center py-12">
                       <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
