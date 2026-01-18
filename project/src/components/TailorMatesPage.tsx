@@ -1198,7 +1198,7 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   .map((discussion) => (
                   <div
                     key={discussion.id}
-                    className={`backdrop-blur-xl rounded-2xl p-6 transition-all duration-300 group cursor-pointer relative ${
+                    className={`backdrop-blur-xl rounded-2xl p-4 sm:p-6 transition-all duration-300 group cursor-pointer relative ${
                       discussion.isCreatedByUser
                         ? 'bg-gradient-to-br from-amber-500/15 to-orange-500/15 border-2 border-amber-400/40 hover:from-amber-500/25 hover:to-orange-500/25'
                         : discussion.isParticipant
@@ -1209,31 +1209,31 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                   >
                     {/* Creator Badge */}
                     {discussion.isCreatedByUser && (
-                      <div className="absolute top-3 right-3">
-                        <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white p-1.5 rounded-full shadow-lg">
-                          <UserIcon className="w-3 h-3" />
+                      <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                        <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white p-1 sm:p-1.5 rounded-full shadow-lg">
+                          <UserIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                         </div>
                       </div>
                     )}
                     {/* Participant Badge */}
                     {discussion.isParticipant && !discussion.isCreatedByUser && (
-                      <div className="absolute top-3 right-3">
-                        <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white p-1.5 rounded-full shadow-lg">
-                          <MessageCircle className="w-3 h-3" />
+                      <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                        <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white p-1 sm:p-1.5 rounded-full shadow-lg">
+                          <MessageCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                         </div>
                       </div>
                     )}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <MessageCircle className={`w-5 h-5 ${
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 sm:mb-4 gap-3">
+                      <div className="flex-1 w-full">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                          <MessageCircle className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${
                             discussion.isCreatedByUser 
                               ? 'text-amber-400' 
                               : discussion.isParticipant 
                               ? 'text-green-400' 
                               : 'text-pink-400'
                           }`} />
-                          <h3 className={`text-lg font-bold transition-colors ${
+                          <h3 className={`text-base sm:text-lg font-bold transition-colors flex-1 min-w-0 ${
                             discussion.isCreatedByUser
                               ? 'text-amber-100 group-hover:text-amber-300'
                               : discussion.isParticipant 
@@ -1243,44 +1243,44 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                             {discussion.title}
                           </h3>
                           {discussion.isParticipant && (
-                            <div className="flex items-center space-x-1 bg-green-500/30 border border-green-400/50 text-green-200 px-2 py-1 rounded-full text-xs font-medium">
-                              <UserCheck className="w-3 h-3" />
+                            <div className="flex items-center space-x-1 bg-green-500/30 border border-green-400/50 text-green-200 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0">
+                              <UserCheck className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                               <span>Participating</span>
                             </div>
                           )}
                         </div>
                         {discussion.bookTitle && (
-                          <p className="text-white/70 text-sm mb-3">
+                          <p className="text-white/70 text-xs sm:text-sm mb-2 sm:mb-3">
                             Discussing: <span className="text-white font-medium">{discussion.bookTitle}</span>
                             {discussion.bookAuthor && ` by ${discussion.bookAuthor}`}
                           </p>
                         )}
-                        <div className="flex flex-wrap mb-4">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                           {renderTags(discussion.tags)}
                         </div>
                       </div>
-                      <div className="text-right text-white/60 text-sm">
-                        <div className="flex items-center space-x-1 mb-1">
-                          <Users className="w-4 h-4" />
+                      <div className="text-left sm:text-right text-white/60 text-xs sm:text-sm flex flex-col sm:flex-col gap-1 sm:gap-0 flex-shrink-0">
+                        <div className="flex items-center space-x-1 sm:mb-1">
+                          <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span>{discussion.participantCount} participants</span>
                         </div>
                         <span>{TailorMatesService.formatDate(discussion.lastActivity)}</span>
                       </div>
                     </div>
                     
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 mb-4">
-                      <p className="text-white/90 leading-relaxed line-clamp-2">{discussion.content}</p>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3 sm:p-4 mb-3 sm:mb-4">
+                      <p className="text-white/90 leading-relaxed line-clamp-2 text-sm sm:text-base">{discussion.content}</p>
                     </div>
                     
-                    <div className="flex items-center justify-between text-white/60 text-sm">
-                      <span>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-white/60 text-xs sm:text-sm gap-1 sm:gap-0 mb-3 sm:mb-0">
+                      <span className="truncate">
                         Started by {discussion.creatorName}
                         {discussion.creatorUsername && ` @${discussion.creatorUsername}`}
                       </span>
-                      <span>{TailorMatesService.formatDate(discussion.createdAt)}</span>
+                      <span className="flex-shrink-0">{TailorMatesService.formatDate(discussion.createdAt)}</span>
                     </div>
                     
-                    <button className="w-full mt-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105">
+                    <button className="w-full mt-3 sm:mt-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-sm sm:text-base">
                       {discussion.isParticipant ? 'View Discussion' : 'Join Discussion'}
                     </button>
                   </div>

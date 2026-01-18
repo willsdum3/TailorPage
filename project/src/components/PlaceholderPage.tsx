@@ -957,25 +957,25 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                   <span>Profile Settings</span>
                 </h2>
                 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6 pb-20 sm:pb-0">
                   {/* Profile Picture Section */}
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Profile Picture</h3>
-                    <div className="flex items-center space-x-6">
-                      <div className="relative">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Profile Picture</h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 gap-4">
+                      <div className="relative flex-shrink-0 self-center sm:self-auto">
                         {profileSettings.profilePicture ? (
                           <img 
                             src={profileSettings.profilePicture} 
                             alt="Profile" 
-                            className="w-20 h-20 rounded-full object-cover border-2 border-white/20"
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white/20"
                           />
                         ) : (
-                          <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
                             {user?.user_metadata?.name?.charAt(0) || user?.user_metadata?.username?.charAt(0) || user?.email?.charAt(0) || 'U'}
                           </div>
                         )}
-                        <label className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm hover:bg-amber-600 transition-colors duration-300 cursor-pointer">
-                          <Camera className="w-3 h-3" />
+                        <label className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-xs sm:text-sm hover:bg-amber-600 transition-colors duration-300 cursor-pointer">
+                          <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                           <input
                             type="file"
                             accept="image/*"
@@ -985,20 +985,20 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                           />
                         </label>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-white/80 text-sm mb-2">Upload a profile picture to personalize your account</p>
+                      <div className="flex-1 w-full">
+                        <p className="text-white/80 text-xs sm:text-sm mb-2">Upload a profile picture to personalize your account</p>
                         {profileErrors.profilePicture && (
-                          <p className="text-red-400 text-sm mb-2">{profileErrors.profilePicture}</p>
+                          <p className="text-red-400 text-xs sm:text-sm mb-2">{profileErrors.profilePicture}</p>
                         )}
                         {profileSuccess.profilePicture && (
-                          <p className="text-green-400 text-sm mb-2 flex items-center">
-                            <Check className="w-4 h-4 mr-1" />
+                          <p className="text-green-400 text-xs sm:text-sm mb-2 flex items-center">
+                            <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                             {profileSuccess.profilePicture}
                           </p>
                         )}
-                        <div className="flex space-x-2">
-                          <label className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300 cursor-pointer flex items-center">
-                            <Upload className="w-4 h-4 mr-1" />
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <label className="bg-white/10 hover:bg-white/20 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all duration-300 cursor-pointer flex items-center justify-center sm:justify-start">
+                            <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                             Upload Photo
                             <input
                               type="file"
@@ -1012,61 +1012,61 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                             <button 
                               onClick={handleRemoveProfilePicture}
                               disabled={isUploadingImage}
-                              className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white px-4 py-2 rounded-lg text-sm transition-all duration-300 disabled:opacity-50"
+                              className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all duration-300 disabled:opacity-50"
                             >
                               Remove
                             </button>
                           )}
                         </div>
                         {isUploadingImage && (
-                          <p className="text-white/60 text-sm mt-2">Uploading...</p>
+                          <p className="text-white/60 text-xs sm:text-sm mt-2">Uploading...</p>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {/* Account Information Section */}
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Account Information</h3>
-                    <div className="space-y-4">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Account Information</h3>
+                    <div className="space-y-3 sm:space-y-4">
                       <div>
-                        <label className="block text-white/80 text-sm font-medium mb-2">Username</label>
-                        <div className="flex items-center space-x-2">
+                        <label className="block text-white/80 text-xs sm:text-sm font-medium mb-2">Username</label>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
                           <input 
                             type="text" 
                             value={profileSettings.username}
                             onChange={(e) => handleProfileInputChange('username', e.target.value)}
-                            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm sm:text-base"
                             placeholder="Enter your username"
                           />
                           <button 
                             onClick={handleUpdateUsername}
                             disabled={isUpdating}
-                            className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300 flex items-center"
+                            className="bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all duration-300 flex items-center justify-center sm:justify-start"
                           >
                             {isUpdating ? (
-                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                              <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                             ) : (
-                              <Check className="w-4 h-4 mr-1" />
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                             )}
                             Update
                           </button>
                         </div>
                         {profileErrors.username && (
-                          <p className="text-red-400 text-sm mt-2">{profileErrors.username}</p>
+                          <p className="text-red-400 text-xs sm:text-sm mt-2">{profileErrors.username}</p>
                         )}
                         {profileSuccess.username && (
-                          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 mt-2">
-                            <p className="text-green-400 text-sm flex items-center">
-                              <Check className="w-4 h-4 mr-2" />
+                          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-2 sm:p-3 mt-2">
+                            <p className="text-green-400 text-xs sm:text-sm flex items-center">
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                               {profileSuccess.username}
                             </p>
                           </div>
                         )}
                         
                         {isUpdating && (
-                          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                            <p className="text-blue-800 text-sm font-medium">
+                          <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p className="text-blue-800 text-xs sm:text-sm font-medium">
                               🔄 Updating your username... This usually takes 5-20 seconds.
                             </p>
                           </div>
@@ -1074,12 +1074,12 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                       </div>
                       
                       <div>
-                        <label className="block text-white/80 text-sm font-medium mb-2">Email</label>
+                        <label className="block text-white/80 text-xs sm:text-sm font-medium mb-2">Email</label>
                         <input 
                           type="email" 
                           value={profileSettings.email}
                           disabled
-                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/60 cursor-not-allowed"
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/60 cursor-not-allowed text-sm sm:text-base"
                           placeholder="Email cannot be changed"
                         />
                         <p className="text-white/60 text-xs mt-1">Email address cannot be changed for security reasons</p>
@@ -1088,17 +1088,17 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                   </div>
 
                   {/* Password Change Section */}
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Change Password</h3>
-                    <div className="space-y-4">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Change Password</h3>
+                    <div className="space-y-3 sm:space-y-4">
                       <div>
-                        <label className="block text-white/80 text-sm font-medium mb-2">Current Password</label>
+                        <label className="block text-white/80 text-xs sm:text-sm font-medium mb-2">Current Password</label>
                         <div className="relative">
                           <input 
                             type={showCurrentPassword ? "text" : "password"}
                             value={profileSettings.currentPassword}
                             onChange={(e) => handleProfileInputChange('currentPassword', e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm sm:text-base"
                             placeholder="Enter current password"
                           />
                           <button
@@ -1106,22 +1106,22 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                             onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
                           >
-                            {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showCurrentPassword ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
                           </button>
                         </div>
                         {profileErrors.currentPassword && (
-                          <p className="text-red-400 text-sm mt-2">{profileErrors.currentPassword}</p>
+                          <p className="text-red-400 text-xs sm:text-sm mt-2">{profileErrors.currentPassword}</p>
                         )}
                       </div>
                       
                       <div>
-                        <label className="block text-white/80 text-sm font-medium mb-2">New Password</label>
+                        <label className="block text-white/80 text-xs sm:text-sm font-medium mb-2">New Password</label>
                         <div className="relative">
                           <input 
                             type={showNewPassword ? "text" : "password"}
                             value={profileSettings.newPassword}
                             onChange={(e) => handleProfileInputChange('newPassword', e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm sm:text-base"
                             placeholder="Enter new password"
                           />
                           <button
@@ -1129,22 +1129,22 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                             onClick={() => setShowNewPassword(!showNewPassword)}
                             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
                           >
-                            {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showNewPassword ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
                           </button>
                         </div>
                         {profileErrors.newPassword && (
-                          <p className="text-red-400 text-sm mt-2">{profileErrors.newPassword}</p>
+                          <p className="text-red-400 text-xs sm:text-sm mt-2">{profileErrors.newPassword}</p>
                         )}
                       </div>
                       
                       <div>
-                        <label className="block text-white/80 text-sm font-medium mb-2">Confirm New Password</label>
+                        <label className="block text-white/80 text-xs sm:text-sm font-medium mb-2">Confirm New Password</label>
                         <div className="relative">
                           <input 
                             type={showConfirmPassword ? "text" : "password"}
                             value={profileSettings.confirmPassword}
                             onChange={(e) => handleProfileInputChange('confirmPassword', e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 pr-10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm sm:text-base"
                             placeholder="Confirm new password"
                           />
                           <button
@@ -1152,39 +1152,39 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80 transition-colors"
                           >
-                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showConfirmPassword ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
                           </button>
                         </div>
                         {profileErrors.confirmPassword && (
-                          <p className="text-red-400 text-sm mt-2">{profileErrors.confirmPassword}</p>
+                          <p className="text-red-400 text-xs sm:text-sm mt-2">{profileErrors.confirmPassword}</p>
                         )}
                       </div>
                       
                       
                       {profileErrors.password && profileErrors.password !== 'timeout' && (
-                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                          <p className="text-red-400 text-sm">{profileErrors.password}</p>
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-2 sm:p-3">
+                          <p className="text-red-400 text-xs sm:text-sm">{profileErrors.password}</p>
                         </div>
                       )}
                       
                       {profileSuccess.password && (
-                        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-                          <p className="text-green-400 text-sm flex items-center">
-                            <Check className="w-4 h-4 mr-1" />
+                        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-2 sm:p-3">
+                          <p className="text-green-400 text-xs sm:text-sm flex items-center">
+                            <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                             {profileSuccess.password}
                           </p>
                         </div>
                       )}
                       
-                      <div className="flex gap-3">
+                      <div className="flex gap-2 sm:gap-3">
                         <button 
                           onClick={handleUpdatePassword}
                           disabled={isUpdating}
-                          className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center"
+                          className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-500/50 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 flex items-center justify-center"
                         >
                           {isUpdating ? (
                             <>
-                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                              <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                               Updating...
                             </>
                           ) : (
