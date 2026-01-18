@@ -354,32 +354,33 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 relative overflow-hidden">
+    <div className="min-h-screen py-4 sm:py-8 px-4 relative overflow-hidden pb-20 sm:pb-8">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900" />
-      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl hidden sm:block" />
+      <div className="absolute bottom-20 right-20 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl hidden sm:block" />
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4 sm:mb-8">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-3 rounded-xl transition-all duration-300"
+            className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2 sm:p-3 rounded-xl transition-all duration-300 text-sm sm:text-base"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Friends</span>
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Back to Friends</span>
+            <span className="sm:hidden">Back</span>
           </button>
           
-          <h1 className="text-3xl font-bold text-white">Messages</h1>
+          <h1 className="text-xl sm:text-3xl font-bold text-white">Messages</h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-[calc(100vh-180px)] sm:h-[calc(100vh-200px)]">
           {/* Conversations List */}
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white flex items-center space-x-2">
-                <Users className="w-5 h-5" />
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 flex flex-col">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white flex items-center space-x-2">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Conversations</span>
               </h2>
             </div>
@@ -516,25 +517,25 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
             {selectedConversation || pendingFriend ? (
               <>
                 {/* Chat Header */}
-                <div className="p-6 border-b border-white/10">
+                <div className="p-4 sm:p-6 border-b border-white/10">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
                       {selectedConversation?.friendImageUrl || pendingFriend?.friendImageUrl ? (
                         <img 
                           src={selectedConversation?.friendImageUrl || pendingFriend?.friendImageUrl || ''}
                           alt={selectedConversation?.friendName || pendingFriend?.friendName || 'Friend'}
-                          className="w-10 h-10 rounded-full object-cover"
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-medium">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                          <span className="text-white font-medium text-sm sm:text-base">
                             {(selectedConversation?.friendName || pendingFriend?.friendName || selectedConversation?.friendUsername || pendingFriend?.friendUsername || '?').charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
                       <div>
-                        <h3 className="text-white font-medium">{selectedConversation?.friendName || pendingFriend?.friendName || 'Friend'}</h3>
-                        <p className="text-white/60 text-sm">@{selectedConversation?.friendUsername || pendingFriend?.friendUsername || 'unknown'}</p>
+                        <h3 className="text-white font-medium text-sm sm:text-base">{selectedConversation?.friendName || pendingFriend?.friendName || 'Friend'}</h3>
+                        <p className="text-white/60 text-xs sm:text-sm">@{selectedConversation?.friendUsername || pendingFriend?.friendUsername || 'unknown'}</p>
                       </div>
                     </div>
                     
@@ -542,7 +543,7 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 p-6 overflow-y-auto max-h-96">
+                <div className="flex-1 p-4 sm:p-6 overflow-y-auto max-h-[50vh] sm:max-h-96">
                   {messages.length === 0 ? (
                     <div className="text-center py-12">
                       <MessageCircle className="w-16 h-16 text-white/30 mx-auto mb-4" />
@@ -611,31 +612,31 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
                 </div>
 
                 {/* Message Input */}
-                <div className="p-6 border-t border-white/10">
-                  <div className="space-y-3">
-                    <form onSubmit={handleSendMessage} className="flex space-x-3">
+                <div className="p-4 sm:p-6 border-t border-white/10 pb-safe">
+                  <div className="space-y-2 sm:space-y-3">
+                    <form onSubmit={handleSendMessage} className="flex space-x-2 sm:space-x-3">
                       <input
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Type your message..."
-                        className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                        className="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500/50 text-sm sm:text-base"
                         disabled={!(selectedConversation || pendingFriend) || isSending}
                       />
                       <button
                         type="submit"
                         disabled={!newMessage.trim() || isSending || !(selectedConversation || pendingFriend)}
-                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white p-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white p-2 sm:p-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                       >
-                        <Send className="w-5 h-5" />
+                        <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     </form>
                     <button
                       onClick={() => setShowBookRecommendation(true)}
-                      className="flex items-center space-x-2 text-amber-400 hover:text-amber-300 text-sm transition-colors"
+                      className="flex items-center space-x-2 text-amber-400 hover:text-amber-300 text-xs sm:text-sm transition-colors"
                       disabled={!(selectedConversation || pendingFriend)}
                     >
-                      <Book className="w-4 h-4" />
+                      <Book className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>Recommend a book</span>
                     </button>
                   </div>

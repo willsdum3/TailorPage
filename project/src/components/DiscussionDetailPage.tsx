@@ -488,23 +488,23 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
         </div>
 
         {/* Discussion Header */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 mb-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-4 gap-4">
+            <div className="flex-1 w-full">
               {/* Title and Button Row */}
-              <div className="flex items-center mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center mb-3 sm:mb-2 gap-3 sm:gap-0">
                 {/* Title on the left */}
-                <h1 className="text-2xl font-bold text-white">{discussion.title}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-white flex-1">{discussion.title}</h1>
                 
                 {/* Button in the center */}
-                <div className="flex-1 flex justify-center">
+                <div className="flex justify-center sm:flex-1 sm:justify-center sm:mx-4">
                   {/* Leave Discussion Button (Participants Only) */}
                   {isParticipant && discussion && !discussion.isCreatedByUser && (
                     <button
                       onClick={handleLeaveDiscussion}
-                      className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+                      className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 px-3 sm:px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 text-sm sm:text-base"
                     >
-                      <UserIcon className="w-4 h-4" />
+                      <UserIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>Leave Discussion</span>
                     </button>
                   )}
@@ -512,9 +512,9 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
                   {discussion && discussion.isCreatedByUser && (
                     <button
                       onClick={handleDeleteDiscussion}
-                      className="bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 hover:text-red-200"
+                      className="bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-300 px-3 sm:px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 hover:text-red-200 text-sm sm:text-base"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>Delete Discussion</span>
                     </button>
                   )}
@@ -523,39 +523,39 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
               
               {discussion.bookTitle && (
                 <div className="flex items-center space-x-2 mb-3">
-                  <Book className="w-4 h-4 text-amber-400" />
-                  <span className="text-white/80">
+                  <Book className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400 flex-shrink-0" />
+                  <span className="text-white/80 text-sm sm:text-base">
                     Discussing: <span className="text-white font-medium">{discussion.bookTitle}</span>
                     {discussion.bookAuthor && ` by ${discussion.bookAuthor}`}
                   </span>
                 </div>
               )}
               
-              <div className="flex flex-wrap mb-4">
+              <div className="flex flex-wrap mb-3 sm:mb-4 gap-2">
                 {renderTags(discussion.tags)}
               </div>
             </div>
             
-            <div className="text-right text-white/60 text-sm">
+            <div className="text-left sm:text-right text-white/60 text-xs sm:text-sm flex flex-col sm:flex-col gap-2 sm:gap-0">
               <button
                 onClick={openParticipantsModal}
-                className="flex items-center space-x-1 mb-1 hover:text-white transition-colors"
+                className="flex items-center space-x-1 mb-1 hover:text-white transition-colors justify-start sm:justify-end"
               >
-                <Users className="w-4 h-4" />
+                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>{discussion.participantCount} participants</span>
               </button>
-              <div className="flex items-center space-x-1">
-                <Clock className="w-4 h-4" />
+              <div className="flex items-center space-x-1 justify-start sm:justify-end">
+                <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>{TailorMatesService.formatDate(discussion.lastActivity)}</span>
               </div>
             </div>
           </div>
           
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 mb-4">
-            <p className="text-white/90 leading-relaxed">{discussion.content}</p>
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3 sm:p-4 mb-3 sm:mb-4">
+            <p className="text-white/90 leading-relaxed text-sm sm:text-base">{discussion.content}</p>
           </div>
           
-          <div className="flex items-center justify-between text-white/60 text-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-white/60 text-xs sm:text-sm gap-2 sm:gap-0">
             <span>
               Started by {discussion.creatorName}
               {discussion.creatorUsername && ` @${discussion.creatorUsername}`}
