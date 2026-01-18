@@ -361,8 +361,8 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl hidden sm:block" />
       
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4 sm:mb-8 relative">
+        {/* Header - Sticky on mobile */}
+        <div className="sticky top-0 z-50 bg-gradient-to-br from-slate-900/95 via-blue-900/95 to-indigo-900/95 backdrop-blur-md sm:relative sm:bg-transparent sm:backdrop-blur-none flex items-center justify-between mb-4 sm:mb-8 relative py-2 sm:py-0 -mx-4 sm:mx-0 px-4 sm:px-0">
           <button
             onClick={onBack}
             className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2 sm:p-3 rounded-xl transition-all duration-300 text-sm sm:text-base z-10"
