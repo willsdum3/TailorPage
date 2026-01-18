@@ -518,24 +518,33 @@ const FriendsMessagingPage: React.FC<FriendsMessagingPageProps> = ({ onBack, use
               <>
                 {/* Chat Header */}
                 <div className="p-4 sm:p-6 border-b border-white/10">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="flex items-center justify-between gap-2">
+                    {/* Back Button - Mobile Only */}
+                    <button
+                      onClick={onBack}
+                      className="flex items-center space-x-1 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white p-2 rounded-xl transition-all duration-300 flex-shrink-0 sm:hidden"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span className="text-xs">Back</span>
+                    </button>
+                    
+                    <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                       {selectedConversation?.friendImageUrl || pendingFriend?.friendImageUrl ? (
                         <img 
                           src={selectedConversation?.friendImageUrl || pendingFriend?.friendImageUrl || ''}
                           alt={selectedConversation?.friendName || pendingFriend?.friendName || 'Friend'}
-                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                           <span className="text-white font-medium text-sm sm:text-base">
                             {(selectedConversation?.friendName || pendingFriend?.friendName || selectedConversation?.friendUsername || pendingFriend?.friendUsername || '?').charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
-                      <div>
-                        <h3 className="text-white font-medium text-sm sm:text-base">{selectedConversation?.friendName || pendingFriend?.friendName || 'Friend'}</h3>
-                        <p className="text-white/60 text-xs sm:text-sm">@{selectedConversation?.friendUsername || pendingFriend?.friendUsername || 'unknown'}</p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-white font-medium text-sm sm:text-base truncate">{selectedConversation?.friendName || pendingFriend?.friendName || 'Friend'}</h3>
+                        <p className="text-white/60 text-xs sm:text-sm truncate">@{selectedConversation?.friendUsername || pendingFriend?.friendUsername || 'unknown'}</p>
                       </div>
                     </div>
                     
