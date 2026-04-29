@@ -870,6 +870,39 @@ export class TailorMatesService {
       }
 
       if (error) {
+        const functionMissing =
+          error.code === 'PGRST202' ||
+          (typeof error.message === 'string' &&
+            (error.message.includes('delete_discussion(') || error.message.includes('schema cache')));
+
+        if (functionMissing) {
+          console.warn('delete_discussion RPC missing; falling back to direct row delete');
+
+          const userInternalId = await this.getCurrentInternalUserId();
+
+          const directDelete = await supabase
+            .from('discussions')
+            .delete()
+            .eq('id', discussionId)
+            .eq('created_by', userInternalId)
+            .select('id');
+
+          if (directDelete.error) {
+            console.error('Direct delete discussion fallback failed:', directDelete.error);
+            return { success: false, error: directDelete.error.message };
+          }
+
+          const deletedRows = directDelete.data || [];
+          if (deletedRows.length > 0) {
+            return { success: true };
+          }
+
+          return {
+            success: false,
+            error: 'Unable to delete discussion. You may not be the creator.'
+          };
+        }
+
         console.error('Error deleting discussion:', error);
         return { success: false, error: error.message };
       }
