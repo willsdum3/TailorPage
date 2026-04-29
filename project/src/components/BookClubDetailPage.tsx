@@ -399,6 +399,16 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
     ));
   };
 
+  const shouldHideTestCreator = (creatorName?: string): boolean => {
+    if (!creatorName) return false;
+    const normalized = creatorName.trim().toLowerCase();
+
+    return (
+      /^@?testuser\d*$/.test(normalized) ||
+      /^test user\s*\d*$/.test(normalized)
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen py-8 px-4 relative overflow-hidden">
@@ -504,7 +514,9 @@ const BookClubDetailPage: React.FC<BookClubDetailPageProps> = ({ clubId, onBack,
               )}
               <div className="flex items-center space-x-1">
                 <User className="w-4 h-4" />
-                <span>Created by {club.creatorName}</span>
+                <span>
+                  {!shouldHideTestCreator(club.creatorName) ? `Created by ${club.creatorName}` : ''}
+                </span>
               </div>
             </div>
             <div className="flex items-center space-x-3">

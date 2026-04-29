@@ -698,6 +698,16 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
     ));
   };
 
+  const shouldHideTestCreator = (creatorName?: string): boolean => {
+    if (!creatorName) return false;
+    const normalized = creatorName.trim().toLowerCase();
+
+    return (
+      /^@?testuser\d*$/.test(normalized) ||
+      /^test user\s*\d*$/.test(normalized)
+    );
+  };
+
   // Show friends messaging page if selected
   if (showFriendsMessaging) {
     return (
@@ -1106,7 +1116,9 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </div>
                     
                     <div className="flex items-center justify-between text-white/60 text-sm mb-4">
-                      <span>Created by {club.creatorName}</span>
+                      <span>
+                        {!shouldHideTestCreator(club.creatorName) ? `Created by ${club.creatorName}` : ''}
+                      </span>
                       <span>{TailorMatesService.formatDate(club.createdAt)}</span>
                     </div>
                     
