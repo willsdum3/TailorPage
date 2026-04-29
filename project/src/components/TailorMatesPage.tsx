@@ -998,6 +998,25 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
               </div>
             ) : (
               <>
+                {/* Create New Club Card */}
+                <div 
+                  onClick={() => setShowCreateClubModal(true)}
+                  className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-6 hover:bg-pink-500/30 transition-all duration-300 group cursor-pointer"
+                >
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Plus className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Create Your Own Club</h3>
+                    <p className="text-white/70 text-sm mb-4">
+                      Start a book club and invite readers who share your interests
+                    </p>
+                    <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
+                      Create Club
+                    </button>
+                  </div>
+                </div>
+
                 {filteredBookClubs
                   .sort((a, b) => {
                     // Sort priority: 1. Admin clubs, 2. Member clubs, 3. Other clubs
@@ -1140,25 +1159,6 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     )}
                   </div>
                 ))}
-                
-                {/* Create New Club Card */}
-                <div 
-                  onClick={() => setShowCreateClubModal(true)}
-                  className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-6 hover:bg-pink-500/30 transition-all duration-300 group cursor-pointer"
-                >
-                  <div className="flex flex-col items-center justify-center h-full text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Plus className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Create Your Own Club</h3>
-                    <p className="text-white/70 text-sm mb-4">
-                      Start a book club and invite readers who share your interests
-                    </p>
-                    <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
-                      Create Club
-                    </button>
-                  </div>
-                </div>
               </>
             )}
           </div>
@@ -1194,6 +1194,27 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
               </div>
             ) : (
               <>
+                {/* Start New Discussion Card */}
+                <div 
+                  onClick={() => setShowCreateDiscussionModal(true)}
+                  className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-6 hover:bg-pink-500/30 transition-all duration-300 group cursor-pointer"
+                >
+                  <div className="flex items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                      <Plus className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-2">Start a New Discussion</h3>
+                      <p className="text-white/70 text-sm mb-4">
+                        Share your thoughts and start a conversation about your favorite books
+                      </p>
+                      <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
+                        Create Discussion
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {filteredDiscussions
                   .sort((a, b) => {
                     // Sort priority: 1. Created by user, 2. Participated discussions, 3. Other discussions
@@ -1298,27 +1319,6 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     </button>
                   </div>
                 ))}
-                
-                {/* Start New Discussion Card */}
-                <div 
-                  onClick={() => setShowCreateDiscussionModal(true)}
-                  className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-6 hover:bg-pink-500/30 transition-all duration-300 group cursor-pointer"
-                >
-                  <div className="flex items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                      <Plus className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white mb-2">Start a New Discussion</h3>
-                      <p className="text-white/70 text-sm mb-4">
-                        Share your thoughts and start a conversation about your favorite books
-                      </p>
-                      <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300">
-                        Create Discussion
-                      </button>
-                    </div>
-                  </div>
-                </div>
               </>
             )}
           </div>
