@@ -427,6 +427,16 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
     ));
   };
 
+  const shouldHideTestCreator = (creatorName?: string): boolean => {
+    if (!creatorName) return false;
+    const normalized = creatorName.trim().toLowerCase();
+
+    return (
+      /^@?testuser\d*$/.test(normalized) ||
+      /^test user\s*\d*$/.test(normalized)
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen py-8 px-4 relative overflow-hidden">
@@ -557,8 +567,9 @@ const DiscussionDetailPage: React.FC<DiscussionDetailPageProps> = ({ discussionI
           
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-white/60 text-xs sm:text-sm gap-2 sm:gap-0">
             <span>
-              Started by {discussion.creatorName}
-              {discussion.creatorUsername && ` @${discussion.creatorUsername}`}
+              {!shouldHideTestCreator(discussion.creatorName)
+                ? `Started by ${discussion.creatorName}${discussion.creatorUsername ? ` @${discussion.creatorUsername}` : ''}`
+                : ''}
             </span>
             <span>{TailorMatesService.formatDate(discussion.createdAt)}</span>
           </div>

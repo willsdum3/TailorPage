@@ -1286,8 +1286,9 @@ const TailorMatesPage: React.FC<TailorMatesPageProps> = ({ onBack, hasCompletedQ
                     
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-white/60 text-xs sm:text-sm gap-1 sm:gap-0 mb-3 sm:mb-0">
                       <span className="truncate">
-                        Started by {discussion.creatorName}
-                        {discussion.creatorUsername && ` @${discussion.creatorUsername}`}
+                        {!shouldHideTestCreator(discussion.creatorName)
+                          ? `Started by ${discussion.creatorName}${discussion.creatorUsername ? ` @${discussion.creatorUsername}` : ''}`
+                          : ''}
                       </span>
                       <span className="flex-shrink-0">{TailorMatesService.formatDate(discussion.createdAt)}</span>
                     </div>
