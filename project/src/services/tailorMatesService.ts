@@ -840,25 +840,52 @@ export class TailorMatesService {
       const authUserId = await this.getCurrentUserId();
       await this.ensureUserExists(authUserId);
 
-      const { data, error } = await supabase
-        .rpc('delete_discussion', {
-          p_auth_user_id: authUserId,
-          p_discussion_id: discussionId
-        });
+      // Some environments expose delete_discussion(auth_user_id, discussion_id),
+      // others use delete_discussion(p_auth_user_id, p_discussion_id).
+      // Try the non-prefixed signature first, then fallback to p_ params.
+      let data: any = null;
+      let error: any = null;
+
+      const primaryCall = await supabase.rpc('delete_discussion', {
+        auth_user_id: authUserId,
+        discussion_id: discussionId
+      });
+
+      data = primaryCall.data;
+      error = primaryCall.error;
+
+      if (error) {
+        const shouldFallback =
+          error.code === 'PGRST202' ||
+          (typeof error.message === 'string' && error.message.includes('delete_discussion('));
+
+        if (shouldFallback) {
+          const fallbackCall = await supabase.rpc('delete_discussion', {
+            p_auth_user_id: authUserId,
+            p_discussion_id: discussionId
+          });
+          data = fallbackCall.data;
+          error = fallbackCall.error;
+        }
+      }
 
       if (error) {
         console.error('Error deleting discussion:', error);
         return { success: false, error: error.message };
       }
 
-      // Parse the JSON response from the database function
-      const result = typeof data === 'string' ? JSON.parse(data) : data;
-      
-      if (result.success) {
-        return { success: true };
-      } else {
-        return { success: false, error: result.error };
+      const rawResult = Array.isArray(data) ? data[0] : data;
+      const result = typeof rawResult === 'string' ? JSON.parse(rawResult) : rawResult;
+
+      if (typeof result === 'boolean') {
+        return result ? { success: true } : { success: false, error: 'Unable to delete discussion' };
       }
+
+      if (result?.success) {
+        return { success: true };
+      }
+
+      return { success: false, error: result?.error || 'Unable to delete discussion' };
     } catch (error) {
       console.error('Error in deleteDiscussion:', error);
       return { success: false, error: 'Failed to delete discussion' };
