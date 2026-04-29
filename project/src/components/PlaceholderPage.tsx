@@ -504,10 +504,10 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
 
           {/* Tab Navigation */}
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-1.5 sm:p-2 mb-4 sm:mb-6 md:mb-8 overflow-x-auto">
-            <div className="flex space-x-1 min-w-max sm:min-w-0">
+            <div className="flex space-x-1 min-w-max sm:min-w-0 sm:grid sm:grid-cols-4 sm:gap-2 sm:space-x-0 sm:w-full">
               <button
                 onClick={() => setActiveTab('personality')}
-                className={`flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap ${
+                className={`flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap sm:w-full sm:text-center ${
                   activeTab === 'personality'
                     ? 'bg-white/20 text-white shadow-lg'
                     : 'text-white/70 hover:text-white hover:bg-white/5'
@@ -517,7 +517,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
               </button>
                              <button
                  onClick={() => setActiveTab('favourites')}
-                 className={`flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap ${
+                 className={`flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap sm:w-full sm:text-center ${
                    activeTab === 'favourites'
                      ? 'bg-white/20 text-white shadow-lg'
                      : 'text-white/70 hover:text-white hover:bg-white/5'
@@ -527,7 +527,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                </button>
                <button
                  onClick={() => setActiveTab('profile-settings')}
-                 className={`flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap ${
+                 className={`flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap sm:w-full sm:text-center ${
                    activeTab === 'profile-settings'
                      ? 'bg-white/20 text-white shadow-lg'
                      : 'text-white/70 hover:text-white hover:bg-white/5'
@@ -537,7 +537,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title, description, o
                </button>
                <button
                  onClick={() => setActiveTab('help')}
-                 className={`flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap ${
+                 className={`flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap sm:w-full sm:text-center ${
                    activeTab === 'help'
                      ? 'bg-white/20 text-white shadow-lg'
                      : 'text-white/70 hover:text-white hover:bg-white/5'
